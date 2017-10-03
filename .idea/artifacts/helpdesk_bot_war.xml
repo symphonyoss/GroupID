@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="helpdesk-bot:war">
+    <output-path>$PROJECT_DIR$/helpdesk-bot/target</output-path>
+    <root id="archive" name="helpdesk-bot-1.0-SNAPSHOT.war">
+      <element id="artifact" artifact-name="helpdesk-bot:war exploded" />
+    </root>
+  </artifact>
+</component>

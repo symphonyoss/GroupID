@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>symphony-jpm-helpdesk</artifactId>
+        <groupId>com.symphony.bots</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>helpdesk-bot</artifactId>
+    <packaging>war</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <swagger.source.bot>${basedir}/src/main/resources/helpdesk-service-api.yaml</swagger.source.bot>
+        <templates.source>${basedir}/src/main/resources/templates-server</templates.source>
+        <helpdesk.api.package>com.symphony.api.helpdesk</helpdesk.api.package>
+        <helpdesk.api.path>com/symphony/api/helpdesk</helpdesk.api.path>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.symphony.bots</groupId>
+            <artifactId>helpdesk-web-service</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <classifier>classes</classifier>
+        </dependency>
+        <dependency>
+            <groupId>com.symphony.bots</groupId>
+            <artifactId>symphony-ai</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${war.plugin.version}</version>
+                <configuration>
+                    <webappDirectory>${basedir}/web</webappDirectory>
+                    <attachClasses>true</attachClasses>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>
