@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="war" name="helpdesk-web-service:war">
-    <output-path>$PROJECT_DIR$/helpdesk-web-service/target</output-path>
-    <root id="archive" name="helpdesk-web-service-1.0-SNAPSHOT.war">
-      <element id="artifact" artifact-name="helpdesk-web-service:war exploded" />
-    </root>
-  </artifact>
-</component>
