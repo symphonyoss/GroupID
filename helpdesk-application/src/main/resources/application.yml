@@ -1,0 +1,27 @@
+# For debugging purposes, uncomment following lines
+# logging:
+#   level:
+#     org.symphonyoss: DEBUG
+
+server:
+  address: 0.0.0.0
+  display-name: Help Desk Bot
+  context-path: /helpdesk
+  connection-timeout: 20000
+  ssl:
+    enabled: true
+    key-store: keystore.jks
+    key-store-password: changeit
+
+spring:
+  mvc:
+    dispatch-options-request: true
+    media-types:
+      json: application/json
+      xml: application/xml
+      csv: text/csv
+      plain: text/plain
+      x-www-form-urlencoded: application/x-www-form-urlencoded
+      form-data: multipart/form-data
+    servlet:
+      load-on-startup: 1
