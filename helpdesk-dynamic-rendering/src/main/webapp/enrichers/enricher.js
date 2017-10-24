@@ -22,7 +22,7 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
     const result = {
       template: `
         <messageML>
-          <action id="claimTicket" class="tempo-text-color--link"/>
+          <action id="claimTicket" class="tempo-btn tempo-btn--good"/>
         </messageML>
       `,
       data,
