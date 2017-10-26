@@ -3,16 +3,96 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.symphony.bots</groupId>
-    <artifactId>symphony-jpm-helpdesk</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
     <modules>
         <module>helpdesk-web-service</module>
         <module>helpdesk-bot</module>
         <module>symphony-ai</module>
+        <module>helpdesk-dynamic-rendering</module>
+        <module>helpdesk-application</module>
     </modules>
+
+    <parent>
+        <groupId>org.symphonyoss</groupId>
+        <artifactId>symphonyoss</artifactId>
+        <version>8</version>
+    </parent>
+
+    <groupId>org.symphonyoss.symphony.bots</groupId>
+    <artifactId>symphony-helpdesk</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <repositories>
+        <repository>
+            <id>oss-sonatype</id>
+            <name>oss-sonatype</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!-- Project Information -->
+    <name>Symphony HelpDesk Bot</name>
+    <description>Symphony HelpDesk Bot</description>
+    <url>https://github.com/symphonyoss/symphony-helpdesk-bot</url>
+    <inceptionYear>2017</inceptionYear>
+    <organization>
+        <name>Symphony</name>
+        <url>https://symphony.com/</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>tarsilon1</id>
+            <name>Nick Tarsilo</name>
+            <email>nick.tarsillo@symphony.com</email>
+            <roles>
+                <role>Software Engineer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>ardsilva</id>
+            <name>Alexandre Ribeiro da Silva</name>
+            <email>alexandre.ribeiro@symphony.com</email>
+            <roles>
+                <role>Software Engineer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>rsanchez</id>
+            <name>Robson Vinicius Vieira Sanchez</name>
+            <email>rsanchez@symphony.com</email>
+            <roles>
+                <role>Senior Software Engineer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <!-- Environment Settings -->
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://perzoinc.atlassian.net/projects/APP</url>
+    </issueManagement>
+
+    <ciManagement>
+        <system>jenkins</system>
+        <url>https://jenkins2.symphony.com</url>
+    </ciManagement>
+
+    <scm>
+        <connection>scm:git:git@github.com:symphonyoss/symphony-helpdesk-bot.git</connection>
+        <developerConnection>scm:git:git@github.com:symphonyoss/symphony-helpdesk-bot.git</developerConnection>
+        <url>https://github.com/symphonyoss/symphony-helpdesk-bot</url>
+    </scm>
 
     <properties>
         <build.helper.plugin.version>1.10</build.helper.plugin.version>
@@ -24,8 +104,10 @@
         <swagger-core-version>1.5.13</swagger-core-version>
         <jackson.version>2.7.3</jackson.version>
         <jersey.version>2.25.1</jersey.version>
+        <spring.boot.version>1.5.8.RELEASE</spring.boot.version>
     </properties>
 
+    <dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>io.swagger</groupId>
@@ -158,19 +240,124 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.12</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>${spring.boot.version}</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
     </dependencies>
+    </dependencyManagement>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>npm</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <file>
+                    <exists>${basedir}/package.json</exists>
+                </file>
+                <property>
+                    <name>env</name>
+                    <value>!dev</value>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>exec-npm</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>npm</executable>
+                                    <arguments>
+                                        <argument>install</argument>
+                                    </arguments>
+                                    <workingDirectory>${project.basedir}</workingDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>webpack</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <file>
+                    <exists>${basedir}/webpack.config.js</exists>
+                </file>
+                <property>
+                    <name>env</name>
+                    <value>!dev</value>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.6.0</version>
+                        <executions>
+                            <execution>
+                                <id>exec-webpack</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>npm</executable>
+                                    <arguments>
+                                        <argument>run</argument>
+                                        <argument>webpack</argument>
+                                    </arguments>
+                                    <workingDirectory>${project.basedir}</workingDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-resources-plugin</artifactId>
+                        <version>3.0.2</version>
+                        <executions>
+                            <execution>
+                                <id>copy-resources</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>copy-resources</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+                                    <resources>
+                                        <resource>
+                                            <directory>${project.build.directory}/static</directory>
+                                            <filtering>true</filtering>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
