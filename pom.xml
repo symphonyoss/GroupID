@@ -6,10 +6,8 @@
     <modules>
         <module>helpdesk-dynamic-rendering</module>
         <module>helpdesk-application</module>
-        <module>helpdesk-ticket-service</module>
         <module>helpdesk-maker-checker-service</module>
         <module>helpdesk-message-proxy-service</module>
-        <module>helpdesk-member-service</module>
     </modules>
 
     <parent>

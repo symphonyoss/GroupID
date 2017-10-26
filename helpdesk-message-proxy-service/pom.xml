@@ -13,7 +13,10 @@
 
     <!-- Project Information -->
     <name>Symphony HelpDesk Message Proxy Service</name>
-    <description>Module to manage services relationed with Symphony HelpDesk message proxy</description>
+    <description>The message proxy service handles all proxying of message. So every time the bot
+        receives a message, the message proxy service determines where the message should be
+        routed to. (Depending on the state of the ticket.)
+    </description>
 
 
 </project>

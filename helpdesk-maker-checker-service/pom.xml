@@ -13,7 +13,10 @@
 
     <!-- Project Information -->
     <name>Symphony HelpDesk Maker Checker Service</name>
-    <description>Module to manage services relationed with Symphony HelpDesk maker checker</description>
+    <description>The maker-checker service determines if a message requires validation from another
+        agent. It is also responsible for constructing a maker checker message to be sent into
+        Symphony, and rendered by the dynamic rendering app.
+    </description>
 
 
 </project>
