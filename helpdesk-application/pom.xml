@@ -11,6 +11,10 @@
 
     <artifactId>helpdesk-application</artifactId>
 
+    <!-- Project Information -->
+    <name>Symphony HelpDesk Application</name>
+    <description>Module to manage the Symphony HelpDesk application</description>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -9,10 +9,14 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>helpdesk-dynamic-rendering</artifactId>
+    <artifactId>helpdesk-message-proxy-service</artifactId>
 
     <!-- Project Information -->
-    <name>Symphony HelpDesk Dynamic Rendering</name>
-    <description>Module to manage the front end of Symphony HelpDesk</description>
+    <name>Symphony HelpDesk Message Proxy Service</name>
+    <description>The message proxy service handles all proxying of message. So every time the bot
+        receives a message, the message proxy service determines where the message should be
+        routed to. (Depending on the state of the ticket.)
+    </description>
+
 
 </project>
