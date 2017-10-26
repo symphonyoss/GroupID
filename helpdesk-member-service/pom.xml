@@ -11,5 +11,9 @@
 
     <artifactId>helpdesk-member-service</artifactId>
 
+    <!-- Project Information -->
+    <name>Symphony HelpDesk Member Service</name>
+    <description>Module to manage services relationed with Symphony HelpDesk members</description>
+
 
 </project>

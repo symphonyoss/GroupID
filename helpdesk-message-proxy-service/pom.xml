@@ -11,5 +11,9 @@
 
     <artifactId>helpdesk-message-proxy-service</artifactId>
 
+    <!-- Project Information -->
+    <name>Symphony HelpDesk Message Proxy Service</name>
+    <description>Module to manage services relationed with Symphony HelpDesk message proxy</description>
+
 
 </project>

@@ -11,4 +11,8 @@
 
     <artifactId>helpdesk-dynamic-rendering</artifactId>
 
+    <!-- Project Information -->
+    <name>Symphony HelpDesk Dynamic Rendering</name>
+    <description>Module to manage the front end of Symphony HelpDesk</description>
+
 </project>

@@ -11,5 +11,9 @@
 
     <artifactId>helpdesk-maker-checker-service</artifactId>
 
+    <!-- Project Information -->
+    <name>Symphony HelpDesk Maker Checker Service</name>
+    <description>Module to manage services relationed with Symphony HelpDesk maker checker</description>
+
 
 </project>
