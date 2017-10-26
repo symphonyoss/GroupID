@@ -9,6 +9,8 @@
         <module>symphony-ai</module>
         <module>helpdesk-dynamic-rendering</module>
         <module>helpdesk-application</module>
+        <module>helpdesk-maker-checker-service</module>
+        <module>helpdesk-message-proxy-service</module>
     </modules>
 
     <parent>
