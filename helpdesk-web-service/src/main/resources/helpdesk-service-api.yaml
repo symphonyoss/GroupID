@@ -86,6 +86,10 @@ paths:
           in: header
           required: true
           type: string
+        - name: clientStreamId
+          in: header
+          required: true
+          type: string
       consumes:
         - application/json
       produces:

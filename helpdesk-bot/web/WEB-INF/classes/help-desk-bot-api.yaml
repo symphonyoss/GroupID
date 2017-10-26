@@ -1,0 +1,72 @@
+swagger: '2.0'
+info:
+  version: '0.0.1'
+  title: Help Desk Bot
+  description:
+produces:
+  - application/json
+tags:
+  - Service
+schemes:
+  - http
+  - https
+basePath: '/helpdeskbot'
+paths:
+  '/v1/ticket/{ticketId}/accept':
+    post:
+      summary: Notify the help desk bot that a ticket has been accepted by an agent.
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          type: string
+        - name: agentId
+          in: header
+          required: true
+          type: string
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+      tags:
+        - Ticket
+  '/v1/makerchecker/accept':
+    post:
+      summary: Notify the help desk bot that a message has been accepted for sending by another agent.
+      parameters:
+        - name: message
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/MakerCheckerMessage'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+      tags:
+        - Ticket
+definitions:
+  SuccessResponse:
+    type: object
+    properties:
+      message:
+        type: string
+  MakerCheckerMessage:
+    type: object
+    properties:
+      streamId:
+        type: string
+      timeStamp:
+        type: string
+      messageId:
+        type: string

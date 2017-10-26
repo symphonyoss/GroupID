@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>symphony-jpm-helpdesk</artifactId>
-        <groupId>com.symphony.bots</groupId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>org.symphonyoss.symphony.bots</groupId>
+        <artifactId>symphony-helpdesk</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>symphony-ai</artifactId>
     <version>1.0-SNAPSHOT</version>
