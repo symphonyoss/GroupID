@@ -9,8 +9,8 @@ target/
 .classpath
 .settings
 .project
-.class
-.jar
+*.class
+*.jar
 
 #NPM
 node_modules/
