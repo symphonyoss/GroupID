@@ -4,6 +4,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymStream;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,5 +83,23 @@ public class SymphonyAiMessage extends AiMessage {
 
   public void setTimestamp(String timestamp) {
     this.timestamp = timestamp;
+  }
+
+  public SymMessage toSymMessage() {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setEntityData(entityData);
+    symMessage.setMessage(getAiMessage());
+
+    SymStream stream = new SymStream();
+    stream.setStreamId(streamId);
+    symMessage.setStream(stream);
+    symMessage.setStreamId(streamId);
+
+    symMessage.setFromUserId(Long.parseLong(fromUserId));
+    symMessage.setId(messageId);
+    symMessage.setTimestamp(timestamp);
+    symMessage.setAttachments(attachments);
+
+    return symMessage;
   }
 }

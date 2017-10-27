@@ -1,10 +1,10 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
-import org.symphonyoss.symphony.bots.ai.util.file.ExpiringFileLoaderCache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.symphony.bots.utility.file.ExpiringFileLoaderCache;
 
 /**
  * Created by nick.tarsillo on 8/20/17.

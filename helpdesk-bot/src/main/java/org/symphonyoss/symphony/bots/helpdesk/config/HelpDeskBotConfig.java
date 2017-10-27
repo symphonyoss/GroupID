@@ -1,11 +1,10 @@
 package org.symphonyoss.symphony.bots.helpdesk.config;
 
-import org.symphonyoss.symphony.bots.helpdesk.util.file.FileUtil;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.symphony.bots.utility.file.FileUtil;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,12 +27,11 @@ public class HelpDeskBotConfig {
   private String closeTicketCommand;
   private String acceptTicketCommand;
   private String addMemberCommand;
-  private String acceptTicketSuccessResponse;
+  private String acceptTicketAgentSuccessResponse;
+  private String acceptTicketClientSuccessResponse;
   private String closeTicketSuccessResponse;
   private String addMemberAgentSuccessResponse;
   private String addMemberClientSuccessResponse;
-  private String clientServiceNotificationResponse;
-  private String agentServiceNotificationResponse;
 
   public HelpDeskBotConfig(String groupId) {
     this.groupId = groupId;
@@ -121,18 +119,6 @@ public class HelpDeskBotConfig {
     this.acceptTicketCommand = acceptTicketCommand;
   }
 
-  public String getAcceptTicketSuccessResponse() {
-    if(StringUtils.isBlank(acceptTicketSuccessResponse)) {
-      return System.getProperty(DefaultBotConfig.AI_ACCEPT_TICKET_RESPONSE);
-    } else {
-      return acceptTicketSuccessResponse;
-    }
-  }
-
-  public void setAcceptTicketSuccessResponse(String acceptTicketSuccessResponse) {
-    this.acceptTicketSuccessResponse = acceptTicketSuccessResponse;
-  }
-
   public String getCloseTicketSuccessResponse() {
     if(StringUtils.isBlank(closeTicketSuccessResponse)) {
       return System.getProperty(DefaultBotConfig.AI_CLOSE_TICKET_RESPONSE);
@@ -169,28 +155,28 @@ public class HelpDeskBotConfig {
     this.addMemberClientSuccessResponse = addMemberClientSuccessResponse;
   }
 
-  public String getClientServiceNotificationResponse() {
-    if(StringUtils.isBlank(clientServiceNotificationResponse)) {
+  public String getAcceptTicketClientSuccessResponse() {
+    if(StringUtils.isBlank(acceptTicketClientSuccessResponse)) {
       return System.getProperty(DefaultBotConfig.AI_CLIENT_SERVICE_NOTIFICATION_RESPONSE);
     } else {
-      return clientServiceNotificationResponse;
+      return acceptTicketClientSuccessResponse;
     }
   }
 
-  public void setClientServiceNotificationResponse(String clientServiceNotificationResponse) {
-    this.clientServiceNotificationResponse = clientServiceNotificationResponse;
+  public void setAcceptTicketClientSuccessResponse(String acceptTicketClientSuccessResponse) {
+    this.acceptTicketClientSuccessResponse = acceptTicketClientSuccessResponse;
   }
 
-  public String getAgentServiceNotificationResponse() {
-    if(StringUtils.isBlank(agentServiceNotificationResponse)) {
+  public String getAcceptTicketAgentSuccessResponse() {
+    if(StringUtils.isBlank(acceptTicketAgentSuccessResponse)) {
       return System.getProperty(DefaultBotConfig.AI_AGENT_SERVICE_NOTIFICATION_RESPONSE);
     } else {
-      return agentServiceNotificationResponse;
+      return acceptTicketAgentSuccessResponse;
     }
   }
 
-  public void setAgentServiceNotificationResponse(String agentServiceNotificationResponse) {
-    this.agentServiceNotificationResponse = agentServiceNotificationResponse;
+  public void setAcceptTicketAgentSuccessResponse(String acceptTicketAgentSuccessResponse) {
+    this.acceptTicketAgentSuccessResponse = acceptTicketAgentSuccessResponse;
   }
 
   public void setGroupId(String groupId) {

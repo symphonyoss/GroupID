@@ -1,7 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.api.impl;
 
 import org.symphonyoss.symphony.bots.helpdesk.api.V1ApiService;
-import org.symphonyoss.symphony.bots.helpdesk.model.MakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.model.MakerCheckerMessageDetail;
 import org.symphonyoss.symphony.bots.helpdesk.model.SuccessResponse;
 
 import javax.ws.rs.core.Response;
@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
  */
 public abstract class V1AbstractHelpDeskApi implements V1ApiService {
   public abstract SuccessResponse acceptTicket(String ticketId, String agentId);
-  public abstract SuccessResponse acceptMakerCheckerMessage(MakerCheckerMessage makerCheckerMessage);
+  public abstract SuccessResponse acceptMakerCheckerMessage(MakerCheckerMessageDetail makerCheckerMessage);
 
   @Override
   public Response v1TicketTicketIdAcceptPost(String ticketId, String agentId) {
@@ -19,7 +19,7 @@ public abstract class V1AbstractHelpDeskApi implements V1ApiService {
   }
 
   @Override
-  public Response v1MakercheckerAcceptPost(MakerCheckerMessage makerCheckerMessage) {
+  public Response v1MakercheckerAcceptPost(MakerCheckerMessageDetail makerCheckerMessage) {
     return Response.ok(acceptMakerCheckerMessage(makerCheckerMessage)).build();
   }
 }

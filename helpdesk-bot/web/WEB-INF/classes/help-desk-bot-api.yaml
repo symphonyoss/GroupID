@@ -43,7 +43,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/MakerCheckerMessage'
+            $ref: '#/definitions/MakerCheckerMessageDetail'
       consumes:
         - application/json
       produces:
@@ -61,11 +61,15 @@ definitions:
     properties:
       message:
         type: string
-  MakerCheckerMessage:
+  MakerCheckerMessageDetail:
     type: object
     properties:
       streamId:
         type: string
+      proxyToStreamIds:
+        type: array
+        items:
+          type: string
       timeStamp:
         type: string
       messageId:

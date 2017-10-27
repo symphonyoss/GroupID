@@ -3,7 +3,7 @@
 // maven pom organized by organization.
 // ------------------------------------------------------------------
 
-helpdesk-bot
+Help Desk Bot
 
 
 From: 'an unknown organization'
@@ -141,9 +141,17 @@ From: 'Sun Microsystems, Inc' (http://www.sun.com/)
     License: CDDL License  (http://www.opensource.org/licenses/cddl1.php)
 
 From: 'Symphony' (https://symphony.com/)
+  - Symphony HelpDesk Ai (https://github.com/symphonyoss/symphony-helpdesk-bot/helpdesk-ai) org.symphonyoss.symphony.bots:helpdesk-ai:jar:1.0.0-SNAPSHOT
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Symphony HelpDesk Maker Checker Service (https://github.com/symphonyoss/symphony-helpdesk-bot/helpdesk-maker-checker-service) org.symphonyoss.symphony.bots:helpdesk-maker-checker-service:jar:1.0.0-SNAPSHOT
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Symphony HelpDesk Message Proxy Service (https://github.com/symphonyoss/symphony-helpdesk-bot/helpdesk-message-proxy-service) org.symphonyoss.symphony.bots:helpdesk-message-proxy-service:jar:1.0.0-SNAPSHOT
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
   - helpdesk-web-service (https://github.com/symphonyoss/symphony-helpdesk-bot/helpdesk-web-service) org.symphonyoss.symphony.bots:helpdesk-web-service:war:1.0-SNAPSHOT
     License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
-  - symphony-ai (https://github.com/symphonyoss/symphony-helpdesk-bot/symphony-ai) org.symphonyoss.symphony.bots:symphony-ai:jar:1.0-SNAPSHOT
+  - Symphony Ai (https://github.com/symphonyoss/symphony-helpdesk-bot/symphony-ai) org.symphonyoss.symphony.bots:symphony-ai:jar:1.0-SNAPSHOT
+    License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
+  - Symphony Utility (https://github.com/symphonyoss/symphony-helpdesk-bot/symphony-utility) org.symphonyoss.symphony.bots:symphony-utility:jar:1.0.0-SNAPSHOT
     License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
 
 From: 'Symphony Software Foundation' (https://symphony.foundation)

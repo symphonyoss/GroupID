@@ -4,9 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <modules>
+        <module>symphony-ai</module>
+        <module>symphony-utility</module>
         <module>helpdesk-web-service</module>
         <module>helpdesk-bot</module>
-        <module>symphony-ai</module>
+        <module>helpdesk-ai</module>
         <module>helpdesk-dynamic-rendering</module>
         <module>helpdesk-application</module>
         <module>helpdesk-maker-checker-service</module>
@@ -109,7 +111,6 @@
         <spring.boot.version>1.5.8.RELEASE</spring.boot.version>
     </properties>
 
-    <dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>io.swagger</groupId>
@@ -242,6 +243,10 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.12</version>
         </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-dependencies</artifactId>
@@ -254,7 +259,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring.boot.version}</version>
         </dependency>
-    </dependencies>
+        </dependencies>
     </dependencyManagement>
 
     <profiles>

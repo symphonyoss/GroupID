@@ -1,22 +1,22 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot;
 
-import org.symphonyoss.symphony.bots.helpdesk.config.BotStartupConfiguration;
-import org.symphonyoss.symphony.bots.helpdesk.config.DefaultBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.config.HelpDeskBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.model.HelpDeskBotSession;
-import org.symphonyoss.symphony.bots.helpdesk.model.ai.HelpDeskAi;
-import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.MakerCheckerService;
-import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.model.AgentExternalCheck;
-import org.symphonyoss.symphony.bots.helpdesk.service.membership.MembershipService;
-import org.symphonyoss.symphony.bots.helpdesk.service.messageproxy.MessageProxyService;
-import org.symphonyoss.symphony.bots.helpdesk.service.ticket.TicketService;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.impl.SymphonyBasicClient;
 import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
+import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
+import org.symphonyoss.symphony.bots.helpdesk.config.BotStartupConfiguration;
+import org.symphonyoss.symphony.bots.helpdesk.config.DefaultBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AgentExternalCheck;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
 
 /**
@@ -64,38 +64,48 @@ public class HelpDeskBot {
 
     HelpDeskBotConfig helpDeskBotConfig = HelpDeskBotConfig.getConfig(groupId);
 
-    HelpDeskBotSession helpDeskSession = new HelpDeskBotSession();
-    helpDeskSession.setGroupId(groupId);
-    helpDeskSession.setSymphonyClient(symClient);
-    helpDeskSession.setHelpDeskBotConfig(helpDeskBotConfig);
+    MembershipClient membershipClient = new MembershipClient(groupId, System.getProperty(DefaultBotConfig.TICKET_SERVICE_URL));
+    TicketClient ticketClient = new TicketClient(groupId, System.getProperty(DefaultBotConfig.TICKET_SERVICE_URL));
 
-    try {
-      helpDeskSession.setBotUser(symClient.getUsersClient().getUserFromEmail(configuration.getEmail()));
-    } catch (UsersClientException e) {
-      LOG.error("Failed to retrieve bot user: ", e);
-    }
+    HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
+    helpDeskAiSession.setMembershipClient(membershipClient);
+    helpDeskAiSession.setTicketClient(ticketClient);
+    helpDeskAiSession.setSymphonyClient(symClient);
 
-    HelpDeskAi helpDeskAi =
-        new HelpDeskAi(helpDeskSession.getSymphonyClient().getMessagesClient(), true,
-            System.getProperty(DefaultBotConfig.SESSION_CONTEXT_DIR), helpDeskSession);
-    helpDeskSession.setHelpDeskAi(helpDeskAi);
+    HelpDeskAiConfig helpDeskAiConfig = new HelpDeskAiConfig();
+    helpDeskAiConfig.setCloseTicketSuccessResponse(helpDeskBotConfig.getCloseTicketSuccessResponse());
+    helpDeskAiConfig.setAddMemberAgentSuccessResponse(helpDeskBotConfig.getAddMemberAgentSuccessResponse());
+    helpDeskAiConfig.setAddMemberClientSuccessResponse(helpDeskBotConfig.getAddMemberClientSuccessResponse());
+    helpDeskAiConfig.setAcceptTicketAgentSuccessResponse(helpDeskBotConfig.getAcceptTicketAgentSuccessResponse());
+    helpDeskAiConfig.setAcceptTicketAgentSuccessResponse(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
+    helpDeskAiConfig.setAcceptTicketCommand(helpDeskBotConfig.getAcceptTicketCommand());
+    helpDeskAiConfig.setCloseTicketCommand(helpDeskBotConfig.getCloseTicketCommand());
+    helpDeskAiConfig.setAddMemberCommand(helpDeskBotConfig.getAddMemberCommand());
+    helpDeskAiConfig.setDefaultPrefix(helpDeskBotConfig.getAiDefaultPrefix());
+    helpDeskAiConfig.setAgentServiceRoomPrefix(helpDeskBotConfig.getAiServicePrefix());
 
-    MakerCheckerService agentMakerCheckerService = new MakerCheckerService(helpDeskSession);
-    agentMakerCheckerService.addCheck(new AgentExternalCheck(helpDeskSession));
-    helpDeskSession.setAgentMakerCheckerService(agentMakerCheckerService);
+    helpDeskAiSession.setHelpDeskAiConfig(helpDeskAiConfig);
 
-    MakerCheckerService clientMakerCheckerService = new MakerCheckerService(helpDeskSession);
-    helpDeskSession.setClientMakerCheckerService(clientMakerCheckerService);
+    HelpDeskAi helpDeskAi = new HelpDeskAi(helpDeskAiSession);
 
-    MembershipService membershipService =
-        new MembershipService(helpDeskSession, System.getProperty(DefaultBotConfig.MEMBER_SERVICE_URL));
-    helpDeskSession.setMembershipService(membershipService);
+    MakerCheckerService agentMakerCheckerService =
+        new MakerCheckerService(helpDeskBotConfig.getMakerCheckerMessageTemplate(),
+            helpDeskBotConfig.getMakerCheckerEntityTemplate());
+    agentMakerCheckerService.addCheck(new AgentExternalCheck(ticketClient));
 
-    TicketService ticketService =
-        new TicketService(helpDeskSession, System.getProperty(DefaultBotConfig.TICKET_SERVICE_URL));
-    helpDeskSession.setTicketService(ticketService);
+    MakerCheckerService clientMakerCheckerService = new MakerCheckerService(helpDeskBotConfig.getMakerCheckerMessageTemplate(),
+        helpDeskBotConfig.getMakerCheckerEntityTemplate());
 
-    MessageProxyService messageProxyService = new MessageProxyService(helpDeskSession);
-    helpDeskSession.setMessageProxyService(messageProxyService);
+    MessageProxyServiceSession proxyServiceSession = new MessageProxyServiceSession();
+    proxyServiceSession.setGroupId(groupId);
+    proxyServiceSession.setHelpDeskAi(helpDeskAi);
+    proxyServiceSession.setSymphonyClient(symClient);
+    proxyServiceSession.setAgentMakerCheckerService(agentMakerCheckerService);
+    proxyServiceSession.setClientMakerCheckerService(clientMakerCheckerService);
+    proxyServiceSession.setMembershipClient(membershipClient);
+    proxyServiceSession.setTicketClient(ticketClient);
+
+    MessageProxyService messageProxyService = new MessageProxyService(proxyServiceSession);
+    symClient.getMessageService().addMessageListener(messageProxyService);
   }
 }

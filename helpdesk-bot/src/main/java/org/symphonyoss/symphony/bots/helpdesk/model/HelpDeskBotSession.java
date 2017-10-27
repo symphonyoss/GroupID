@@ -1,35 +1,34 @@
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
+
 package org.symphonyoss.symphony.bots.helpdesk.model;
 
-import org.symphonyoss.symphony.bots.helpdesk.config.HelpDeskBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.model.ai.HelpDeskAi;
-import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.MakerCheckerService;
-import org.symphonyoss.symphony.bots.helpdesk.service.membership.MembershipService;
-import org.symphonyoss.symphony.bots.helpdesk.service.messageproxy.MessageProxyService;
-import org.symphonyoss.symphony.bots.helpdesk.service.ticket.TicketService;
-
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.bots.helpdesk.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
-/**
- * Created by nick.tarsillo on 9/29/17.
- * Represents a session of a single help desk bot.
- */
 public class HelpDeskBotSession {
   private SymUser botUser;
   private SymphonyClient symphonyClient;
   private String agentRoomId;
-
   private String groupId;
   private HelpDeskAi helpDeskAi;
   private MakerCheckerService agentMakerCheckerService;
   private MakerCheckerService clientMakerCheckerService;
-  private TicketService ticketService;
-  private MembershipService membershipService;
+  private TicketClient ticketClient;
+  private MembershipClient membershipClient;
   private MessageProxyService messageProxyService;
   private HelpDeskBotConfig helpDeskBotConfig;
 
   public SymUser getBotUser() {
-    return botUser;
+    return this.botUser;
   }
 
   public void setBotUser(SymUser botUser) {
@@ -37,7 +36,7 @@ public class HelpDeskBotSession {
   }
 
   public SymphonyClient getSymphonyClient() {
-    return symphonyClient;
+    return this.symphonyClient;
   }
 
   public void setSymphonyClient(SymphonyClient symphonyClient) {
@@ -45,7 +44,7 @@ public class HelpDeskBotSession {
   }
 
   public String getGroupId() {
-    return groupId;
+    return this.groupId;
   }
 
   public void setGroupId(String groupId) {
@@ -53,7 +52,7 @@ public class HelpDeskBotSession {
   }
 
   public String getAgentRoomId() {
-    return agentRoomId;
+    return this.agentRoomId;
   }
 
   public void setAgentRoomId(String agentRoomId) {
@@ -61,42 +60,23 @@ public class HelpDeskBotSession {
   }
 
   public MakerCheckerService getAgentMakerCheckerService() {
-    return agentMakerCheckerService;
+    return this.agentMakerCheckerService;
   }
 
-  public void setAgentMakerCheckerService(
-      MakerCheckerService agentMakerCheckerService) {
+  public void setAgentMakerCheckerService(MakerCheckerService agentMakerCheckerService) {
     this.agentMakerCheckerService = agentMakerCheckerService;
   }
 
-  public TicketService getTicketService() {
-    return ticketService;
-  }
-
-  public void setTicketService(TicketService ticketService) {
-    this.ticketService = ticketService;
-  }
-
-  public MembershipService getMembershipService() {
-    return membershipService;
-  }
-
-  public void setMembershipService(
-      MembershipService membershipService) {
-    this.membershipService = membershipService;
-  }
-
   public MessageProxyService getMessageProxyService() {
-    return messageProxyService;
+    return this.messageProxyService;
   }
 
-  public void setMessageProxyService(
-      MessageProxyService messageProxyService) {
+  public void setMessageProxyService(MessageProxyService messageProxyService) {
     this.messageProxyService = messageProxyService;
   }
 
   public HelpDeskAi getHelpDeskAi() {
-    return helpDeskAi;
+    return this.helpDeskAi;
   }
 
   public void setHelpDeskAi(HelpDeskAi helpDeskAi) {
@@ -104,19 +84,36 @@ public class HelpDeskBotSession {
   }
 
   public MakerCheckerService getClientMakerCheckerService() {
-    return clientMakerCheckerService;
+    return this.clientMakerCheckerService;
   }
 
-  public void setClientMakerCheckerService(
-      MakerCheckerService clientMakerCheckerService) {
+  public void setClientMakerCheckerService(MakerCheckerService clientMakerCheckerService) {
     this.clientMakerCheckerService = clientMakerCheckerService;
   }
 
   public HelpDeskBotConfig getHelpDeskBotConfig() {
-    return helpDeskBotConfig;
+    return this.helpDeskBotConfig;
   }
 
   public void setHelpDeskBotConfig(HelpDeskBotConfig helpDeskBotConfig) {
     this.helpDeskBotConfig = helpDeskBotConfig;
+  }
+
+  public TicketClient getTicketClient() {
+    return ticketClient;
+  }
+
+  public void setTicketClient(
+      TicketClient ticketClient) {
+    this.ticketClient = ticketClient;
+  }
+
+  public MembershipClient getMembershipClient() {
+    return membershipClient;
+  }
+
+  public void setMembershipClient(
+      MembershipClient membershipClient) {
+    this.membershipClient = membershipClient;
   }
 }

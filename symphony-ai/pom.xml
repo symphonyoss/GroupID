@@ -12,5 +12,19 @@
     <artifactId>symphony-ai</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <name>Symphony Ai</name>
+    <description>
+        The Symphony Ai handles creating contextual conversations and command line commands
+        with a bot more easy through a set of interfaces.
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>symphony-utility</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
 
 </project>

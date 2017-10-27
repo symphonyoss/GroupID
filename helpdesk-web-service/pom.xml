@@ -13,6 +13,12 @@
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
 
+    <name>Symphony HelpDesk Web Service</name>
+    <description>
+        The helpdesk web service contains the underlying functionality of the membership and ticket
+        clients.
+    </description>
+
     <dependencies>
         <dependency>
             <groupId>com.brsanthu</groupId>
