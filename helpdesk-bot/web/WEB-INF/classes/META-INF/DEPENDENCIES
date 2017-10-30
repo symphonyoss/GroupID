@@ -147,7 +147,7 @@ From: 'Symphony' (https://symphony.com/)
     License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
   - Symphony HelpDesk Message Proxy Service (https://github.com/symphonyoss/symphony-helpdesk-bot/helpdesk-message-proxy-service) org.symphonyoss.symphony.bots:helpdesk-message-proxy-service:jar:1.0.0-SNAPSHOT
     License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
-  - helpdesk-web-service (https://github.com/symphonyoss/symphony-helpdesk-bot/helpdesk-web-service) org.symphonyoss.symphony.bots:helpdesk-web-service:war:1.0-SNAPSHOT
+  - Symphony HelpDesk Web Service (https://github.com/symphonyoss/symphony-helpdesk-bot/helpdesk-web-service) org.symphonyoss.symphony.bots:helpdesk-web-service:war:1.0-SNAPSHOT
     License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)
   - Symphony Ai (https://github.com/symphonyoss/symphony-helpdesk-bot/symphony-ai) org.symphonyoss.symphony.bots:symphony-ai:jar:1.0-SNAPSHOT
     License: Apache License, Version 2.0  (https://www.apache.org/licenses/LICENSE-2.0.txt)

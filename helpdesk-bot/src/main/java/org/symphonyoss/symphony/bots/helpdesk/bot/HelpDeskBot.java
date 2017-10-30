@@ -15,6 +15,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
+import org.symphonyoss.symphony.bots.helpdesk.model.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
@@ -62,10 +63,17 @@ public class HelpDeskBot {
       LOG.error("Authentication failed for bot: ", e);
     }
 
+    HelpDeskBotSession helpDeskBotSession = new HelpDeskBotSession();
+    helpDeskBotSession.setGroupId(groupId);
+    helpDeskBotSession.setSymphonyClient(symClient);
+
     HelpDeskBotConfig helpDeskBotConfig = HelpDeskBotConfig.getConfig(groupId);
+    helpDeskBotSession.setHelpDeskBotConfig(helpDeskBotConfig);
 
     MembershipClient membershipClient = new MembershipClient(groupId, System.getProperty(DefaultBotConfig.TICKET_SERVICE_URL));
     TicketClient ticketClient = new TicketClient(groupId, System.getProperty(DefaultBotConfig.TICKET_SERVICE_URL));
+    helpDeskBotSession.setTicketClient(ticketClient);
+    helpDeskBotSession.setMembershipClient(membershipClient);
 
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
     helpDeskAiSession.setMembershipClient(membershipClient);
@@ -87,14 +95,17 @@ public class HelpDeskBot {
     helpDeskAiSession.setHelpDeskAiConfig(helpDeskAiConfig);
 
     HelpDeskAi helpDeskAi = new HelpDeskAi(helpDeskAiSession);
+    helpDeskBotSession.setHelpDeskAi(helpDeskAi);
 
     MakerCheckerService agentMakerCheckerService =
         new MakerCheckerService(helpDeskBotConfig.getMakerCheckerMessageTemplate(),
             helpDeskBotConfig.getMakerCheckerEntityTemplate());
     agentMakerCheckerService.addCheck(new AgentExternalCheck(ticketClient));
+    helpDeskBotSession.setAgentMakerCheckerService(agentMakerCheckerService);
 
     MakerCheckerService clientMakerCheckerService = new MakerCheckerService(helpDeskBotConfig.getMakerCheckerMessageTemplate(),
         helpDeskBotConfig.getMakerCheckerEntityTemplate());
+    helpDeskBotSession.setClientMakerCheckerService(clientMakerCheckerService);
 
     MessageProxyServiceSession proxyServiceSession = new MessageProxyServiceSession();
     proxyServiceSession.setGroupId(groupId);
@@ -107,5 +118,6 @@ public class HelpDeskBot {
 
     MessageProxyService messageProxyService = new MessageProxyService(proxyServiceSession);
     symClient.getMessageService().addMessageListener(messageProxyService);
+    helpDeskBotSession.setMessageProxyService(messageProxyService);
   }
 }

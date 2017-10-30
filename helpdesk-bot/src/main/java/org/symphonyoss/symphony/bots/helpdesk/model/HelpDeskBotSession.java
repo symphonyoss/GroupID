@@ -15,9 +15,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 public class HelpDeskBotSession {
-  private SymUser botUser;
   private SymphonyClient symphonyClient;
-  private String agentRoomId;
   private String groupId;
   private HelpDeskAi helpDeskAi;
   private MakerCheckerService agentMakerCheckerService;
@@ -26,14 +24,6 @@ public class HelpDeskBotSession {
   private MembershipClient membershipClient;
   private MessageProxyService messageProxyService;
   private HelpDeskBotConfig helpDeskBotConfig;
-
-  public SymUser getBotUser() {
-    return this.botUser;
-  }
-
-  public void setBotUser(SymUser botUser) {
-    this.botUser = botUser;
-  }
 
   public SymphonyClient getSymphonyClient() {
     return this.symphonyClient;
@@ -49,14 +39,6 @@ public class HelpDeskBotSession {
 
   public void setGroupId(String groupId) {
     this.groupId = groupId;
-  }
-
-  public String getAgentRoomId() {
-    return this.agentRoomId;
-  }
-
-  public void setAgentRoomId(String agentRoomId) {
-    this.agentRoomId = agentRoomId;
   }
 
   public MakerCheckerService getAgentMakerCheckerService() {

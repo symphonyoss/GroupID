@@ -11,6 +11,7 @@ target/
 .project
 *.class
 *.jar
+*.DS_Store
 
 #NPM
 node_modules/
