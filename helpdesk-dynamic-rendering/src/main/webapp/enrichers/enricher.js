@@ -1,9 +1,11 @@
 import { MessageEnricherBase } from 'symphony-integration-commons';
+import actionFactory from '../utils/actionFactory';
+
+const actions = require('../templates/actions.hbs');
 
 const enricherServiceName = 'helpdesk-enricher';
 const messageEvents = [
   'com.symphony.bots.helpdesk.event.ticket',
-  // 'com.symphony.bots.helpdesk.event.ticket.v2',
 ];
 
 export default class HelpDeskBotEnricher extends MessageEnricherBase {
@@ -12,37 +14,25 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    const data = {
-      claimTicket: {
-        service: enricherServiceName,
-        label: 'Claim',
-        data: entity,
-      },
+    const claimTicketAction = {
+      id: 'claimTicket',
+      service: enricherServiceName,
+      type: 'openDialog',
+      label: 'Claim',
     };
 
+    const data = actionFactory([claimTicketAction], enricherServiceName, entity);
+
     const result = {
-      template: `
-        <messageML>
-          <action id="claimTicket" class="tempo-btn tempo-btn--good"/>
-        </messageML>
-      `,
+      template: actions(),
       data,
     };
 
     return result;
   }
 
-  // action(data) {
-  //   const dialogTemplate = `
-  //     <dialog>
-  //         <h1>Hey</h1>        
-  //     </dialog>
-  //   `;
-
-  //   this.dialogsService.show('action', 'issueRendered-renderer', dialogTemplate, {}, {});
-  //   console.log("click");
-  // }
   action(data) {
     console.log(data);
   }
 }
+
