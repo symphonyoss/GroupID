@@ -2,7 +2,7 @@ import { MessageEnricherBase } from 'symphony-integration-commons';
 
 const enricherServiceName = 'helpdesk-enricher';
 const messageEvents = [
-  'com.symphony.bots.helpdesk.event.ticket',
+  'com.symphony.bots.helpdesk.event.ticket.v2',
 ];
 
 export default class HelpDeskBotEnricher extends MessageEnricherBase {
@@ -14,7 +14,7 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
     const data = {
       claimTicket: {
         service: enricherServiceName,
-        label: 'Claim',
+        label: 'Claim IT',
         data: entity,
       },
     };
@@ -32,6 +32,13 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
   }
 
   action(data) {
-    console.log(data);
+    const dialogTemplate = `
+      <dialog>
+          <h1>Hey</h1>        
+      </dialog>
+    `;
+
+    this.dialogsService.show('action', 'issueRendered-renderer', dialogTemplate, {}, {});
+    console.log("click");
   }
 }
