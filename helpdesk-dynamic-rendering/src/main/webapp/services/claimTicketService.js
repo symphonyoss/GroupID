@@ -1,8 +1,6 @@
-import BaseService from './baseService';
-
-export default class ClaimTicketService extends BaseService {
+export default class ClaimTicketService {
     constructor(serviceName) {
-      super(serviceName);
+      this.serviceName = serviceName;
     
     }
 }
