@@ -17,7 +17,7 @@ import javax.ws.rs.InternalServerErrorException;
 /**
  * Created by nick.tarsillo on 9/25/17.
  */
-public class MembershipSQLService implements MembershipDoa {
+public class MembershipSQLService implements MembershipDao {
   private static final Logger LOG = LoggerFactory.getLogger(MembershipSQLService.class);
   private static final ObjectMapper objectMapper = new ObjectMapper();
 

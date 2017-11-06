@@ -19,7 +19,7 @@ import javax.ws.rs.InternalServerErrorException;
 /**
  * Created by nick.tarsillo on 9/25/17.
  */
-public class TicketSQLService implements TicketDoa {
+public class TicketSQLService implements TicketDao {
   private static final Logger LOG = LoggerFactory.getLogger(TicketSQLService.class);
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
