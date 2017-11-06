@@ -17,6 +17,19 @@
         receives a message, the message proxy service determines where the message should be
         routed to. (Depending on the state of the ticket.)
     </description>
+    <dependencies>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>helpdesk-web-service</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <classifier>classes</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>helpdesk-ai</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 
 </project>
