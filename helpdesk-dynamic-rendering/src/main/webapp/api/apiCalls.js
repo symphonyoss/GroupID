@@ -1,7 +1,4 @@
 import axios from 'axios';
-import { getIntegrationBaseUrl } from 'symphony-integration-commons';
-
-const baseUrl = getIntegrationBaseUrl();
 
 const rejectPromise = (error) => {
   const response = error.response || {};
@@ -9,17 +6,16 @@ const rejectPromise = (error) => {
   return Promise.reject(new Error(status));
 };
 
+const extendedUserService = SYMPHONY.services.subscribe('extended-user-service');
+
 export const claimTicket = (data) => {
-  const id = data.entity.id;
-  const apiUrl = `${baseUrl}/v1/ticket/${id}`;
+  const ticketId = data.entity.id;
+  const apiUrl = `${data.entity.url}/${ticketId}`;
   return axios({
     method: 'post',
     url: apiUrl,
-    params: {
-      url,
-    },
-    data: {
-      body: '',
+    headers: {
+      userId: extendedUserService.getUserId,
     },
   }).catch(error => rejectPromise(error));
 };
