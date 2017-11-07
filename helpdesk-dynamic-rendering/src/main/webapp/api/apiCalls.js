@@ -6,16 +6,21 @@ const rejectPromise = (error) => {
   return Promise.reject(new Error(status));
 };
 
-const extendedUserService = SYMPHONY.services.subscribe('extended-user-service');
+export const getUserId = () => {
+  const extendedUserService = SYMPHONY.services.subscribe('extended-user-service');
+  return extendedUserService.getUserId();
+};
 
 export const claimTicket = (data) => {
-  const ticketId = data.entity.id;
-  const apiUrl = `${data.entity.url}/${ticketId}`;
-  return axios({
-    method: 'post',
-    url: apiUrl,
-    headers: {
-      userId: extendedUserService.getUserId,
-    },
+  const apiUrl = `${data.entity.url}`;
+  return getUserId().then((userId) => {
+    const idUser = userId;
+    return axios({
+      method: 'post',
+      url: apiUrl,
+      headers: {
+        AgentId: idUser,
+      },
+    });
   }).catch(error => rejectPromise(error));
 };
