@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.symphonyoss.symphony.bots</groupId>
+        <artifactId>symphony-helpdesk</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>helpdesk-bot</artifactId>
+    <packaging>war</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <swagger.source.bot>${basedir}/src/main/resources/help-desk-bot-api.yaml</swagger.source.bot>
+        <templates.source>${basedir}/src/main/resources/templates-server</templates.source>
+        <helpdesk.api.package>org.symphonyoss.symphony.bots.helpdesk</helpdesk.api.package>
+        <helpdesk.api.path>org/symphonyoss/symphony/api/helpdesk</helpdesk.api.path>
+    </properties>
+
+    <name>Help Desk Bot</name>
+    <description>The Help Desk Bot</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>helpdesk-web-service</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <classifier>classes</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>symphony-ai</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>helpdesk-maker-checker-service</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>helpdesk-message-proxy-service</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${war.plugin.version}</version>
+                <configuration>
+                    <webappDirectory>${basedir}/web</webappDirectory>
+                    <attachClasses>true</attachClasses>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>${swagger-codegen-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>jaxrs</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${swagger.source.bot}</inputSpec>
+                            <language>jaxrs</language>
+                            <templateDirectory>src/main/resources/templates-server</templateDirectory>
+                            <configOptions>
+                                <sourceFolder>src/main/java</sourceFolder>
+                                <apiPackage>${helpdesk.api.package}.api</apiPackage>
+                                <modelPackage>${helpdesk.api.package}.model</modelPackage>
+                                <library>jersey2</library>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
+</project>

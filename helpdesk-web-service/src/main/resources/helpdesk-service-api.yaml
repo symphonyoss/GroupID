@@ -1,0 +1,280 @@
+swagger: '2.0'
+info:
+  version: '0.0.1'
+  title: Help Desk Web Service
+  description:
+produces:
+  - application/json
+tags:
+  - Service
+schemes:
+  - http
+  - https
+basePath: '/helpdesk'
+paths:
+  '/v1/ticket/{id}/delete':
+    post:
+      summary: Delete a ticket.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+      tags:
+        - Ticket
+  '/v1/ticket/create':
+    post:
+      summary: Create a ticket.
+      parameters:
+        - name: ticket
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Ticket'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/TicketResponse'
+      tags:
+        - Ticket
+  '/v1/ticket/{id}/get':
+    get:
+      summary: Get a ticket.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/TicketResponse'
+      tags:
+        - Ticket
+  '/v1/ticket/search':
+    get:
+      summary: Search for a ticket.
+      parameters:
+        - name: id
+          in: header
+          required: true
+          type: string
+        - name: groupId
+          in: header
+          required: true
+          type: string
+        - name: serviceStreamId
+          in: header
+          required: true
+          type: string
+        - name: clientStreamId
+          in: header
+          required: true
+          type: string
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/TicketSearchResponse'
+      tags:
+        - Ticket
+  '/v1/ticket/{id}/update':
+    post:
+      summary: Update a ticket.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: ticket
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Ticket'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/TicketResponse'
+      tags:
+        - Ticket
+  '/v1/membership/{id}/{groupId}/delete':
+    post:
+      summary: Delete a membership.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: groupId
+          in: path
+          required: true
+          type: string
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+      tags:
+        - Membership
+  '/v1/membership/create':
+    post:
+      summary: Create a membership.
+      parameters:
+        - name: membership
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Membership'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/MembershipResponse'
+      tags:
+        - Membership
+  '/v1/membership/{id}/{groupId}/get':
+    get:
+      summary: Get a membership.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: groupId
+          in: path
+          required: true
+          type: string
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/MembershipResponse'
+      tags:
+        - Membership
+  '/v1/membership/{id}/{groupId}/update':
+    post:
+      summary: Update a membership.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: groupId
+          in: path
+          required: true
+          type: string
+        - name: ticket
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Membership'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/MembershipResponse'
+      tags:
+        - Membership
+definitions:
+  Ticket:
+    type: object
+    properties:
+      id:
+        type: string
+      groupId:
+        type: string
+      serviceStreamId:
+        type: string
+      clientStreamId:
+        type: string
+      state:
+        type: string
+        description: |
+          Accepted states - UNSERVICED, UNRESOLVED, RESOLVED
+      transcript:
+        type: array
+        items:
+          type: string
+  Membership:
+    type: object
+    properties:
+      groupId:
+        type: string
+      id:
+        type: string
+      type:
+        type: string
+        description: |
+          Accepted types - AGENT, CLIENT
+  MembershipResponse:
+    type: object
+    properties:
+      message:
+        type: string
+      membership:
+        $ref: '#/definitions/Membership'
+  TicketResponse:
+    type: object
+    properties:
+      message:
+        type: string
+      ticket:
+        $ref: '#/definitions/Ticket'
+  TicketSearchResponse:
+    type: object
+    properties:
+      message:
+        type: string
+      ticketList:
+        type: array
+        items:
+          $ref: '#/definitions/Ticket'
+  SuccessResponse:
+    type: object
+    properties:
+      message:
+        type: string

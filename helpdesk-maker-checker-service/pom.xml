@@ -17,6 +17,19 @@
         agent. It is also responsible for constructing a maker checker message to be sent into
         Symphony, and rendered by the dynamic rendering app.
     </description>
+    <dependencies>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>symphony-utility</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>helpdesk-web-service</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <classifier>classes</classifier>
+        </dependency>
+    </dependencies>
 
 
 </project>
