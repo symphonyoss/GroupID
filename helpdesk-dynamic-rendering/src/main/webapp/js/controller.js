@@ -7,7 +7,7 @@ const controllerName = 'helpdesk:controller';
 
 const registerApp = () => {
   enricher.init();
-  return SYMPHONY.application.register(appId, ['ui', 'entity'], [controllerName, enricher.name]);
+  return SYMPHONY.application.register(appId, ['ui', 'entity', 'extended-user-service'], [controllerName, enricher.name]);
 };
 
 SYMPHONY.services.register(controllerName);

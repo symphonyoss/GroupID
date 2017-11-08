@@ -1,4 +1,8 @@
 import { MessageEnricherBase } from 'symphony-integration-commons';
+import actionFactory from '../utils/actionFactory';
+import ClaimTicketService from '../services/claimTicketService';
+
+const actions = require('../templates/actions.hbs');
 
 const enricherServiceName = 'helpdesk-enricher';
 const messageEvents = [
@@ -8,23 +12,26 @@ const messageEvents = [
 export default class HelpDeskBotEnricher extends MessageEnricherBase {
   constructor() {
     super(enricherServiceName, messageEvents);
+
+    const claimTicketService = new ClaimTicketService(enricherServiceName);
+
+    this.services = {
+      claimTicketService,
+    };
   }
 
   enrich(type, entity) {
-    const data = {
-      claimTicket: {
-        service: enricherServiceName,
-        label: 'Claim',
-        data: entity,
-      },
+    const claimTicketAction = {
+      id: 'claimTicket',
+      service: enricherServiceName,
+      type: 'claimTicket',
+      label: 'Claim',
     };
 
+    const data = actionFactory([claimTicketAction], enricherServiceName, entity);
+
     const result = {
-      template: `
-        <messageML>
-          <action id="claimTicket" class="tempo-btn tempo-btn--good"/>
-        </messageML>
-      `,
+      template: actions(),
       data,
     };
 
@@ -32,6 +39,7 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
   }
 
   action(data) {
-    console.log(data);
+    this.services.claimTicketService.claim(data);
   }
 }
+
