@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.RoomException;
 import org.symphonyoss.client.model.Chat;
 import org.symphonyoss.client.model.Room;
@@ -11,15 +12,19 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
 import org.symphonyoss.symphony.bots.ai.impl.AiSymphonyChatListener;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimMessageTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
 import org.symphonyoss.symphony.clients.model.SymUser;
+import org.symphonyoss.symphony.pod.model.Stream;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -89,6 +94,7 @@ public class MessageProxyService implements MessageListener {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
         ticket = session.getTicketClient().createTicket(
             ticketId, newServiceStream(ticketId, streamId), streamId, symMessage.getMessageText());
+        sendClaimTicketMessage(ticketId);
         createClientProxy(ticket, symMessage);
       } else if(!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, symMessage);
@@ -166,6 +172,27 @@ public class MessageProxyService implements MessageListener {
     chat.addListener(chatListener);
 
     return chatListener;
+  }
+
+  private void sendClaimTicketMessage(String ticketId) {
+    MessageTemplate messageTemplate = new MessageTemplate(session.getClaimMessageTemplate());
+    MessageTemplate entityTemplate = new MessageTemplate(session.getClaimEntityTemplate());
+    ClaimMessageTemplateData messageTemplateData = new ClaimMessageTemplateData(ticketId);
+    ClaimEntityTemplateData entityTemplateData = new ClaimEntityTemplateData(ticketId);
+    String message = messageTemplate.buildFromData(messageTemplateData);
+    String entity = entityTemplate.buildFromData(entityTemplateData);
+
+    SymMessage symphonyMessage = new SymMessage();
+    symphonyMessage.setMessage(message);
+    symphonyMessage.setEntityData(entity);
+    symphonyMessage.setStreamId(session.getAgentStreamId());
+    Stream stream = new Stream();
+    stream.setId(session.getAgentStreamId());
+    try {
+      session.getSymphonyClient().getMessagesClient().sendMessage(stream, symphonyMessage);
+    } catch (MessagesException e) {
+      LOG.error("Failed to send claim message: ", e);
+    }
   }
 
   /**

@@ -10,12 +10,14 @@ public class MakerCheckerMessage {
   private List<String> proxyToStreamIds;
   private String timeStamp;
   private String messageId;
+  private String groupId;
 
-  public MakerCheckerMessage(String streamId, List<String> proxyToStreamIds, String timeStamp, String messageId) {
+  public MakerCheckerMessage(String streamId, List<String> proxyToStreamIds, String timeStamp, String messageId, String groupId) {
     this.streamId = streamId;
     this.proxyToStreamIds = proxyToStreamIds;
     this.timeStamp = timeStamp;
     this.messageId = messageId;
+    this.groupId = groupId;
   }
 
   public String getStreamId() {
@@ -48,5 +50,13 @@ public class MakerCheckerMessage {
 
   public void setProxyToStreamIds(List<String> proxyToStreamIds) {
     this.proxyToStreamIds = proxyToStreamIds;
+  }
+
+  public String getGroupId() {
+    return groupId;
+  }
+
+  public void setGroupId(String groupId) {
+    this.groupId = groupId;
   }
 }

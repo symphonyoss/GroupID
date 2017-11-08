@@ -2,7 +2,11 @@ package org.symphonyoss.symphony.bots.helpdesk.service.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.MembershipApi;
+import org.symphonyoss.symphony.bots.helpdesk.service.api.TicketApi;
+import org.symphonyoss.symphony.bots.helpdesk.service.config.HelpDeskServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 
 /**
@@ -43,7 +47,7 @@ public class MembershipClient {
    */
   public Membership getMembership(String userId) {
     try {
-      return membershipApi.v1MembershipIdGroupIdGetGet(userId, groupId).getMembership();
+      return membershipApi.getMembership(userId, groupId).getMembership();
     } catch (ApiException e) {
       LOG.error("Failed to get membership: ", e);
     }
@@ -62,7 +66,7 @@ public class MembershipClient {
     membership.setGroupId(groupId);
     membership.setType(MembershipType.CLIENT.getType());
     try {
-      Membership newMembership = membershipApi.v1MembershipCreatePost(membership).getMembership();
+      Membership newMembership = membershipApi.createMembership(membership).getMembership();
       LOG.info("Created new client membership for userid: " + userId);
       return newMembership;
     } catch (ApiException e) {
@@ -78,7 +82,7 @@ public class MembershipClient {
    */
   public Membership updateMembership(Membership membership) {
     try {
-      Membership updateMembership = membershipApi.v1MembershipIdGroupIdUpdatePost(membership.getId(), groupId, membership).getMembership();
+      Membership updateMembership = membershipApi.updateMembership(membership.getId(), groupId, membership).getMembership();
       LOG.info("Promoted client to agent for userid: " + membership.getId());
       return updateMembership;
     } catch (ApiException e) {

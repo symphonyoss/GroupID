@@ -2,7 +2,10 @@ package org.symphonyoss.symphony.bots.helpdesk.service.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.TicketApi;
+import org.symphonyoss.symphony.bots.helpdesk.service.config.HelpDeskServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 
 import java.util.List;
@@ -47,7 +50,7 @@ public class TicketClient {
    */
   public Ticket getTicket(String ticketId) {
     try {
-      return ticketApi.v1TicketIdGetGet(ticketId).getTicket();
+      return ticketApi.getTicket(ticketId).getTicket();
     } catch (ApiException e) {
       LOG.error("Get ticket failed: ", e);
     }
@@ -71,7 +74,7 @@ public class TicketClient {
     ticket.setState(TicketStateType.UNSERVICED.getState());
     ticket.addTranscriptItem(transcript);
     try {
-      return ticketApi.v1TicketCreatePost(ticket).getTicket();
+      return ticketApi.createTicket(ticket).getTicket();
     } catch (ApiException e) {
       LOG.error("Creating ticket failed: ", e);
     }
@@ -86,7 +89,7 @@ public class TicketClient {
    */
   public Ticket getTicketByServiceStreamId(String serviceStreamId) {
     try {
-      List<Ticket> ticketList = ticketApi.v1TicketSearchGet(null, groupId, serviceStreamId, null).getTicketList();
+      List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, serviceStreamId, null).getTicketList();
       if(!ticketList.isEmpty()) {
         return ticketList.get(0);
       }
@@ -104,7 +107,7 @@ public class TicketClient {
    */
   public Ticket getTicketByClientStreamId(String clientStreamId) {
     try {
-      List<Ticket> ticketList = ticketApi.v1TicketSearchGet(null, groupId, null, clientStreamId).getTicketList();
+      List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, null, clientStreamId).getTicketList();
       if(!ticketList.isEmpty()) {
         return ticketList.get(0);
       }
@@ -122,7 +125,7 @@ public class TicketClient {
    */
   public Ticket updateTicket(Ticket ticket) {
     try {
-      return ticketApi.v1TicketIdUpdatePost(ticket.getId(), ticket).getTicket();
+      return ticketApi.updateTicket(ticket.getId(), ticket).getTicket();
     } catch (ApiException e) {
       LOG.error("Updating ticket failed: ", e);
     }
