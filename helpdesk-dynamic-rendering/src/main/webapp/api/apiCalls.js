@@ -19,7 +19,7 @@ export const claimTicket = (data) => {
       method: 'post',
       url: apiUrl,
       headers: {
-        AgentId: idUser,
+        agentId: idUser,
       },
     });
   }).catch(error => rejectPromise(error));

@@ -8,24 +8,24 @@ export default class ClaimTicketService {
   claim(data) {
     claimTicket(data)
       .then(() => {
-        // TODO
+        // TODO APP-1349
       })
       .catch((error) => {
         switch (error.message) {
           case '400': {
-            // TODO need a definition of error message
+            // TODO APP-1455
             break;
           }
           case '401': {
-            // TODO need a definition of error message
+            // TODO APP-1455
             break;
           }
           case '404': {
-            // TODO need a definition of error message
+            // TODO APP-1455
             break;
           }
           default: {
-            // TODO need a definition of error message
+            // TODO APP-1455
             break;
           }
         }

@@ -2,7 +2,7 @@ import 'babel-polyfill';
 import HelpDeskBotEnricher from '../enrichers/enricher';
 
 const enricher = new HelpDeskBotEnricher();
-const appId = 'dev-helpdeskbot';
+const appId = 'helpdesk';
 const controllerName = 'helpdesk:controller';
 
 const registerApp = () => {
