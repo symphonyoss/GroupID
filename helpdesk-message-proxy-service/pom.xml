@@ -22,7 +22,6 @@
             <groupId>org.symphonyoss.symphony.bots</groupId>
             <artifactId>helpdesk-web-service</artifactId>
             <version>1.0.0-SNAPSHOT</version>
-            <classifier>classes</classifier>
         </dependency>
         <dependency>
             <groupId>org.symphonyoss.symphony.bots</groupId>
