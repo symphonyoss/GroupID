@@ -5,7 +5,7 @@
          version="3.1">
     <servlet>
         <servlet-name>HelpDeskService</servlet-name>
-        <servlet-class>org.symphonyoss.symphony.bots.helpdesk.service.init.HelpDeskServiceInit</servlet-class>
+        <servlet-class>org.symphonyoss.symphony.bots.helpdesk.service.init.SpringHelpDeskServiceInit</servlet-class>
         <init-param>
             <param-name>standalone</param-name>
             <param-value>true</param-value>

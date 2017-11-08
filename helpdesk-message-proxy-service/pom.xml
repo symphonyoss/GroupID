@@ -22,12 +22,21 @@
             <groupId>org.symphonyoss.symphony.bots</groupId>
             <artifactId>helpdesk-web-service</artifactId>
             <version>1.0.0-SNAPSHOT</version>
-            <classifier>classes</classifier>
         </dependency>
         <dependency>
             <groupId>org.symphonyoss.symphony.bots</groupId>
             <artifactId>helpdesk-ai</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>helpdesk-maker-checker-service</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.symphonyoss.symphony.bots</groupId>
+            <artifactId>symphony-ai</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

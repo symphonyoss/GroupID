@@ -2,14 +2,14 @@ package org.symphonyoss.symphony.bots.helpdesk.makerchecker;
 
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.Checker;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.EntityTemplateData;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MessageTemplateData;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessageTemplateData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
-import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.pod.model.Stream;
 
@@ -27,14 +27,12 @@ import javax.ws.rs.InternalServerErrorException;
 public class MakerCheckerService {
   private static final Logger LOG = LoggerFactory.getLogger(MakerCheckerService.class);
 
-  private MessagesClient messagesClient;
   private Set<Checker> checkerSet = new HashSet<>();
-  private String messageTemplate;
-  private String entityTemplate;
 
-  public MakerCheckerService(String messageTemplate, String entityTemplate) {
-    this.messageTemplate = messageTemplate;
-    this.entityTemplate = entityTemplate;
+  private MakerCheckerServiceSession session;
+
+  public MakerCheckerService(MakerCheckerServiceSession session) {
+    this.session = session;
   }
 
   /**
@@ -65,7 +63,7 @@ public class MakerCheckerService {
     stream.setId(makerCheckerMessage.getStreamId());
     try {
       List<SymMessage> symMessageList =
-          messagesClient.getMessagesFromStream(
+          session.getSymphonyClient().getMessagesClient().getMessagesFromStream(
               stream, Long.parseLong(makerCheckerMessage.getTimeStamp()) - 1, 0, 10);
 
       SymMessage match = null;
@@ -77,7 +75,7 @@ public class MakerCheckerService {
 
       for(String streamId: makerCheckerMessage.getProxyToStreamIds()) {
         stream.setId(streamId);
-        messagesClient.sendMessage(stream, match);
+        session.getSymphonyClient().getMessagesClient().sendMessage(stream, match);
       }
     } catch (MessagesException e) {
       LOG.error("Error accepting maker checker message: ", e);
@@ -104,13 +102,14 @@ public class MakerCheckerService {
     checkerMessage.setStream(symMessage.getStream());
     checkerMessage.setStreamId(symMessage.getStreamId());
 
-    MessageTemplate messageTemplate = new MessageTemplate(this.messageTemplate);
-    MessageTemplate entityTemplate = new MessageTemplate(this.entityTemplate);
-    checkerMessage.setMessage(messageTemplate.buildFromData(new MessageTemplateData(message)));
-    checkerMessage.setEntityData(entityTemplate.buildFromData(new EntityTemplateData(symMessage, proxyToIds)));
+    MessageTemplate messageTemplate = new MessageTemplate(session.getMessageTemplate());
+    MessageTemplate entityTemplate = new MessageTemplate(session.getEntityTemplate());
+    checkerMessage.setMessage(messageTemplate.buildFromData(new MakerCheckerMessageTemplateData(message)));
+    checkerMessage.setEntityData(entityTemplate.buildFromData(new MakerCheckerEntityTemplateData(symMessage, proxyToIds)));
 
     try {
-      messagesClient.sendMessage(checkerMessage.getStream(), checkerMessage);
+      session.getSymphonyClient().getMessagesClient().sendMessage(
+          checkerMessage.getStream(), checkerMessage);
     } catch (MessagesException e) {
       LOG.error("Failed to send maker checker message: ", e);
     }
@@ -121,7 +120,7 @@ public class MakerCheckerService {
    * @param newTemplate the new template.
    */
   public void setMessageTemplate(String newTemplate) {
-    messageTemplate = newTemplate;
+    session.setMessageTemplate(newTemplate);
   }
 
   /**
@@ -129,6 +128,6 @@ public class MakerCheckerService {
    * @param newTemplate
    */
   public void setEntityTemplate(String newTemplate) {
-    entityTemplate = newTemplate;
+    session.setEntityTemplate(newTemplate);
   }
 }

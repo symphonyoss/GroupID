@@ -11,6 +11,10 @@ import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
  */
 public class MessageProxyServiceSession {
   private String groupId;
+  private String agentStreamId;
+  private String claimMessageTemplate;
+  private String claimEntityTemplate;
+
   private MakerCheckerService agentMakerCheckerService;
   private MakerCheckerService clientMakerCheckerService;
   private SymphonyClient symphonyClient;
@@ -76,5 +80,29 @@ public class MessageProxyServiceSession {
   public void setTicketClient(
       TicketClient ticketClient) {
     this.ticketClient = ticketClient;
+  }
+
+  public String getClaimMessageTemplate() {
+    return claimMessageTemplate;
+  }
+
+  public void setClaimMessageTemplate(String claimMessageTemplate) {
+    this.claimMessageTemplate = claimMessageTemplate;
+  }
+
+  public String getClaimEntityTemplate() {
+    return claimEntityTemplate;
+  }
+
+  public void setClaimEntityTemplate(String claimEntityTemplate) {
+    this.claimEntityTemplate = claimEntityTemplate;
+  }
+
+  public String getAgentStreamId() {
+    return agentStreamId;
+  }
+
+  public void setAgentStreamId(String agentStreamId) {
+    this.agentStreamId = agentStreamId;
   }
 }

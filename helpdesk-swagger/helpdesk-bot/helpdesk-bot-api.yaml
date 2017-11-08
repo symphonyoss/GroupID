@@ -1,0 +1,109 @@
+swagger: '2.0'
+info:
+  version: '0.0.1'
+  title: Help Desk Bot
+  description:
+produces:
+  - application/json
+tags:
+  - Service
+schemes:
+  - http
+  - https
+basePath: '/helpdesk'
+paths:
+  /v1/ticket/{ticketId}/accept:
+    post:
+      summary: Notify the help desk bot that a ticket has been accepted by an agent.
+      operationId: acceptTicket
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          type: string
+        - name: agentId
+          in: header
+          required: true
+          type: string
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+      tags:
+        - Ticket
+  /v1/makerchecker/accept:
+    post:
+      summary: Notify the help desk bot that a message has been accepted for sending by another agent.
+      operationId: acceptMakerCheckerMessage
+      parameters:
+        - name: message
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/MakerCheckerMessageDetail'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+      tags:
+        - MakerChecker
+  /v1/{groupId}/healthcheck:
+    get:
+      summary: Check the health of a specific help desk bot.
+      operationId: healthcheck
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/HealthcheckResponse'
+      tags:
+        - Healthcheck
+definitions:
+  SuccessResponse:
+    type: object
+    properties:
+      message:
+        type: string
+  HealthcheckResponse:
+    type: object
+    properties:
+      podConnectivityCheck:
+        type: boolean
+      podConnectivityError:
+        type: string
+      agentConnectivityCheck:
+        type: boolean
+      agentConnectivityError:
+        type: string
+  MakerCheckerMessageDetail:
+    type: object
+    properties:
+      streamId:
+        type: string
+      proxyToStreamIds:
+        type: array
+        items:
+          type: string
+      timeStamp:
+        type: string
+      messageId:
+        type: string
+      groupId:
+        type: string

@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.model;
 
+import org.symphonyoss.symphony.bots.helpdesk.service.model.health.HealthCheckFailedException;
 
 /**
  * Created by nick.tarsillo on 9/25/17.
@@ -11,4 +12,5 @@ public interface TicketDao {
   TicketResponse getTicket(String id);
   TicketSearchResponse searchTicket(String id, String groupId, String serviceRoomId, String clientStreamId);
   TicketResponse updateTicket(String id, Ticket ticket);
+  void healthcheck() throws HealthCheckFailedException;
 }

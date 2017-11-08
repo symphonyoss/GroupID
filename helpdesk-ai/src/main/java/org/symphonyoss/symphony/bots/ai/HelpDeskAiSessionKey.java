@@ -7,12 +7,16 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
  * A session key for help desk AI sessions.
  */
 public class HelpDeskAiSessionKey extends AiSessionKey {
-
   public enum SessionType {
     AGENT_SERVICE,
     AGENT,
     CLIENT
   }
+
+  private SessionType sessionType;
+  private String uid;
+  private String streamId;
+  private String groupId;
 
   public HelpDeskAiSessionKey(String sessionKey, String groupId, SessionType sessionType) {
     super(sessionKey);
@@ -20,18 +24,8 @@ public class HelpDeskAiSessionKey extends AiSessionKey {
     this.groupId = groupId;
   }
 
-  private SessionType sessionType;
-
-  private String uid;
-  private String streamId;
-  private String groupId;
-
   public SessionType getSessionType() {
     return sessionType;
-  }
-
-  public void setSessionType(SessionType sessionType) {
-    this.sessionType = sessionType;
   }
 
   public String getGroupId() {
@@ -58,4 +52,8 @@ public class HelpDeskAiSessionKey extends AiSessionKey {
     this.streamId = streamId;
   }
 
+  public void setSessionType(
+      SessionType sessionType) {
+    this.sessionType = sessionType;
+  }
 }
