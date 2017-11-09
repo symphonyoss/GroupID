@@ -50,15 +50,14 @@ public class SpringHelpDeskBotInit {
 
   @Configuration
   public class SpringHelpDeskBotContext {
+
     @Autowired
-    private Environment env;
+    private HelpDeskBotConfig helpDeskBotConfig;
 
     @Bean(name = "ticketClient")
     @Description("A ticket client")
     public TicketClient getTicketClient() {
-      return new TicketClient(
-          env.getProperty(HelpDeskBotConfig.GROUP_ID),
-          env.getProperty(HelpDeskBotConfig.TICKET_SERVICE_URL));
+      return new TicketClient(helpDeskBotConfig.getGroupId(), helpDeskBotConfig.getTicketServiceUrl());
     }
   }
 }
