@@ -15,6 +15,7 @@ import java.util.List;
  * The ticket service manages and creates help desk tickets.
  */
 public class TicketClient {
+
   private static final Logger LOG = LoggerFactory.getLogger(TicketClient.class);
 
   public enum TicketStateType {
@@ -34,6 +35,7 @@ public class TicketClient {
   }
 
   private TicketApi ticketApi;
+
   private String groupId;
 
   public TicketClient(String groupId, String ticketServiceUrl) {
