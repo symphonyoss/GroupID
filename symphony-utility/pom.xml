@@ -13,5 +13,19 @@
 
     <name>Symphony Utility</name>
     <description>Utility classes for Symphony Bots to use.</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.symphonyoss.symphony</groupId>
+            <artifactId>symphony-client</artifactId>
+            <version>1.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
     
 </project>
