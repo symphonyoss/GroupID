@@ -69,10 +69,6 @@ public class HelpDeskBot {
 
     LOG.info("Setting up auth http client for help desk bot with group id: " + configuration.getGroupId());
     try {
-//      authClient.setKeystores(configuration.getTrustStoreFile(),
-//          configuration.getTrustStorePassword(),
-//          configuration.getKeyStoreFile(),
-//          configuration.getKeyStorePassword());
       System.setProperty("javax.net.ssl.keyStore", configuration.getKeyStoreFile());
       System.setProperty("javax.net.ssl.keyStorePassword", configuration.getKeyStorePassword());
       System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
