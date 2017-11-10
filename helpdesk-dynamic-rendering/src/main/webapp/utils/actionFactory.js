@@ -10,6 +10,9 @@ export default (actions, service, entity) =>
         entity,
         service: action.service,
         type: action.type,
+        enricherInstanceId: action.enricherInstanceId,
+        showClaim: action.showClaim,
+        userName: action.userName,
       },
     };
 

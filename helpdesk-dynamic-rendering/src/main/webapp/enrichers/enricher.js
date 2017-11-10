@@ -26,12 +26,14 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
       service: enricherServiceName,
       type: 'claimTicket',
       label: 'Claim',
+      enricherInstanceId: 12345,
+      showClaim: true,
     };
 
     const data = actionFactory([claimTicketAction], enricherServiceName, entity);
 
     const result = {
-      template: actions(),
+      template: actions({ showClaim: data.claimTicket.data.showClaim }),
       data,
     };
 
@@ -40,6 +42,24 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
 
   action(data) {
     this.services.claimTicketService.claim(data);
+
+    const entityRegistry = SYMPHONY.services.subscribe('entity');
+
+    const claimTicketAction = {
+      id: 'claimTicket',
+      service: enricherServiceName,
+      type: 'claimTicket',
+      label: 'Claim',
+      enricherInstanceId: '12345',
+      showClaim: false,
+      userName: 'Cassiano',
+    };
+
+    const dataUpdate = actionFactory([claimTicketAction], enricherServiceName, data.entity);
+    const template = actions({ showClaim: dataUpdate.claimTicket.data.showClaim,
+      userName: dataUpdate.claimTicket.data.userName });
+
+    entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
   }
 }
 
