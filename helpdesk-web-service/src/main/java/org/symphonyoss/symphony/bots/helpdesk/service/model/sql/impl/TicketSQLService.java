@@ -45,8 +45,8 @@ public class TicketSQLService implements TicketDao {
   private String tableName;
 
   @Autowired
-  public TicketSQLService(@Value(HelpDeskServiceConfig.TICKET_TABLE_NAME) String tableName) {
-    this.tableName = tableName;
+  public TicketSQLService(HelpDeskServiceConfig helpDeskServiceConfig) {
+    this.tableName = helpDeskServiceConfig.getTicketTableName();
   }
 
   @PostConstruct

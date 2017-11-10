@@ -1,25 +1,10 @@
 #This is a sample help desk bot properties config.
 server:
-  port : 8443
-  ssl:
-    key-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/main/resources/sample/server.keystore
-    key-store-password: changeit
+  port : 8090
 
-email: bot.user1@symphony.com
-sessionAuthUrl: https://develop-api.symphony.com:8444/sessionauth
-keyAuthUrl:  https://develop-api.symphony.com:8444/keyauth
-agentUrl: https://develop.symphony.com/agent
-podUrl: https://develop.symphony.com/pod
-trustStoreFile: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/main/resources/sample/server.truststore
-trustStorePassword: changeit
-keyStoreFile: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/main/resources/sample/bot.user1.p12
-keyStorePassword: changeit
-
+email: helpdesk@symphony.com
 groupId: Test
 agentStreamId: TestStreamId
-
-memberServiceUrl: https://localhost:8443/helpdesk/service
-ticketServiceUrl: https://localhost:8443/helpdesk/service
 
 claimMessageTemplate: This is a claim message.
 claimEntityTemplate:

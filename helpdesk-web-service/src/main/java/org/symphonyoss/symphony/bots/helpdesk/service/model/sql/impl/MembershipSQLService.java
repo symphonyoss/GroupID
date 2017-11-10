@@ -38,8 +38,8 @@ public class MembershipSQLService implements MembershipDao {
   private String tableName;
 
   @Autowired
-  public MembershipSQLService(@Value(HelpDeskServiceConfig.MEMBERSHIP_TABLE_NAME) String tableName) {
-    this.tableName = tableName;
+  public MembershipSQLService(HelpDeskServiceConfig helpDeskServiceConfig) {
+    this.tableName = helpDeskServiceConfig.getMembershipTableName();
   }
 
   @PostConstruct

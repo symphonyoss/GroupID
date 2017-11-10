@@ -69,10 +69,9 @@ public class HelpDeskBot {
 
     LOG.info("Setting up auth http client for help desk bot with group id: " + configuration.getGroupId());
     try {
-      authClient.setKeystores(configuration.getTrustStoreFile(),
-          configuration.getTrustStorePassword(),
-          configuration.getKeyStoreFile(),
-          configuration.getKeyStorePassword());
+      System.setProperty("javax.net.ssl.keyStore", configuration.getKeyStoreFile());
+      System.setProperty("javax.net.ssl.keyStorePassword", configuration.getKeyStorePassword());
+      System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
     } catch (Exception e) {
       LOG.error("Could not create HTTP Client for authentication: ", e);
     }
