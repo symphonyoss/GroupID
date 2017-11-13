@@ -31,7 +31,7 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
         label: 'Claim',
         enricherInstanceId: entity.ticketNumber,
         showClaim: rsp.ticket.state === 'UNSERVICED',
-        userName: 'Cassiano Repache', // TODO APP-XXXX que vou criar.
+        userName: 'Cassiano Repache', // TODO APP-XXXX.
       };
 
       const data = actionFactory([claimTicketAction], enricherServiceName, entity);
