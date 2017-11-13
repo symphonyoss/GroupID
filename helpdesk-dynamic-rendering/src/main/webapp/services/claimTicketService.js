@@ -33,20 +33,12 @@ export default class ClaimTicketService {
     return getTicket(ticketNumber)
       .catch((error) => {
         switch (error.message) {
-          case '400': {
-            // TODO APP-1455
-            break;
-          }
-          case '401': {
-            // TODO APP-1455
-            break;
-          }
-          case '404': {
-            // TODO APP-1455
+          // TODO APP-1477 To map all errors from API
+          case '': {
             break;
           }
           default: {
-            // TODO APP-1455
+            // TODO APP-1477
             break;
           }
         }
