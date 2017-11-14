@@ -16,6 +16,7 @@ import org.springframework.core.io.PathResource;
 @ConfigurationProperties
 public class HelpDeskBotConfig {
   public static final String GROUP_ID = "${groupId}";
+  public static final String DEFAULT_AGENT_EMAIL = "${defaultAgentEmail}";
   public static final String TICKET_SERVICE_URL = "${ticketServiceUrl}";
   public static final String EMAIL = "${email}";
   public static final String SESSION_AUTH_URL = "${sessionAuthUrl}";
@@ -55,6 +56,7 @@ public class HelpDeskBotConfig {
   @Value(KEY_STORE_PASSWORD) private String keyStorePassword;
 
   @Value(GROUP_ID) private String groupId;
+  @Value(DEFAULT_AGENT_EMAIL) private String defaultAgentEmail;
   @Value(AGENT_STREAM_ID) private String agentStreamId;
   @Value(CLAIM_MESSAGE_TEMPLATE_DATA) private String claimMessageTemplate;
   @Value(CLAIM_ENTITY_TEMPLATE_DATA) private String claimEntityTemplate;
@@ -340,5 +342,13 @@ public class HelpDeskBotConfig {
 
   public void setTicketCreationMessage(String ticketCreationMessage) {
     this.ticketCreationMessage = ticketCreationMessage;
+  }
+
+  public String getDefaultAgentEmail() {
+    return defaultAgentEmail;
+  }
+
+  public void setDefaultAgentEmail(String defaultAgentEmail) {
+    this.defaultAgentEmail = defaultAgentEmail;
   }
 }
