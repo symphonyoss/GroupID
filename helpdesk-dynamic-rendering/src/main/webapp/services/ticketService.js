@@ -1,6 +1,6 @@
 import { claimTicket, getTicket } from '../api/apiCalls';
 
-export default class ClaimTicketService {
+export default class TicketService {
   constructor(serviceName) {
     this.serviceName = serviceName;
   }
@@ -29,8 +29,8 @@ export default class ClaimTicketService {
       });
   }
 
-  getTicket(ticketNumber) {
-    return getTicket(ticketNumber)
+  getTicket(ticketId) {
+    return getTicket(ticketId)
       .catch((error) => {
         switch (error.message) {
           // TODO APP-1477 To map all errors from API
