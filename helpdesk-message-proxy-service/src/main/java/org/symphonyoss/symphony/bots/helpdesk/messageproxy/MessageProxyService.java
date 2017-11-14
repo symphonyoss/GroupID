@@ -3,17 +3,16 @@ package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.RoomException;
-import org.symphonyoss.client.model.Chat;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.services.MessageListener;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
+import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiChatListener;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimMessageTemplateData;
@@ -27,10 +26,11 @@ import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
 import org.symphonyoss.symphony.clients.model.SymUser;
-import org.symphonyoss.symphony.pod.model.Stream;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by nick.tarsillo on 9/26/17.
@@ -77,47 +77,59 @@ public class MessageProxyService implements MessageListener {
 
     Membership membership = session.getMembershipClient().getMembership(userId);
     if(membership == null) {
-      membership = session.getMembershipClient().newMembership(userId,
-          MembershipClient.MembershipType.CLIENT);
+      membership = session.getMembershipClient().newMembership(userId, MembershipClient.MembershipType.CLIENT);
+      LOG.info("Created new client membership for userid: " + userId);
+    } else {
+      LOG.info("Found membership: " + membership.toString());
     }
 
-    AiSessionKey symphonyAiSessionKey = session.getHelpDeskAi().getSessionKey(userId, streamId);
+    AiSessionKey aiSessionKey = session.getHelpDeskAi().getSessionKey(userId, streamId);
     HelpDeskAiSessionContext aiSessionContext =
-        (HelpDeskAiSessionContext) session.getHelpDeskAi().getSessionContext(symphonyAiSessionKey);
-    AiConversation aiConversation = session.getHelpDeskAi().getConversation(symphonyAiSessionKey);
+        (HelpDeskAiSessionContext) session.getHelpDeskAi().getSessionContext(aiSessionKey);
+    AiConversation aiConversation = session.getHelpDeskAi().getConversation(aiSessionKey);
 
     Ticket ticket = null;
-    if(membership.getType().equals(MembershipClient.MembershipType.AGENT)) {
+    if(membership.getType().equals(MembershipClient.MembershipType.AGENT.getType())) {
       ticket = session.getTicketClient().getTicketByServiceStreamId(streamId);
       if(ticket != null && !proxyMap.containsKey(ticket.getId())) {
         createAgentProxy(ticket, aiSessionContext);
       } else if(ticket != null && aiConversation == null) {
         addAgentToProxy(ticket, aiSessionContext);
+      } else if(ticket == null && aiSessionContext.getSessionType() == null) {
+        createAgentSession(aiSessionContext);
       }
     } else {
       ticket = session.getTicketClient().getTicketByClientStreamId(streamId);
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
         ticket = session.getTicketClient().createTicket(
-            ticketId, newServiceStream(ticketId, streamId), streamId, symMessage.getMessageText());
-        sendClaimTicketMessage(ticketId);
+            ticketId, streamId, newServiceStream(ticketId, streamId), symMessage.getMessageText());
+        sendTicketCreationMessages(ticket, aiSessionContext);
         createClientProxy(ticket, aiSessionContext);
       } else if(!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, aiSessionContext);
-      } else if(ticket.getState().equals(TicketClient.TicketStateType.UNSERVICED)) {
-        ticket.addTranscriptItem(symMessage.getMessage());
+      }
+
+      if(ticket.getState().equals(TicketClient.TicketStateType.UNSERVICED.getState())) {
+        ticket.addTranscriptItem(symMessage.getMessageText());
         session.getTicketClient().updateTicket(ticket);
       }
     }
+  }
+
+  private void createAgentSession(HelpDeskAiSessionContext aiSessionContext) {
+    aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
+    aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT);
   }
 
   /**
    * If a agent talks in a client service room, but a proxy mapping does not exist, create a new
    * mapping based on the ticket.
    * @param ticket the ticket to base the mapping on.
+   * @param aiSessionContext the ai session context
    */
   private void createAgentProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
-    aiSessionContext.setGroupId(session.getGroupId());
+    aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
     aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT_SERVICE);
 
     ProxyConversation aiConversation = new ProxyConversation(true,
@@ -137,7 +149,7 @@ public class MessageProxyService implements MessageListener {
    * @param aiSessionContext the ai session context
    */
   private void addAgentToProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
-    aiSessionContext.setGroupId(session.getGroupId());
+    aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
     aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT_SERVICE);
 
 
@@ -153,10 +165,9 @@ public class MessageProxyService implements MessageListener {
    * Creates a new proxy for the client. This includes:
    *    Creating a new session with the help desk ai, and adding a new ai conversation.
    *    Registering the proxy in the proxy map.
-   * @param ticket
    */
   private void createClientProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
-    aiSessionContext.setGroupId(session.getGroupId());
+    aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
     aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.CLIENT);
 
     ProxyConversation aiConversation = new ProxyConversation(false, session.getClientMakerCheckerService());
@@ -167,25 +178,26 @@ public class MessageProxyService implements MessageListener {
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
   }
 
-  private void sendClaimTicketMessage(String ticketId) {
-    MessageTemplate messageTemplate = new MessageTemplate(session.getClaimMessageTemplate());
-    MessageTemplate entityTemplate = new MessageTemplate(session.getClaimEntityTemplate());
-    ClaimMessageTemplateData messageTemplateData = new ClaimMessageTemplateData(ticketId);
-    ClaimEntityTemplateData entityTemplateData = new ClaimEntityTemplateData(ticketId);
+  private void sendTicketCreationMessages(Ticket ticket, AiSessionContext aiSessionContext) {
+    SymphonyAiMessage aiMessage = new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());
+    Set<AiResponseIdentifier> aiResponseIdentifierSet = new HashSet<>();
+    aiResponseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
+    session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
+
+    MessageTemplate messageTemplate = new MessageTemplate(
+        session.getMessageProxyServiceConfig().getClaimMessageTemplate());
+    MessageTemplate entityTemplate = new MessageTemplate(
+        session.getMessageProxyServiceConfig().getClaimEntityTemplate());
+    ClaimMessageTemplateData messageTemplateData = new ClaimMessageTemplateData(ticket.getId());
+    ClaimEntityTemplateData entityTemplateData = new ClaimEntityTemplateData(ticket.getId());
     String message = messageTemplate.buildFromData(messageTemplateData);
     String entity = entityTemplate.buildFromData(entityTemplateData);
 
-    SymMessage symphonyMessage = new SymMessage();
-    symphonyMessage.setMessage(message);
-    symphonyMessage.setEntityData(entity);
-    symphonyMessage.setStreamId(session.getAgentStreamId());
-    Stream stream = new Stream();
-    stream.setId(session.getAgentStreamId());
-    try {
-      session.getSymphonyClient().getMessagesClient().sendMessage(stream, symphonyMessage);
-    } catch (MessagesException e) {
-      LOG.error("Failed to send claim message: ", e);
-    }
+    aiMessage = new SymphonyAiMessage(message);
+    aiMessage.setEntityData(entity);
+    aiResponseIdentifierSet = new HashSet<>();
+    aiResponseIdentifierSet.add(new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
+    session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
   }
 
   /**
@@ -207,13 +219,14 @@ public class MessageProxyService implements MessageListener {
     roomAttributes.setDescription("Service room for users " + users + ".");
     roomAttributes.setDiscoverable(false);
     roomAttributes.setMembersCanInvite(true);
-    roomAttributes.setName(session.getGroupId() + " Ticket Room (" + ticketId + ")");
+    roomAttributes.setName(session.getMessageProxyServiceConfig().getGroupId() + " Ticket Room (" + ticketId + ")");
     roomAttributes.setReadOnly(false);
     roomAttributes.setPublic(false);
 
     Room room = null;
     try {
       room = session.getSymphonyClient().getRoomService().createRoom(roomAttributes);
+      LOG.info("Created new room: " + room.toString());
     } catch (RoomException e) {
       LOG.error("Create room failed: ", e);
     }

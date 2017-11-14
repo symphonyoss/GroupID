@@ -3,11 +3,8 @@ package org.symphonyoss.symphony.bots.helpdesk.bot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.client.exceptions.RoomException;
 import org.symphonyoss.client.impl.SymphonyBasicClient;
-import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.model.SymAuth;
-import org.symphonyoss.client.services.RoomService;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
@@ -16,12 +13,12 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.MessageProxyServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
-import org.symphonyoss.symphony.pod.model.Stream;
 
 import javax.annotation.PostConstruct;
 
@@ -64,6 +61,7 @@ public class HelpDeskBot {
     helpDeskBotSession.setHelpDeskAi(initHelpDeskAi(helpDeskBotSession));
     helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService(helpDeskBotSession));
     helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService(helpDeskBotSession));
+    helpDeskBotSession.setMessageProxyService(initMessageProxyService(helpDeskBotSession));
 
     LOG.info("Help Desk Bot startup complete fpr groupId: " + helpDeskBotConfig.getGroupId());
   }
@@ -168,6 +166,14 @@ public class HelpDeskBot {
     HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
     MessageProxyServiceSession proxyServiceSession = new MessageProxyServiceSession();
+    MessageProxyServiceConfig messageProxyServiceConfig = new MessageProxyServiceConfig();
+    messageProxyServiceConfig.setGroupId(configuration.getGroupId());
+    messageProxyServiceConfig.setAgentStreamId(configuration.getAgentStreamId());
+    messageProxyServiceConfig.setClaimMessageTemplate(configuration.getClaimMessageTemplate());
+    messageProxyServiceConfig.setClaimEntityTemplate(configuration.getClaimEntityTemplate());
+    messageProxyServiceConfig.setTicketCreationMessage(configuration.getTicketCreationMessage());
+
+    proxyServiceSession.setMessageProxyServiceConfig(messageProxyServiceConfig);
     proxyServiceSession.setHelpDeskAi(helpDeskBotSession.getHelpDeskAi());
     proxyServiceSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
     proxyServiceSession.setAgentMakerCheckerService(helpDeskBotSession.getAgentMakerCheckerService());
