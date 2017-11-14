@@ -10,6 +10,7 @@ trustStoreFile: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-hel
 trustStorePassword: changeit
 
 groupId: Test
+defaultAgentEmail: nick.tarsillo@symphony.com
 agentStreamId: TVuowHrmpEdGeDXM16thIn___qBGsaWUdA
 
 memberServiceUrl: https://localhost.symphony.com:8442/helpdesk/service
