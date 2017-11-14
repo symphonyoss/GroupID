@@ -2,11 +2,8 @@ package org.symphonyoss.symphony.bots.helpdesk.service.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.MembershipApi;
-import org.symphonyoss.symphony.bots.helpdesk.service.api.TicketApi;
-import org.symphonyoss.symphony.bots.helpdesk.service.config.HelpDeskServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 
 /**
@@ -60,14 +57,13 @@ public class MembershipClient {
    * @param userId the user id to create a membership for.
    * @return the new membership
    */
-  public Membership newMembership(String userId) {
+  public Membership newMembership(String userId, MembershipType membershipType) {
     Membership membership = new Membership();
     membership.setId(userId);
     membership.setGroupId(groupId);
-    membership.setType(MembershipType.CLIENT.getType());
+    membership.setType(membershipType.getType());
     try {
       Membership newMembership = membershipApi.createMembership(membership).getMembership();
-      LOG.info("Created new client membership for userid: " + userId);
       return newMembership;
     } catch (ApiException e) {
       LOG.error("Failed to create new membership for user: ", e);

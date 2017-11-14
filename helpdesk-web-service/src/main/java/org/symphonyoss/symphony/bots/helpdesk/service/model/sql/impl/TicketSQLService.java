@@ -45,8 +45,8 @@ public class TicketSQLService implements TicketDao {
   private String tableName;
 
   @Autowired
-  public TicketSQLService(HelpDeskServiceConfig helpDeskServiceConfig) {
-    this.tableName = helpDeskServiceConfig.getTicketTableName();
+  public TicketSQLService(@Value(HelpDeskServiceConfig.TICKET_TABLE_NAME) String tableName) {
+    this.tableName = tableName;
   }
 
   @PostConstruct
@@ -83,9 +83,11 @@ public class TicketSQLService implements TicketDao {
       if (StringUtils.isBlank(ticket.getId())) {
         ticket.setId(RandomStringUtils.randomAlphanumeric(20));
       }
-      String sql = "insert into " + tableName + " (id,groupId,serviceStreamId,ticket) values(\""
+
+      String ticketToString = objectMapper.writeValueAsString(ticket).replace("\"", "\\\"");
+      String sql = "insert into " + tableName + " (id,groupId,serviceStreamId,clientStreamId,ticket) values(\""
           + ticket.getId() + "\", \"" + ticket.getGroupId() + "\", \"" + ticket.getServiceStreamId() + "\",\""
-          + objectMapper.writeValueAsString(ticket).replaceAll("\"","\'") + "\")";
+          + ticket.getClientStreamId() + "\",\"" + ticketToString + "\")";
       LOG.info("Executing: " + sql);
       statement.executeUpdate(sql);
     } catch (SQLException | IOException e) {
@@ -146,8 +148,7 @@ public class TicketSQLService implements TicketDao {
       ResultSet resultSet = statement.executeQuery(sql);
       while (resultSet.next()) {
         LOG.info("Got ticket: " + resultSet.getString("ticket"));
-        String ticketValue = resultSet.getString("ticket").replaceAll("\'", "\"");
-        ticket = objectMapper.readValue(ticketValue, Ticket.class);
+        ticket = objectMapper.readValue(resultSet.getString("ticket"), Ticket.class);
       }
       resultSet.close();
       statement.close();
@@ -213,9 +214,11 @@ public class TicketSQLService implements TicketDao {
     Statement statement = null;
     try {
       statement = sqlConnection.createStatement();
+
+      String ticketToString = objectMapper.writeValueAsString(ticket).replace("\"", "\\\"");
       String sql = "update " + tableName + " set groupId=\"" + ticket.getGroupId()
-          + "\", set serviceStreamId=\"" + ticket.getServiceStreamId() + "\", set ticket=\""
-          + objectMapper.writeValueAsString(ticket) + "\" where id=\"" + id + "\"";
+          + "\", serviceStreamId=\"" + ticket.getServiceStreamId() + "\", ticket=\""
+          + ticketToString + "\" where id=\"" + id + "\"";
       LOG.info("Executing: " + sql);
       statement.executeUpdate(sql);
     } catch (SQLException | IOException e) {

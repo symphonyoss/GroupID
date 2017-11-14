@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.TicketApi;
 import org.symphonyoss.symphony.bots.helpdesk.service.config.HelpDeskServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;

@@ -74,7 +74,8 @@ public class MessageProxyService implements MessageListener {
 
     Membership membership = session.getMembershipClient().getMembership(userId);
     if(membership == null) {
-      membership = session.getMembershipClient().newMembership(userId);
+      membership = session.getMembershipClient().newMembership(userId,
+          MembershipClient.MembershipType.CLIENT);
     }
 
     AiConversation aiConversation = session.getHelpDeskAi().getConversation(
