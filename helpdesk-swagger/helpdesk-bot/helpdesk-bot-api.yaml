@@ -81,14 +81,6 @@ definitions:
     properties:
       message:
         type: string
-      ticketId:
-        type: string
-      state:
-        type: string
-        description: |
-          Accepted states - UNSERVICED, UNRESOLVED, RESOLVED
-      user:
-        $ref: '#/definitions/User'
   HealthcheckResponse:
     type: object
     properties:
@@ -114,11 +106,4 @@ definitions:
       messageId:
         type: string
       groupId:
-        type: string
-  User:
-    type: object
-    properties:
-      userId:
-        type: string
-      displayName:
         type: string

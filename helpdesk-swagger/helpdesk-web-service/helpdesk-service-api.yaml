@@ -78,22 +78,20 @@ paths:
       parameters:
         - name: id
           in: header
-          required: true
+          required: false
           type: string
         - name: groupId
           in: header
-          required: true
+          required: false
           type: string
         - name: serviceStreamId
           in: header
-          required: true
+          required: false
           type: string
         - name: clientStreamId
           in: header
-          required: true
+          required: false
           type: string
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:

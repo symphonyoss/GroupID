@@ -19,6 +19,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
 
 /**
@@ -27,6 +28,7 @@ import javax.ws.rs.InternalServerErrorException;
 @RestController
 public class V1HelpDeskController extends V1ApiController {
   private static final Logger LOG = LoggerFactory.getLogger(V1HelpDeskController.class);
+  private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
 
   @Autowired
   private TicketClient ticketClient;
@@ -48,7 +50,6 @@ public class V1HelpDeskController extends V1ApiController {
 
       SymMessage symMessage = new SymMessage();
       symMessage.setMessage(helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketClientSuccessResponse());
-      symMessage.setFormat(SymMessage.Format.MESSAGEML);
       helpDeskBotSession.getSymphonyClient().getMessageService().sendMessage(clientChat, symMessage);
 
       symMessage.setMessage(helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketAgentSuccessResponse());
@@ -65,6 +66,10 @@ public class V1HelpDeskController extends V1ApiController {
   public HealthcheckResponse healthcheck(String groupId) {
     HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
     HelpDeskBotSession helpDeskBotSession = sessionManager.getSession(groupId);
+
+    if(helpDeskBotSession == null) {
+      throw new BadRequestException(HELPDESKBOT_NOT_FOUND);
+    }
 
     String agentUrl = helpDeskBotSession.getHelpDeskBotConfig().getAgentUrl();
     String podUrl = helpDeskBotSession.getHelpDeskBotConfig().getPodUrl();

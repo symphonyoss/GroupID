@@ -2,10 +2,12 @@ package org.symphonyoss.symphony.bots.helpdesk.bot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.RoomException;
 import org.symphonyoss.client.impl.SymphonyBasicClient;
+import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.client.services.RoomService;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
@@ -19,15 +21,27 @@ import org.symphonyoss.symphony.bots.helpdesk.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
+import org.symphonyoss.symphony.pod.model.Stream;
+
+import javax.annotation.PostConstruct;
 
 /**
  * Created by nick.tarsillo on 9/26/17.
  */
-@Component
 public class HelpDeskBot {
   private static final Logger LOG = LoggerFactory.getLogger(HelpDeskBot.class);
 
+  private HelpDeskBotConfig helpDeskBotConfig;
   private HelpDeskBotSession helpDeskBotSession;
+
+  /**
+   * Normal constructor.
+   * @param helpDeskBotConfig a configuration for the help desk bot.
+   */
+  public HelpDeskBot(HelpDeskBotConfig helpDeskBotConfig) {
+    this.helpDeskBotConfig = helpDeskBotConfig;
+    init();
+  }
 
   /**
    * Initializes the help desk bot. This includes:
@@ -38,27 +52,20 @@ public class HelpDeskBot {
    *    Initializing the maker checker services. (Validates messages, and requests validation from another agent if needed.)
    *    Initializing the message proxy service. (Handles the proxying of client/agent messages.)
    */
-  public HelpDeskBot(HelpDeskBotConfig configuration) {
-    LOG.info("Help Desk Bot starting up for groupId: " + configuration.getGroupId());
+  @PostConstruct
+  public void init() {
+    LOG.info("Help Desk Bot starting up for groupId: " + helpDeskBotConfig.getGroupId());
 
-    if(configuration.getAgentStreamId() == null) {
-      configuration.setAgentStreamId("TESTTTT");
-    }
+    helpDeskBotSession = new HelpDeskBotSession();
+    helpDeskBotSession.setHelpDeskBotConfig(helpDeskBotConfig);
+    helpDeskBotSession.setSymphonyClient(initSymphonyClient(helpDeskBotConfig));
+    helpDeskBotSession.setTicketClient(initTicketClient(helpDeskBotConfig));
+    helpDeskBotSession.setMembershipClient(initMembershipClient(helpDeskBotConfig));
+    helpDeskBotSession.setHelpDeskAi(initHelpDeskAi(helpDeskBotSession));
+    helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService(helpDeskBotSession));
+    helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService(helpDeskBotSession));
 
-    HelpDeskBotSession helpDeskBotSession = new HelpDeskBotSession();
-    helpDeskBotSession.setGroupId(configuration.getGroupId());
-    helpDeskBotSession.setSymphonyClient(initSymphonyClient(configuration));
-    helpDeskBotSession.setHelpDeskBotConfig(configuration);
-    helpDeskBotSession.setTicketClient(initTicketClient(configuration));
-    helpDeskBotSession.setMembershipClient(initMembershipClient(configuration));
-    helpDeskBotSession.setHelpDeskAi(initHelpDeskAi(helpDeskBotSession, configuration));
-    helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService(helpDeskBotSession, configuration));
-    helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService(helpDeskBotSession, configuration));
-    helpDeskBotSession.setMessageProxyService(initMessageProxyService(helpDeskBotSession, configuration));
-
-    this.helpDeskBotSession = helpDeskBotSession;
-
-    LOG.info("Help Desk Bot startup complete fpr groupId: " + configuration.getGroupId());
+    LOG.info("Help Desk Bot startup complete fpr groupId: " + helpDeskBotConfig.getGroupId());
   }
 
   private SymphonyClient initSymphonyClient(HelpDeskBotConfig configuration) {
@@ -69,9 +76,10 @@ public class HelpDeskBot {
 
     LOG.info("Setting up auth http client for help desk bot with group id: " + configuration.getGroupId());
     try {
-      System.setProperty("javax.net.ssl.keyStore", configuration.getKeyStoreFile());
-      System.setProperty("javax.net.ssl.keyStorePassword", configuration.getKeyStorePassword());
-      System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
+      authClient.setKeystores(configuration.getTrustStoreFile(),
+          configuration.getTrustStorePassword(),
+          configuration.getKeyStoreFile(),
+          configuration.getKeyStorePassword());
     } catch (Exception e) {
       LOG.error("Could not create HTTP Client for authentication: ", e);
     }
@@ -90,7 +98,9 @@ public class HelpDeskBot {
     return symClient;
   }
 
-  private HelpDeskAi initHelpDeskAi(HelpDeskBotSession helpDeskBotSession, HelpDeskBotConfig configuration) {
+  private HelpDeskAi initHelpDeskAi(HelpDeskBotSession helpDeskBotSession) {
+    HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
+
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
     helpDeskAiSession.setMembershipClient(helpDeskAiSession.getMembershipClient());
     helpDeskAiSession.setTicketClient(helpDeskBotSession.getTicketClient());
@@ -115,7 +125,9 @@ public class HelpDeskBot {
     return helpDeskAi;
   }
 
-  private MakerCheckerService initAgentMakerCheckerService(HelpDeskBotSession helpDeskBotSession, HelpDeskBotConfig configuration) {
+  private MakerCheckerService initAgentMakerCheckerService(HelpDeskBotSession helpDeskBotSession) {
+    HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
+
     MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
     makerCheckerServiceSession.setEntityTemplate(configuration.getMakerCheckerMessageTemplate());
     makerCheckerServiceSession.setMessageTemplate(configuration.getMakerCheckerMessageTemplate());
@@ -126,7 +138,9 @@ public class HelpDeskBot {
     return  agentMakerCheckerService;
   }
 
-  private MakerCheckerService initClientMakerCheckerService(HelpDeskBotSession helpDeskBotSession, HelpDeskBotConfig configuration) {
+  private MakerCheckerService initClientMakerCheckerService(HelpDeskBotSession helpDeskBotSessio) {
+    HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
+
     MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
     makerCheckerServiceSession.setEntityTemplate(configuration.getMakerCheckerMessageTemplate());
     makerCheckerServiceSession.setMessageTemplate(configuration.getMakerCheckerMessageTemplate());
@@ -150,13 +164,10 @@ public class HelpDeskBot {
     return ticketClient;
   }
 
-  private MessageProxyService initMessageProxyService(HelpDeskBotSession helpDeskBotSession, HelpDeskBotConfig configuration) {
-    MessageProxyServiceSession proxyServiceSession = new MessageProxyServiceSession();
-    proxyServiceSession.setGroupId(configuration.getGroupId());
-    proxyServiceSession.setAgentStreamId(configuration.getAgentStreamId());
-    proxyServiceSession.setClaimMessageTemplate(configuration.getClaimMessageTemplate());
-    proxyServiceSession.setClaimEntityTemplate(configuration.getClaimEntityTemplate());
+  private MessageProxyService initMessageProxyService(HelpDeskBotSession helpDeskBotSession) {
+    HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
+    MessageProxyServiceSession proxyServiceSession = new MessageProxyServiceSession();
     proxyServiceSession.setHelpDeskAi(helpDeskBotSession.getHelpDeskAi());
     proxyServiceSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
     proxyServiceSession.setAgentMakerCheckerService(helpDeskBotSession.getAgentMakerCheckerService());

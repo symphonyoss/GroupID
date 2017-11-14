@@ -14,15 +14,14 @@ import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 
 public class HelpDeskBotSession {
+  private HelpDeskBotConfig helpDeskBotConfig;
   private SymphonyClient symphonyClient;
-  private String groupId;
   private HelpDeskAi helpDeskAi;
   private MakerCheckerService agentMakerCheckerService;
   private MakerCheckerService clientMakerCheckerService;
   private TicketClient ticketClient;
   private MembershipClient membershipClient;
   private MessageProxyService messageProxyService;
-  private HelpDeskBotConfig helpDeskBotConfig;
 
   public SymphonyClient getSymphonyClient() {
     return this.symphonyClient;
@@ -30,14 +29,6 @@ public class HelpDeskBotSession {
 
   public void setSymphonyClient(SymphonyClient symphonyClient) {
     this.symphonyClient = symphonyClient;
-  }
-
-  public String getGroupId() {
-    return this.groupId;
-  }
-
-  public void setGroupId(String groupId) {
-    this.groupId = groupId;
   }
 
   public MakerCheckerService getAgentMakerCheckerService() {
