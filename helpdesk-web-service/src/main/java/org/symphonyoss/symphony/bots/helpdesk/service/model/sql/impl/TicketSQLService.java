@@ -85,7 +85,7 @@ public class TicketSQLService implements TicketDao {
       }
       String sql = "insert into " + tableName + " (id,groupId,serviceStreamId,ticket) values(\""
           + ticket.getId() + "\", \"" + ticket.getGroupId() + "\", \"" + ticket.getServiceStreamId() + "\",\""
-          + objectMapper.writeValueAsString(ticket) + "\")";
+          + objectMapper.writeValueAsString(ticket).replaceAll("\"","\'") + "\")";
       LOG.info("Executing: " + sql);
       statement.executeUpdate(sql);
     } catch (SQLException | IOException e) {
@@ -146,7 +146,8 @@ public class TicketSQLService implements TicketDao {
       ResultSet resultSet = statement.executeQuery(sql);
       while (resultSet.next()) {
         LOG.info("Got ticket: " + resultSet.getString("ticket"));
-        ticket = objectMapper.readValue(resultSet.getString("ticket"), Ticket.class);
+        String ticketValue = resultSet.getString("ticket").replaceAll("\'", "\"");
+        ticket = objectMapper.readValue(ticketValue, Ticket.class);
       }
       resultSet.close();
       statement.close();
