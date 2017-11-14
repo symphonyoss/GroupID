@@ -29,7 +29,7 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
         service: enricherServiceName,
         type: 'claimTicket',
         label: 'Claim',
-        enricherInstanceId: entity.ticketNumber,
+        enricherInstanceId: entity.ticketId,
         showClaim: rsp.ticket.state === 'UNSERVICED',
         userName: '', // TODO APP-1477.
       };
@@ -52,7 +52,7 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
         service: enricherServiceName,
         type: 'claimTicket',
         label: 'Claim',
-        enricherInstanceId: rsp.ticketNumber,
+        enricherInstanceId: rsp.ticketId,
         showClaim: rsp.ticket.state === 'UNSERVICED',
         userName: rsp.user.displayName,
       };
