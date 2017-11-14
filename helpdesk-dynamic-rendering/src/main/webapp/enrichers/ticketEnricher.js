@@ -23,7 +23,7 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    this.services.ticketService.getTicket(entity.ticketNumber).then((rsp) => {
+    this.services.ticketService.getTicket(entity.ticketId).then((rsp) => {
       const claimTicketAction = {
         id: 'claimTicket',
         service: enricherServiceName,
