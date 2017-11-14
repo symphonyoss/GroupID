@@ -1,4 +1,4 @@
-import { claimTicket } from '../api/apiCalls';
+import { claimTicket, getTicket } from '../api/apiCalls';
 
 export default class ClaimTicketService {
   constructor(serviceName) {
@@ -6,10 +6,7 @@ export default class ClaimTicketService {
   }
 
   claim(data) {
-    claimTicket(data)
-      .then(() => {
-        // TODO APP-1349
-      })
+    return claimTicket(data)
       .catch((error) => {
         switch (error.message) {
           case '400': {
@@ -26,6 +23,22 @@ export default class ClaimTicketService {
           }
           default: {
             // TODO APP-1455
+            break;
+          }
+        }
+      });
+  }
+
+  getTicket(ticketNumber) {
+    return getTicket(ticketNumber)
+      .catch((error) => {
+        switch (error.message) {
+          // TODO APP-1477 To map all errors from API
+          case '': {
+            break;
+          }
+          default: {
+            // TODO APP-1477
             break;
           }
         }

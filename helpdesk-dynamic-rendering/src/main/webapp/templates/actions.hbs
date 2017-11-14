@@ -1,3 +1,7 @@
 <messageML>
-    <action id="claimTicket" class="tempo-btn tempo-btn--good"/>
+    {{#if showClaim}}
+        <action id="claimTicket" class="tempo-btn tempo-btn--good"/>
+    {{else}}
+        <label class="label">Claim for: {{userName}}</label>
+    {{/if}}
 </messageML>

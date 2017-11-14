@@ -47,7 +47,6 @@
         </repository>
     </repositories>
 
-    <!-- Project Information -->
     <name>Symphony HelpDesk Bot</name>
     <description>Symphony HelpDesk Bot</description>
     <url>https://github.com/symphonyoss/symphony-helpdesk-bot</url>
@@ -82,9 +81,16 @@
                 <role>Senior Software Engineer</role>
             </roles>
         </developer>
+        <developer>
+            <id>crepache</id>
+            <name>Cassiano Cesar Repache</name>
+            <email>cassiano.repache@symphony.com</email>
+            <roles>
+                <role>Senior Software Engineer</role>
+            </roles>
+        </developer>
     </developers>
 
-    <!-- Environment Settings -->
     <issueManagement>
         <system>JIRA</system>
         <url>https://perzoinc.atlassian.net/projects/APP</url>
@@ -184,7 +190,6 @@
                     <value>!dev</value>
                 </property>
             </activation>
-
             <build>
                 <plugins>
                     <plugin>
@@ -235,5 +240,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

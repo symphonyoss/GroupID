@@ -24,3 +24,11 @@ export const claimTicket = (data) => {
     });
   }).catch(error => rejectPromise(error));
 };
+
+export const getTicket = (ticketNumber) => {
+  const apiUrl = `/v1/ticket/${ticketNumber}/get`;
+  return axios({
+    method: 'get',
+    url: apiUrl,
+  }).catch(error => rejectPromise(error));
+};
