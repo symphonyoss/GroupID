@@ -30,27 +30,27 @@ import javax.validation.constraints.*;
 import javax.validation.Valid;
 {{/useBeanValidation}}
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.core.Response;
 {{>generatedAnnotation}}
 @Controller
 {{#operations}}
 public abstract class {{classname}}Controller implements {{classname}} {
 {{^jdk8-no-delegate}}{{#operation}}
-    public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{{baseName}}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
+    public {{#async}}Callable<{{/async}}ResponseEntity{{#async}}>{{/async}} {{{baseName}}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
         {{/hasMore}}{{/allParams}}) {
         {{#queryParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "query"); {{/required}}{{/queryParams}}
         {{#pathParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "path"); {{/required}}{{/pathParams}}
         {{#headerParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "header"); {{/required}}{{/headerParams}}
         {{#bodyParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "body"); {{/required}}{{/bodyParams}}
         {{#formParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "form data");{{/required}}{{/formParams}}
-        {{^async}}
-        return ResponseEntity.ok({{operationId}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}));{{/async}}{{#async}}
-        return new Callable<ResponseEntity<{{>returnTypes}}>>() {
-            @Override
-            public ResponseEntity<{{>returnTypes}}> call() throws Exception {
-                return new ResponseEntity<{{>returnTypes}}>(HttpStatus.OK);
-            }
-        };{{/async}}
+
+        try {
+            {{^async}}return ResponseEntity.ok({{operationId}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}));{{/async}}
+        } catch (ClientErrorException e) {
+            ApiException a = new ApiException(e.getResponse().getStatus(), e.getMessage());
+            return ResponseEntity.status(e.getResponse().getStatus()).body(a);
+        }
     }
 
     public abstract {{>returnTypes}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
@@ -77,6 +77,32 @@ public abstract class {{classname}}Controller implements {{classname}} {
         if (paramValue == null) {
             throw new BadRequestException("This request requires a " + name +
                 " to be provided with the " + requiredIn + ".");
+        }
+    }
+
+    class ApiException {
+        private int code;
+        private String message;
+
+        public ApiException(int code, String message) {
+            this.code = code;
+            this.message = message;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public void setCode(int code) {
+            this.code = code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+             this.message = message;
         }
     }
 }
