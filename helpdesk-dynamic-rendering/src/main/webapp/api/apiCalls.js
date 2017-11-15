@@ -25,10 +25,32 @@ export const claimTicket = (data) => {
   }).catch(error => rejectPromise(error));
 };
 
-export const getTicket = (ticketNumber) => {
-  const apiUrl = `/v1/ticket/${ticketNumber}/get`;
+export const getTicket = (ticketId) => {
+  const apiUrl = `/v1/ticket/${ticketId}/get`;
   return axios({
     method: 'get',
     url: apiUrl,
+  }).catch(error => rejectPromise(error));
+};
+
+export const acceptAttachment = (message) => {
+  const apiUrl = `/v1/makerchecker/accept`;
+  return axios({
+    method: 'post',
+    url: apiUrl,
+    body: {
+      message: message
+    },
+  }).catch(error => rejectPromise(error));
+};
+
+export const denyAttachment = (message) => {
+  const apiUrl = `/v1/makerchecker/deny`;
+  return axios({
+    method: 'post',
+    url: apiUrl,
+    body: {
+      message: message
+    },
   }).catch(error => rejectPromise(error));
 };
