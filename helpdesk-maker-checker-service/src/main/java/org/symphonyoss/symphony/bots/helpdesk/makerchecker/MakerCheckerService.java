@@ -98,7 +98,6 @@ public class MakerCheckerService {
     }
 
     SymMessage checkerMessage = new SymMessage();
-    checkerMessage.setFormat(SymMessage.Format.MESSAGEML);
     checkerMessage.setStream(symMessage.getStream());
     checkerMessage.setStreamId(symMessage.getStreamId());
 

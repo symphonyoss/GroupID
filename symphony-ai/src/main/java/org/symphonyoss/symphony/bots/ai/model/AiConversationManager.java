@@ -1,22 +1,28 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
-import org.symphonyoss.symphony.bots.utility.file.ExpiringFileLoaderCache;
 
 /**
  * Created by nick.tarsillo on 8/27/17.
  * Manages all current Ai conversations.
  */
 public class AiConversationManager {
-  private ExpiringFileLoaderCache<AiSessionContext, AiConversation> conversationCache;
+  private LoadingCache<AiSessionContext, AiConversation> conversationCache;
 
-  public AiConversationManager(String aiSessionContextDir) {
-    conversationCache = new ExpiringFileLoaderCache<>(
-        aiSessionContextDir,
-        (key) -> key.getSessionName() + ":" + key.getAiSessionKey().getSessionKey(),
-        AiConstants.EXPIRE_TIME,
-        AiConstants.EXPIRE_TIME_UNIT,
-        AiConversation.class);
+  public AiConversationManager() {
+    conversationCache = CacheBuilder.newBuilder()
+        .concurrencyLevel(4)
+        .maximumSize(10000)
+        .expireAfterWrite(AiConstants.EXPIRE_TIME, AiConstants.EXPIRE_TIME_UNIT)
+        .build(new CacheLoader<AiSessionContext, AiConversation>() {
+          @Override
+          public AiConversation load(AiSessionContext key) throws Exception {
+            return null;
+          }
+        });
   }
 
   /**
@@ -33,7 +39,7 @@ public class AiConversationManager {
    * @param aiSessionContext
    */
   public void removeConversation(AiSessionContext aiSessionContext) {
-    conversationCache.remove(aiSessionContext);
+    conversationCache.invalidate(aiSessionContext);
   }
 
   /**

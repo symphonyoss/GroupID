@@ -5,7 +5,6 @@ package org.symphonyoss.symphony.bots.ai.config;
  */
 public class HelpDeskAiConfig {
   private boolean suggestCommands;
-  private String sessionContextDir;
 
   private String defaultPrefix;
   private String agentServiceRoomPrefix;
@@ -66,14 +65,6 @@ public class HelpDeskAiConfig {
 
   public void setSuggestCommands(boolean suggestCommands) {
     this.suggestCommands = suggestCommands;
-  }
-
-  public String getSessionContextDir() {
-    return sessionContextDir;
-  }
-
-  public void setSessionContextDir(String sessionContextDir) {
-    this.sessionContextDir = sessionContextDir;
   }
 
   public String getAddMemberClientSuccessResponse() {

@@ -1,12 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.io.PathResource;
 
 /**
  * Created by nick.tarsillo on 11/6/17.
@@ -21,8 +16,6 @@ public class HelpDeskServiceConfig {
   private String databasePassword;
   private String membershipTableName;
   private String ticketTableName;
-
-
 
   public String getDatabaseDriver() {
     return databaseDriver;

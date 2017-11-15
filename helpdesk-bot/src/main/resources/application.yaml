@@ -29,7 +29,7 @@ closeTicketCommand: Close Ticket
 acceptTicketCommand: Accept Ticket
 addMemberCommand: Add Member
 acceptTicketAgentSuccessResponse: Ticket claimed successfully.
-acceptTicketClientSuccessResponse: You have been connected to an agent. 
+acceptTicketClientSuccessResponse: You have been connected to an agent.
 closeTicketSuccessResponse: Ticket closed successfully.
 addMemberAgentSuccessResponse: New member has been added to the help desk.
 addMemberClientSuccessResponse: Your membership to the help desk has been updated by an agent.

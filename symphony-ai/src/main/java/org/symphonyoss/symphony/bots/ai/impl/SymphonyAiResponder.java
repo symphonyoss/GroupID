@@ -66,7 +66,6 @@ public class SymphonyAiResponder extends AiResponderImpl {
       symMessage.setMessage(message);
       symMessage.setEntityData(symphonyAiMessage.getEntityData());
       symMessage.setAttachments(symphonyAiMessage.getAttachments());
-      symMessage.setFormat(SymMessage.Format.MESSAGEML);
 
       SymStream stream = new SymStream();
       stream.setStreamId(respond.getResponseIdentifier());
