@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.impl.SymphonyBasicClient;
@@ -10,14 +11,14 @@ import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
-import org.symphonyoss.symphony.bots.helpdesk.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.MessageProxyServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
-import org.symphonyoss.symphony.bots.helpdesk.model.session.HelpDeskBotSession;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
@@ -30,10 +31,13 @@ import javax.annotation.PostConstruct;
 /**
  * Created by nick.tarsillo on 9/26/17.
  */
+@Component
 public class HelpDeskBot {
+
   private static final Logger LOG = LoggerFactory.getLogger(HelpDeskBot.class);
 
-  private HelpDeskBotConfig helpDeskBotConfig;
+  private final HelpDeskBotConfig helpDeskBotConfig;
+
   private HelpDeskBotSession helpDeskBotSession;
 
   /**

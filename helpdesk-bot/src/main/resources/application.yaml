@@ -33,3 +33,4 @@ acceptTicketClientSuccessResponse: You have been connected to an agent.
 closeTicketSuccessResponse: Ticket closed successfully.
 addMemberAgentSuccessResponse: New member has been added to the help desk.
 addMemberClientSuccessResponse: Your membership to the help desk has been updated by an agent.
+ticketCreationMessage: Ticket created successfully

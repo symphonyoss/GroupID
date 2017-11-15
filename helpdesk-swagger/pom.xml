@@ -23,7 +23,7 @@
         <helpdesk.api.service.package>org.symphonyoss.symphony.bots.helpdesk.service</helpdesk.api.service.package>
 
         <swagger.source.bot>${basedir}/helpdesk-bot/helpdesk-bot-api.yaml</swagger.source.bot>
-        <helpdesk.api.bot.package>org.symphonyoss.symphony.bots.helpdesk</helpdesk.api.bot.package>
+        <helpdesk.api.bot.package>org.symphonyoss.symphony.bots.helpdesk.bot</helpdesk.api.bot.package>
     </properties>
 
     <dependencies>

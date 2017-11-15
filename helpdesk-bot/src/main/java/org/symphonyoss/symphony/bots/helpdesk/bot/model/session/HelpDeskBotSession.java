@@ -3,11 +3,11 @@
 // (powered by Fernflower decompiler)
 //
 
-package org.symphonyoss.symphony.bots.helpdesk.model.session;
+package org.symphonyoss.symphony.bots.helpdesk.bot.model.session;
 
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
-import org.symphonyoss.symphony.bots.helpdesk.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;

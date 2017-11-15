@@ -74,7 +74,8 @@ public class MembershipSQLService implements MembershipDao {
         membership.setId(RandomStringUtils.randomAlphanumeric(20));
       }
       String sql = "insert into " + tableName + " (id,groupId,membership) values(\"" + membership.getId()
-          + "\", \"" + membership.getGroupId() + "\", \"" + objectMapper.writeValueAsString(membership) + "\")";
+          + "\", \"" + membership.getGroupId() + "\", \"" + objectMapper.writeValueAsString(membership).replaceAll("\"","\'")
+          + "\")";
       LOG.info("Executing: " + sql);
       statement.executeUpdate(sql);
     } catch (SQLException | IOException e) {
@@ -133,12 +134,12 @@ public class MembershipSQLService implements MembershipDao {
 
       String sql = "select membership from " + tableName + " where id=\"" + id + "\" and groupId=\""
           + groupId + "\"";
-      ;
+
       LOG.info("Executing: " + sql);
       ResultSet resultSet = statement.executeQuery(sql);
       while (resultSet.next()) {
         LOG.info("Got membership: " + resultSet.getString("membership"));
-        membership = objectMapper.readValue(resultSet.getString("membership"), Membership.class);
+        membership = objectMapper.readValue(resultSet.getString("membership").replaceAll("\'", "\""), Membership.class);
       }
       resultSet.close();
       statement.close();
@@ -169,7 +170,8 @@ public class MembershipSQLService implements MembershipDao {
     try {
       statement = sqlConnection.createStatement();
       String sql = "update " + tableName + " set membership=\""
-          + objectMapper.writeValueAsString(membership) + "\" where id=\"" + id + "\" and groupId=\"" + groupId + "\"";
+          + objectMapper.writeValueAsString(membership).replaceAll("\"","\'") +
+          "\" where id=\"" + id + "\" and groupId=\"" + groupId + "\"";
       LOG.info("Executing: " + sql);
       statement.executeUpdate(sql);
     } catch (SQLException | IOException e) {

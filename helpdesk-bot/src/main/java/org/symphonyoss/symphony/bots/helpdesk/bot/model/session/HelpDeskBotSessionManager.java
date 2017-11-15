@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.model.session;
+package org.symphonyoss.symphony.bots.helpdesk.bot.model.session;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
