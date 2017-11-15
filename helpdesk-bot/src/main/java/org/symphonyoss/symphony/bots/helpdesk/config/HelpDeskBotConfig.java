@@ -65,6 +65,8 @@ public class HelpDeskBotConfig {
 
   private String addMemberClientSuccessResponse;
 
+  private String ticketCreationMessage;
+
   public String getEmail() {
     return email;
   }
@@ -279,5 +281,13 @@ public class HelpDeskBotConfig {
 
   public void setAddMemberClientSuccessResponse(String addMemberClientSuccessResponse) {
     this.addMemberClientSuccessResponse = addMemberClientSuccessResponse;
+  }
+
+  public String getTicketCreationMessage() {
+    return ticketCreationMessage;
+  }
+
+  public void setTicketCreationMessage(String ticketCreationMessage) {
+    this.ticketCreationMessage = ticketCreationMessage;
   }
 }

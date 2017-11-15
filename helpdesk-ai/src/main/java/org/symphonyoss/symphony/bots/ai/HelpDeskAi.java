@@ -18,7 +18,7 @@ public class HelpDeskAi extends SymphonyAi {
     this.helpDeskAiSession = helpDeskAiSession;
   }
 
-      @Override
+  @Override
   public AiSessionContext newAiSessionContext(AiSessionKey aiSessionKey) {
     SymphonyAiSessionContext symphonyAiSessionContext = (SymphonyAiSessionContext) super.newAiSessionContext(aiSessionKey);
     HelpDeskAiSessionContext sessionContext = new HelpDeskAiSessionContext();
@@ -29,4 +29,5 @@ public class HelpDeskAi extends SymphonyAi {
 
     return sessionContext;
   }
+
 }
