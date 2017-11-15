@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.config;
+package org.symphonyoss.symphony.bots.helpdesk.bot.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;

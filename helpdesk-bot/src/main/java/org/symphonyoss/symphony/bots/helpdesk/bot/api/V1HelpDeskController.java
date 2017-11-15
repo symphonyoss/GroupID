@@ -1,20 +1,20 @@
-package org.symphonyoss.symphony.bots.helpdesk.api;
+package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.client.model.Chat;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
-import org.symphonyoss.symphony.bots.helpdesk.model.HealthcheckResponse;
-import org.symphonyoss.symphony.bots.helpdesk.model.health.HealthCheckFailedException;
-import org.symphonyoss.symphony.bots.helpdesk.model.health.HealthcheckHelper;
-import org.symphonyoss.symphony.bots.helpdesk.model.session.HelpDeskBotSession;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.HealthcheckResponse;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthCheckFailedException;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.symphonyoss.symphony.bots.helpdesk.model.session.HelpDeskBotSessionManager;
-import org.symphonyoss.symphony.bots.helpdesk.model.MakerCheckerMessageDetail;
-import org.symphonyoss.symphony.bots.helpdesk.model.SuccessResponse;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.SuccessResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;

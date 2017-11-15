@@ -89,7 +89,7 @@ public class MessageProxyService implements MessageListener {
     AiConversation aiConversation = session.getHelpDeskAi().getConversation(aiSessionKey);
 
     Ticket ticket;
-    if(MembershipClient.MembershipType.AGENT.equals(membership.getType())) {
+    if(MembershipClient.MembershipType.AGENT.name().equals(membership.getType())) {
       ticket = session.getTicketClient().getTicketByServiceStreamId(streamId);
       if(ticket != null && !proxyMap.containsKey(ticket.getId())) {
         createAgentProxy(ticket, aiSessionContext);
@@ -108,7 +108,7 @@ public class MessageProxyService implements MessageListener {
         createClientProxy(ticket, aiSessionContext);
       } else if(!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, aiSessionContext);
-      } else if(TicketClient.TicketStateType.UNSERVICED.equals(ticket.getState())) {
+      } else if(TicketClient.TicketStateType.UNSERVICED.name().equals(ticket.getState())) {
         ticket.addTranscriptItem(symMessage.getMessage());
         session.getTicketClient().updateTicket(ticket);
       }

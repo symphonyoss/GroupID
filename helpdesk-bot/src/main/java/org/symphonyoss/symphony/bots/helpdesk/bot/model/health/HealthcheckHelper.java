@@ -20,7 +20,7 @@
  *
  */
 
-package org.symphonyoss.symphony.bots.helpdesk.model.health;
+package org.symphonyoss.symphony.bots.helpdesk.bot.model.health;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
