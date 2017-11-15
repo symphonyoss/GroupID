@@ -41,7 +41,6 @@ public class HelpDeskBot {
    */
   public HelpDeskBot(HelpDeskBotConfig helpDeskBotConfig) {
     this.helpDeskBotConfig = helpDeskBotConfig;
-    init();
   }
 
   /**
@@ -62,9 +61,9 @@ public class HelpDeskBot {
     helpDeskBotSession.setSymphonyClient(initSymphonyClient(helpDeskBotConfig));
     helpDeskBotSession.setTicketClient(initTicketClient(helpDeskBotConfig));
     helpDeskBotSession.setMembershipClient(initMembershipClient(helpDeskBotConfig));
-    helpDeskBotSession.setHelpDeskAi(initHelpDeskAi(helpDeskBotSession));
+    helpDeskBotSession.setHelpDeskAi(initHelpDeskAi(helpDeskBotSession, helpDeskBotConfig));
     helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService(helpDeskBotSession));
-    helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService(helpDeskBotSession));
+    helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService());
     helpDeskBotSession.setMessageProxyService(initMessageProxyService(helpDeskBotSession));
 
     registerDefaultAgent(helpDeskBotSession);
@@ -80,10 +79,9 @@ public class HelpDeskBot {
 
     LOG.info("Setting up auth http client for help desk bot with group id: " + configuration.getGroupId());
     try {
-      authClient.setKeystores(configuration.getTrustStoreFile(),
-          configuration.getTrustStorePassword(),
-          configuration.getKeyStoreFile(),
-          configuration.getKeyStorePassword());
+      System.setProperty("javax.net.ssl.keyStore", configuration.getKeyStoreFile());
+      System.setProperty("javax.net.ssl.keyStorePassword", configuration.getKeyStorePassword());
+      System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
     } catch (Exception e) {
       LOG.error("Could not create HTTP Client for authentication: ", e);
     }
@@ -102,9 +100,7 @@ public class HelpDeskBot {
     return symClient;
   }
 
-  private HelpDeskAi initHelpDeskAi(HelpDeskBotSession helpDeskBotSession) {
-    HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
-
+  private HelpDeskAi initHelpDeskAi(HelpDeskBotSession helpDeskBotSession, HelpDeskBotConfig configuration) {
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
     helpDeskAiSession.setMembershipClient(helpDeskAiSession.getMembershipClient());
     helpDeskAiSession.setTicketClient(helpDeskBotSession.getTicketClient());
@@ -142,7 +138,7 @@ public class HelpDeskBot {
     return  agentMakerCheckerService;
   }
 
-  private MakerCheckerService initClientMakerCheckerService(HelpDeskBotSession helpDeskBotSessio) {
+  private MakerCheckerService initClientMakerCheckerService() {
     HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
     MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
@@ -169,8 +165,6 @@ public class HelpDeskBot {
   }
 
   private MessageProxyService initMessageProxyService(HelpDeskBotSession helpDeskBotSession) {
-    HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
-
     MessageProxyServiceSession proxyServiceSession = new MessageProxyServiceSession();
     proxyServiceSession.setHelpDeskAi(helpDeskBotSession.getHelpDeskAi());
     proxyServiceSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
@@ -188,11 +182,11 @@ public class HelpDeskBot {
   private void registerDefaultAgent(HelpDeskBotSession helpDeskBotSession) {
     HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
-    if(!StringUtils.isBlank(configuration.getDefaultAgentEmail())) {
+    if(!StringUtils.isBlank(configuration.getEmail())) {
       MembershipClient membershipClient = helpDeskBotSession.getMembershipClient();
       UsersClient userClient = helpDeskBotSession.getSymphonyClient().getUsersClient();
       try {
-        SymUser symUser = userClient.getUserFromEmail(configuration.getDefaultAgentEmail());
+        SymUser symUser = userClient.getUserFromEmail(configuration.getEmail());
         Membership membership = membershipClient.getMembership(symUser.getId().toString());
         if(membership == null) {
           membershipClient.newMembership(symUser.getId().toString(), MembershipClient.MembershipType.AGENT);
