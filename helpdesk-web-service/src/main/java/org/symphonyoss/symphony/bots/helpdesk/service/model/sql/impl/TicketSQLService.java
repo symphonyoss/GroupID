@@ -6,11 +6,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.helpdesk.service.common.ServiceConstants;
 import org.symphonyoss.symphony.bots.helpdesk.service.config.HelpDeskServiceConfig;
@@ -45,8 +40,8 @@ public class TicketSQLService implements TicketDao {
   private String tableName;
 
   @Autowired
-  public TicketSQLService(@Value(HelpDeskServiceConfig.TICKET_TABLE_NAME) String tableName) {
-    this.tableName = tableName;
+  public TicketSQLService(HelpDeskServiceConfig helpDeskServiceConfig) {
+    this.tableName = helpDeskServiceConfig.getTicketTableName();
   }
 
   @PostConstruct
@@ -83,11 +78,9 @@ public class TicketSQLService implements TicketDao {
       if (StringUtils.isBlank(ticket.getId())) {
         ticket.setId(RandomStringUtils.randomAlphanumeric(20));
       }
-
-      String ticketToString = objectMapper.writeValueAsString(ticket).replace("\"", "\\\"");
-      String sql = "insert into " + tableName + " (id,groupId,serviceStreamId,clientStreamId,ticket) values(\""
+      String sql = "insert into " + tableName + " (id,groupId,serviceStreamId,ticket) values(\""
           + ticket.getId() + "\", \"" + ticket.getGroupId() + "\", \"" + ticket.getServiceStreamId() + "\",\""
-          + ticket.getClientStreamId() + "\",\"" + ticketToString + "\")";
+          + objectMapper.writeValueAsString(ticket).replaceAll("\"","\'") + "\")";
       LOG.info("Executing: " + sql);
       statement.executeUpdate(sql);
     } catch (SQLException | IOException e) {
@@ -148,7 +141,8 @@ public class TicketSQLService implements TicketDao {
       ResultSet resultSet = statement.executeQuery(sql);
       while (resultSet.next()) {
         LOG.info("Got ticket: " + resultSet.getString("ticket"));
-        ticket = objectMapper.readValue(resultSet.getString("ticket"), Ticket.class);
+        String ticketValue = resultSet.getString("ticket").replaceAll("\'", "\"");
+        ticket = objectMapper.readValue(ticketValue, Ticket.class);
       }
       resultSet.close();
       statement.close();
@@ -214,11 +208,9 @@ public class TicketSQLService implements TicketDao {
     Statement statement = null;
     try {
       statement = sqlConnection.createStatement();
-
-      String ticketToString = objectMapper.writeValueAsString(ticket).replace("\"", "\\\"");
       String sql = "update " + tableName + " set groupId=\"" + ticket.getGroupId()
-          + "\", serviceStreamId=\"" + ticket.getServiceStreamId() + "\", ticket=\""
-          + ticketToString + "\" where id=\"" + id + "\"";
+          + "\", set serviceStreamId=\"" + ticket.getServiceStreamId() + "\", set ticket=\""
+          + objectMapper.writeValueAsString(ticket) + "\" where id=\"" + id + "\"";
       LOG.info("Executing: " + sql);
       statement.executeUpdate(sql);
     } catch (SQLException | IOException e) {

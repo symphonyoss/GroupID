@@ -6,7 +6,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.helpdesk.service.common.ServiceConstants;
 import org.symphonyoss.symphony.bots.helpdesk.service.config.HelpDeskServiceConfig;
@@ -38,8 +37,8 @@ public class MembershipSQLService implements MembershipDao {
   private String tableName;
 
   @Autowired
-  public MembershipSQLService(@Value(HelpDeskServiceConfig.MEMBERSHIP_TABLE_NAME) String tableName) {
-    this.tableName = tableName;
+  public MembershipSQLService(HelpDeskServiceConfig helpDeskServiceConfig) {
+    this.tableName = helpDeskServiceConfig.getMembershipTableName();
   }
 
   @PostConstruct
@@ -74,10 +73,8 @@ public class MembershipSQLService implements MembershipDao {
       if (StringUtils.isBlank(membership.getId())) {
         membership.setId(RandomStringUtils.randomAlphanumeric(20));
       }
-
-      String membershipToString = objectMapper.writeValueAsString(membership).replace("\"", "\\\"");
       String sql = "insert into " + tableName + " (id,groupId,membership) values(\"" + membership.getId()
-          + "\", \"" + membership.getGroupId() + "\", \"" + membershipToString + "\")";
+          + "\", \"" + membership.getGroupId() + "\", \"" + objectMapper.writeValueAsString(membership) + "\")";
       LOG.info("Executing: " + sql);
       statement.executeUpdate(sql);
     } catch (SQLException | IOException e) {
@@ -171,10 +168,8 @@ public class MembershipSQLService implements MembershipDao {
     Statement statement = null;
     try {
       statement = sqlConnection.createStatement();
-
-      String membershipToString = objectMapper.writeValueAsString(membership).replace("\"", "\\\"");
       String sql = "update " + tableName + " set membership=\""
-          + membershipToString + "\" where id=\"" + id + "\" and groupId=\"" + groupId + "\"";
+          + objectMapper.writeValueAsString(membership) + "\" where id=\"" + id + "\" and groupId=\"" + groupId + "\"";
       LOG.info("Executing: " + sql);
       statement.executeUpdate(sql);
     } catch (SQLException | IOException e) {

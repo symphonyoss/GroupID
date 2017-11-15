@@ -28,14 +28,11 @@ public class SQLConnection {
   private String databasePassword;
 
   @Autowired
-  public SQLConnection(@Value(HelpDeskServiceConfig.DATABASE_DRIVER) String databaseDriver,
-      @Value(HelpDeskServiceConfig.DATABASE_URL) String databaseUrl,
-      @Value(HelpDeskServiceConfig.DATABASE_USER) String databaseUser,
-      @Value(HelpDeskServiceConfig.DATABASE_PASSWORD) String databasePassword) {
-    this.databaseDriver = databaseDriver;
-    this.databaseUrl = databaseUrl;
-    this.databaseUser = databaseUser;
-    this.databasePassword = databasePassword;
+  public SQLConnection(HelpDeskServiceConfig helpDeskServiceConfig) {
+    this.databaseDriver = helpDeskServiceConfig.getDatabaseDriver();
+    this.databaseUrl = helpDeskServiceConfig.getDatabaseUrl();
+    this.databaseUser = helpDeskServiceConfig.getDatabaseUser();
+    this.databasePassword = helpDeskServiceConfig.getDatabasePassword();
 
     LOG.info("Creating sql connection: " + databaseDriver + ", " + databaseUrl
         + ", " + databaseUser + ", " + databasePassword);
