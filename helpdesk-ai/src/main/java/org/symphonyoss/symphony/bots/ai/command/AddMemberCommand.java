@@ -8,13 +8,13 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.common.HelpDeskAiConstants;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionKey;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +22,7 @@ import org.symphonyoss.client.exceptions.StreamsException;
 import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 import org.symphonyoss.symphony.pod.model.Stream;
 
@@ -45,7 +46,7 @@ public class AddMemberCommand extends AiCommand {
     @Override
     public void doAction(AiSessionContext sessionContext, AiResponder responder,
         AiArgumentMap aiArgumentMap) {
-      HelpDeskAiSessionKey aiSessionKey = (HelpDeskAiSessionKey) sessionContext.getAiSessionKey();
+      SymphonyAiSessionKey aiSessionKey = (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
       HelpDeskAiSessionContext aiSessionContext = (HelpDeskAiSessionContext) sessionContext;
       HelpDeskAiSession helpDeskAiSession = aiSessionContext.getHelpDeskAiSession();
       HelpDeskAiConfig helpDeskAiConfig = helpDeskAiSession.getHelpDeskAiConfig();
@@ -59,12 +60,12 @@ public class AddMemberCommand extends AiCommand {
           if(isMembershipEnumIgnoreCase(type)) {
             Membership membership = new Membership();
             membership.setId(user.getId().toString());
-            membership.setGroupId(aiSessionKey.getGroupId());
+            membership.setGroupId(aiSessionContext.getGroupId());
             membership.setType(type.toUpperCase());
 
             helpDeskAiSession.getMembershipClient().updateMembership(membership);
 
-            Stream stream = helpDeskAiSession.getSymphonyClient().getStreamsClient().getStream(user);
+            SymStream stream = helpDeskAiSession.getSymphonyClient().getStreamsClient().getStream(user);
 
             responder.addResponse(sessionContext, successResponseAgent(helpDeskAiConfig, aiSessionKey));
             responder.addResponse(sessionContext, successResponseClient(helpDeskAiConfig, stream));
@@ -92,23 +93,23 @@ public class AddMemberCommand extends AiCommand {
       return false;
     }
 
-    private AiResponse successResponseAgent(HelpDeskAiConfig helpDeskAiConfig, HelpDeskAiSessionKey aiSessionKey) {
+    private AiResponse successResponseAgent(HelpDeskAiConfig helpDeskAiConfig, SymphonyAiSessionKey aiSessionKey) {
       return response(helpDeskAiConfig.getAddMemberAgentSuccessResponse(), aiSessionKey.getStreamId());
     }
 
-    private AiResponse successResponseClient(HelpDeskAiConfig helpDeskAiConfig, Stream stream) {
-      return response(helpDeskAiConfig.getAddMemberClientSuccessResponse(), stream.getId());
+    private AiResponse successResponseClient(HelpDeskAiConfig helpDeskAiConfig, SymStream stream) {
+      return response(helpDeskAiConfig.getAddMemberClientSuccessResponse(), stream.getStreamId());
     }
 
-    private AiResponse invalidMembershipTypeResponse(HelpDeskAiSessionKey aiSessionKey) {
+    private AiResponse invalidMembershipTypeResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.INVALID_MEMBERSHIP_TYPE, aiSessionKey.getStreamId());
     }
 
-    private AiResponse userNotFoundResponse(HelpDeskAiSessionKey aiSessionKey) {
+    private AiResponse userNotFoundResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.USER_NOT_FOUND, aiSessionKey.getStreamId());
     }
 
-    private AiResponse internalErrorResponse(HelpDeskAiSessionKey aiSessionKey) {
+    private AiResponse internalErrorResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.INTERNAL_ERROR, aiSessionKey.getStreamId());
     }
 

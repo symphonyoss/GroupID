@@ -35,6 +35,7 @@ public class SymphonyAiMessage extends AiMessage {
     this.messageId = symMessage.getId();
     this.timestamp = symMessage.getTimestamp();
     this.streamId = symMessage.getStreamId();
+    this.fromUserId =symMessage.getFromUserId().toString();
   }
 
   public String getEntityData() {
