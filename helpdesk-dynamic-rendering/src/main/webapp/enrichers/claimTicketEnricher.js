@@ -2,14 +2,14 @@ import { MessageEnricherBase } from 'symphony-integration-commons';
 import actionFactory from '../utils/actionFactory';
 import TicketService from '../services/ticketService';
 
-const actions = require('../templates/actions.hbs');
+const actions = require('../templates/claimTicketActions.hbs');
 
 const enricherServiceName = 'helpdesk-enricher';
 const messageEvents = [
   'com.symphony.bots.helpdesk.event.ticket',
 ];
 
-export default class HelpDeskBotEnricher extends MessageEnricherBase {
+export default class ClaimTicketEnricher extends MessageEnricherBase {
   constructor() {
     super(enricherServiceName, messageEvents);
 
