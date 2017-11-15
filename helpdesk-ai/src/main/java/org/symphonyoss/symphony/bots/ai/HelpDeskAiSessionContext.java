@@ -31,12 +31,16 @@ public class HelpDeskAiSessionContext extends SymphonyAiSessionContext {
   }
 
   public void setSessionType(SessionType sessionType) {
-    if(sessionType.equals(SessionType.AGENT_SERVICE)) {
-      setAiCommandMenu(new ServiceCommandMenu(helpDeskAiSession.getHelpDeskAiConfig()));
-    } else if(sessionType.equals(SessionType.AGENT)) {
-      setAiCommandMenu(new AgentCommandMenu(helpDeskAiSession.getHelpDeskAiConfig()));
-    } else {
-      setAiCommandMenu(new ClientCommandMenu());
+    switch (sessionType) {
+      case AGENT_SERVICE:
+        setAiCommandMenu(new ServiceCommandMenu(helpDeskAiSession.getHelpDeskAiConfig()));
+        break;
+      case AGENT:
+        setAiCommandMenu(new AgentCommandMenu(helpDeskAiSession.getHelpDeskAiConfig()));
+        break;
+      default:
+        setAiCommandMenu(new ClientCommandMenu());
+        break;
     }
 
     this.sessionType = sessionType;

@@ -1,8 +1,10 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.impl.SymphonyBasicClient;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
@@ -18,7 +20,10 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxySer
 import org.symphonyoss.symphony.bots.helpdesk.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
+import org.symphonyoss.symphony.clients.UsersClient;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 import javax.annotation.PostConstruct;
 
@@ -37,7 +42,6 @@ public class HelpDeskBot {
    */
   public HelpDeskBot(HelpDeskBotConfig helpDeskBotConfig) {
     this.helpDeskBotConfig = helpDeskBotConfig;
-    init();
   }
 
   /**
@@ -58,10 +62,12 @@ public class HelpDeskBot {
     helpDeskBotSession.setSymphonyClient(initSymphonyClient(helpDeskBotConfig));
     helpDeskBotSession.setTicketClient(initTicketClient(helpDeskBotConfig));
     helpDeskBotSession.setMembershipClient(initMembershipClient(helpDeskBotConfig));
-    helpDeskBotSession.setHelpDeskAi(initHelpDeskAi(helpDeskBotSession));
-    helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService(helpDeskBotSession));
-    helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService(helpDeskBotSession));
-    helpDeskBotSession.setMessageProxyService(initMessageProxyService(helpDeskBotSession));
+    helpDeskBotSession.setHelpDeskAi(initHelpDeskAi(helpDeskBotConfig));
+    helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService());
+    helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService());
+    helpDeskBotSession.setMessageProxyService(initMessageProxyService());
+
+    registerDefaultAgent();
 
     LOG.info("Help Desk Bot startup complete fpr groupId: " + helpDeskBotConfig.getGroupId());
   }
@@ -74,10 +80,9 @@ public class HelpDeskBot {
 
     LOG.info("Setting up auth http client for help desk bot with group id: " + configuration.getGroupId());
     try {
-      authClient.setKeystores(configuration.getTrustStoreFile(),
-          configuration.getTrustStorePassword(),
-          configuration.getKeyStoreFile(),
-          configuration.getKeyStorePassword());
+      System.setProperty("javax.net.ssl.keyStore", configuration.getKeyStoreFile());
+      System.setProperty("javax.net.ssl.keyStorePassword", configuration.getKeyStorePassword());
+      System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
     } catch (Exception e) {
       LOG.error("Could not create HTTP Client for authentication: ", e);
     }
@@ -96,9 +101,7 @@ public class HelpDeskBot {
     return symClient;
   }
 
-  private HelpDeskAi initHelpDeskAi(HelpDeskBotSession helpDeskBotSession) {
-    HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
-
+  private HelpDeskAi initHelpDeskAi(HelpDeskBotConfig configuration) {
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
     helpDeskAiSession.setMembershipClient(helpDeskAiSession.getMembershipClient());
     helpDeskAiSession.setTicketClient(helpDeskBotSession.getTicketClient());
@@ -123,7 +126,7 @@ public class HelpDeskBot {
     return helpDeskAi;
   }
 
-  private MakerCheckerService initAgentMakerCheckerService(HelpDeskBotSession helpDeskBotSession) {
+  private MakerCheckerService initAgentMakerCheckerService() {
     HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
     MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
@@ -136,7 +139,7 @@ public class HelpDeskBot {
     return  agentMakerCheckerService;
   }
 
-  private MakerCheckerService initClientMakerCheckerService(HelpDeskBotSession helpDeskBotSessio) {
+  private MakerCheckerService initClientMakerCheckerService() {
     HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
     MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
@@ -162,7 +165,7 @@ public class HelpDeskBot {
     return ticketClient;
   }
 
-  private MessageProxyService initMessageProxyService(HelpDeskBotSession helpDeskBotSession) {
+  private MessageProxyService initMessageProxyService() {
     HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
     MessageProxyServiceSession proxyServiceSession = new MessageProxyServiceSession();
@@ -185,6 +188,27 @@ public class HelpDeskBot {
     helpDeskBotSession.getSymphonyClient().getMessageService().addMessageListener(messageProxyService);
 
     return messageProxyService;
+  }
+
+  private void registerDefaultAgent() {
+    HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
+
+    if(!StringUtils.isBlank(configuration.getEmail())) {
+      MembershipClient membershipClient = helpDeskBotSession.getMembershipClient();
+      UsersClient userClient = helpDeskBotSession.getSymphonyClient().getUsersClient();
+      try {
+        SymUser symUser = userClient.getUserFromEmail(configuration.getEmail());
+        Membership membership = membershipClient.getMembership(symUser.getId().toString());
+        if(membership == null) {
+          membershipClient.newMembership(symUser.getId().toString(), MembershipClient.MembershipType.AGENT);
+        } else if(!membership.getType().equals(MembershipClient.MembershipType.AGENT.getType())){
+          membership.setType(MembershipClient.MembershipType.AGENT.getType());
+          membershipClient.updateMembership(membership);
+        }
+      } catch (UsersClientException e) {
+        LOG.error("Error registering default agent user: ", e);
+      }
+    }
   }
 
   public HelpDeskBotSession getHelpDeskBotSession() {

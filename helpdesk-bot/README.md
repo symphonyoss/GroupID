@@ -8,8 +8,10 @@
    full file path of the [bot.user1.p12](./src/main/resources/sample/bot.user1.p12) file in the sample resources.
    4. Change the "trustStoreFile" property in [helpdeskbot.yaml](./src/main/resources/helpdeskbot.yaml) to the 
    full file path of the [auth.truststore](./src/main/resources/sample/auth.truststore) file in the sample resources.
-   5. Change the "aiSessionContextDir" property in [helpdeskbot.yaml](./src/main/resources/helpdeskbot.yaml) to the 
-      path where you would like the ai to save 
-   6. Run [SpringHelpDeskBotInit.java](./src/main/java/org/symphonyoss/symphony/bots/helpdesk/init/SpringHelpDeskBotInit.java)
+   5. Change the "defaultAgentEmail" property in [helpdeskbot.yaml](./src/main/resources/helpdeskbot.yaml) to a user
+    in which should be promoted to an agent by default.
+   6. Change the "agentStreamId" property in [helpdeskbot.yaml](./src/main/resources/helpdeskbot.yaml) to the stream Id of
+    the agent claim ticket room. The bot must be in the defined stream.
+   7. Run [SpringHelpDeskBotInit.java](./src/main/java/org/symphonyoss/symphony/bots/helpdesk/init/SpringHelpDeskBotInit.java)
    with system property "app.home" set to the path of the [resources folder](./src/main/resources).
-   7. Check that the bot server is running by reaching: https://localhost.symphony.com:8443/helpdesk/v1/Test/healthcheck
+   8. Check that the bot server is running by reaching: https://localhost.symphony.com:8443/helpdesk/v1/Test/healthcheck
