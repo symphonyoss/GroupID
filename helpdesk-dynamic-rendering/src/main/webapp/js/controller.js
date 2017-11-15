@@ -1,5 +1,5 @@
 import 'babel-polyfill';
-import HelpDeskBotEnricher from '../enrichers/enricher';
+import HelpDeskBotEnricher from '../enrichers/ticketEnricher';
 
 const enricher = new HelpDeskBotEnricher();
 const appId = 'helpdesk';
