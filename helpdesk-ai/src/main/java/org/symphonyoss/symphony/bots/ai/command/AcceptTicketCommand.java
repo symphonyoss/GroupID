@@ -7,6 +7,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.common.HelpDeskAiConstants;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
@@ -14,7 +15,6 @@ import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 
@@ -41,7 +41,7 @@ public class AcceptTicketCommand extends AiCommand {
     @Override
     public void doAction(AiSessionContext sessionContext, AiResponder responder,
         AiArgumentMap aiArgumentMap) {
-      HelpDeskAiSessionKey aiSessionKey = (HelpDeskAiSessionKey) sessionContext.getAiSessionKey();
+      SymphonyAiSessionKey aiSessionKey = (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
       HelpDeskAiSessionContext aiSessionContext = (HelpDeskAiSessionContext) sessionContext;
       HelpDeskAiSession helpDeskAiSession = aiSessionContext.getHelpDeskAiSession();
       HelpDeskAiConfig helpDeskAiConfig = helpDeskAiSession.getHelpDeskAiConfig();
@@ -72,7 +72,7 @@ public class AcceptTicketCommand extends AiCommand {
       responder.respond(sessionContext);
     }
 
-    private AiResponse successResponse(HelpDeskAiConfig helpDeskAiConfig, HelpDeskAiSessionKey aiSessionKey) {
+    private AiResponse successResponse(HelpDeskAiConfig helpDeskAiConfig, SymphonyAiSessionKey aiSessionKey) {
       return response(helpDeskAiConfig.getAcceptTicketAgentSuccessResponse(), aiSessionKey.getStreamId());
     }
 
@@ -80,11 +80,11 @@ public class AcceptTicketCommand extends AiCommand {
       return response(helpDeskAiConfig.getAcceptTicketClientSuccessResponse(), ticket.getClientStreamId());
     }
 
-    private AiResponse ticketNotFoundResponse(HelpDeskAiSessionKey aiSessionKey) {
+    private AiResponse ticketNotFoundResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.TICKET_NOT_FOUND, aiSessionKey.getStreamId());
     }
 
-    private AiResponse failedToAddAgentToService(HelpDeskAiSessionKey aiSessionKey) {
+    private AiResponse failedToAddAgentToService(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.INTERNAL_ERROR, aiSessionKey.getStreamId());
     }
 

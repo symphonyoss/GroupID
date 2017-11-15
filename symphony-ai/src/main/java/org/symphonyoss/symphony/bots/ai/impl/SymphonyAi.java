@@ -1,100 +1,72 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
+import org.apache.commons.lang3.StringUtils;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
-import org.symphonyoss.symphony.bots.ai.AiEventListener;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.model.Ai;
-import org.symphonyoss.symphony.bots.ai.model.AiConversationManager;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContextManager;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
-import org.symphonyoss.client.services.MessageListener;
-import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**
  * Created by nick.tarsillo on 8/20/17.
  */
-public class SymphonyAi extends Ai {
-  protected AiEventListener aiEventListener;
-  protected AiSessionContextManager aiSessionContextManager;
-  protected AiConversationManager aiConversationManager;
+public class SymphonyAi extends AiImpl {
+  private SymphonyClient symphonyClient;
 
-  public SymphonyAi(MessagesClient messagesClient, boolean suggestCommand, String sessionContext) {
+  public SymphonyAi(SymphonyClient symphonyClient, boolean suggestCommand) {
+    super(suggestCommand);
     AiCommandInterpreter aiCommandInterpreter = new AiCommandInterpreterImpl();
-    AiResponder aiResponder = new SymphonyAiResponder(messagesClient);
+    aiResponder = new SymphonyAiResponder(symphonyClient.getMessagesClient());
     aiEventListener = new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommand);
-    aiSessionContextManager = new AiSessionContextManagerImpl(sessionContext);
-    aiConversationManager = new AiConversationManager(sessionContext);
-  }
 
-  /**
-   * Create a symphony Ai session.
-   * Creates a session unique to the user and the stream they are in.
-   * @param userId the id of the user.
-   * @param streamId the stream id of the user.
-   * @return a chat listener that allows the Ai to listen to chats, using SJC.
-   */
-  public AiSymphonyChatListener createNewSymphonySession(Long userId, String streamId) {
-    AiSessionKey aiSessionKey = new AiSessionKey(userId + ":" + streamId);
-    AiSymphonyChatListener chatListener = new AiSymphonyChatListener() {
-      @Override
-      public void onChatMessage(SymMessage message) {
-        AiSessionKey key = aiSessionKey;
-        if(message.getFromUserId().equals(userId) && message.getStreamId().equals(streamId)) {
-          onAiMessage(key, new SymphonyAiMessage(message));
-        }
-      }
-    };
-
-    chatListener.setAiSessionKey(aiSessionKey);
-
-    return chatListener;
-  }
-
-  /**
-   * Create a symphony Ai session.
-   * Creates a session unique to the user.
-   * @param userId the id of the user.
-   * @return a chat listener that allows the Ai to listen to chats, using SJC.
-   */
-  public MessageListener createNewSymphonySession(String userId) {
-    AiSessionKey aiSessionKey = new AiSessionKey("" + userId);
-    AiSymphonyMessageListener messageListener = new AiSymphonyMessageListener() {
-      @Override
-      public void onMessage(SymMessage message) {
-        AiSessionKey key = aiSessionKey;
-        if(message.getFromUserId().equals(userId)) {
-          onAiMessage(key, new SymphonyAiMessage(message));
-        }
-      }
-    };
-
-    messageListener.setAiSessionKey(aiSessionKey);
-
-    return messageListener;
+    this.symphonyClient = symphonyClient;
   }
 
   public AiSessionKey getSessionKey(String userId) {
-    return new AiSessionKey("" + userId);
+    return new SymphonyAiSessionKey(userId, userId);
   }
 
   public AiSessionKey getSessionKey(String userId, String streamId) {
-    return new AiSessionKey(userId + ":" + streamId);
+    return new SymphonyAiSessionKey(userId + ":" + streamId, userId, streamId);
   }
 
   @Override
-  protected AiEventListener getAiEventListener() {
-    return aiEventListener;
-  }
+  public AiSessionContext newAiSessionContext(AiSessionKey aiSessionKey) {
+    SymphonyAiSessionContext aiSessionContext = new SymphonyAiSessionContext();
+    SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) aiSessionKey;
 
-  @Override
-  protected AiSessionContextManager getAiSessionContextManager() {
-    return aiSessionContextManager;
-  }
+    if(StringUtils.isBlank(sessionKey.getStreamId())) {
+      SymphonyAiMessageListener messageListener = new SymphonyAiMessageListener() {
+        @Override
+        public void onMessage(SymMessage symMessage) {
+          if(symMessage.getFromUserId().toString().equals(sessionKey.getUid())) {
+            SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
+            onAiMessage(sessionKey, symphonyAiMessage);
+          }
+        }
+      };
+      messageListener.setAiSessionKey(aiSessionKey);
+      aiSessionContext.setSymphonyAiMessageListener(messageListener);
 
-  @Override
-  protected AiConversationManager getAiConversationManager() {
-    return aiConversationManager;
+      symphonyClient.getMessageService().addMessageListener(messageListener);
+    } else {
+      SymphonyAiChatListener chatListener = new SymphonyAiChatListener() {
+        @Override
+        public void onChatMessage(SymMessage symMessage) {
+          if(symMessage.getFromUserId().toString().equals(sessionKey.getUid())) {
+            SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
+            onAiMessage(sessionKey, symphonyAiMessage);
+          }
+        }
+      };
+      chatListener.setAiSessionKey(aiSessionKey);
+      aiSessionContext.setSymphonyAiChatListener(chatListener);
+
+      symphonyClient.getChatService().getChatByStream(sessionKey.getStreamId()).addListener(chatListener);
+    }
+
+    return aiSessionContext;
   }
 }

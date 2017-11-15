@@ -1,8 +1,10 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.impl.SymphonyBasicClient;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
@@ -17,7 +19,10 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxySer
 import org.symphonyoss.symphony.bots.helpdesk.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
+import org.symphonyoss.symphony.clients.UsersClient;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 import javax.annotation.PostConstruct;
 
@@ -61,6 +66,8 @@ public class HelpDeskBot {
     helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService(helpDeskBotSession));
     helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService(helpDeskBotSession));
     helpDeskBotSession.setMessageProxyService(initMessageProxyService(helpDeskBotSession));
+
+    registerDefaultAgent(helpDeskBotSession);
 
     LOG.info("Help Desk Bot startup complete fpr groupId: " + helpDeskBotConfig.getGroupId());
   }
@@ -176,6 +183,27 @@ public class HelpDeskBot {
     helpDeskBotSession.getSymphonyClient().getMessageService().addMessageListener(messageProxyService);
 
     return messageProxyService;
+  }
+
+  private void registerDefaultAgent(HelpDeskBotSession helpDeskBotSession) {
+    HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
+
+    if(!StringUtils.isBlank(configuration.getDefaultAgentEmail())) {
+      MembershipClient membershipClient = helpDeskBotSession.getMembershipClient();
+      UsersClient userClient = helpDeskBotSession.getSymphonyClient().getUsersClient();
+      try {
+        SymUser symUser = userClient.getUserFromEmail(configuration.getDefaultAgentEmail());
+        Membership membership = membershipClient.getMembership(symUser.getId().toString());
+        if(membership == null) {
+          membershipClient.newMembership(symUser.getId().toString(), MembershipClient.MembershipType.AGENT);
+        } else if(!membership.getType().equals(MembershipClient.MembershipType.AGENT.getType())){
+          membership.setType(MembershipClient.MembershipType.AGENT.getType());
+          membershipClient.updateMembership(membership);
+        }
+      } catch (UsersClientException e) {
+        LOG.error("Error registering default agent user: ", e);
+      }
+    }
   }
 
   public HelpDeskBotSession getHelpDeskBotSession() {

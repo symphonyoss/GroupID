@@ -5,10 +5,10 @@ import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.common.HelpDeskAiConstants;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
@@ -37,7 +37,7 @@ public class CloseTicketCommand extends AiCommand {
     @Override
     public void doAction(AiSessionContext sessionContext, AiResponder responder,
         AiArgumentMap aiArgumentMap) {
-      HelpDeskAiSessionKey aiSessionKey = (HelpDeskAiSessionKey) sessionContext.getAiSessionKey();
+      SymphonyAiSessionKey aiSessionKey = (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
       HelpDeskAiSessionContext aiSessionContext = (HelpDeskAiSessionContext) sessionContext;
       HelpDeskAiSession helpDeskAiSession = aiSessionContext.getHelpDeskAiSession();
       HelpDeskAiConfig helpDeskAiConfig = helpDeskAiSession.getHelpDeskAiConfig();
@@ -68,7 +68,7 @@ public class CloseTicketCommand extends AiCommand {
       return response(helpDeskAiConfig.getCloseTicketSuccessResponse(), ticket.getClientStreamId());
     }
 
-    private AiResponse internalErrorResponse(HelpDeskAiSessionKey aiSessionKey) {
+    private AiResponse internalErrorResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.INTERNAL_ERROR, aiSessionKey.getStreamId());
     }
 

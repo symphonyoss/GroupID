@@ -8,10 +8,13 @@ import org.symphonyoss.client.exceptions.RoomException;
 import org.symphonyoss.client.model.Chat;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.services.MessageListener;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
-import org.symphonyoss.symphony.bots.ai.impl.AiSymphonyChatListener;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiChatListener;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimMessageTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
@@ -74,19 +77,22 @@ public class MessageProxyService implements MessageListener {
 
     Membership membership = session.getMembershipClient().getMembership(userId);
     if(membership == null) {
-      membership = session.getMembershipClient().newMembership(userId);
+      membership = session.getMembershipClient().newMembership(userId,
+          MembershipClient.MembershipType.CLIENT);
     }
 
-    AiConversation aiConversation = session.getHelpDeskAi().getConversation(
-        session.getHelpDeskAi().getSessionKey(userId, streamId));
+    AiSessionKey symphonyAiSessionKey = session.getHelpDeskAi().getSessionKey(userId, streamId);
+    HelpDeskAiSessionContext aiSessionContext =
+        (HelpDeskAiSessionContext) session.getHelpDeskAi().getSessionContext(symphonyAiSessionKey);
+    AiConversation aiConversation = session.getHelpDeskAi().getConversation(symphonyAiSessionKey);
 
-    Ticket ticket = null;
-    if(membership.getType().equals(MembershipClient.MembershipType.AGENT)) {
+    Ticket ticket;
+    if(MembershipClient.MembershipType.AGENT.equals(membership.getType())) {
       ticket = session.getTicketClient().getTicketByServiceStreamId(streamId);
       if(ticket != null && !proxyMap.containsKey(ticket.getId())) {
-        createAgentProxy(ticket, symMessage);
+        createAgentProxy(ticket, aiSessionContext);
       } else if(ticket != null && aiConversation == null) {
-        addAgentToProxy(ticket, symMessage);
+        addAgentToProxy(ticket, aiSessionContext);
       }
     } else {
       ticket = session.getTicketClient().getTicketByClientStreamId(streamId);
@@ -95,10 +101,10 @@ public class MessageProxyService implements MessageListener {
         ticket = session.getTicketClient().createTicket(
             ticketId, newServiceStream(ticketId, streamId), streamId, symMessage.getMessageText());
         sendClaimTicketMessage(ticketId);
-        createClientProxy(ticket, symMessage);
+        createClientProxy(ticket, aiSessionContext);
       } else if(!proxyMap.containsKey(ticket.getId())) {
-        createClientProxy(ticket, symMessage);
-      } else if(ticket.getState().equals(TicketClient.TicketStateType.UNSERVICED)) {
+        createClientProxy(ticket, aiSessionContext);
+      } else if(TicketClient.TicketStateType.UNSERVICED.equals(ticket.getState())) {
         ticket.addTranscriptItem(symMessage.getMessage());
         session.getTicketClient().updateTicket(ticket);
       }
@@ -109,14 +115,16 @@ public class MessageProxyService implements MessageListener {
    * If a agent talks in a client service room, but a proxy mapping does not exist, create a new
    * mapping based on the ticket.
    * @param ticket the ticket to base the mapping on.
-   * @param symMessage the message sent by the agent.
    */
-  private void createAgentProxy(Ticket ticket, SymMessage symMessage) {
-    AiSymphonyChatListener chatListener = newAiSession(symMessage, HelpDeskAiSessionKey.SessionType.AGENT_SERVICE);
+  private void createAgentProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
+    aiSessionContext.setGroupId(session.getGroupId());
+    aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT_SERVICE);
 
-    ProxyConversation aiConversation = new ProxyConversation(true, session.getAgentMakerCheckerService());
+    ProxyConversation aiConversation = new ProxyConversation(true,
+        session.getAgentMakerCheckerService());
     aiConversation.addProxyId(ticket.getClientStreamId());
-    session.getHelpDeskAi().startConversation(chatListener.getAiSessionKey(), aiConversation);
+
+    session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
 
     proxyMap.put(ticket.getId(), new MessageProxy());
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
@@ -126,14 +134,17 @@ public class MessageProxyService implements MessageListener {
    * If a proxy has already been created for the ticket, but the agent has not been mapped,
    * map the agent.
    * @param ticket the ticket to base the mapping on.
-   * @param symMessage the message sent by the agent.
+   * @param aiSessionContext the ai session context
    */
-  private void addAgentToProxy(Ticket ticket, SymMessage symMessage) {
-    AiSymphonyChatListener chatListener = newAiSession(symMessage, HelpDeskAiSessionKey.SessionType.AGENT_SERVICE);
+  private void addAgentToProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
+    aiSessionContext.setGroupId(session.getGroupId());
+    aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT_SERVICE);
 
-    ProxyConversation aiConversation = new ProxyConversation(true, session.getClientMakerCheckerService());
+
+    ProxyConversation aiConversation = new ProxyConversation(true,
+        session.getClientMakerCheckerService());
     aiConversation.addProxyId(ticket.getServiceStreamId());
-    session.getHelpDeskAi().startConversation(chatListener.getAiSessionKey(), aiConversation);
+    session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
 
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
   }
@@ -143,35 +154,17 @@ public class MessageProxyService implements MessageListener {
    *    Creating a new session with the help desk ai, and adding a new ai conversation.
    *    Registering the proxy in the proxy map.
    * @param ticket
-   * @param symMessage
    */
-  private void createClientProxy(Ticket ticket, SymMessage symMessage) {
-    AiSymphonyChatListener chatListener = newAiSession(symMessage, HelpDeskAiSessionKey.SessionType.CLIENT);
+  private void createClientProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
+    aiSessionContext.setGroupId(session.getGroupId());
+    aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.CLIENT);
 
     ProxyConversation aiConversation = new ProxyConversation(false, session.getClientMakerCheckerService());
     aiConversation.addProxyId(ticket.getServiceStreamId());
-    session.getHelpDeskAi().startConversation(chatListener.getAiSessionKey(), aiConversation);
+    session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
 
     proxyMap.put(ticket.getId(), new MessageProxy());
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
-  }
-
-  /**
-   * Creates a new AI session.
-   * @param symMessage the message to base the session on
-   * @param sessionType the help desk session type
-   * @return a chat listener for the ai
-   */
-  private AiSymphonyChatListener newAiSession(SymMessage symMessage, HelpDeskAiSessionKey.SessionType sessionType) {
-    Chat chat = session.getSymphonyClient().getChatService().getChatByStream(symMessage.getStreamId());
-    AiSymphonyChatListener chatListener = session.getHelpDeskAi().createNewHelpDeskSession(
-        symMessage.getFromUserId().toString(),
-        symMessage.getStreamId(),
-        session.getGroupId(),
-        sessionType);
-    chat.addListener(chatListener);
-
-    return chatListener;
   }
 
   private void sendClaimTicketMessage(String ticketId) {
