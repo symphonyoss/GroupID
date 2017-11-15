@@ -9,8 +9,6 @@ const messageEvents = [
   'com.symphony.bots.helpdesk.event.ticket',
 ];
 
-const entityRegistry = SYMPHONY.services.subscribe('entity');
-
 export default class HelpDeskBotEnricher extends MessageEnricherBase {
   constructor() {
     super(enricherServiceName, messageEvents);
@@ -39,6 +37,7 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
       const result = {
         template: actions({ showClaim: data.claimTicket.data.showClaim }),
         data,
+        enricherInstanceId: entity.ticketId,
       };
 
       return result;
@@ -47,6 +46,7 @@ export default class HelpDeskBotEnricher extends MessageEnricherBase {
 
   action(data) {
     this.services.ticketService.claim(data).then((rsp) => {
+      const entityRegistry = SYMPHONY.services.subscribe('entity');
       const claimTicketAction = {
         id: 'claimTicket',
         service: enricherServiceName,
