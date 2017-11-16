@@ -9,7 +9,9 @@ import org.symphonyoss.symphony.bots.utility.template.TemplateData;
  */
 public class ClaimEntityTemplateData extends TemplateData {
   enum ReplacementEnums implements TemplateEnums {
-    TICKET_ID("TICKET_ID");
+    TICKET_ID("TICKET_ID"),
+    TICKET_STATE("TICKET_STATE"),
+    USER_NAME("USER_NAME");
 
     private String replacement;
 
@@ -20,7 +22,9 @@ public class ClaimEntityTemplateData extends TemplateData {
     }
   }
 
-  public ClaimEntityTemplateData(String ticketId) {
+  public ClaimEntityTemplateData(String ticketId, String ticketState, String username) {
     addData(ReplacementEnums.TICKET_ID.getReplacement(), ticketId);
+    addData(ReplacementEnums.TICKET_STATE.getReplacement(), ticketState);
+    addData(ReplacementEnums.USER_NAME.getReplacement(), username);
   }
 }

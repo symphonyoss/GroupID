@@ -104,7 +104,7 @@ public class MessageProxyService implements MessageListener {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
         ticket = session.getTicketClient().createTicket(
             ticketId, streamId, newServiceStream(ticketId, streamId), symMessage.getMessageText());
-        sendTicketCreationMessages(ticket, aiSessionContext);
+        sendTicketCreationMessages(ticket, ticket.getState(), ticket.getClientStreamId(), aiSessionContext);
         createClientProxy(ticket, aiSessionContext);
       } else if(!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, aiSessionContext);
@@ -164,7 +164,8 @@ public class MessageProxyService implements MessageListener {
    *    Creating a new session with the help desk ai, and adding a new ai conversation.
    *    Registering the proxy in the proxy map.
    */
-  private void createClientProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
+  private void createClientProxy(Ticket ticket,
+      HelpDeskAiSessionContext aiSessionContext) {
     aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
     aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.CLIENT);
 
@@ -176,7 +177,8 @@ public class MessageProxyService implements MessageListener {
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
   }
 
-  private void sendTicketCreationMessages(Ticket ticket, AiSessionContext aiSessionContext) {
+  private void sendTicketCreationMessages(Ticket ticket, String state,
+      String clientStreamId, AiSessionContext aiSessionContext) {
     SymphonyAiMessage aiMessage = new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());
     Set<AiResponseIdentifier> aiResponseIdentifierSet = new HashSet<>();
     aiResponseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
@@ -187,7 +189,7 @@ public class MessageProxyService implements MessageListener {
     MessageTemplate entityTemplate = new MessageTemplate(
         session.getMessageProxyServiceConfig().getClaimEntityTemplate());
     ClaimMessageTemplateData messageTemplateData = new ClaimMessageTemplateData(ticket.getId());
-    ClaimEntityTemplateData entityTemplateData = new ClaimEntityTemplateData(ticket.getId());
+    ClaimEntityTemplateData entityTemplateData = new ClaimEntityTemplateData(ticket.getId(), state, clientStreamId);
     String message = messageTemplate.buildFromData(messageTemplateData);
     String entity = entityTemplate.buildFromData(entityTemplateData);
 
