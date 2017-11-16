@@ -44,8 +44,6 @@ makerCheckerEntityTemplate:
     \"timestamp\" : \"{TIMESTAMP}\",
     \"messageId\" : \"{MESSAGE_ID}\"}
   }"
-  
-ticketCreationMessage: Hello client, a new ticket has been created. Please wait while an agent reviews your request.
 
 aiServicePrefix:
 aiDefaultPrefix: /
