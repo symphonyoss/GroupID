@@ -33,7 +33,7 @@ export const getTicket = (ticketId) => {
   }).catch(error => rejectPromise(error));
 };
 
-export const acceptAttachment = (messageAttachment) => {
+export const approveAttachment = (messageAttachment) => {
   const apiUrl = '/v1/makerchecker/accept';
   return axios({
     method: 'post',

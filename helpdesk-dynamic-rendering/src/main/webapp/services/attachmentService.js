@@ -5,17 +5,17 @@ export default class AttachmentService {
     this.serviceName = serviceName;
   }
 
-  accept(message) {
+  approve(message) {
     return acceptAttachment(message)
       .catch((error) => {
         switch (error.message) {
-            case '': {
-              break;
-            }
-            default: {
-              break;
-            }
+          case '': {
+            break;
           }
+          default: {
+            break;
+          }
+        }
       });
   }
 
@@ -23,13 +23,13 @@ export default class AttachmentService {
     return denyAttachment(message)
       .catch((error) => {
         switch (error.message) {
-            case '': {
-              break;
-            }
-            default: {
-              break;
-            }
+          case '': {
+            break;
           }
+          default: {
+            break;
+          }
+        }
       });
   }
 
