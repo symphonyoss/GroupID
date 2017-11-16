@@ -1,29 +1,11 @@
 #This is a sample help desk bot properties config.
 server:
-  port : 8443
-  ssl:
-    key-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/main/resources/sample/server.keystore
-    key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
-    trust-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/main/resources/sample/server.truststore
-    trust-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
+  port : 8090
 
-#This is a sample help desk bot externalized config.
-email: bot.user1@symphony.com
-sessionAuthUrl: https://develop-api.symphony.com:8444/sessionauth
-keyAuthUrl:  https://develop-api.symphony.com:8444/keyauth
-agentUrl: https://develop.symphony.com/agent
-podUrl: https://develop.symphony.com/pod
-keyStoreFile: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/main/resources/sample/bot.user1.p12
-keyStorePassword: changeit
-trustStoreFile: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/main/resources/sample/auth.truststore
-trustStorePassword: changeit
-
+email: helpdesk@symphony.com
 groupId: Test
-defaultAgentEmail: nick.tarsillo@symphony.com
-agentStreamId: TVuowHrmpEdGeDXM16thIn___qBGsaWUdA
-
-memberServiceUrl: https://localhost.symphony.com:8442/helpdesk/service
-ticketServiceUrl: https://localhost.symphony.com:8442/helpdesk/service
+defaultAgentEmail: testAgent@symphony.com
+agentStreamId: TestStreamId
 
 claimMessageTemplate:
   "<div class=\"entity\" data-entity-id=\"zapierPostMessage\">
@@ -62,16 +44,17 @@ makerCheckerEntityTemplate:
     \"timestamp\" : \"{TIMESTAMP}\",
     \"messageId\" : \"{MESSAGE_ID}\"}
   }"
-
+  
 ticketCreationMessage: Hello client, a new ticket has been created. Please wait while an agent reviews your request.
 
 aiServicePrefix:
 aiDefaultPrefix: /
-closeTicketCommand: Close Ticket {Ticket_Id}
-acceptTicketCommand: Accept Ticket {Ticket_Id}
-addMemberCommand: Add Member {@Mention}
+closeTicketCommand: Close Ticket
+acceptTicketCommand: Accept Ticket
+addMemberCommand: Add Member
 acceptTicketAgentSuccessResponse: Ticket claimed successfully.
 acceptTicketClientSuccessResponse: You have been connected to an agent.
 closeTicketSuccessResponse: Ticket closed successfully.
 addMemberAgentSuccessResponse: New member has been added to the help desk.
 addMemberClientSuccessResponse: Your membership to the help desk has been updated by an agent.
+ticketCreationMessage: Ticket created successfully
