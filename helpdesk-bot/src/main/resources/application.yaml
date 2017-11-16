@@ -4,46 +4,24 @@ server:
 
 email: helpdesk@symphony.com
 groupId: Test
-defaultAgentEmail: testAgent@symphony.com
 agentStreamId: TestStreamId
 
-claimMessageTemplate:
-  "<div class=\"entity\" data-entity-id=\"zapierPostMessage\">
-    <card class=\"barStyle\">
-      <header>
-        <span>${entity['zapierPostMessage'].message.header}</span>
-      </header>
-      <body>
-        <span>${entity['zapierPostMessage'].message.body}</span>
-      </body>
-    </card>
-  </div>"
-
+claimMessageTemplate: This is a claim message.
 claimEntityTemplate:
-  "{
-      \"zapierPostMessage\": {
-        \"type\": \"com.symphony.bots.helpdesk.event.ticket\",
-        \"version\": \"1.0\",
-        \"message\" : {
-        \"type\": \"com.symphony.integration.zapier.event.message\",
-        \"version\": \"1.0\",
-        \"header\": \"Equites Desk Bot\",
-        \"body\": \"Company: Redrock<br/>Customer: Alex Jones<br/>Question: Who should I speak to do XY and Z?\"
-      }
-    }
-  }"
+  "claimMessageObject: {
+       type: org.symphonyoss.helpdesk.claimMessage,version: 1.0,
+       callbackUrl : \"https://localhost:8443/helpdesk/v1/ticket/{TICKET_ID}/accept\"
+       }"
 
 makerCheckerMessageTemplate: This is a maker checker message.
 makerCheckerEntityTemplate:
-  "{\"makerCheckerObject\": {
-    \"type\": \"org.symphonyoss.helpdesk.makerCheckerMessage\",
-    \"version\": 1.0,
-    \"uid\" : \"{UID}\",
-    \"streamId\" : \"{STREAM_ID}\",
-    \"proxyToStreamId\" : \"{PROXY_TO_STREAM_ID}\",
-    \"timestamp\" : \"{TIMESTAMP}\",
-    \"messageId\" : \"{MESSAGE_ID}\"}
-  }"
+  "makerCheckerObject: {
+    type: org.symphonyoss.helpdesk.makerCheckerMessage,version: 1.0,
+    uid : \"{UID}\",
+    streamId : \"{STREAM_ID}\",
+    proxyToStreamId : \"{PROXY_TO_STREAM_ID}\",
+    timestamp : \"{TIMESTAMP}\",
+    messageId : \"{MESSAGE_ID}\"}"
 
 aiServicePrefix:
 aiDefaultPrefix: /
