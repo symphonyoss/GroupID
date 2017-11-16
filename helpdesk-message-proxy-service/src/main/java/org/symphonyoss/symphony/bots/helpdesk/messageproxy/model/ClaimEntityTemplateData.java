@@ -11,7 +11,10 @@ public class ClaimEntityTemplateData extends TemplateData {
   enum ReplacementEnums implements TemplateEnums {
     TICKET_ID("TICKET_ID"),
     TICKET_STATE("TICKET_STATE"),
-    USER_NAME("USER_NAME");
+    USER_NAME("USER_NAME"),
+    HOST("HOST"),
+    HEADER("HEADER"),
+    BODY("BODY");
 
     private String replacement;
 
@@ -22,9 +25,12 @@ public class ClaimEntityTemplateData extends TemplateData {
     }
   }
 
-  public ClaimEntityTemplateData(String ticketId, String ticketState, String username) {
+  public ClaimEntityTemplateData(String ticketId, String ticketState, String username, String host, String header, String body) {
     addData(ReplacementEnums.TICKET_ID.getReplacement(), ticketId);
     addData(ReplacementEnums.TICKET_STATE.getReplacement(), ticketState);
     addData(ReplacementEnums.USER_NAME.getReplacement(), username);
+    addData(ReplacementEnums.HOST.getReplacement(), host);
+    addData(ReplacementEnums.HEADER.getReplacement(), header);
+    addData(ReplacementEnums.BODY.getReplacement(), body);
   }
 }

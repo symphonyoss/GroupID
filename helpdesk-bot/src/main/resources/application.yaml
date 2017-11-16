@@ -6,23 +6,23 @@ email: helpdesk@symphony.com
 groupId: Test
 
 claimMessageTemplate:
-  "<div class=\"entity\" data-entity-id=\"Helpdesk\">
+  "<div class=\"entity\" data-entity-id=\"helpdesk\">
     <card class=\"barStyle\">
       <header>
-        <span>${entity['Helpdesk'].message.header}</span>
+        <span>${entity['helpdesk'].message.header}</span>
       </header>
       <body>
-        <span>${entity['Helpdesk'].message.body}</span>
+        <span>${entity['helpdesk'].message.body}</span>
       </body>
     </card>
   </div>"
 
 claimEntityTemplate:
   "{
-      \"Helpdesk\": {
+      \"helpdesk\": {
         \"type\": \"com.symphony.bots.helpdesk.event.ticket\",
         \"version\": \"1.0\",
-        \"url\": \"https://localhost:8443/helpdesk/v1/ticket/{TICKET_ID}/accept\",
+        \"url\": \"{HOST}/helpdesk/v1/ticket/{TICKET_ID}/accept\",
         \"ticketId\": \"{TICKET_ID}\",
         \"state\": \"{TICKET_STATE}\",
         \"user\": {
@@ -31,8 +31,8 @@ claimEntityTemplate:
         \"message\" : {
         \"type\": \"com.symphony.bots.helpdesk.event.ticket\",
         \"version\": \"1.0\",
-        \"header\": \"Equites Desk Bot\",
-        \"body\": \"Company: Redrock<br/>Customer: Alex Jones<br/>Question: Who should I speak to do XY and Z?\"
+        \"header\": \"{HEADER}\",
+        \"body\": \"{BODY}\"
       }
     }
   }"
