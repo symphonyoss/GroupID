@@ -28,14 +28,14 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         type: 'claimTicket',
         label: 'Claim',
         enricherInstanceId: entity.ticketId,
-        showClaim: rsp.ticket.state === 'UNSERVICED',
+        show: rsp.ticket.state === 'UNSERVICED',
         userName: '', // TODO APP-1477.
       };
 
       const data = actionFactory([claimTicketAction], enricherServiceName, entity);
 
       const result = {
-        template: actions({ showClaim: data.claimTicket.data.showClaim }),
+        template: actions({ showClaim: data.claimTicket.data.show }),
         data,
         enricherInstanceId: entity.ticketId,
       };
@@ -53,12 +53,12 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         type: 'claimTicket',
         label: 'Claim',
         enricherInstanceId: rsp.ticketId,
-        showClaim: rsp.ticket.state === 'UNSERVICED',
+        show: rsp.ticket.state === 'UNSERVICED',
         userName: rsp.user.displayName,
       };
 
       const dataUpdate = actionFactory([claimTicketAction], enricherServiceName, data.entity);
-      const template = actions({ showClaim: dataUpdate.claimTicket.data.showClaim,
+      const template = actions({ showClaim: dataUpdate.claimTicket.data.show,
         userName: dataUpdate.claimTicket.data.userName });
 
       entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
