@@ -1,4 +1,4 @@
-import { acceptAttachment, denyAttachment } from '../api/apiCalls';
+import { approveAttachment, denyAttachment } from '../api/apiCalls';
 
 export default class AttachmentService {
   constructor(serviceName) {
@@ -6,7 +6,7 @@ export default class AttachmentService {
   }
 
   approve(message) {
-    return acceptAttachment(message)
+    return approveAttachment(message)
       .catch((error) => {
         switch (error.message) {
           case '': {

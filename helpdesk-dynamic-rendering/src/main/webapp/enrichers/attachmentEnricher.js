@@ -4,9 +4,9 @@ import AttachmentService from '../services/attachmentService';
 
 const actions = require('../templates/attachmentActions.hbs');
 
-const enricherServiceName = 'helpdesk-enricher';
+const enricherServiceName = 'helpdesk-attachment-enricher';
 const messageEvents = [
-  'com.symphony.markdown',
+  'org.symphonyoss.helpdesk.makerCheckerMessage',
 ];
 
 export default class AttachmentEnricher extends MessageEnricherBase {
@@ -44,6 +44,20 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     };
 
     return result;
+  }
+
+  action(data) {
+    console.log('Action begin');
+    console.log(data);
+    if (data.type === 'approveAttachment') {
+      this.services.attachmentService.approve(data.entity);
+    }
+
+    if (data.type === 'denyAttachment') {
+      this.services.attachmentService.deny(data.entity);
+    }
+
+    console.log('Action end');
   }
 }
 
