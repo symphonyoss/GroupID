@@ -24,7 +24,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMes
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.client.SymphonyUtilClient;
-import org.symphonyoss.symphony.bots.utility.validation.ValidationUtil;
+import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -48,7 +48,7 @@ public class V1HelpDeskController extends V1ApiController {
   @Autowired
   private SymphonyUtilClient utilityClient;
   @Autowired
-  private ValidationUtil validationUtil;
+  private SymphonyValidationUtil symphonyValidationUtil;
 
   /**
    * Accepts a ticket.
@@ -69,6 +69,10 @@ public class V1HelpDeskController extends V1ApiController {
       throw new BadRequestException(TICKET_NOT_FOUND);
     }
 
+    symphonyValidationUtil.validateStream(ticket.getServiceStreamId());
+    symphonyValidationUtil.validateStream(ticket.getClientStreamId());
+    symphonyValidationUtil.validateUserId(agentId);
+
     HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
     HelpDeskBotSession helpDeskBotSession = sessionManager.getSession(ticket.getGroupId());
 
@@ -77,7 +81,7 @@ public class V1HelpDeskController extends V1ApiController {
       HelpDeskAi helpDeskAi = helpDeskBotSession.getHelpDeskAi();
       AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
 
-      Long userId = validationUtil.validateParseLong("Agent Id", agentId);
+      Long userId = symphonyValidationUtil.validateParseLong("Agent Id", agentId);
       symphonyClient.getRoomMembershipClient().addMemberToRoom(ticket.getServiceStreamId(), userId);
 
       SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(
@@ -175,7 +179,7 @@ public class V1HelpDeskController extends V1ApiController {
 
     User user = new User();
     user.setDisplayName(utilityClient.getUserDisplayName(
-        validationUtil.validateParseLong("User Id", detail.getUserId())));
+        symphonyValidationUtil.validateParseLong("User Id", detail.getUserId())));
     user.setUserId(detail.getUserId());
 
     makerCheckerResponse.setUser(user);

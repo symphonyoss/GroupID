@@ -12,7 +12,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessi
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.client.SymphonyUtilClient;
-import org.symphonyoss.symphony.bots.utility.validation.ValidationUtil;
+import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
@@ -62,8 +62,8 @@ public class SpringHelpDeskBotInit {
 
   @Bean(name = "validationUtil")
   @Description("A validation utility")
-  public ValidationUtil getValidationUtil() {
-    return new ValidationUtil();
+  public SymphonyValidationUtil getValidationUtil() {
+    return new SymphonyValidationUtil(helpDeskBot.getHelpDeskBotSession().getSymphonyClient());
   }
 
 }
