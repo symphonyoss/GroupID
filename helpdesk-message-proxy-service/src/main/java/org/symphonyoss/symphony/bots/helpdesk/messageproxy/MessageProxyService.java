@@ -19,6 +19,7 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimMessageTem
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
@@ -75,8 +76,9 @@ public class MessageProxyService implements MessageListener {
     String streamId = symMessage.getStreamId();
 
     Membership membership = session.getMembershipClient().getMembership(userId);
-    if(membership == null) {
-      membership = session.getMembershipClient().newMembership(userId, MembershipClient.MembershipType.CLIENT);
+    if (membership == null) {
+      membership = session.getMembershipClient()
+          .newMembership(userId, MembershipClient.MembershipType.CLIENT);
       LOG.info("Created new client membership for userid: " + userId);
     } else {
       LOG.info("Found membership: " + membership.toString());
@@ -88,13 +90,13 @@ public class MessageProxyService implements MessageListener {
     AiConversation aiConversation = session.getHelpDeskAi().getConversation(aiSessionKey);
 
     Ticket ticket;
-    if(MembershipClient.MembershipType.AGENT.name().equals(membership.getType())) {
+    if (MembershipClient.MembershipType.AGENT.name().equals(membership.getType())) {
       ticket = session.getTicketClient().getTicketByServiceStreamId(streamId);
-      if(ticket != null && !proxyMap.containsKey(ticket.getId())) {
+      if (ticket != null && !proxyMap.containsKey(ticket.getId())) {
         createAgentProxy(ticket, aiSessionContext);
-      } else if(ticket != null && aiConversation == null) {
+      } else if (ticket != null && aiConversation == null) {
         addAgentToProxy(ticket, aiSessionContext);
-      } else if(ticket == null && aiSessionContext.getSessionType() == null) {
+      } else if (ticket == null && aiSessionContext.getSessionType() == null) {
         createAgentSession(aiSessionContext);
       }
     } else {
@@ -105,7 +107,7 @@ public class MessageProxyService implements MessageListener {
             ticketId, streamId, newServiceStream(ticketId, streamId), symMessage.getMessageText());
         sendTicketCreationMessages(ticket, aiSessionContext);
         createClientProxy(ticket, aiSessionContext);
-      } else if(!proxyMap.containsKey(ticket.getId())) {
+      } else if (!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, aiSessionContext);
       }
     }
@@ -157,14 +159,16 @@ public class MessageProxyService implements MessageListener {
 
   /**
    * Creates a new proxy for the client. This includes:
-   *    Creating a new session with the help desk ai, and adding a new ai conversation.
-   *    Registering the proxy in the proxy map.
+   * Creating a new session with the help desk ai, and adding a new ai conversation.
+   * Registering the proxy in the proxy map.
    */
-  private void createClientProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
+  private void createClientProxy(Ticket ticket,
+      HelpDeskAiSessionContext aiSessionContext) {
     aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
     aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.CLIENT);
 
-    ProxyConversation aiConversation = new ProxyConversation(false, session.getClientMakerCheckerService());
+    ProxyConversation aiConversation =
+        new ProxyConversation(false, session.getClientMakerCheckerService());
     aiConversation.addProxyId(ticket.getServiceStreamId());
     session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
 
@@ -172,8 +176,14 @@ public class MessageProxyService implements MessageListener {
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
   }
 
-  private void sendTicketCreationMessages(Ticket ticket, AiSessionContext aiSessionContext) {
-    SymphonyAiMessage aiMessage = new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());
+  private void sendTicketCreationMessages(Ticket ticket,
+      AiSessionContext aiSessionContext) {
+    String username = getUsername();
+    String host = ""; //TODO Need to get the host for the callback url template
+    String header = ""; //TODO Need to get/create a header to ticket
+    String body = ""; //TODO Need to get the content of user message to create the body ticket
+    SymphonyAiMessage aiMessage =
+        new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());
     Set<AiResponseIdentifier> aiResponseIdentifierSet = new HashSet<>();
     aiResponseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
     session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
@@ -183,15 +193,24 @@ public class MessageProxyService implements MessageListener {
     MessageTemplate entityTemplate = new MessageTemplate(
         session.getMessageProxyServiceConfig().getClaimEntityTemplate());
     ClaimMessageTemplateData messageTemplateData = new ClaimMessageTemplateData(ticket.getId());
-    ClaimEntityTemplateData entityTemplateData = new ClaimEntityTemplateData(ticket.getId());
+    ClaimEntityTemplateData entityTemplateData =
+        new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, host, header, body);
     String message = messageTemplate.buildFromData(messageTemplateData);
     String entity = entityTemplate.buildFromData(entityTemplateData);
 
     aiMessage = new SymphonyAiMessage(message);
     aiMessage.setEntityData(entity);
     aiResponseIdentifierSet = new HashSet<>();
-    aiResponseIdentifierSet.add(new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
-    session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
+    aiResponseIdentifierSet.add(
+        new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
+    session.getHelpDeskAi()
+        .sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
+  }
+
+  private String getUsername() {
+    String username = session.getSymphonyClient().getLocalUser().getFirstName();
+    username = username.concat(" " + session.getSymphonyClient().getLocalUser().getLastName());
+    return username;
   }
 
   /**
@@ -205,7 +224,10 @@ public class MessageProxyService implements MessageListener {
     roomAttributes.setCreatorUser(session.getSymphonyClient().getLocalUser());
 
     String users = "";
-    for(SymUser symUser: session.getSymphonyClient().getChatService().getChatByStream(streamId).getRemoteUsers()) {
+    for (SymUser symUser : session.getSymphonyClient()
+        .getChatService()
+        .getChatByStream(streamId)
+        .getRemoteUsers()) {
       users += symUser.getFirstName() + " " + symUser.getLastName() + ", ";
     }
     users = users.substring(0, users.length() - 3);
@@ -213,7 +235,8 @@ public class MessageProxyService implements MessageListener {
     roomAttributes.setDescription("Service room for users " + users + ".");
     roomAttributes.setDiscoverable(false);
     roomAttributes.setMembersCanInvite(true);
-    roomAttributes.setName(session.getMessageProxyServiceConfig().getGroupId() + " Ticket Room (" + ticketId + ")");
+    roomAttributes.setName(
+        session.getMessageProxyServiceConfig().getGroupId() + " Ticket Room (" + ticketId + ")");
     roomAttributes.setReadOnly(false);
     roomAttributes.setPublic(false);
 

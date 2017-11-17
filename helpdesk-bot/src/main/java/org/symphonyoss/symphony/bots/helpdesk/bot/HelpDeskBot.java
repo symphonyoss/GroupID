@@ -12,13 +12,13 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.MessageProxyServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
@@ -197,11 +197,11 @@ public class HelpDeskBot {
   private void registerDefaultAgent() {
     HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
-    if(!StringUtils.isBlank(configuration.getEmail())) {
+    if(!StringUtils.isBlank(configuration.getDefaultAgentEmail())) {
       MembershipClient membershipClient = helpDeskBotSession.getMembershipClient();
       UsersClient userClient = helpDeskBotSession.getSymphonyClient().getUsersClient();
       try {
-        SymUser symUser = userClient.getUserFromEmail(configuration.getEmail());
+        SymUser symUser = userClient.getUserFromEmail(configuration.getDefaultAgentEmail());
         Membership membership = membershipClient.getMembership(symUser.getId().toString());
         if(membership == null) {
           membershipClient.newMembership(symUser.getId().toString(), MembershipClient.MembershipType.AGENT);

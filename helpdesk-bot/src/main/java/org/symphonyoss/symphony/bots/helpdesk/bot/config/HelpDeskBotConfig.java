@@ -31,6 +31,8 @@ public class HelpDeskBotConfig {
 
   private String groupId;
 
+  private String defaultAgentEmail;
+
   private String agentStreamId;
 
   private String claimMessageTemplate;
@@ -289,5 +291,13 @@ public class HelpDeskBotConfig {
 
   public void setTicketCreationMessage(String ticketCreationMessage) {
     this.ticketCreationMessage = ticketCreationMessage;
+  }
+
+  public String getDefaultAgentEmail() {
+    return defaultAgentEmail;
+  }
+
+  public void setDefaultAgentEmail(String defaultAgentEmail) {
+    this.defaultAgentEmail = defaultAgentEmail;
   }
 }
