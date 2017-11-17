@@ -1,18 +1,22 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.UsersClientException;
+import org.symphonyoss.client.model.Chat;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
-import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
-
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**
  * Created by nick.tarsillo on 8/20/17.
  */
 public class SymphonyAi extends AiImpl {
+  private static final Logger LOG = LoggerFactory.getLogger(SymphonyAi.class);
+
   private SymphonyClient symphonyClient;
 
   public SymphonyAi(SymphonyClient symphonyClient, boolean suggestCommand) {
@@ -64,7 +68,18 @@ public class SymphonyAi extends AiImpl {
       chatListener.setAiSessionKey(aiSessionKey);
       aiSessionContext.setSymphonyAiChatListener(chatListener);
 
-      symphonyClient.getChatService().getChatByStream(sessionKey.getStreamId()).addListener(chatListener);
+      Chat chat = symphonyClient.getChatService().getChatByStream(sessionKey.getStreamId());
+      if(chat == null) {
+        try {
+          chat = new Chat();
+          chat.setRemoteUsers(
+              symphonyClient.getUsersClient().getUsersFromStream(sessionKey.getStreamId()));
+          symphonyClient.getChatService().addChat(chat);
+        } catch (UsersClientException e) {
+          LOG.error("Could not add chat: ", e);
+        }
+      }
+      chat.addListener(chatListener);
     }
 
     return aiSessionContext;

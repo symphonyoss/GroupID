@@ -1,23 +1,33 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
-import org.symphonyoss.client.model.Chat;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
+import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.HealthcheckResponse;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthCheckFailedException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.SuccessResponse;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyUtilClient;
+import org.symphonyoss.symphony.bots.utility.validation.ValidationUtil;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
@@ -28,40 +38,90 @@ import javax.ws.rs.InternalServerErrorException;
 @RestController
 public class V1HelpDeskController extends V1ApiController {
   private static final Logger LOG = LoggerFactory.getLogger(V1HelpDeskController.class);
+  private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
+  private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
+  private static final String TICKET_NOT_FOUND = "Ticket not found.";
   private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
 
   @Autowired
   private TicketClient ticketClient;
+  @Autowired
+  private SymphonyUtilClient utilityClient;
+  @Autowired
+  private ValidationUtil validationUtil;
 
+  /**
+   * Accepts a ticket.
+   * Sends a message to the agent denoting that the ticket has successfully been accepted.
+   * Sends a message to the client, notifying them that they are now being serviced by a agent,
+   *    if the client was not being serviced prior.
+   * Add agent to service room.
+   * Change ticket state.
+   *
+   * @param ticketId the ticket id to accept
+   * @param agentId the user id of the agent accepting the ticket
+   * @return the ticket responses
+   */
   @Override
-  public SuccessResponse acceptTicket(String ticketId, String agentId) {
+  public TicketResponse acceptTicket(String ticketId, String agentId) {
     Ticket ticket = ticketClient.getTicket(ticketId);
+    if(ticket == null) {
+      throw new BadRequestException(TICKET_NOT_FOUND);
+    }
+
     HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
     HelpDeskBotSession helpDeskBotSession = sessionManager.getSession(ticket.getGroupId());
 
     try {
-      helpDeskBotSession.getSymphonyClient().getRoomMembershipClient().addMemberToRoom(
-          ticket.getServiceStreamId(), Long.parseLong(agentId));
+      SymphonyClient symphonyClient = helpDeskBotSession.getSymphonyClient();
+      HelpDeskAi helpDeskAi = helpDeskBotSession.getHelpDeskAi();
+      AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
+
+      Long userId = validationUtil.validateParseLong("Agent Id", agentId);
+      symphonyClient.getRoomMembershipClient().addMemberToRoom(ticket.getServiceStreamId(), userId);
+
+      SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(
+          helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketClientSuccessResponse());
+      Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
+      responseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
+      if(ticket.getState().equals(TicketClient.TicketStateType.UNSERVICED.getState())) {
+        helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
+      }
+
+      String agentStreamId = utilityClient.getStreamIdByUserId(userId);
+      symphonyAiMessage = new SymphonyAiMessage(
+          helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketAgentSuccessResponse());
+      responseIdentifierSet = new HashSet<>();
+      responseIdentifierSet.add(new AiResponseIdentifierImpl(agentStreamId));
+      helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
+
       ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
       helpDeskBotSession.getTicketClient().updateTicket(ticket);
 
-      Chat clientChat = helpDeskBotSession.getSymphonyClient().getChatService().getChatByStream(ticket.getClientStreamId());
-      Chat agentChat = helpDeskBotSession.getSymphonyClient().getChatService().getChatByStream(ticket.getServiceStreamId());
+      TicketResponse ticketResponse = new TicketResponse();
+      ticketResponse.setMessage(TICKET_SUCCESS_RESPONSE);
+      ticketResponse.setState(ticket.getState());
+      ticketResponse.setTicketId(ticket.getId());
 
-      SymMessage symMessage = new SymMessage();
-      symMessage.setMessage(helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketClientSuccessResponse());
-      helpDeskBotSession.getSymphonyClient().getMessageService().sendMessage(clientChat, symMessage);
+      User user = new User();
+      user.setDisplayName(utilityClient.getUserDisplayName(userId));
+      user.setUserId(agentId);
 
-      symMessage.setMessage(helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketAgentSuccessResponse());
-      helpDeskBotSession.getSymphonyClient().getMessageService().sendMessage(agentChat, symMessage);
+      ticketResponse.setUser(user);
 
-      return new SuccessResponse();
+      return ticketResponse;
     } catch (SymException e) {
       LOG.error("Could not accept ticket: ", e);
       throw new InternalServerErrorException();
     }
   }
 
+  /**
+   * Check pod connectivity.
+   * Check agent connectivity.
+   * @param groupId the group id of the bot to perform the health check on.
+   * @return the health check response
+   */
   @Override
   public HealthcheckResponse healthcheck(String groupId) {
     HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
@@ -95,14 +155,31 @@ public class V1HelpDeskController extends V1ApiController {
     return response;
   }
 
+  /**
+   * Accept a maker checker message.
+   * @param detail the maker checker message detail
+   * @return a maker checker message response
+   */
   @Override
-  public SuccessResponse acceptMakerCheckerMessage(MakerCheckerMessageDetail detail) {
+  public MakerCheckerResponse acceptMakerCheckerMessage(MakerCheckerMessageDetail detail) {
     MakerCheckerMessage makerCheckerMessage = new MakerCheckerMessage(detail.getStreamId(),
         detail.getProxyToStreamIds(), detail.getTimeStamp(), detail.getMessageId(), detail.getGroupId());
     HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
     HelpDeskBotSession helpDeskBotSession = sessionManager.getSession(makerCheckerMessage.getGroupId());
 
     helpDeskBotSession.getAgentMakerCheckerService().acceptMakerCheckerMessage(makerCheckerMessage);
-    return new SuccessResponse();
+
+    MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
+    makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
+    makerCheckerResponse.setMakerCheckerMessageDetail(detail);
+
+    User user = new User();
+    user.setDisplayName(utilityClient.getUserDisplayName(
+        validationUtil.validateParseLong("User Id", detail.getUserId())));
+    user.setUserId(detail.getUserId());
+
+    makerCheckerResponse.setUser(user);
+
+    return makerCheckerResponse;
   }
 }

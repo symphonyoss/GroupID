@@ -19,7 +19,6 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimMessageTem
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
@@ -108,9 +107,6 @@ public class MessageProxyService implements MessageListener {
         createClientProxy(ticket, aiSessionContext);
       } else if(!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, aiSessionContext);
-      } else if(TicketClient.TicketStateType.UNSERVICED.name().equals(ticket.getState())) {
-        ticket.addTranscriptItem(symMessage.getMessage());
-        session.getTicketClient().updateTicket(ticket);
       }
     }
   }

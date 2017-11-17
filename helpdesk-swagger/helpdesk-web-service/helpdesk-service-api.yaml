@@ -251,10 +251,6 @@ definitions:
         type: string
         description: |
           Accepted states - UNSERVICED, UNRESOLVED, RESOLVED
-      transcript:
-        type: array
-        items:
-          type: string
   HealthcheckResponse:
     type: object
     properties:
