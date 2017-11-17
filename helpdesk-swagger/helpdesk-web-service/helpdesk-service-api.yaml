@@ -30,6 +30,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/SuccessResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Ticket
   '/v1/ticket/create':
@@ -51,6 +55,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/TicketResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Ticket
   '/v1/ticket/{id}/get':
@@ -69,6 +77,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/TicketResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Ticket
   '/v1/ticket/search':
@@ -99,6 +111,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/TicketSearchResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Ticket
   '/v1/ticket/{id}/update':
@@ -124,6 +140,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/TicketResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Ticket
   '/v1/membership/{id}/{groupId}/delete':
@@ -148,6 +168,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/SuccessResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Membership
   '/v1/membership/create':
@@ -169,6 +193,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/MembershipResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Membership
   '/v1/membership/{id}/{groupId}/get':
@@ -191,6 +219,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/MembershipResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Membership
   '/v1/membership/{id}/{groupId}/update':
@@ -220,6 +252,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/MembershipResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Membership
   /v1/healthcheck:
@@ -233,9 +269,21 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/HealthcheckResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Healthcheck
 definitions:
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
   Ticket:
     type: object
     properties:

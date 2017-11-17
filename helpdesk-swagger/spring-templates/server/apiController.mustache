@@ -48,8 +48,10 @@ public abstract class {{classname}}Controller implements {{classname}} {
         try {
             {{^async}}return ResponseEntity.ok({{operationId}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}));{{/async}}
         } catch (ClientErrorException e) {
-            ApiException a = new ApiException(e.getResponse().getStatus(), e.getMessage());
-            return ResponseEntity.status(e.getResponse().getStatus()).body(a);
+            Error error = new Error();
+            error.setMessage(e.getMessage());
+            error.setCode(e.getResponse().getStatus());
+            return ResponseEntity.status(e.getResponse().getStatus()).body(error);
         }
     }
 

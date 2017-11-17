@@ -4,6 +4,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.exceptions.RoomException;
+import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.services.MessageListener;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
@@ -11,6 +12,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
@@ -21,6 +23,7 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxySer
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyUtilClient;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
@@ -42,10 +45,12 @@ public class MessageProxyService implements MessageListener {
 
   private Map<String, MessageProxy> proxyMap = new HashMap<>();
 
+  private SymphonyUtilClient symphonyUtilClient;
   private MessageProxyServiceSession session;
 
   public MessageProxyService(MessageProxyServiceSession messageProxyServiceSession) {
     this.session = messageProxyServiceSession;
+    this.symphonyUtilClient = new SymphonyUtilClient(messageProxyServiceSession.getSymphonyClient());
   }
 
   /**
@@ -175,9 +180,9 @@ public class MessageProxyService implements MessageListener {
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
   }
 
-  private void sendTicketCreationMessages(Ticket ticket,
-      AiSessionContext aiSessionContext) {
-    String username = getUsername();
+  private void sendTicketCreationMessages(Ticket ticket, AiSessionContext aiSessionContext) {
+    SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) aiSessionContext.getAiSessionKey();
+    String username = symphonyUtilClient.getUserDisplayName(Long.parseLong(sessionKey.getUid()));
     String host = ""; //TODO Need to get the host for the callback url template
     String header = ""; //TODO Need to get/create a header to ticket
     String body = ""; //TODO Need to get the content of user message to create the body ticket
@@ -206,12 +211,6 @@ public class MessageProxyService implements MessageListener {
         .sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
   }
 
-  private String getUsername() {
-    String username = session.getSymphonyClient().getLocalUser().getFirstName();
-    username = username.concat(" " + session.getSymphonyClient().getLocalUser().getLastName());
-    return username;
-  }
-
   /**
    * Creates a new service stream for a ticket.
    * @param ticketId the ticket ID to create the service stream for
@@ -223,11 +222,14 @@ public class MessageProxyService implements MessageListener {
     roomAttributes.setCreatorUser(session.getSymphonyClient().getLocalUser());
 
     String users = "";
-    for (SymUser symUser : session.getSymphonyClient()
-        .getChatService()
-        .getChatByStream(streamId)
-        .getRemoteUsers()) {
-      users += symUser.getFirstName() + " " + symUser.getLastName() + ", ";
+    try {
+      for (SymUser symUser : session.getSymphonyClient()
+          .getUsersClient()
+          .getUsersFromStream(streamId)) {
+        users += symUser.getFirstName() + " " + symUser.getLastName() + ", ";
+      }
+    } catch (UsersClientException e) {
+      LOG.error("Could not retrieve names of users in stream: " + streamId, e);
     }
     users = users.substring(0, users.length() - 3);
 
