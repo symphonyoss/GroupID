@@ -23,8 +23,8 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessi
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.bots.utility.client.SymphonyUtilClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,8 +45,6 @@ public class V1HelpDeskController extends V1ApiController {
 
   @Autowired
   private TicketClient ticketClient;
-  @Autowired
-  private SymphonyUtilClient utilityClient;
   @Autowired
   private SymphonyValidationUtil symphonyValidationUtil;
 
@@ -71,7 +69,8 @@ public class V1HelpDeskController extends V1ApiController {
 
     symphonyValidationUtil.validateStream(ticket.getServiceStreamId());
     symphonyValidationUtil.validateStream(ticket.getClientStreamId());
-    symphonyValidationUtil.validateUserId(agentId);
+
+    SymUser agentUser = symphonyValidationUtil.validateUserId(agentId);
 
     HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
     HelpDeskBotSession helpDeskBotSession = sessionManager.getSession(ticket.getGroupId());
@@ -81,8 +80,7 @@ public class V1HelpDeskController extends V1ApiController {
       HelpDeskAi helpDeskAi = helpDeskBotSession.getHelpDeskAi();
       AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
 
-      Long userId = symphonyValidationUtil.validateParseLong("Agent Id", agentId);
-      symphonyClient.getRoomMembershipClient().addMemberToRoom(ticket.getServiceStreamId(), userId);
+      symphonyClient.getRoomMembershipClient().addMemberToRoom(ticket.getServiceStreamId(), agentUser.getId());
 
       SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(
           helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketClientSuccessResponse());
@@ -92,7 +90,7 @@ public class V1HelpDeskController extends V1ApiController {
         helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
       }
 
-      String agentStreamId = utilityClient.getStreamIdByUserId(userId);
+      String agentStreamId = symphonyClient.getStreamsClient().getStream(agentUser).getStreamId();
       symphonyAiMessage = new SymphonyAiMessage(
           helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketAgentSuccessResponse());
       responseIdentifierSet = new HashSet<>();
@@ -108,7 +106,7 @@ public class V1HelpDeskController extends V1ApiController {
       ticketResponse.setTicketId(ticket.getId());
 
       User user = new User();
-      user.setDisplayName(utilityClient.getUserDisplayName(userId));
+      user.setDisplayName(agentUser.getDisplayName());
       user.setUserId(agentId);
 
       ticketResponse.setUser(user);
@@ -171,6 +169,8 @@ public class V1HelpDeskController extends V1ApiController {
     HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
     HelpDeskBotSession helpDeskBotSession = sessionManager.getSession(makerCheckerMessage.getGroupId());
 
+    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+
     helpDeskBotSession.getAgentMakerCheckerService().acceptMakerCheckerMessage(makerCheckerMessage);
 
     MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
@@ -178,8 +178,7 @@ public class V1HelpDeskController extends V1ApiController {
     makerCheckerResponse.setMakerCheckerMessageDetail(detail);
 
     User user = new User();
-    user.setDisplayName(utilityClient.getUserDisplayName(
-        symphonyValidationUtil.validateParseLong("User Id", detail.getUserId())));
+    user.setDisplayName(agentUser.getDisplayName());
     user.setUserId(detail.getUserId());
 
     makerCheckerResponse.setUser(user);
