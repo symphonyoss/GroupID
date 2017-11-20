@@ -54,22 +54,17 @@ export default class AttachmentEnricher extends MessageEnricherBase {
 
     if (data.type === 'approveAttachment') {
       this.services.attachmentService.approve(data.entity).then((rsp) => {
-
-        // if (rsp.status === '200') {
         const template = actions({ showButtons: false });
-        
+
         entityRegistry.updateEnricher(data.enricherInstanceId, template, '');
-      // }
       });
     }
 
     if (data.type === 'denyAttachment') {
       this.services.attachmentService.deny(data.entity).then((rsp) => {
-        // if (rsp.status === '200') {
         const template = actions({ showButtons: false });
-        
+
         entityRegistry.updateEnricher(data.enricherInstanceId, template, '');
-      // }
       });
     }
   }
