@@ -25,15 +25,25 @@ paths:
           in: header
           required: true
           type: string
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/SuccessResponse'
+            $ref: '#/definitions/TicketResponse'
+        '400':
+          description: BAD REQUEST |
+            Ticket Id could not be found.
+            Agent Id could not be found.
+            Required parameter was not provided.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+
       tags:
         - Ticket
   /v1/makerchecker/accept:
@@ -54,7 +64,20 @@ paths:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/SuccessResponse'
+            $ref: '#/definitions/MakerCheckerResponse'
+        '400':
+          description: BAD REQUEST |
+            Invalid stream id.
+            Invald group id.
+            Invalid proxy to stream id.
+            Message Id could not be found at message timestamp.
+            Required parameter was not provided.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - MakerChecker
   /v1/{groupId}/healthcheck:
@@ -73,10 +96,27 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/HealthcheckResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Healthcheck
 definitions:
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
   SuccessResponse:
+    type: object
+    properties:
+      message:
+        type: string
+  TicketResponse:
     type: object
     properties:
       message:
@@ -87,6 +127,15 @@ definitions:
         type: string
         description: |
           Accepted states - UNSERVICED, UNRESOLVED, RESOLVED
+      user:
+        $ref: '#/definitions/User'
+  MakerCheckerResponse:
+    type: object
+    properties:
+      message:
+        type: string
+      makerCheckerMessageDetail:
+        $ref: '#/definitions/MakerCheckerMessageDetail'
       user:
         $ref: '#/definitions/User'
   HealthcheckResponse:
@@ -115,6 +164,9 @@ definitions:
         type: string
       groupId:
         type: string
+      userId:
+        type: string
+        description: The userId of the user who accepted the maker checker message.
   User:
     type: object
     properties:

@@ -48,8 +48,10 @@ public abstract class {{classname}}Controller implements {{classname}} {
         try {
             {{^async}}return ResponseEntity.ok({{operationId}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}));{{/async}}
         } catch (ClientErrorException e) {
-            ApiException a = new ApiException(e.getResponse().getStatus(), e.getMessage());
-            return ResponseEntity.status(e.getResponse().getStatus()).body(a);
+            Error error = new Error();
+            error.setMessage(e.getMessage());
+            error.setCode(e.getResponse().getStatus());
+            return ResponseEntity.status(e.getResponse().getStatus()).body(error);
         }
     }
 
@@ -77,32 +79,6 @@ public abstract class {{classname}}Controller implements {{classname}} {
         if (paramValue == null) {
             throw new BadRequestException("This request requires a " + name +
                 " to be provided with the " + requiredIn + ".");
-        }
-    }
-
-    class ApiException {
-        private int code;
-        private String message;
-
-        public ApiException(int code, String message) {
-            this.code = code;
-            this.message = message;
-        }
-
-        public int getCode() {
-            return code;
-        }
-
-        public void setCode(int code) {
-            this.code = code;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-             this.message = message;
         }
     }
 }

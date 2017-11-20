@@ -1,13 +1,12 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.Checker;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessageTemplateData;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -17,7 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.BadRequestException;
 
 /**
  * Created by nick.tarsillo on 9/26/17.
@@ -26,6 +25,8 @@ import javax.ws.rs.InternalServerErrorException;
  */
 public class MakerCheckerService {
   private static final Logger LOG = LoggerFactory.getLogger(MakerCheckerService.class);
+  private static final String MESSAGE_NOT_FOUND = "Message with id %s could not be found.";
+  private static final String STREAM_NOT_FOUND= "The stream %s could not be found.";
 
   private Set<Checker> checkerSet = new HashSet<>();
 
@@ -58,6 +59,12 @@ public class MakerCheckerService {
     return true;
   }
 
+  /**
+   * Accept a maker checker message.
+   * Find the message.
+   * Send the message to client stream.
+   * @param makerCheckerMessage the maker checker message
+   */
   public void acceptMakerCheckerMessage(MakerCheckerMessage makerCheckerMessage) {
     Stream stream = new Stream();
     stream.setId(makerCheckerMessage.getStreamId());
@@ -73,13 +80,17 @@ public class MakerCheckerService {
         }
       }
 
+      if(match == null) {
+        throw new BadRequestException(String.format(MESSAGE_NOT_FOUND, makerCheckerMessage.getMessageId()));
+      }
+
       for(String streamId: makerCheckerMessage.getProxyToStreamIds()) {
         stream.setId(streamId);
         session.getSymphonyClient().getMessagesClient().sendMessage(stream, match);
       }
     } catch (MessagesException e) {
-      LOG.error("Error accepting maker checker message: ", e);
-      throw new InternalServerErrorException();
+      LOG.warn("Error accepting maker checker message: ", e);
+      throw new BadRequestException(String.format(STREAM_NOT_FOUND, stream.getId()));
     }
   }
 

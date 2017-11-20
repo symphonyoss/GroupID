@@ -4,6 +4,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.exceptions.RoomException;
+import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.services.MessageListener;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
@@ -11,6 +12,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
@@ -19,10 +21,10 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimMessageTem
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
+import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -51,22 +53,23 @@ public class MessageProxyService implements MessageListener {
 
   /**
    * On message:
-   * Check if membership exits, if not, create membership. (CLIENT)
-   * Get AiConversation for the user that sent the message.
+   *    Check if membership exits, if not, create membership. (CLIENT)
+   *    Get AiConversation for the user that sent the message.
    *
-   * If the member is an agent, the agent is talking in a client service room
-   * and a proxy has not been created yet, create a new proxy conversation for ticket.
+   *    If the member is an agent, the agent is talking in a client service room
+   *      and a proxy has not been created yet, create a new proxy conversation for ticket.
    *
-   * If the member is an agent, the agent is talking in a client service room
-   * and a proxy has already been created, add the agent to the proxy.
+   *    If the member is an agent, the agent is talking in a client service room
+   *      and a proxy has already been created, add the agent to the proxy.
    *
-   * If the member is a client, and a ticket has not been created, create a new ticket and
-   * proxy.
+   *    If the member is a client, and a ticket has not been created, create a new ticket and
+   *      proxy.
    *
-   * If the member is a client, and ticket exists but not a proxy conversation, create a new proxy.
+   *    If the member is a client, and ticket exists but not a proxy conversation, create a new proxy.
    *
-   * If the member is a client, and the ticket and proxy exists with the unserviced state,
-   * update the ticket transcript.
+   *    If the member is a client, and the ticket and proxy exists with the unserviced state,
+   *      update the ticket transcript.
+   *
    * @param symMessage the message to proxy.
    */
   @Override
@@ -104,13 +107,10 @@ public class MessageProxyService implements MessageListener {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
         ticket = session.getTicketClient().createTicket(
             ticketId, streamId, newServiceStream(ticketId, streamId), symMessage.getMessageText());
-        sendTicketCreationMessages(ticket, ticket.getState(), aiSessionContext);
+        sendTicketCreationMessages(ticket, aiSessionContext);
         createClientProxy(ticket, aiSessionContext);
       } else if (!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, aiSessionContext);
-      } else if (TicketClient.TicketStateType.UNSERVICED.name().equals(ticket.getState())) {
-        ticket.addTranscriptItem(symMessage.getMessage());
-        session.getTicketClient().updateTicket(ticket);
       }
     }
   }
@@ -178,42 +178,43 @@ public class MessageProxyService implements MessageListener {
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
   }
 
-  private void sendTicketCreationMessages(Ticket ticket, String state,
-      AiSessionContext aiSessionContext) {
-    String username = getUsername();
-    String host = ""; //TODO Need to get the host for the callback url template
-    String header = ""; //TODO Need to get/create a header to ticket
-    String body = ""; //TODO Need to get the content of user message to create the body ticket
-    SymphonyAiMessage aiMessage =
-        new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());
-    Set<AiResponseIdentifier> aiResponseIdentifierSet = new HashSet<>();
-    aiResponseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
-    session.getHelpDeskAi()
-        .sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
+  private void sendTicketCreationMessages(Ticket ticket, AiSessionContext aiSessionContext) {
+    SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) aiSessionContext.getAiSessionKey();
 
-    MessageTemplate messageTemplate = new MessageTemplate(
-        session.getMessageProxyServiceConfig().getClaimMessageTemplate());
-    MessageTemplate entityTemplate = new MessageTemplate(
-        session.getMessageProxyServiceConfig().getClaimEntityTemplate());
-    ClaimMessageTemplateData messageTemplateData = new ClaimMessageTemplateData(ticket.getId());
-    ClaimEntityTemplateData entityTemplateData =
-        new ClaimEntityTemplateData(ticket.getId(), state, username, host, header, body);
-    String message = messageTemplate.buildFromData(messageTemplateData);
-    String entity = entityTemplate.buildFromData(entityTemplateData);
+    try {
+      UsersClient usersClient = session.getSymphonyClient().getUsersClient();
+      String username = usersClient.getUserFromId(Long.parseLong(sessionKey.getUid())).getDisplayName();
+      String host = ""; //TODO Need to get the host for the callback url template
+      String header = ""; //TODO Need to get/create a header to ticket
+      String body = ""; //TODO Need to get the content of user message to create the body ticket
+      SymphonyAiMessage aiMessage =
+          new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());
+      Set<AiResponseIdentifier> aiResponseIdentifierSet = new HashSet<>();
+      aiResponseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
+      session.getHelpDeskAi()
+          .sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
 
-    aiMessage = new SymphonyAiMessage(message);
-    aiMessage.setEntityData(entity);
-    aiResponseIdentifierSet = new HashSet<>();
-    aiResponseIdentifierSet.add(
-        new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
-    session.getHelpDeskAi()
-        .sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
-  }
+      MessageTemplate messageTemplate = new MessageTemplate(
+          session.getMessageProxyServiceConfig().getClaimMessageTemplate());
+      MessageTemplate entityTemplate = new MessageTemplate(
+          session.getMessageProxyServiceConfig().getClaimEntityTemplate());
+      ClaimMessageTemplateData messageTemplateData = new ClaimMessageTemplateData(ticket.getId());
+      ClaimEntityTemplateData entityTemplateData =
+          new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, host, header,
+              body);
+      String message = messageTemplate.buildFromData(messageTemplateData);
+      String entity = entityTemplate.buildFromData(entityTemplateData);
 
-  private String getUsername() {
-    String username = session.getSymphonyClient().getLocalUser().getFirstName();
-    username = username.concat(" " + session.getSymphonyClient().getLocalUser().getLastName());
-    return username;
+      aiMessage = new SymphonyAiMessage(message);
+      aiMessage.setEntityData(entity);
+      aiResponseIdentifierSet = new HashSet<>();
+      aiResponseIdentifierSet.add(
+          new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
+      session.getHelpDeskAi()
+          .sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
+    } catch(UsersClientException e) {
+      LOG.error("Failed to get sym user from uid: " + sessionKey.getUid(), e);
+    }
   }
 
   /**
@@ -227,11 +228,14 @@ public class MessageProxyService implements MessageListener {
     roomAttributes.setCreatorUser(session.getSymphonyClient().getLocalUser());
 
     String users = "";
-    for (SymUser symUser : session.getSymphonyClient()
-        .getChatService()
-        .getChatByStream(streamId)
-        .getRemoteUsers()) {
-      users += symUser.getFirstName() + " " + symUser.getLastName() + ", ";
+    try {
+      for (SymUser symUser : session.getSymphonyClient()
+          .getUsersClient()
+          .getUsersFromStream(streamId)) {
+        users += symUser.getFirstName() + " " + symUser.getLastName() + ", ";
+      }
+    } catch (UsersClientException e) {
+      LOG.error("Could not retrieve names of users in stream: " + streamId, e);
     }
     users = users.substring(0, users.length() - 3);
 

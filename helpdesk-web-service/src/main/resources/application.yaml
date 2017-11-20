@@ -1,4 +1,5 @@
 #This is a sample help desk service externalized config.
+
 helpdesk:
   service:
     databaseDriver: com.mysql.cj.jdbc.Driver

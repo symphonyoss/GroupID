@@ -2,11 +2,7 @@ package org.symphonyoss.symphony.bots.helpdesk.service.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.TicketApi;
-import org.symphonyoss.symphony.bots.helpdesk.service.config.HelpDeskServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 
 import java.util.List;
@@ -75,7 +71,6 @@ public class TicketClient {
     ticket.setClientStreamId(clientStreamId);
     ticket.setServiceStreamId(newServiceStream);
     ticket.setState(TicketStateType.UNSERVICED.getState());
-    ticket.addTranscriptItem(transcript);
     try {
       return ticketApi.createTicket(ticket).getTicket();
     } catch (ApiException e) {
@@ -94,7 +89,10 @@ public class TicketClient {
     try {
       List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, serviceStreamId, null).getTicketList();
       if(!ticketList.isEmpty()) {
-        return ticketList.get(0);
+        Ticket ticket = ticketList.get(0);
+        if(ticket.getServiceStreamId().equals(serviceStreamId)) {
+          return ticket;
+        }
       }
     } catch (ApiException e) {
       LOG.error("Failed to search for room: ", e);
@@ -112,7 +110,10 @@ public class TicketClient {
     try {
       List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, null, clientStreamId).getTicketList();
       if(!ticketList.isEmpty()) {
-        return ticketList.get(0);
+        Ticket ticket = ticketList.get(0);
+        if(ticket.getClientStreamId().equals(clientStreamId)) {
+          return ticket;
+        }
       }
     } catch (ApiException e) {
       LOG.error("Failed to search for room: ", e);
