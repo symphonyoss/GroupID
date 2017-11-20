@@ -51,20 +51,18 @@ export default class AttachmentEnricher extends MessageEnricherBase {
 
   action(data) {
     const entityRegistry = SYMPHONY.services.subscribe('entity');
+    const data = actionFactory([], enricherServiceName, entity);
+    const template = actions({ showButtons: false });
 
     if (data.type === 'approveAttachment') {
       this.services.attachmentService.approve(data.entity).then((rsp) => {
-        const template = actions({ showButtons: false });
-
-        entityRegistry.updateEnricher(data.enricherInstanceId, template, '');
+        entityRegistry.updateEnricher(data.enricherInstanceId, template, data);
       });
     }
 
     if (data.type === 'denyAttachment') {
       this.services.attachmentService.deny(data.entity).then((rsp) => {
-        const template = actions({ showButtons: false });
-
-        entityRegistry.updateEnricher(data.enricherInstanceId, template, '');
+        entityRegistry.updateEnricher(data.enricherInstanceId, template, data);
       });
     }
   }
