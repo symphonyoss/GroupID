@@ -1,7 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
-import org.symphonyoss.symphony.bots.ai.common.AiConstants;
-
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -29,10 +27,10 @@ public class AiCommandMenu {
   }
 
   public String toString() {
-    AiCommand[] commands = (AiCommand[]) commandSet.toArray();
+    AiCommand[] commands = commandSet.toArray(new AiCommand[commandSet.size()]);
     Arrays.sort(commands);
 
-    String toString = AiConstants.MENU_TITLE + ": \n";
+    String toString = "";
     for(AiCommand aiCommand : commands) {
       toString += aiCommand.getCommand() + "\n";
     }

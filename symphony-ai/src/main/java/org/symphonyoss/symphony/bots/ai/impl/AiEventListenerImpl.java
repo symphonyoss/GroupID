@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.AiEventListener;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
@@ -31,14 +32,15 @@ public class AiEventListenerImpl implements AiEventListener {
       boolean commandExecuted = false;
       AiCommandMenu commandMenu = sessionContext.getAiCommandMenu();
       for (AiCommand aiCommand : commandMenu.getCommandSet()) {
-        if (aiCommandInterpreter.isCommand(aiCommand, command, commandMenu.getCommandPrefix())) {
+        if ( startsWithPrefix(commandMenu, command) &&
+            aiCommandInterpreter.isCommand(aiCommand, command, commandMenu.getCommandPrefix())) {
           aiCommand.executeCommand(sessionContext, aiResponder,
               aiCommandInterpreter.readCommandArguments(aiCommand, command));
           commandExecuted = true;
         }
       }
 
-      if (!commandExecuted && command.getAiMessage().startsWith(commandMenu.getCommandPrefix())) {
+      if (!commandExecuted && startsWithPrefix(commandMenu, command)) {
         aiResponder.respondWithUseMenu(sessionContext);
         if (suggestCommands) {
           aiResponder.respondWithSuggestion(sessionContext, aiCommandInterpreter, command);
@@ -50,6 +52,11 @@ public class AiEventListenerImpl implements AiEventListener {
   public void onConversation(AiMessage message, AiConversation aiConversation) {
     aiConversation.onMessage(aiResponder, message);
     aiConversation.getPreviousMessages().add(message.getAiMessage());
+  }
+
+  private boolean startsWithPrefix(AiCommandMenu commandMenu, AiMessage command) {
+    return StringUtils.isNotBlank(commandMenu.getCommandPrefix())
+        && command.getAiMessage().startsWith(commandMenu.getCommandPrefix());
   }
 
 }
