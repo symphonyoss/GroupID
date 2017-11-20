@@ -4,8 +4,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.client.exceptions.UsersClientException;
-import org.symphonyoss.client.model.Chat;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
@@ -41,8 +39,9 @@ public class SymphonyAi extends AiImpl {
     SymphonyAiSessionContext aiSessionContext = new SymphonyAiSessionContext();
     SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) aiSessionKey;
 
+    SymphonyAiMessageListener messageListener;
     if(StringUtils.isBlank(sessionKey.getStreamId())) {
-      SymphonyAiMessageListener messageListener = new SymphonyAiMessageListener() {
+      messageListener = new SymphonyAiMessageListener() {
         @Override
         public void onMessage(SymMessage symMessage) {
           if(symMessage.getFromUserId().toString().equals(sessionKey.getUid())) {
@@ -51,36 +50,22 @@ public class SymphonyAi extends AiImpl {
           }
         }
       };
-      messageListener.setAiSessionKey(aiSessionKey);
-      aiSessionContext.setSymphonyAiMessageListener(messageListener);
-
-      symphonyClient.getMessageService().addMessageListener(messageListener);
     } else {
-      SymphonyAiChatListener chatListener = new SymphonyAiChatListener() {
+      messageListener = new SymphonyAiMessageListener() {
         @Override
-        public void onChatMessage(SymMessage symMessage) {
-          if(symMessage.getFromUserId().toString().equals(sessionKey.getUid())) {
+        public void onMessage(SymMessage symMessage) {
+          if(symMessage.getFromUserId().toString().equals(sessionKey.getUid())
+              && symMessage.getStreamId().equals(sessionKey.getStreamId())) {
             SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
             onAiMessage(sessionKey, symphonyAiMessage);
           }
         }
       };
-      chatListener.setAiSessionKey(aiSessionKey);
-      aiSessionContext.setSymphonyAiChatListener(chatListener);
-
-      Chat chat = symphonyClient.getChatService().getChatByStream(sessionKey.getStreamId());
-      if(chat == null) {
-        try {
-          chat = new Chat();
-          chat.setRemoteUsers(
-              symphonyClient.getUsersClient().getUsersFromStream(sessionKey.getStreamId()));
-          symphonyClient.getChatService().addChat(chat);
-        } catch (UsersClientException e) {
-          LOG.error("Could not add chat: ", e);
-        }
-      }
-      chat.addListener(chatListener);
     }
+    messageListener.setAiSessionKey(aiSessionKey);
+    aiSessionContext.setSymphonyAiMessageListener(messageListener);
+
+    symphonyClient.getMessageService().addMessageListener(messageListener);
 
     return aiSessionContext;
   }

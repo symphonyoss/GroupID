@@ -13,9 +13,7 @@ import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
 public class AiCommandInterpreterImpl implements AiCommandInterpreter {
   @Override
   public boolean isCommand(AiCommand aiCommand, AiMessage command, String commandPrefix) {
-    if(!command.getAiMessage().startsWith(commandPrefix)) {
-      return false;
-    }
+    //TODO APP-1489 (Need to fix this)
 
     String withoutPrefix = aiCommand.getCommand().substring(commandPrefix.length());
     String[] potentialCommand = withoutPrefix.split(" ");

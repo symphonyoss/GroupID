@@ -155,7 +155,7 @@ public class MessageProxyService implements MessageListener {
 
     ProxyConversation aiConversation = new ProxyConversation(true,
         session.getClientMakerCheckerService());
-    aiConversation.addProxyId(ticket.getServiceStreamId());
+    aiConversation.addProxyId(ticket.getClientStreamId());
     session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
 
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
@@ -166,8 +166,7 @@ public class MessageProxyService implements MessageListener {
    * Creating a new session with the help desk ai, and adding a new ai conversation.
    * Registering the proxy in the proxy map.
    */
-  private void createClientProxy(Ticket ticket,
-      HelpDeskAiSessionContext aiSessionContext) {
+  private void createClientProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
     aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
     aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.CLIENT);
 
