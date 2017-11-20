@@ -23,8 +23,8 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxySer
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.bots.utility.client.SymphonyUtilClient;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
+import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -45,12 +45,10 @@ public class MessageProxyService implements MessageListener {
 
   private Map<String, MessageProxy> proxyMap = new HashMap<>();
 
-  private SymphonyUtilClient symphonyUtilClient;
   private MessageProxyServiceSession session;
 
   public MessageProxyService(MessageProxyServiceSession messageProxyServiceSession) {
     this.session = messageProxyServiceSession;
-    this.symphonyUtilClient = new SymphonyUtilClient(messageProxyServiceSession.getSymphonyClient());
   }
 
   /**
@@ -182,33 +180,41 @@ public class MessageProxyService implements MessageListener {
 
   private void sendTicketCreationMessages(Ticket ticket, AiSessionContext aiSessionContext) {
     SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) aiSessionContext.getAiSessionKey();
-    String username = symphonyUtilClient.getUserDisplayName(Long.parseLong(sessionKey.getUid()));
-    String host = ""; //TODO Need to get the host for the callback url template
-    String header = ""; //TODO Need to get/create a header to ticket
-    String body = ""; //TODO Need to get the content of user message to create the body ticket
-    SymphonyAiMessage aiMessage =
-        new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());
-    Set<AiResponseIdentifier> aiResponseIdentifierSet = new HashSet<>();
-    aiResponseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
-    session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
 
-    MessageTemplate messageTemplate = new MessageTemplate(
-        session.getMessageProxyServiceConfig().getClaimMessageTemplate());
-    MessageTemplate entityTemplate = new MessageTemplate(
-        session.getMessageProxyServiceConfig().getClaimEntityTemplate());
-    ClaimMessageTemplateData messageTemplateData = new ClaimMessageTemplateData(ticket.getId());
-    ClaimEntityTemplateData entityTemplateData =
-        new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, host, header, body);
-    String message = messageTemplate.buildFromData(messageTemplateData);
-    String entity = entityTemplate.buildFromData(entityTemplateData);
+    try {
+      UsersClient usersClient = session.getSymphonyClient().getUsersClient();
+      String username = usersClient.getUserFromId(Long.parseLong(sessionKey.getUid())).getDisplayName();
+      String host = ""; //TODO Need to get the host for the callback url template
+      String header = ""; //TODO Need to get/create a header to ticket
+      String body = ""; //TODO Need to get the content of user message to create the body ticket
+      SymphonyAiMessage aiMessage =
+          new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());
+      Set<AiResponseIdentifier> aiResponseIdentifierSet = new HashSet<>();
+      aiResponseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
+      session.getHelpDeskAi()
+          .sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
 
-    aiMessage = new SymphonyAiMessage(message);
-    aiMessage.setEntityData(entity);
-    aiResponseIdentifierSet = new HashSet<>();
-    aiResponseIdentifierSet.add(
-        new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
-    session.getHelpDeskAi()
-        .sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
+      MessageTemplate messageTemplate = new MessageTemplate(
+          session.getMessageProxyServiceConfig().getClaimMessageTemplate());
+      MessageTemplate entityTemplate = new MessageTemplate(
+          session.getMessageProxyServiceConfig().getClaimEntityTemplate());
+      ClaimMessageTemplateData messageTemplateData = new ClaimMessageTemplateData(ticket.getId());
+      ClaimEntityTemplateData entityTemplateData =
+          new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, host, header,
+              body);
+      String message = messageTemplate.buildFromData(messageTemplateData);
+      String entity = entityTemplate.buildFromData(entityTemplateData);
+
+      aiMessage = new SymphonyAiMessage(message);
+      aiMessage.setEntityData(entity);
+      aiResponseIdentifierSet = new HashSet<>();
+      aiResponseIdentifierSet.add(
+          new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
+      session.getHelpDeskAi()
+          .sendMessage(aiMessage, aiResponseIdentifierSet, aiSessionContext.getAiSessionKey());
+    } catch(UsersClientException e) {
+      LOG.error("Failed to get sym user from uid: " + sessionKey.getUid(), e);
+    }
   }
 
   /**
