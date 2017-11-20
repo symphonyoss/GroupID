@@ -26,6 +26,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       service: enricherServiceName,
       type: 'approveAttachment',
       label: 'Approve',
+      enricherInstanceId: entity.messageId,
     };
 
     const denyAttachmentAction = {
@@ -33,31 +34,44 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       service: enricherServiceName,
       type: 'denyAttachment',
       label: 'Deny',
+      enricherInstanceId: entity.messageId,
     };
 
     const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
       enricherServiceName, entity);
 
     const result = {
-      template: actions(),
+      template: actions({ showButtons: true }),
       data,
+      enricherInstanceId,
     };
 
     return result;
   }
 
   action(data) {
-    console.log('Action begin');
-    console.log(data);
+    const entityRegistry = SYMPHONY.services.subscribe('entity');
+
     if (data.type === 'approveAttachment') {
-      this.services.attachmentService.approve(data.entity);
+      this.services.attachmentService.approve(data.entity).then((rsp) => {
+
+        // if (rsp.status === '200') {
+        const template = actions({ showButtons: false });
+        
+        entityRegistry.updateEnricher(data.enricherInstanceId, template, '');
+      // }
+      });
     }
 
     if (data.type === 'denyAttachment') {
-      this.services.attachmentService.deny(data.entity);
+      this.services.attachmentService.deny(data.entity).then((rsp) => {
+        // if (rsp.status === '200') {
+        const template = actions({ showButtons: false });
+        
+        entityRegistry.updateEnricher(data.enricherInstanceId, template, '');
+      // }
+      });
     }
-
-    console.log('Action end');
   }
 }
 
