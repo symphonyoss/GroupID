@@ -5,12 +5,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.impl.SymphonyBasicClient;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
+import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
@@ -36,16 +38,24 @@ public class HelpDeskBot {
 
   private static final Logger LOG = LoggerFactory.getLogger(HelpDeskBot.class);
 
-  private final HelpDeskBotConfig helpDeskBotConfig;
+  private final HelpDeskBotConfig configuration;
 
-  private HelpDeskBotSession helpDeskBotSession;
+  private final HelpDeskAuthenticationService authenticationService;
+
+  private final HelpDeskBotSession helpDeskBotSession;
 
   /**
-   * Normal constructor.
-   * @param helpDeskBotConfig a configuration for the help desk bot.
+   * Constructor to inject dependencies.
+   *
+   * @param configuration a configuration for the help desk bot.
+   * @param authenticationService service to authenticate bot.
    */
-  public HelpDeskBot(HelpDeskBotConfig helpDeskBotConfig) {
-    this.helpDeskBotConfig = helpDeskBotConfig;
+  public HelpDeskBot(HelpDeskBotConfig configuration,
+      HelpDeskAuthenticationService authenticationService) {
+    this.configuration = configuration;
+    this.authenticationService = authenticationService;
+
+    this.helpDeskBotSession = new HelpDeskBotSession();
   }
 
   /**
@@ -58,54 +68,41 @@ public class HelpDeskBot {
    *    Initializing the message proxy service. (Handles the proxying of client/agent messages.)
    */
   @PostConstruct
-  public void init() {
-    LOG.info("Help Desk Bot starting up for groupId: " + helpDeskBotConfig.getGroupId());
+  public void init() throws InitException {
+    LOG.info("Help Desk Bot starting up for groupId: " + configuration.getGroupId());
 
-    helpDeskBotSession = new HelpDeskBotSession();
-    helpDeskBotSession.setHelpDeskBotConfig(helpDeskBotConfig);
-    helpDeskBotSession.setSymphonyClient(initSymphonyClient(helpDeskBotConfig));
-    helpDeskBotSession.setTicketClient(initTicketClient(helpDeskBotConfig));
-    helpDeskBotSession.setMembershipClient(initMembershipClient(helpDeskBotConfig));
-    helpDeskBotSession.setHelpDeskAi(initHelpDeskAi(helpDeskBotConfig));
+    helpDeskBotSession.setHelpDeskBotConfig(configuration);
+    helpDeskBotSession.setSymphonyClient(initSymphonyClient());
+    helpDeskBotSession.setTicketClient(initTicketClient());
+    helpDeskBotSession.setMembershipClient(initMembershipClient());
+    helpDeskBotSession.setHelpDeskAi(initHelpDeskAi());
     helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService());
     helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService());
     helpDeskBotSession.setMessageProxyService(initMessageProxyService());
 
     registerDefaultAgent();
 
-    LOG.info("Help Desk Bot startup complete fpr groupId: " + helpDeskBotConfig.getGroupId());
+    LOG.info("Help Desk Bot startup complete fpr groupId: " + configuration.getGroupId());
   }
 
-  private SymphonyClient initSymphonyClient(HelpDeskBotConfig configuration) {
+  /**
+   * Initializes Symphony Client.
+   *
+   * @return Symphony Client
+   * @throws InitException Failure to initialize the client
+   */
+  private SymphonyClient initSymphonyClient() throws InitException {
+    SymAuth symAuth = authenticationService.authenticate();
+
     SymphonyClient symClient = new SymphonyBasicClient();
 
-    AuthenticationClient authClient = new AuthenticationClient(configuration.getSessionAuthUrl(),
-        configuration.getKeyAuthUrl());
-
-    LOG.info("Setting up auth http client for help desk bot with group id: " + configuration.getGroupId());
-    try {
-      System.setProperty("javax.net.ssl.keyStore", configuration.getKeyStoreFile());
-      System.setProperty("javax.net.ssl.keyStorePassword", configuration.getKeyStorePassword());
-      System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
-    } catch (Exception e) {
-      LOG.error("Could not create HTTP Client for authentication: ", e);
-    }
-    LOG.info("Attempting bot auth for help desk bot with group id: " + configuration.getGroupId());
-    try {
-      SymAuth symAuth = authClient.authenticate();
-
-      symClient.init(symAuth,
-          configuration.getEmail(),
-          configuration.getAgentUrl(),
-          configuration.getPodUrl());
-    } catch (Exception e) {
-      LOG.error("Authentication failed for bot: ", e);
-    }
+    symClient.init(symAuth, configuration.getEmail(), configuration.getAgentUrl(),
+        configuration.getPodUrl());
 
     return symClient;
   }
 
-  private HelpDeskAi initHelpDeskAi(HelpDeskBotConfig configuration) {
+  private HelpDeskAi initHelpDeskAi() {
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
     helpDeskAiSession.setMembershipClient(helpDeskAiSession.getMembershipClient());
     helpDeskAiSession.setTicketClient(helpDeskBotSession.getTicketClient());
@@ -155,14 +152,14 @@ public class HelpDeskBot {
     return clientMakerCheckerService;
   }
 
-  private MembershipClient initMembershipClient(HelpDeskBotConfig configuration) {
+  private MembershipClient initMembershipClient() {
     MembershipClient membershipClient = new MembershipClient(configuration.getGroupId(),
         configuration.getMemberServiceUrl());
 
     return membershipClient;
   }
 
-  private TicketClient initTicketClient(HelpDeskBotConfig configuration) {
+  private TicketClient initTicketClient() {
     TicketClient ticketClient = new TicketClient(configuration.getGroupId(),
         configuration.getTicketServiceUrl());
 

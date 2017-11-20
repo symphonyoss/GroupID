@@ -13,21 +13,15 @@ public class HelpDeskBotConfig {
 
   private String email;
 
-  private String sessionAuthUrl;
+  private ServiceInfo sessionAuth;
 
-  private String keyAuthUrl;
+  private ServiceInfo keyAuth;
 
-  private String agentUrl;
+  private ServiceInfo agent;
 
-  private String podUrl;
+  private ServiceInfo pod;
 
-  private String trustStoreFile;
-
-  private String trustStorePassword;
-
-  private String keyStoreFile;
-
-  private String keyStorePassword;
+  private AuthenticationConfig authentication;
 
   private String groupId;
 
@@ -77,68 +71,108 @@ public class HelpDeskBotConfig {
     this.email = email;
   }
 
-  public String getSessionAuthUrl() {
-    return sessionAuthUrl;
+  public ServiceInfo getSessionAuth() {
+    return sessionAuth;
   }
 
-  public void setSessionAuthUrl(String sessionAuthUrl) {
-    this.sessionAuthUrl = sessionAuthUrl;
+  public void setSessionAuth(ServiceInfo sessionAuth) {
+    this.sessionAuth = sessionAuth;
+  }
+
+  public String getSessionAuthUrl() {
+    if (this.sessionAuth == null) {
+      throw new IllegalStateException("Unknown session auth address");
+    }
+
+    return this.sessionAuth.getUrl("sessionauth");
+  }
+
+  public ServiceInfo getKeyAuth() {
+    return keyAuth;
+  }
+
+  public void setKeyAuth(ServiceInfo keyAuth) {
+    this.keyAuth = keyAuth;
   }
 
   public String getKeyAuthUrl() {
-    return keyAuthUrl;
+    if (this.keyAuth == null) {
+      throw new IllegalStateException("Unknown key auth address");
+    }
+
+    return this.keyAuth.getUrl("keyauth");
   }
 
-  public void setKeyAuthUrl(String keyAuthUrl) {
-    this.keyAuthUrl = keyAuthUrl;
+  public ServiceInfo getAgent() {
+    return agent;
+  }
+
+  public void setAgent(ServiceInfo agent) {
+    this.agent = agent;
+  }
+
+  public ServiceInfo getPod() {
+    return pod;
+  }
+
+  public void setPod(ServiceInfo pod) {
+    this.pod = pod;
   }
 
   public String getAgentUrl() {
-    return agentUrl;
-  }
+    if (this.agent == null) {
+      throw new IllegalStateException("Unknown agent address");
+    }
 
-  public void setAgentUrl(String agentUrl) {
-    this.agentUrl = agentUrl;
+    return this.agent.getUrl("agent");
   }
 
   public String getPodUrl() {
-    return podUrl;
+    if (this.pod == null) {
+      throw new IllegalStateException("Unknown POD address");
+    }
+
+    return this.pod.getUrl("pod");
   }
 
-  public void setPodUrl(String podUrl) {
-    this.podUrl = podUrl;
+  public AuthenticationConfig getAuthentication() {
+    return authentication;
+  }
+
+  public void setAuthentication(AuthenticationConfig authentication) {
+    this.authentication = authentication;
   }
 
   public String getTrustStoreFile() {
-    return trustStoreFile;
-  }
+    if (this.authentication == null) {
+      throw new IllegalStateException("Unknown authentication config");
+    }
 
-  public void setTrustStoreFile(String trustStoreFile) {
-    this.trustStoreFile = trustStoreFile;
+    return this.authentication.getTruststoreFile();
   }
 
   public String getTrustStorePassword() {
-    return trustStorePassword;
-  }
+    if (this.authentication == null) {
+      throw new IllegalStateException("Unknown authentication config");
+    }
 
-  public void setTrustStorePassword(String trustStorePassword) {
-    this.trustStorePassword = trustStorePassword;
+    return this.authentication.getTruststorePassword();
   }
 
   public String getKeyStoreFile() {
-    return keyStoreFile;
-  }
+    if (this.authentication == null) {
+      throw new IllegalStateException("Unknown authentication config");
+    }
 
-  public void setKeyStoreFile(String keyStoreFile) {
-    this.keyStoreFile = keyStoreFile;
+    return this.authentication.getKeystoreFile();
   }
 
   public String getKeyStorePassword() {
-    return keyStorePassword;
-  }
+    if (this.authentication == null) {
+      throw new IllegalStateException("Unknown authentication config");
+    }
 
-  public void setKeyStorePassword(String keyStorePassword) {
-    this.keyStorePassword = keyStorePassword;
+    return this.authentication.getKeystorePassword();
   }
 
   public String getGroupId() {
