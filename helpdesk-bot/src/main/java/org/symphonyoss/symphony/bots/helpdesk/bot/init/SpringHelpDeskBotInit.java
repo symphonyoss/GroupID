@@ -2,7 +2,6 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.init;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Description;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -20,7 +19,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @SpringBootApplication(scanBasePackages = { "org.symphonyoss.symphony.bots.helpdesk.bot" })
 @EnableSwagger2
 @EnableWebMvc
-@EnableConfigurationProperties(HelpDeskBotConfig.class)
 public class SpringHelpDeskBotInit {
 
   private final HelpDeskBotConfig helpDeskBotConfig;
