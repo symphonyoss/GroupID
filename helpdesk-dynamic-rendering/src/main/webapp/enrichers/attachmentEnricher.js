@@ -26,7 +26,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       service: enricherServiceName,
       type: 'approveAttachment',
       label: 'Approve',
-      enricherInstanceId: entity.messageId,
+      enricherInstanceId: entity.attachmentId,
     };
 
     const denyAttachmentAction = {
@@ -34,7 +34,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       service: enricherServiceName,
       type: 'denyAttachment',
       label: 'Deny',
-      enricherInstanceId: entity.messageId,
+      enricherInstanceId: entity.attachmentId,
     };
 
     const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
@@ -43,7 +43,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     const result = {
       template: actions({ showButtons: true }),
       data,
-      enricherInstanceId,
+      enricherInstanceId: entity.attachmentId,
     };
 
     return result;
