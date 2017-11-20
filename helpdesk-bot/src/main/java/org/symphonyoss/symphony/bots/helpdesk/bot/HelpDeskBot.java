@@ -24,7 +24,6 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxySer
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
-import org.symphonyoss.symphony.clients.AuthenticationClient;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
@@ -176,6 +175,9 @@ public class HelpDeskBot {
     messageProxyServiceConfig.setClaimMessageTemplate(configuration.getClaimMessageTemplate());
     messageProxyServiceConfig.setClaimEntityTemplate(configuration.getClaimEntityTemplate());
     messageProxyServiceConfig.setTicketCreationMessage(configuration.getTicketCreationMessage());
+    messageProxyServiceConfig.setClaimEntityBodyTemplate(configuration.getClaimEntityBodyTemplate());
+    messageProxyServiceConfig.setClaimEntityHostTemplate(configuration.getClaimEntityHostTemplate());
+    messageProxyServiceConfig.setClaimEntityHeaderTemplate(configuration.getClaimEntityHeaderTemplate());
 
     proxyServiceSession.setMessageProxyServiceConfig(messageProxyServiceConfig);
     proxyServiceSession.setHelpDeskAi(helpDeskBotSession.getHelpDeskAi());

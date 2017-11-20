@@ -16,7 +16,6 @@ claimMessageTemplate:
       </body>
     </card>
   </div>"
-
 claimEntityTemplate:
   "{
       \"helpdesk\": {
@@ -36,6 +35,9 @@ claimEntityTemplate:
       }
     }
   }"
+claimEntityBodyTemplate: Company: {COMPANY}<br/>Customer: {USER_NAME}<br/>Question: {QUESTION}
+claimEntityHeaderTemplate: Equites Desk Bot
+claimEntityHostTemplate: http://localhost.com:8090
 
 makerCheckerMessageTemplate: This is a maker checker message.
 makerCheckerEntityTemplate:

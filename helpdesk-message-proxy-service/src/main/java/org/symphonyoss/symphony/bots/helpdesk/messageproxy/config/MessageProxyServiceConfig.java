@@ -8,6 +8,9 @@ public class MessageProxyServiceConfig {
   private String agentStreamId;
   private String claimMessageTemplate;
   private String claimEntityTemplate;
+  private String claimEntityHostTemplate;
+  private String claimEntityHeaderTemplate;
+  private String claimEntityBodyTemplate;
   private String ticketCreationMessage;
 
   public String getGroupId() {
@@ -48,5 +51,29 @@ public class MessageProxyServiceConfig {
 
   public void setTicketCreationMessage(String ticketCreationMessage) {
     this.ticketCreationMessage = ticketCreationMessage;
+  }
+
+  public String getClaimEntityHostTemplate() {
+    return claimEntityHostTemplate;
+  }
+
+  public void setClaimEntityHostTemplate(String claimEntityHostTemplate) {
+    this.claimEntityHostTemplate = claimEntityHostTemplate;
+  }
+
+  public String getClaimEntityHeaderTemplate() {
+    return claimEntityHeaderTemplate;
+  }
+
+  public void setClaimEntityHeaderTemplate(String claimEntityHeaderTemplate) {
+    this.claimEntityHeaderTemplate = claimEntityHeaderTemplate;
+  }
+
+  public String getClaimEntityBodyTemplate() {
+    return claimEntityBodyTemplate;
+  }
+
+  public void setClaimEntityBodyTemplate(String claimEntityBodyTemplate) {
+    this.claimEntityBodyTemplate = claimEntityBodyTemplate;
   }
 }
