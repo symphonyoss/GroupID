@@ -16,5 +16,18 @@ key_auth:
 pod:
   host: nexus2-dev.symphony.com
 
-memberServiceUrl: http://localhost:8080/helpdesk/service
-ticketServiceUrl: http://localhost:8080/helpdesk/service
+helpdesk-bot:
+  host: localhost.symphony.com
+  port: 8090
+
+helpdesk-service:
+  host: localhost.symphony.com
+  port: 8080
+
+server:
+  ssl:
+    enabled: true
+    key-store: ${CERTS_DIR}/server.keystore
+    key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
+
+agentStreamId: 16Uit8rhM2BpllEjIxYlXX___qAlMAjidA
