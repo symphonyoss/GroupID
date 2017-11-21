@@ -176,7 +176,7 @@ public class HelpDeskBot {
     messageProxyServiceConfig.setClaimEntityTemplate(configuration.getClaimEntityTemplate());
     messageProxyServiceConfig.setTicketCreationMessage(configuration.getTicketCreationMessage());
     messageProxyServiceConfig.setClaimEntityBodyTemplate(configuration.getClaimEntityBodyTemplate());
-    messageProxyServiceConfig.setClaimEntityHostTemplate(configuration.getClaimEntityHostTemplate());
+    messageProxyServiceConfig.setHelpDeskBotHost(configuration.getHelpDeskBotUrl());
     messageProxyServiceConfig.setClaimEntityHeaderTemplate(configuration.getClaimEntityHeaderTemplate());
 
     proxyServiceSession.setMessageProxyServiceConfig(messageProxyServiceConfig);

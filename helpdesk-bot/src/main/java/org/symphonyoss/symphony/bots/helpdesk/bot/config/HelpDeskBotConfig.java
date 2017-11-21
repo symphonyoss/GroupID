@@ -63,8 +63,6 @@ public class HelpDeskBotConfig {
 
   private String ticketCreationMessage;
 
-  private String claimEntityHostTemplate;
-
   private String claimEntityHeaderTemplate;
 
   private String claimEntityBodyTemplate;
@@ -355,14 +353,6 @@ public class HelpDeskBotConfig {
 
   public void setDefaultAgentEmail(String defaultAgentEmail) {
     this.defaultAgentEmail = defaultAgentEmail;
-  }
-
-  public String getClaimEntityHostTemplate() {
-    return claimEntityHostTemplate;
-  }
-
-  public void setClaimEntityHostTemplate(String claimEntityHostTemplate) {
-    this.claimEntityHostTemplate = claimEntityHostTemplate;
   }
 
   public String getClaimEntityHeaderTemplate() {

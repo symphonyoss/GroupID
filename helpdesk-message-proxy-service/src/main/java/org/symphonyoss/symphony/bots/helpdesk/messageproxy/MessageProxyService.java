@@ -254,7 +254,7 @@ public class MessageProxyService implements MessageListener {
       SymUser symUser = usersClient.getUserFromId(symMessage.getFromUserId());
 
       String username = symUser.getDisplayName();
-      String host = session.getMessageProxyServiceConfig().getClaimEntityHostTemplate();
+      String host = session.getMessageProxyServiceConfig().getHelpDeskBotHost();
       String header = session.getMessageProxyServiceConfig().getClaimEntityHeaderTemplate();
 
       MessageTemplate bodyTemplate = new MessageTemplate(

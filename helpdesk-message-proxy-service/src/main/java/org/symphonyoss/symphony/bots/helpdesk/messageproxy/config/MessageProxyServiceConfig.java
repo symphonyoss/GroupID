@@ -6,9 +6,9 @@ package org.symphonyoss.symphony.bots.helpdesk.messageproxy.config;
 public class MessageProxyServiceConfig {
   private String groupId;
   private String agentStreamId;
+  private String helpDeskBotHost;
   private String claimMessageTemplate;
   private String claimEntityTemplate;
-  private String claimEntityHostTemplate;
   private String claimEntityHeaderTemplate;
   private String claimEntityBodyTemplate;
   private String ticketCreationMessage;
@@ -53,12 +53,12 @@ public class MessageProxyServiceConfig {
     this.ticketCreationMessage = ticketCreationMessage;
   }
 
-  public String getClaimEntityHostTemplate() {
-    return claimEntityHostTemplate;
+  public String getHelpDeskBotHost() {
+    return helpDeskBotHost;
   }
 
-  public void setClaimEntityHostTemplate(String claimEntityHostTemplate) {
-    this.claimEntityHostTemplate = claimEntityHostTemplate;
+  public void setHelpDeskBotHost(String helpDeskBotHost) {
+    this.helpDeskBotHost = helpDeskBotHost;
   }
 
   public String getClaimEntityHeaderTemplate() {
