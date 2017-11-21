@@ -35,11 +35,11 @@ claimEntityTemplate:
       }
     }
   }"
-claimEntityBodyTemplate: Company: {COMPANY}<br/>Customer: {USER_NAME}<br/>Question: {QUESTION}
-claimEntityHeaderTemplate: Equites Desk Bot
-claimEntityHostTemplate: http://localhost.com:8090
+claimEntityBodyTemplate: "Company: {COMPANY}<br/>Customer: {USER_NAME}<br/>Question: {QUESTION}"
+claimEntityHeaderTemplate: "Equites Desk Bot"
+claimEntityHostTemplate: "http://localhost.com:8090"
 
-makerCheckerMessageTemplate: This is a maker checker message.
+makerCheckerMessageTemplate: "This is a maker checker message."
 makerCheckerEntityTemplate:
   "makerCheckerObject: {
     type: org.symphonyoss.helpdesk.makerCheckerMessage,version: 1.0,
@@ -51,12 +51,12 @@ makerCheckerEntityTemplate:
 
 aiServicePrefix:
 aiDefaultPrefix: /
-closeTicketCommand: Close Ticket
-acceptTicketCommand: Accept Ticket
-addMemberCommand: Add Member
-acceptTicketAgentSuccessResponse: Ticket claimed successfully.
-acceptTicketClientSuccessResponse: You have been connected to an agent.
-closeTicketSuccessResponse: Ticket closed successfully.
-addMemberAgentSuccessResponse: New member has been added to the help desk.
-addMemberClientSuccessResponse: Your membership to the help desk has been updated by an agent.
-ticketCreationMessage: Ticket created successfully.
+closeTicketCommand: "Close Ticket"
+acceptTicketCommand: "Accept Ticket"
+addMemberCommand: "Add Member"
+acceptTicketAgentSuccessResponse: "Ticket claimed successfully."
+acceptTicketClientSuccessResponse: "You have been connected to an agent."
+closeTicketSuccessResponse: "Ticket closed successfully."
+addMemberAgentSuccessResponse: "New member has been added to the help desk."
+addMemberClientSuccessResponse: "Your membership to the help desk has been updated by an agent."
+ticketCreationMessage: "Ticket created successfully."
