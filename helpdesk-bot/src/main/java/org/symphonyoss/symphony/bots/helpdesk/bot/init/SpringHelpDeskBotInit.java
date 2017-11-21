@@ -41,14 +41,13 @@ public class SpringHelpDeskBotInit {
   @Bean(name = "membershipClient")
   @Description("A membership client")
   public MembershipClient getMembershipClient() {
-    return new MembershipClient(helpDeskBotConfig.getGroupId(),
-        helpDeskBotConfig.getMemberServiceUrl());
+    return new MembershipClient(helpDeskBotConfig.getGroupId(), helpDeskBotConfig.getHelpDeskServiceUrl());
   }
 
   @Bean(name = "ticketClient")
   @Description("A ticket client")
   public TicketClient getTicketClient() {
-    return new TicketClient(helpDeskBotConfig.getGroupId(), helpDeskBotConfig.getTicketServiceUrl());
+    return new TicketClient(helpDeskBotConfig.getGroupId(), helpDeskBotConfig.getHelpDeskServiceUrl());
   }
 
   @Bean(name = "validationUtil")
