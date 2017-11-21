@@ -1,13 +1,16 @@
 import 'babel-polyfill';
-import HelpDeskBotEnricher from '../enrichers/ticketEnricher';
+import ClaimTicketEnricher from '../enrichers/claimTicketEnricher';
+import AttachmentEnricher from '../enrichers/attachmentEnricher';
 
-const enricher = new HelpDeskBotEnricher();
+const claimTicketEnricher = new ClaimTicketEnricher();
+const attachmentEnricher = new AttachmentEnricher();
 const appId = 'helpdesk';
 const controllerName = 'helpdesk:controller';
 
 const registerApp = () => {
-  enricher.init();
-  return SYMPHONY.application.register(appId, ['ui', 'entity', 'extended-user-service'], [controllerName, enricher.name]);
+  claimTicketEnricher.init();
+  attachmentEnricher.init();
+  return SYMPHONY.application.register(appId, ['ui', 'entity', 'extended-user-service'], [controllerName, claimTicketEnricher.name, attachmentEnricher.name]);
 };
 
 SYMPHONY.services.register(controllerName);
@@ -15,6 +18,7 @@ SYMPHONY.services.register(controllerName);
 SYMPHONY.remote.hello()
   .then(registerApp)
   .then(() => {
-    enricher.register();
+    claimTicketEnricher.register();
+    attachmentEnricher.register();
   })
   .fail(() => console.error('Fail to register helpdesk dynamic rendering'));

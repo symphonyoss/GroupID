@@ -153,14 +153,14 @@ public class HelpDeskBot {
 
   private MembershipClient initMembershipClient() {
     MembershipClient membershipClient = new MembershipClient(configuration.getGroupId(),
-        configuration.getMemberServiceUrl());
+        configuration.getHelpDeskServiceUrl());
 
     return membershipClient;
   }
 
   private TicketClient initTicketClient() {
     TicketClient ticketClient = new TicketClient(configuration.getGroupId(),
-        configuration.getTicketServiceUrl());
+        configuration.getHelpDeskServiceUrl());
 
     return ticketClient;
   }

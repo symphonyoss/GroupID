@@ -21,6 +21,10 @@ public class HelpDeskBotConfig {
 
   private ServiceInfo pod;
 
+  private ServiceInfo helpdeskBot;
+
+  private ServiceInfo helpdeskService;
+
   private AuthenticationConfig authentication;
 
   private String groupId;
@@ -32,10 +36,6 @@ public class HelpDeskBotConfig {
   private String claimMessageTemplate;
 
   private String claimEntityTemplate;
-
-  private String memberServiceUrl;
-
-  private String ticketServiceUrl;
 
   private String makerCheckerMessageTemplate;
 
@@ -141,6 +141,38 @@ public class HelpDeskBotConfig {
     return this.pod.getUrl("pod");
   }
 
+  public ServiceInfo getHelpdeskBot() {
+    return helpdeskBot;
+  }
+
+  public void setHelpdeskBot(ServiceInfo helpdeskBot) {
+    this.helpdeskBot = helpdeskBot;
+  }
+
+  public ServiceInfo getHelpdeskService() {
+    return helpdeskService;
+  }
+
+  public void setHelpdeskService(ServiceInfo helpdeskService) {
+    this.helpdeskService = helpdeskService;
+  }
+
+  public String getHelpDeskBotUrl() {
+    if (this.helpdeskBot == null) {
+      throw new IllegalStateException("Unknown HelpDesk bot address");
+    }
+
+    return this.helpdeskBot.getUrl("helpdesk");
+  }
+
+  public String getHelpDeskServiceUrl() {
+    if (this.helpdeskService == null) {
+      throw new IllegalStateException("Unknown HelpDesk service address");
+    }
+
+    return this.helpdeskService.getUrl("helpdesk/service");
+  }
+
   public AuthenticationConfig getAuthentication() {
     return authentication;
   }
@@ -211,22 +243,6 @@ public class HelpDeskBotConfig {
 
   public void setClaimEntityTemplate(String claimEntityTemplate) {
     this.claimEntityTemplate = claimEntityTemplate;
-  }
-
-  public String getMemberServiceUrl() {
-    return memberServiceUrl;
-  }
-
-  public void setMemberServiceUrl(String memberServiceUrl) {
-    this.memberServiceUrl = memberServiceUrl;
-  }
-
-  public String getTicketServiceUrl() {
-    return ticketServiceUrl;
-  }
-
-  public void setTicketServiceUrl(String ticketServiceUrl) {
-    this.ticketServiceUrl = ticketServiceUrl;
   }
 
   public String getMakerCheckerMessageTemplate() {
