@@ -1,6 +1,10 @@
 <messageML>
-    {{#if showButtons}}
+    {{#if (eq stateAttachment 'Open')}}
         <action id="approveAttachment" class="tempo-btn tempo-btn--good"/>
-        <action id="denyAttachment" class="tempo-btn tempo-btn--good"/>
+        <action id="denyAttachment" class="tempo-btn tempo-btn--good"/>     
+    {{else if (eq stateAttachment 'Approved')}}
+        <label class="label">{{userName}} approved this message. It has been delivered to the client(s).</label>
+    {{else if (eq stateAttachment 'Denied')}}
+        <label class="label">{{userName}} denied this message. It has not been delivered to the client(s).</label>
     {{/if}}
 </messageML>

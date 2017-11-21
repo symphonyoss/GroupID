@@ -21,47 +21,55 @@ export default class AttachmentEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    const approveAttachmentAction = {
-      id: 'approveAttachment',
-      service: enricherServiceName,
-      type: 'approveAttachment',
-      label: 'Approve',
-      enricherInstanceId: entity.attachmentId,
-    };
+    this.services.attachmentService.searchAttachment(entity).then((rsp) => {
+      const approveAttachmentAction = {
+        id: 'approveAttachment',
+        service: enricherServiceName,
+        type: 'approveAttachment',
+        label: 'Approve',
+        enricherInstanceId: entity.attachmentId,
+      };
 
-    const denyAttachmentAction = {
-      id: 'denyAttachment',
-      service: enricherServiceName,
-      type: 'denyAttachment',
-      label: 'Deny',
-      enricherInstanceId: entity.attachmentId,
-    };
+      const denyAttachmentAction = {
+        id: 'denyAttachment',
+        service: enricherServiceName,
+        type: 'denyAttachment',
+        label: 'Deny',
+        enricherInstanceId: entity.attachmentId,
+      };
 
-    const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
-      enricherServiceName, entity);
+      const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
+        enricherServiceName, entity);
+      const displayName = rsp.user.displayName ? rsp.user.displayName : '';
 
-    const result = {
-      template: actions({ showButtons: true }),
-      data,
-      enricherInstanceId: entity.attachmentId,
-    };
+      const result = {
+        template: actions({ stateAttachment: rsp.state, userName: displayName }),
+        data,
+        enricherInstanceId: entity.attachmentId,
+      };
 
-    return result;
+      return result;
+    });
   }
 
   action(data) {
     const entityRegistry = SYMPHONY.services.subscribe('entity');
     const dataUpdate = actionFactory([], enricherServiceName, data.entity);
-    const template = actions({ showButtons: false });
 
     if (data.type === 'approveAttachment') {
-      this.services.attachmentService.approve(data.entity).then(() => {
+      this.services.attachmentService.approve(data.entity).then((rsp) => {
+        const displayName = rsp.message.makerCheckerMessageDetail.user.displayName;
+        const template = actions({ stateAttachment: 'Approved', userName: displayName });
+
         entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
       });
     }
 
     if (data.type === 'denyAttachment') {
-      this.services.attachmentService.deny(data.entity).then(() => {
+      this.services.attachmentService.deny(data.entity).then((rsp) => {
+        const displayName = rsp.message.makerCheckerMessageDetail.user.displayName;
+        const template = actions({ stateAttachment: 'Denied', userName: displayName });
+
         entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
       });
     }
