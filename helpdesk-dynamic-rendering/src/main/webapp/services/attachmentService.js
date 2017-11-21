@@ -1,21 +1,21 @@
-import { acceptAttachment, denyAttachment } from '../api/apiCalls';
+import { approveAttachment, denyAttachment } from '../api/apiCalls';
 
 export default class AttachmentService {
   constructor(serviceName) {
     this.serviceName = serviceName;
   }
 
-  accept(message) {
-    return acceptAttachment(message)
+  approve(message) {
+    return approveAttachment(message)
       .catch((error) => {
         switch (error.message) {
-            case '': {
-              break;
-            }
-            default: {
-              break;
-            }
+          case '': {
+            break;
           }
+          default: {
+            break;
+          }
+        }
       });
   }
 
@@ -23,13 +23,13 @@ export default class AttachmentService {
     return denyAttachment(message)
       .catch((error) => {
         switch (error.message) {
-            case '': {
-              break;
-            }
-            default: {
-              break;
-            }
+          case '': {
+            break;
           }
+          default: {
+            break;
+          }
+        }
       });
   }
 
