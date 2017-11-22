@@ -11,7 +11,7 @@ export default (actions, service, entity) =>
         service: action.service,
         type: action.type,
         enricherInstanceId: action.enricherInstanceId,
-        showClaim: action.showClaim,
+        show: action.show,
         userName: action.userName,
       },
     };
