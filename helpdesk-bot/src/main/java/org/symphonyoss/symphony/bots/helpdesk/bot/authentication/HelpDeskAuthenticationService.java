@@ -45,7 +45,7 @@ public class HelpDeskAuthenticationService {
 
     String trustStorePassword = configuration.getTrustStorePassword();
     if (trustStorePassword != null) {
-      System.setProperty("javax.net.ssl.trustStorePassword", trustStoreFile);
+      System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
     }
 
     LOGGER.info("Attempting bot auth for help desk bot with group id: " + configuration.getGroupId());

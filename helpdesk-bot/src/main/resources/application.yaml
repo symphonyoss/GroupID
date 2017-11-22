@@ -12,7 +12,9 @@ claimMessageTemplate:
         <span>${entity['helpdesk'].message.header}</span>
       </header>
       <body>
-        <span>${entity['helpdesk'].message.body}</span>
+        <span><b>Company:</b> ${entity['helpdesk'].message.company}</span><br/>
+        <span><b>Customer:</b> ${entity['helpdesk'].message.customer}</span><br/>
+        <span><b>Question:</b> ${entity['helpdesk'].message.question}</span>
       </body>
     </card>
   </div>"
@@ -22,7 +24,7 @@ claimEntityTemplate:
       \"helpdesk\": {
         \"type\": \"com.symphony.bots.helpdesk.event.ticket\",
         \"version\": \"1.0\",
-        \"url\": \"{HOST}/helpdesk/v1/ticket/{TICKET_ID}/accept\",
+        \"url\": \"{HOST}/v1/ticket/{TICKET_ID}/accept\",
         \"ticketId\": \"{TICKET_ID}\",
         \"state\": \"{TICKET_STATE}\",
         \"user\": {
@@ -32,12 +34,16 @@ claimEntityTemplate:
         \"type\": \"com.symphony.bots.helpdesk.event.ticket\",
         \"version\": \"1.0\",
         \"header\": \"{HEADER}\",
-        \"body\": \"{BODY}\"
+        \"company\": \"{COMPANY}\",
+        \"customer\": \"{USER_NAME}\",
+        \"question\": \"{QUESTION}\"
       }
     }
   }"
 
-makerCheckerMessageTemplate: This is a maker checker message.
+claimEntityHeader: "Equities Desk Bot"
+
+makerCheckerMessageTemplate: "This is a maker checker message."
 makerCheckerEntityTemplate:
   "makerCheckerObject: {
     type: org.symphonyoss.helpdesk.makerCheckerMessage,version: 1.0,
@@ -49,12 +55,12 @@ makerCheckerEntityTemplate:
 
 aiServicePrefix:
 aiDefaultPrefix: /
-closeTicketCommand: Close Ticket
-acceptTicketCommand: Accept Ticket
-addMemberCommand: Add Member
-acceptTicketAgentSuccessResponse: Ticket claimed successfully.
-acceptTicketClientSuccessResponse: You have been connected to an agent.
-closeTicketSuccessResponse: Ticket closed successfully.
-addMemberAgentSuccessResponse: New member has been added to the help desk.
-addMemberClientSuccessResponse: Your membership to the help desk has been updated by an agent.
-ticketCreationMessage: Ticket created successfully.
+closeTicketCommand: "Close Ticket"
+acceptTicketCommand: "Accept Ticket"
+addMemberCommand: "Add Member"
+acceptTicketAgentSuccessResponse: "Ticket claimed successfully."
+acceptTicketClientSuccessResponse: "You have been connected to an agent."
+closeTicketSuccessResponse: "Ticket closed successfully."
+addMemberAgentSuccessResponse: "New member has been added to the help desk."
+addMemberClientSuccessResponse: "Your membership to the help desk has been updated by an agent."
+ticketCreationMessage: "Ticket created successfully."
