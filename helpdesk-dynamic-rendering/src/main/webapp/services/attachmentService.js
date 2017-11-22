@@ -1,4 +1,4 @@
-import { approveAttachment, denyAttachment } from '../api/apiCalls';
+import { approveAttachment, denyAttachment, searchAttachment } from '../api/apiCalls';
 
 export default class AttachmentService {
   constructor(serviceName) {
@@ -21,6 +21,20 @@ export default class AttachmentService {
 
   deny(message) {
     return denyAttachment(message)
+      .catch((error) => {
+        switch (error.message) {
+          case '': {
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+      });
+  }
+
+  search(attachmentId) {
+    return searchAttachment(attachmentId)
       .catch((error) => {
         switch (error.message) {
           case '': {
