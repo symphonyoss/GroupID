@@ -21,7 +21,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    this.services.attachmentService.searchAttachment(entity).then((rsp) => {
+    this.services.attachmentService.searchAttachment(entity.attachmentId).then((rsp) => {
       const approveAttachmentAction = {
         id: 'approveAttachment',
         service: enricherServiceName,
