@@ -1,16 +1,14 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.web.bind.annotation.RestController;
-import org.symphonyoss.symphony.bots.helpdesk.service.api.V1ApiController;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.HealthcheckResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.MembershipDao;
+import org.symphonyoss.symphony.bots.helpdesk.service.dao.MembershipDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.MembershipResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.SuccessResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.TicketDao;
+import org.symphonyoss.symphony.bots.helpdesk.service.dao.TicketDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.TicketSearchResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.health.HealthCheckFailedException;
