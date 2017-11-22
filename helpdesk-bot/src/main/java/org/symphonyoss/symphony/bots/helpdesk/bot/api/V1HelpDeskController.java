@@ -21,7 +21,9 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -81,6 +83,13 @@ public class V1HelpDeskController extends V1ApiController {
       AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
 
       symphonyClient.getRoomMembershipClient().addMemberToRoom(ticket.getServiceStreamId(), agentUser.getId());
+
+      Membership membership = helpDeskBotSession.getMembershipClient().getMembership(agentId);
+
+      if (membership == null) {
+        helpDeskBotSession.getMembershipClient().newMembership(agentId, MembershipClient.MembershipType.AGENT);
+        LOG.info("Created new agent membership for userid: " + agentId);
+      }
 
       SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(
           helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketClientSuccessResponse());
