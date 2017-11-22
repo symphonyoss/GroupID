@@ -8,3 +8,12 @@ helpdesk:
     databasePassword: password
     membershipTableName: memberTable
     ticketTableName: ticketTable
+  mongo:
+    host: mongo.symphony.com
+    port: 27017
+    database: maestro
+    socketTimeout: 10000
+    connectTimeout: 5000
+    waitTimeout: 10000
+    readPreference: nearest
+    writeConcern: majority
