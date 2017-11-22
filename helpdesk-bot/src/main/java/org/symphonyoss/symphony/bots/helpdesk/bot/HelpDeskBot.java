@@ -24,7 +24,6 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxySer
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
-import org.symphonyoss.symphony.clients.AuthenticationClient;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
@@ -104,11 +103,12 @@ public class HelpDeskBot {
 
   private HelpDeskAi initHelpDeskAi() {
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
-    helpDeskAiSession.setMembershipClient(helpDeskAiSession.getMembershipClient());
+    helpDeskAiSession.setMembershipClient(helpDeskBotSession.getMembershipClient());
     helpDeskAiSession.setTicketClient(helpDeskBotSession.getTicketClient());
     helpDeskAiSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
 
     HelpDeskAiConfig helpDeskAiConfig = new HelpDeskAiConfig();
+    helpDeskAiConfig.setAgentStreamId(configuration.getAgentStreamId());
     helpDeskAiConfig.setCloseTicketSuccessResponse(configuration.getCloseTicketSuccessResponse());
     helpDeskAiConfig.setAddMemberAgentSuccessResponse(configuration.getAddMemberAgentSuccessResponse());
     helpDeskAiConfig.setAddMemberClientSuccessResponse(configuration.getAddMemberClientSuccessResponse());

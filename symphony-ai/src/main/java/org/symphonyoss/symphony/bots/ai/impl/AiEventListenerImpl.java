@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.AiEventListener;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
@@ -29,34 +28,30 @@ public class AiEventListenerImpl implements AiEventListener {
 
   @Override
   public void onCommand(AiMessage command, AiSessionContext sessionContext) {
-      boolean commandExecuted = false;
-      AiCommandMenu commandMenu = sessionContext.getAiCommandMenu();
-      for (AiCommand aiCommand : commandMenu.getCommandSet()) {
-        if ( startsWithPrefix(commandMenu, command) &&
-            aiCommandInterpreter.isCommand(aiCommand, command, commandMenu.getCommandPrefix())) {
-          aiCommand.executeCommand(sessionContext, aiResponder,
-              aiCommandInterpreter.readCommandArguments(aiCommand, command));
-          commandExecuted = true;
-        }
+    boolean commandExecuted = false;
+    AiCommandMenu commandMenu = sessionContext.getAiCommandMenu();
+    for (AiCommand aiCommand : commandMenu.getCommandSet()) {
+      if (aiCommandInterpreter.hasPrefix(command, commandMenu.getCommandPrefix()) &&
+          aiCommandInterpreter.isCommand(aiCommand, command, commandMenu.getCommandPrefix())) {
+        aiCommand.executeCommand(sessionContext, aiResponder,
+            aiCommandInterpreter.readCommandArguments(aiCommand, command,
+                commandMenu.getCommandPrefix()));
+        commandExecuted = true;
       }
+    }
 
-      if (!commandExecuted && startsWithPrefix(commandMenu, command)) {
-        aiResponder.respondWithUseMenu(sessionContext);
-        if (suggestCommands) {
-          aiResponder.respondWithSuggestion(sessionContext, aiCommandInterpreter, command);
-        }
+    if (!commandExecuted && aiCommandInterpreter.hasPrefix(command, commandMenu.getCommandPrefix())) {
+      aiResponder.respondWithUseMenu(sessionContext);
+      if (suggestCommands) {
+        aiResponder.respondWithSuggestion(sessionContext, aiCommandInterpreter, command);
       }
+    }
   }
 
   @Override
   public void onConversation(AiMessage message, AiConversation aiConversation) {
     aiConversation.onMessage(aiResponder, message);
     aiConversation.getPreviousMessages().add(message.getAiMessage());
-  }
-
-  private boolean startsWithPrefix(AiCommandMenu commandMenu, AiMessage command) {
-    return StringUtils.isNotBlank(commandMenu.getCommandPrefix())
-        && command.getAiMessage().startsWith(commandMenu.getCommandPrefix());
   }
 
 }

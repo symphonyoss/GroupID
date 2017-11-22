@@ -1,7 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
-
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -16,6 +15,7 @@ import java.util.List;
  */
 public class SymphonyAiMessage extends AiMessage {
   protected String entityData;
+  protected String messageData;
   protected String fromUserId;
   protected String messageId;
   protected String streamId;
@@ -30,6 +30,7 @@ public class SymphonyAiMessage extends AiMessage {
 
   public SymphonyAiMessage(SymMessage symMessage) {
     super(symMessage.getMessageText());
+    this.messageData = symMessage.getMessage();
     this.entityData = symMessage.getEntityData();
     this.attachments = symMessage.getAttachments();
     this.messageId = symMessage.getId();
@@ -85,11 +86,20 @@ public class SymphonyAiMessage extends AiMessage {
   public void setTimestamp(String timestamp) {
     this.timestamp = timestamp;
   }
+  public String getMessageData() {
+    return messageData;
+  }
+
+  public void setMessageData(String messageData) {
+    this.messageData = messageData;
+  }
+
 
   public SymMessage toSymMessage() {
     SymMessage symMessage = new SymMessage();
     symMessage.setEntityData(entityData);
     symMessage.setMessage(getAiMessage());
+    symMessage.setMessage(messageData);
 
     SymStream stream = new SymStream();
     stream.setStreamId(streamId);

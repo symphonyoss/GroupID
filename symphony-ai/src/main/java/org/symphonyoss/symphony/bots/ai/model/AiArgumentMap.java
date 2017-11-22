@@ -1,7 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,7 +9,7 @@ import java.util.Set;
  * A map of arguments.
  */
 public class AiArgumentMap {
-  private Map<String, String> argumentMap = new HashMap<>();
+  private Map<String, String> argumentMap = new LinkedHashMap<>();
 
   public void addArgument(String argument, String val) {
     argumentMap.put(argument, val);
