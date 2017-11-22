@@ -21,27 +21,28 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    this.services.ticketService.getTicket(entity.ticketId).then((rsp) => {
-      const claimTicketAction = {
-        id: 'claimTicket',
-        service: enricherServiceName,
-        type: 'claimTicket',
-        label: 'Claim',
-        enricherInstanceId: entity.ticketId,
-        show: rsp.ticket.state === 'UNSERVICED',
-        userName: '', // TODO APP-1477.
-      };
+    // this.services.ticketService.getTicket(entity.ticketId).then((rsp) => {
+    const claimTicketAction = {
+      id: 'claimTicket',
+      service: enricherServiceName,
+      type: 'claimTicket',
+      label: 'Claim',
+      enricherInstanceId: entity.ticketId,
+      // show: rsp.ticket.state === 'UNSERVICED',
+      show: true,
+      userName: '', // TODO APP-1477.
+    };
 
-      const data = actionFactory([claimTicketAction], enricherServiceName, entity);
+    const data = actionFactory([claimTicketAction], enricherServiceName, entity);
 
-      const result = {
-        template: actions({ showClaim: data.claimTicket.data.show }),
-        data,
-        enricherInstanceId: entity.ticketId,
-      };
+    const result = {
+      template: actions({ showClaim: data.claimTicket.data.show }),
+      data,
+      enricherInstanceId: entity.ticketId,
+    };
 
-      return result;
-    });
+    return result;
+    // });
   }
 
   action(data) {
