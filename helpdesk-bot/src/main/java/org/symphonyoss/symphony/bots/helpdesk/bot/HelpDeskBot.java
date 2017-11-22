@@ -135,7 +135,8 @@ public class HelpDeskBot {
     makerCheckerServiceSession.setMessageTemplate(configuration.getMakerCheckerMessageTemplate());
     makerCheckerServiceSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
     MakerCheckerService agentMakerCheckerService = new MakerCheckerService(makerCheckerServiceSession);
-    agentMakerCheckerService.addCheck(new AgentExternalCheck(helpDeskBotSession.getTicketClient()));
+    agentMakerCheckerService.addCheck(new AgentExternalCheck(helpDeskBotSession.getSymphonyClient(),
+        helpDeskBotSession.getTicketClient()));
 
     return  agentMakerCheckerService;
   }

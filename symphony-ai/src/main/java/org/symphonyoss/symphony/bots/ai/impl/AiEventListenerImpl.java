@@ -50,8 +50,11 @@ public class AiEventListenerImpl implements AiEventListener {
 
   @Override
   public void onConversation(AiMessage message, AiConversation aiConversation) {
-    aiConversation.onMessage(aiResponder, message);
-    aiConversation.getPreviousMessages().add(message.getAiMessage());
+    if(!aiConversation.isAllowCommands() || (!aiCommandInterpreter.hasPrefix(message,
+        aiConversation.getAiSessionContext().getAiCommandMenu().getCommandPrefix()))) {
+      aiConversation.onMessage(aiResponder, message);
+      aiConversation.getPreviousMessages().add(message.getAiMessage());
+    }
   }
 
 }

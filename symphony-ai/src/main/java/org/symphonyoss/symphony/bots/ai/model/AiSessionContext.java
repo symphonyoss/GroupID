@@ -11,6 +11,7 @@ public class AiSessionContext {
   private AiSessionKey aiSessionKey;
   private AiCommandMenu aiCommandMenu;
   private AiAction lastCommand;
+  private AiMessage lastMessage;
 
   public AiSessionKey getAiSessionKey() {
     return aiSessionKey;
@@ -42,5 +43,13 @@ public class AiSessionContext {
 
   public void setLastCommand(AiAction lastCommand) {
     this.lastCommand = lastCommand;
+  }
+
+  public AiMessage getLastMessage() {
+    return lastMessage;
+  }
+
+  public void setLastMessage(AiMessage lastMessage) {
+    this.lastMessage = lastMessage;
   }
 }

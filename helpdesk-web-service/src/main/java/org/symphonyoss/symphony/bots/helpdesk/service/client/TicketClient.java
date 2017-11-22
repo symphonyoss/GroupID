@@ -12,7 +12,6 @@ import java.util.List;
  * The ticket service manages and creates help desk tickets.
  */
 public class TicketClient {
-
   private static final Logger LOG = LoggerFactory.getLogger(TicketClient.class);
 
   public enum TicketStateType {
@@ -89,9 +88,10 @@ public class TicketClient {
     try {
       List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, serviceStreamId, null).getTicketList();
       if(!ticketList.isEmpty()) {
-        Ticket ticket = ticketList.get(0);
-        if(ticket.getServiceStreamId().equals(serviceStreamId)) {
-          return ticket;
+        for(Ticket ticket: ticketList) {
+          if (ticket.getServiceStreamId().equals(serviceStreamId)) {
+            return ticket;
+          }
         }
       }
     } catch (ApiException e) {
@@ -102,7 +102,7 @@ public class TicketClient {
   }
 
   /**
-   * Gets a ticket by it's client stream Id
+   * Gets a unresolved ticket by it's client stream Id
    * @param clientStreamId the stream of the client stream id
    * @return the ticket
    */
@@ -110,9 +110,11 @@ public class TicketClient {
     try {
       List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, null, clientStreamId).getTicketList();
       if(!ticketList.isEmpty()) {
-        Ticket ticket = ticketList.get(0);
-        if(ticket.getClientStreamId().equals(clientStreamId)) {
-          return ticket;
+        for(Ticket ticket: ticketList) {
+          if (ticket.getClientStreamId().equals(clientStreamId)
+              && !ticket.getState().equals(TicketStateType.RESOLVED.getState())) {
+            return ticket;
+          }
         }
       }
     } catch (ApiException e) {
