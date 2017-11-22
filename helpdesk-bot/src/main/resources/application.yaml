@@ -55,7 +55,7 @@ makerCheckerEntityTemplate:
 
 aiServicePrefix: "@"
 aiDefaultPrefix: "/"
-closeTicketCommand: "Close Ticket {Ticket_Id}"
+closeTicketCommand: "Close Ticket"
 acceptTicketCommand: "Accept Ticket {Ticket_Id}"
 addMemberCommand: "Add Member @{Mention} {Membership_Type}"
 acceptTicketAgentSuccessResponse: "Ticket claimed successfully."
