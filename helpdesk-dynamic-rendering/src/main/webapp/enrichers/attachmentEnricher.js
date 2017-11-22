@@ -40,10 +40,14 @@ export default class AttachmentEnricher extends MessageEnricherBase {
 
       const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
         enricherServiceName, entity);
+      const canPerformActions = rsp.state !== 'Approved' && rsp.state !== 'Denied';
+      const wasApproved = rsp.state === 'Approved';
       const displayName = rsp.user.displayName ? rsp.user.displayName : '';
 
       const result = {
-        template: actions({ stateAttachment: rsp.state, userName: displayName }),
+        template: actions({ showActions: canPerformActions,
+          isApproved: wasApproved,
+          userName: displayName }),
         data,
         enricherInstanceId: entity.attachmentId,
       };
@@ -59,18 +63,22 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     if (data.type === 'approveAttachment') {
       this.services.attachmentService.approve(data.entity).then((rsp) => {
         const displayName = rsp.message.makerCheckerMessageDetail.user.displayName;
-        const template = actions({ stateAttachment: 'Approved', userName: displayName });
+        const templateApproved = actions({ showActions: false,
+          isApproved: true,
+          userName: displayName });
 
-        entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
+        entityRegistry.updateEnricher(data.enricherInstanceId, templateApproved, dataUpdate);
       });
     }
 
     if (data.type === 'denyAttachment') {
       this.services.attachmentService.deny(data.entity).then((rsp) => {
         const displayName = rsp.message.makerCheckerMessageDetail.user.displayName;
-        const template = actions({ stateAttachment: 'Denied', userName: displayName });
+        const templateDeny = actions({ showActions: false,
+          isApproved: false,
+          userName: displayName });
 
-        entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
+        entityRegistry.updateEnricher(data.enricherInstanceId, templateDeny, dataUpdate);
       });
     }
   }
