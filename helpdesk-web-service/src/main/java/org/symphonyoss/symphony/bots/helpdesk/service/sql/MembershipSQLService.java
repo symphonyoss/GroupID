@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.model.sql.impl;
+package org.symphonyoss.symphony.bots.helpdesk.service.sql;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.RandomStringUtils;
@@ -10,10 +10,9 @@ import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.helpdesk.service.common.ServiceConstants;
 import org.symphonyoss.symphony.bots.helpdesk.service.config.HelpDeskServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.MembershipDao;
+import org.symphonyoss.symphony.bots.helpdesk.service.dao.MembershipDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.MembershipResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.health.HealthCheckFailedException;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.sql.SQLConnection;
 
 import java.io.IOException;
 import java.sql.ResultSet;

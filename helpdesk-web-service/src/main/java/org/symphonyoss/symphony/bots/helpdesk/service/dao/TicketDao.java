@@ -1,5 +1,8 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.model;
+package org.symphonyoss.symphony.bots.helpdesk.service.dao;
 
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.TicketResponse;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.TicketSearchResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.health.HealthCheckFailedException;
 
 /**

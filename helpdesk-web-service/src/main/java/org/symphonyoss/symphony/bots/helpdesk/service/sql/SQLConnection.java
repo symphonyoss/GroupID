@@ -1,12 +1,9 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.model.sql;
+package org.symphonyoss.symphony.bots.helpdesk.service.sql;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.helpdesk.service.config.HelpDeskServiceConfig;
 
 import java.sql.Connection;
