@@ -15,7 +15,6 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimBodyTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
@@ -255,19 +254,13 @@ public class MessageProxyService implements MessageListener {
 
       String username = symUser.getDisplayName();
       String host = session.getMessageProxyServiceConfig().getHelpDeskBotHost();
-      String header = session.getMessageProxyServiceConfig().getClaimEntityHeaderTemplate();
-
-      MessageTemplate bodyTemplate = new MessageTemplate(
-          session.getMessageProxyServiceConfig().getClaimEntityBodyTemplate());
-      ClaimBodyTemplateData claimBodyTemplateData = new ClaimBodyTemplateData(symUser.getCompany(),
-          symUser.getDisplayName(), symMessage.getMessageText());
-      String body = bodyTemplate.buildFromData(claimBodyTemplateData);
+      String header = session.getMessageProxyServiceConfig().getClaimEntityHeader();
 
       MessageTemplate entityTemplate = new MessageTemplate(
           session.getMessageProxyServiceConfig().getClaimEntityTemplate());
       ClaimEntityTemplateData entityTemplateData =
           new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, host, header,
-              body);
+              symUser.getCompany(), symMessage.getMessageText());
       return entityTemplate.buildFromData(entityTemplateData);
     } catch (UsersClientException e) {
       LOG.error("Could not find user when creating claim message: ", e);

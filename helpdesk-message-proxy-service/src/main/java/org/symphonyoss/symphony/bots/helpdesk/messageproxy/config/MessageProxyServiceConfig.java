@@ -9,8 +9,7 @@ public class MessageProxyServiceConfig {
   private String helpDeskBotHost;
   private String claimMessageTemplate;
   private String claimEntityTemplate;
-  private String claimEntityHeaderTemplate;
-  private String claimEntityBodyTemplate;
+  private String claimEntityHeader;
   private String ticketCreationMessage;
 
   public String getGroupId() {
@@ -61,19 +60,12 @@ public class MessageProxyServiceConfig {
     this.helpDeskBotHost = helpDeskBotHost;
   }
 
-  public String getClaimEntityHeaderTemplate() {
-    return claimEntityHeaderTemplate;
+  public String getClaimEntityHeader() {
+    return claimEntityHeader;
   }
 
-  public void setClaimEntityHeaderTemplate(String claimEntityHeaderTemplate) {
-    this.claimEntityHeaderTemplate = claimEntityHeaderTemplate;
+  public void setClaimEntityHeader(String claimEntityHeader) {
+    this.claimEntityHeader = claimEntityHeader;
   }
 
-  public String getClaimEntityBodyTemplate() {
-    return claimEntityBodyTemplate;
-  }
-
-  public void setClaimEntityBodyTemplate(String claimEntityBodyTemplate) {
-    this.claimEntityBodyTemplate = claimEntityBodyTemplate;
-  }
 }
