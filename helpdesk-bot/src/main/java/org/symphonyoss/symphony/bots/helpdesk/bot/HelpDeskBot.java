@@ -113,7 +113,7 @@ public class HelpDeskBot {
     helpDeskAiConfig.setAddMemberAgentSuccessResponse(configuration.getAddMemberAgentSuccessResponse());
     helpDeskAiConfig.setAddMemberClientSuccessResponse(configuration.getAddMemberClientSuccessResponse());
     helpDeskAiConfig.setAcceptTicketAgentSuccessResponse(configuration.getAcceptTicketAgentSuccessResponse());
-    helpDeskAiConfig.setAcceptTicketAgentSuccessResponse(configuration.getAcceptTicketClientSuccessResponse());
+    helpDeskAiConfig.setAcceptTicketClientSuccessResponse(configuration.getAcceptTicketClientSuccessResponse());
     helpDeskAiConfig.setAcceptTicketCommand(configuration.getAcceptTicketCommand());
     helpDeskAiConfig.setCloseTicketCommand(configuration.getCloseTicketCommand());
     helpDeskAiConfig.setAddMemberCommand(configuration.getAddMemberCommand());
