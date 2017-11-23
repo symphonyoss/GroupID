@@ -22,47 +22,46 @@ export default class AttachmentEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    this.services.attachmentService.search(entity.attachmentId).then((rsp) => {
-      this.showAttachmentsRender(entity, rsp);
-    });
+    let attachment;
+    return this.services.attachmentService.search(entity.attachmentId).then((rsp) => {
+      attachment = rsp;
+      return getUserId();
+    }).then(userId => this.showAttachmentsRender(entity, attachment, userId));
   }
 
-  showAttachmentsRender(entity, rsp) {
-    return getUserId().then((userId) => {
-      let show = true;
-      show = userId === entity.ownerId;
-      const approveAttachmentAction = {
-        id: 'approveAttachment',
-        service: enricherServiceName,
-        type: 'approveAttachment',
-        label: 'Approve',
-        enricherInstanceId: entity.attachmentId,
-      };
+  showAttachmentsRender(entity, rsp, userId) {
+    const show = userId === entity.ownerId;
+    const approveAttachmentAction = {
+      id: 'approveAttachment',
+      service: enricherServiceName,
+      type: 'approveAttachment',
+      label: 'Approve',
+      enricherInstanceId: entity.attachmentId,
+    };
 
-      const denyAttachmentAction = {
-        id: 'denyAttachment',
-        service: enricherServiceName,
-        type: 'denyAttachment',
-        label: 'Deny',
-        enricherInstanceId: entity.attachmentId,
-      };
+    const denyAttachmentAction = {
+      id: 'denyAttachment',
+      service: enricherServiceName,
+      type: 'denyAttachment',
+      label: 'Deny',
+      enricherInstanceId: entity.attachmentId,
+    };
 
-      const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
-        enricherServiceName, entity);
-      const canPerformActions = rsp.state !== 'Approved' && rsp.state !== 'Denied';
-      const displayName = rsp.user.displayName ? rsp.user.displayName : '';
-      const result = {
-        template: actions({ showActions: canPerformActions,
-          showButtons: !show,
-          title: 'above message contains an attachment and has therefore not been sent. Please have a checker approve this message.',
-          body: 'You cannot approve a message you authored, please invite a checker',
-          isApproved: rsp.state === 'Approved',
-          userName: displayName }),
-        data,
-        enricherInstanceId: entity.attachmentId,
-      };
-      return result;
-    });
+    const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
+      enricherServiceName, entity);
+    const canPerformActions = rsp.state !== 'Approved' && rsp.state !== 'Denied';
+    const displayName = rsp.user.displayName ? rsp.user.displayName : '';
+    const result = {
+      template: actions({ showActions: canPerformActions,
+        showButtons: !show,
+        title: 'above message contains an attachment and has therefore not been sent. Please have a checker approve this message.',
+        body: 'You cannot approve a message you authored, please invite a checker',
+        isApproved: rsp.state === 'Approved',
+        userName: displayName }),
+      data,
+      enricherInstanceId: entity.attachmentId,
+    };
+    return result;
   }
 
   action(data) {
