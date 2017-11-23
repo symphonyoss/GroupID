@@ -103,16 +103,17 @@ public class HelpDeskBot {
 
   private HelpDeskAi initHelpDeskAi() {
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
-    helpDeskAiSession.setMembershipClient(helpDeskAiSession.getMembershipClient());
+    helpDeskAiSession.setMembershipClient(helpDeskBotSession.getMembershipClient());
     helpDeskAiSession.setTicketClient(helpDeskBotSession.getTicketClient());
     helpDeskAiSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
 
     HelpDeskAiConfig helpDeskAiConfig = new HelpDeskAiConfig();
+    helpDeskAiConfig.setAgentStreamId(configuration.getAgentStreamId());
     helpDeskAiConfig.setCloseTicketSuccessResponse(configuration.getCloseTicketSuccessResponse());
     helpDeskAiConfig.setAddMemberAgentSuccessResponse(configuration.getAddMemberAgentSuccessResponse());
     helpDeskAiConfig.setAddMemberClientSuccessResponse(configuration.getAddMemberClientSuccessResponse());
     helpDeskAiConfig.setAcceptTicketAgentSuccessResponse(configuration.getAcceptTicketAgentSuccessResponse());
-    helpDeskAiConfig.setAcceptTicketAgentSuccessResponse(configuration.getAcceptTicketClientSuccessResponse());
+    helpDeskAiConfig.setAcceptTicketClientSuccessResponse(configuration.getAcceptTicketClientSuccessResponse());
     helpDeskAiConfig.setAcceptTicketCommand(configuration.getAcceptTicketCommand());
     helpDeskAiConfig.setCloseTicketCommand(configuration.getCloseTicketCommand());
     helpDeskAiConfig.setAddMemberCommand(configuration.getAddMemberCommand());
@@ -134,7 +135,8 @@ public class HelpDeskBot {
     makerCheckerServiceSession.setMessageTemplate(configuration.getMakerCheckerMessageTemplate());
     makerCheckerServiceSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
     MakerCheckerService agentMakerCheckerService = new MakerCheckerService(makerCheckerServiceSession);
-    agentMakerCheckerService.addCheck(new AgentExternalCheck(helpDeskBotSession.getTicketClient()));
+    agentMakerCheckerService.addCheck(new AgentExternalCheck(helpDeskBotSession.getSymphonyClient(),
+        helpDeskBotSession.getTicketClient()));
 
     return  agentMakerCheckerService;
   }

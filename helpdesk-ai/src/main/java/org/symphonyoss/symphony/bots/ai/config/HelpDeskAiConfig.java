@@ -6,6 +6,8 @@ package org.symphonyoss.symphony.bots.ai.config;
 public class HelpDeskAiConfig {
   private boolean suggestCommands;
 
+  private String agentStreamId;
+
   private String defaultPrefix;
   private String agentServiceRoomPrefix;
 
@@ -105,5 +107,13 @@ public class HelpDeskAiConfig {
 
   public void setAcceptTicketClientSuccessResponse(String acceptTicketClientSuccessResponse) {
     this.acceptTicketClientSuccessResponse = acceptTicketClientSuccessResponse;
+  }
+
+  public String getAgentStreamId() {
+    return agentStreamId;
+  }
+
+  public void setAgentStreamId(String agentStreamId) {
+    this.agentStreamId = agentStreamId;
   }
 }

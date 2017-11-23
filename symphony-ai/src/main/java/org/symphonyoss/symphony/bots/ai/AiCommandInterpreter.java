@@ -15,11 +15,16 @@ public interface AiCommandInterpreter {
   boolean isCommand(AiCommand aiCommand, AiMessage command, String commandPrefix);
 
   /**
+   * Checks if AiMessage starts with menu prefix, and therefore should be treated as a command.
+   */
+  boolean hasPrefix(AiMessage command, String commandPrefix);
+
+  /**
    * Reads a command line message for a set of arguments.
    * Ex: hello world 1
    * Arguments: {1}
    */
-  AiArgumentMap readCommandArguments(AiCommand aiCommand, AiMessage command);
+  AiArgumentMap readCommandArguments(AiCommand aiCommand, AiMessage command, String commandPrefix);
 
   /**
    * Extracts the pure command from a ai command.
