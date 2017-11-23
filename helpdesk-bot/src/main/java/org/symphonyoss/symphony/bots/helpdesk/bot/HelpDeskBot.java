@@ -200,9 +200,10 @@ public class HelpDeskBot {
       UsersClient userClient = helpDeskBotSession.getSymphonyClient().getUsersClient();
       try {
         SymUser symUser = userClient.getUserFromEmail(configuration.getDefaultAgentEmail());
-        Membership membership = membershipClient.getMembership(symUser.getId().toString());
+        Membership membership = membershipClient.getMembership(symUser.getId());
+
         if(membership == null) {
-          membershipClient.newMembership(symUser.getId().toString(), MembershipClient.MembershipType.AGENT);
+          membershipClient.newMembership(symUser.getId(), MembershipClient.MembershipType.AGENT);
         } else if(!membership.getType().equals(MembershipClient.MembershipType.AGENT.getType())){
           membership.setType(MembershipClient.MembershipType.AGENT.getType());
           membershipClient.updateMembership(membership);

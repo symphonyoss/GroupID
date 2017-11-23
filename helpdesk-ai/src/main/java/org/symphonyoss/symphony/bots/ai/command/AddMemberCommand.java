@@ -59,7 +59,7 @@ public class AddMemberCommand extends AiCommand {
         if(user != null) {
           if(isMembershipEnumIgnoreCase(type)) {
             Membership membership = new Membership();
-            membership.setId(user.getId().toString());
+            membership.setId(user.getId());
             membership.setGroupId(aiSessionContext.getGroupId());
             membership.setType(type.toUpperCase());
 

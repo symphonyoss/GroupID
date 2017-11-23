@@ -49,7 +49,7 @@ public class TicketClient {
    */
   public Ticket getTicket(String ticketId) {
     try {
-      return ticketApi.getTicket(ticketId).getTicket();
+      return ticketApi.getTicket(ticketId);
     } catch (ApiException e) {
       LOG.error("Get ticket failed: ", e);
     }
@@ -71,8 +71,9 @@ public class TicketClient {
     ticket.setClientStreamId(clientStreamId);
     ticket.setServiceStreamId(newServiceStream);
     ticket.setState(TicketStateType.UNSERVICED.getState());
+
     try {
-      return ticketApi.createTicket(ticket).getTicket();
+      return ticketApi.createTicket(ticket);
     } catch (ApiException e) {
       LOG.error("Creating ticket failed: ", e);
     }
@@ -87,7 +88,7 @@ public class TicketClient {
    */
   public Ticket getTicketByServiceStreamId(String serviceStreamId) {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, serviceStreamId, null).getTicketList();
+      List<Ticket> ticketList = ticketApi.searchTicket(groupId, serviceStreamId, null);
       if(!ticketList.isEmpty()) {
         Ticket ticket = ticketList.get(0);
         if(ticket.getServiceStreamId().equals(serviceStreamId)) {
@@ -108,7 +109,8 @@ public class TicketClient {
    */
   public Ticket getTicketByClientStreamId(String clientStreamId) {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, null, clientStreamId).getTicketList();
+      List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, clientStreamId);
+
       if(!ticketList.isEmpty()) {
         Ticket ticket = ticketList.get(0);
         if(ticket.getClientStreamId().equals(clientStreamId)) {
@@ -129,7 +131,7 @@ public class TicketClient {
    */
   public Ticket updateTicket(Ticket ticket) {
     try {
-      return ticketApi.updateTicket(ticket.getId(), ticket).getTicket();
+      return ticketApi.updateTicket(ticket.getId(), ticket);
     } catch (ApiException e) {
       LOG.error("Updating ticket failed: ", e);
     }

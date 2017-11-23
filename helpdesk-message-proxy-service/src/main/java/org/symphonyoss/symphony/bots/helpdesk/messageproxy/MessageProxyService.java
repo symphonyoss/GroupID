@@ -72,10 +72,11 @@ public class MessageProxyService implements MessageListener {
    */
   @Override
   public void onMessage(SymMessage symMessage) {
-    String userId = symMessage.getFromUserId().toString();
+    Long userId = symMessage.getFromUserId();
     String streamId = symMessage.getStreamId();
 
     Membership membership = session.getMembershipClient().getMembership(userId);
+
     if (membership == null) {
       membership = session.getMembershipClient()
           .newMembership(userId, MembershipClient.MembershipType.CLIENT);
@@ -84,7 +85,7 @@ public class MessageProxyService implements MessageListener {
       LOG.info("Found membership: " + membership.toString());
     }
 
-    AiSessionKey aiSessionKey = session.getHelpDeskAi().getSessionKey(userId, streamId);
+    AiSessionKey aiSessionKey = session.getHelpDeskAi().getSessionKey(userId.toString(), streamId);
     HelpDeskAiSessionContext aiSessionContext =
         (HelpDeskAiSessionContext) session.getHelpDeskAi().getSessionContext(aiSessionKey);
     AiConversation aiConversation = session.getHelpDeskAi().getConversation(aiSessionKey);
