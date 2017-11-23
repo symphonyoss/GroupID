@@ -108,6 +108,7 @@ public class HelpDeskBot {
     helpDeskAiSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
 
     HelpDeskAiConfig helpDeskAiConfig = new HelpDeskAiConfig();
+    helpDeskAiConfig.setGroupId(configuration.getGroupId());
     helpDeskAiConfig.setAgentStreamId(configuration.getAgentStreamId());
     helpDeskAiConfig.setCloseTicketSuccessResponse(configuration.getCloseTicketSuccessResponse());
     helpDeskAiConfig.setAddMemberAgentSuccessResponse(configuration.getAddMemberAgentSuccessResponse());

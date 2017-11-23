@@ -1,13 +1,13 @@
 package org.symphonyoss.symphony.bots.ai;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.menu.AgentCommandMenu;
 import org.symphonyoss.symphony.bots.ai.menu.ClientCommandMenu;
 import org.symphonyoss.symphony.bots.ai.menu.ServiceCommandMenu;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 
 /**
  * Created by nick.tarsillo on 10/9/17.
  */
-public class HelpDeskAiSessionContext extends SymphonyAiSessionContext {
+public class HelpDeskAiSessionContext extends AiSessionContext {
   public enum SessionType {
     AGENT_SERVICE,
     AGENT,

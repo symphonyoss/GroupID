@@ -6,6 +6,7 @@ package org.symphonyoss.symphony.bots.ai.config;
 public class HelpDeskAiConfig {
   private boolean suggestCommands;
 
+  private String groupId;
   private String agentStreamId;
 
   private String defaultPrefix;
@@ -115,5 +116,13 @@ public class HelpDeskAiConfig {
 
   public void setAgentStreamId(String agentStreamId) {
     this.agentStreamId = agentStreamId;
+  }
+
+  public String getGroupId() {
+    return groupId;
+  }
+
+  public void setGroupId(String groupId) {
+    this.groupId = groupId;
   }
 }
