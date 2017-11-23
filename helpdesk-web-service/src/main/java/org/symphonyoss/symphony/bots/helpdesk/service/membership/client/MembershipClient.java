@@ -1,9 +1,11 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.client;
+package org.symphonyoss.symphony.bots.helpdesk.service.membership.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.MembershipApi;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiException;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.Configuration;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 
 /**

@@ -1,6 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model;
 
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**

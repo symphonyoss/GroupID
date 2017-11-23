@@ -15,7 +15,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 
 import org.slf4j.Logger;

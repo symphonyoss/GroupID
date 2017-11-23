@@ -1,8 +1,11 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.client;
+package org.symphonyoss.symphony.bots.helpdesk.service.ticket.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.TicketApi;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiException;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.Configuration;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 
 import java.util.List;

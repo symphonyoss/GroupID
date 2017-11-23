@@ -21,8 +21,8 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;

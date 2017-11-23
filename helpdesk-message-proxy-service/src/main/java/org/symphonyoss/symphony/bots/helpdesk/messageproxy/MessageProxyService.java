@@ -18,7 +18,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;

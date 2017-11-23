@@ -20,11 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.exceptions.StreamsException;
 import org.symphonyoss.client.exceptions.UsersClientException;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
-import org.symphonyoss.symphony.pod.model.Stream;
 
 import java.util.HashSet;
 import java.util.Iterator;
