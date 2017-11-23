@@ -1,5 +1,8 @@
 package org.symphonyoss.symphony.bots.ai.command;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiAction;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
@@ -15,13 +18,9 @@ import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.symphonyoss.client.exceptions.StreamsException;
-import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.clients.RoomMembershipClient;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
@@ -37,7 +36,7 @@ public class AddMemberCommand extends AiCommand {
 
   public AddMemberCommand(String command, String usage) {
     super(command, usage);
-    setArgumentTypes(ArgumentType.STRING, ArgumentType.STRING);
+    setArgumentTypes(ArgumentType.LONG, ArgumentType.STRING);
     addAction(new AddMemberAction());
   }
 
@@ -50,31 +49,52 @@ public class AddMemberCommand extends AiCommand {
       HelpDeskAiSession helpDeskAiSession = aiSessionContext.getHelpDeskAiSession();
       HelpDeskAiConfig helpDeskAiConfig = helpDeskAiSession.getHelpDeskAiConfig();
       Iterator<String> keySet = aiArgumentMap.getKeySet().iterator();
-      String mention = aiArgumentMap.getArgumentAsString(keySet.next());
+      Long userId = aiArgumentMap.getArgumentAsLong(keySet.next());
       String type = aiArgumentMap.getArgumentAsString(keySet.next());
 
       try {
-        SymUser user = helpDeskAiSession.getSymphonyClient().getUsersClient().getUserFromEmail(mention.substring(1));
-        if(user != null) {
-          if(isMembershipEnumIgnoreCase(type)) {
-            Membership membership = new Membership();
-            membership.setId(user.getId());
-            membership.setGroupId(aiSessionContext.getGroupId());
-            membership.setType(type.toUpperCase());
-
-            helpDeskAiSession.getMembershipClient().updateMembership(membership);
-
-            SymStream stream = helpDeskAiSession.getSymphonyClient().getStreamsClient().getStream(user);
-
-            responder.addResponse(sessionContext, successResponseAgent(helpDeskAiConfig, aiSessionKey));
-            responder.addResponse(sessionContext, successResponseClient(helpDeskAiConfig, stream));
-          } else {
-            responder.addResponse(sessionContext, invalidMembershipTypeResponse(aiSessionKey));
-          }
-        } else {
+        Membership agentMembership = helpDeskAiSession.getMembershipClient()
+            .getMembership(Long.valueOf(aiSessionKey.getUid()));
+        SymUser user = helpDeskAiSession.getSymphonyClient().getUsersClient().getUserFromId(userId);
+        if(userId.toString().equals(aiSessionKey.getUid())) {
+          responder.addResponse(sessionContext, cannotPromoteSelf(aiSessionKey));
+        } else if(user.equals(null)) {
           responder.addResponse(sessionContext, userNotFoundResponse(aiSessionKey));
+        } else if(!isMembershipEnumIgnoreCase(type)) {
+          responder.addResponse(sessionContext, invalidMembershipTypeResponse(aiSessionKey));
+        } else if(!agentPermitted(agentMembership.getType(), type)) {
+          responder.addResponse(sessionContext, agentNotPermitted(aiSessionKey));
+        } else {
+          Membership newMembership = new Membership();
+          newMembership.setId(userId);
+          newMembership.setGroupId(aiSessionContext.getGroupId());
+          newMembership.setType(type.toUpperCase());
+
+          Membership membership = helpDeskAiSession.getMembershipClient().getMembership(userId);
+          if(membership == null) {
+            helpDeskAiSession.getMembershipClient().newMembership(userId,
+                MembershipClient.MembershipType.valueOf(type.toUpperCase()));
+          } else {
+            helpDeskAiSession.getMembershipClient().updateMembership(membership);
+          }
+
+          if (membership.getType().equals(MembershipClient.MembershipType.AGENT)) {
+            RoomMembershipClient roomMembershipClient =
+                helpDeskAiSession.getSymphonyClient().getRoomMembershipClient();
+            roomMembershipClient.addMemberToRoom(
+                helpDeskAiSession.getHelpDeskAiConfig().getAgentStreamId(),
+                userId);
+          }
+
+          SymStream stream =
+              helpDeskAiSession.getSymphonyClient().getStreamsClient().getStream(user);
+
+          responder.addResponse(sessionContext,
+              successResponseAgent(helpDeskAiConfig, aiSessionKey));
+          responder.addResponse(sessionContext,
+              successResponseClient(helpDeskAiConfig, stream));
         }
-      } catch (UsersClientException | StreamsException e) {
+      } catch (SymException e) {
         responder.addResponse(sessionContext, internalErrorResponse(aiSessionKey));
         LOG.error("Failed to search for user when adding member: ", e);
       }
@@ -92,6 +112,11 @@ public class AddMemberCommand extends AiCommand {
       return false;
     }
 
+    private boolean agentPermitted(String agentMembershipType, String newMembershipType) {
+      return MembershipClient.MembershipType.valueOf(agentMembershipType).ordinal() >=
+          MembershipClient.MembershipType.valueOf(newMembershipType.toUpperCase()).ordinal();
+    }
+
     private AiResponse successResponseAgent(HelpDeskAiConfig helpDeskAiConfig, SymphonyAiSessionKey aiSessionKey) {
       return response(helpDeskAiConfig.getAddMemberAgentSuccessResponse(), aiSessionKey.getStreamId());
     }
@@ -102,6 +127,14 @@ public class AddMemberCommand extends AiCommand {
 
     private AiResponse invalidMembershipTypeResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.INVALID_MEMBERSHIP_TYPE, aiSessionKey.getStreamId());
+    }
+
+    private AiResponse cannotPromoteSelf(SymphonyAiSessionKey aiSessionKey) {
+      return response(HelpDeskAiConstants.CANNOT_PROMOTE_SELF, aiSessionKey.getStreamId());
+    }
+
+    private AiResponse agentNotPermitted(SymphonyAiSessionKey aiSessionKey) {
+      return response(HelpDeskAiConstants.NO_MEMBERSHIP_PERMISSION, aiSessionKey.getStreamId());
     }
 
     private AiResponse userNotFoundResponse(SymphonyAiSessionKey aiSessionKey) {

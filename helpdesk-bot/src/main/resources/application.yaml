@@ -53,11 +53,11 @@ makerCheckerEntityTemplate:
     timestamp : \"{TIMESTAMP}\",
     messageId : \"{MESSAGE_ID}\"}"
 
-aiServicePrefix:
-aiDefaultPrefix: /
+aiServicePrefix: "@"
+aiDefaultPrefix: "/"
 closeTicketCommand: "Close Ticket"
-acceptTicketCommand: "Accept Ticket"
-addMemberCommand: "Add Member"
+acceptTicketCommand: "Accept Ticket {Ticket_Id}"
+addMemberCommand: "Add Member @{Mention} {Membership_Type}"
 acceptTicketAgentSuccessResponse: "Ticket claimed successfully."
 acceptTicketClientSuccessResponse: "You have been connected to an agent."
 closeTicketSuccessResponse: "Ticket closed successfully."

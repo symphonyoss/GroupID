@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.command;
 
+import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiAction;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
@@ -16,10 +17,8 @@ import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-
-import org.symphonyoss.client.exceptions.SymException;
-import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.pod.model.MemberInfo;
+import org.symphonyoss.symphony.pod.model.MembershipList;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -43,11 +42,12 @@ public class CloseTicketCommand extends AiCommand {
       HelpDeskAiConfig helpDeskAiConfig = helpDeskAiSession.getHelpDeskAiConfig();
 
       try {
-        Room room = helpDeskAiSession.getSymphonyClient()
-            .getRoomService()
-            .getRoom(aiSessionKey.getStreamId());
-        for (MemberInfo membership : room.getMembershipList()) {
-          if(!membership.getId().equals(helpDeskAiSession.getSymphonyClient().getLocalUser().getId())) {
+        MembershipList membershipList = helpDeskAiSession.getSymphonyClient()
+            .getRoomMembershipClient()
+            .getRoomMembership(aiSessionKey.getStreamId());
+        for (MemberInfo membership : membershipList) {
+          if (!membership.getId()
+              .equals(helpDeskAiSession.getSymphonyClient().getLocalUser().getId())) {
             helpDeskAiSession.getSymphonyClient()
                 .getRoomMembershipClient()
                 .removeMemberFromRoom(aiSessionKey.getStreamId(), membership.getId());

@@ -23,6 +23,8 @@ public abstract class Ai {
     if(aiConversation != null) {
       getAiEventListener().onConversation(message, aiConversation);
     }
+
+    sessionContext.setLastMessage(message);
   }
 
   public void startConversation(AiSessionKey aiSessionKey, AiConversation aiConversation) {

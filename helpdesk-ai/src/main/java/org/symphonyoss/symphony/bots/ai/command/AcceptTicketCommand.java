@@ -1,9 +1,13 @@
 package org.symphonyoss.symphony.bots.ai.command;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiAction;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.common.HelpDeskAiConstants;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
@@ -14,13 +18,8 @@ import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.symphonyoss.client.exceptions.SymException;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -56,7 +55,7 @@ public class AcceptTicketCommand extends AiCommand {
                 ticket.getServiceStreamId(), Long.parseLong(aiSessionKey.getUid()));
             ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
             helpDeskAiSession.getTicketClient().updateTicket(ticket);
-            responder.addResponse(sessionContext, successResponse(helpDeskAiConfig, aiSessionKey));
+            responder.addResponse(sessionContext, successResponseAgent(helpDeskAiConfig, aiSessionKey));
             responder.addResponse(sessionContext, successResponseClient(helpDeskAiConfig, ticket));
           } catch (SymException e) {
             LOG.error("Failed to add agent to service room: ", e);
@@ -72,7 +71,7 @@ public class AcceptTicketCommand extends AiCommand {
       responder.respond(sessionContext);
     }
 
-    private AiResponse successResponse(HelpDeskAiConfig helpDeskAiConfig, SymphonyAiSessionKey aiSessionKey) {
+    private AiResponse successResponseAgent(HelpDeskAiConfig helpDeskAiConfig, SymphonyAiSessionKey aiSessionKey) {
       return response(helpDeskAiConfig.getAcceptTicketAgentSuccessResponse(), aiSessionKey.getStreamId());
     }
 

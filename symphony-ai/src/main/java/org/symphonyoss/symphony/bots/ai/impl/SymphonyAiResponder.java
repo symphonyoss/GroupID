@@ -1,5 +1,8 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
@@ -7,10 +10,6 @@ import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -85,13 +84,17 @@ public class SymphonyAiResponder extends AiResponderImpl {
    */
   @Override
   public void respondWithUseMenu(AiSessionContext sessionContext) {
-    String response = "<b>" + AiConstants.MENU_TITLE + "</b><br/>" +
-        sessionContext.getAiCommandMenu().toString();
+    String response = "<header><b>" + AiConstants.MENU_TITLE + "</b></header>"
+        + "<body><ul><li>" + sessionContext.getAiCommandMenu().toString()
+        .replace("\n", "</li><li>") + "</li></ul></body>";
+    response = response.replace("<li></li>", "");
+
+    SymphonyAiSessionKey symphonyAiSessionKey = (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
     AiResponseIdentifierImpl aiResponseIdentifier =
         new AiResponseIdentifierImpl(sessionContext.getSessionName(),
-            sessionContext.getAiSessionKey().getSessionKey());
+            symphonyAiSessionKey.getStreamId());
     responseIdentifiers.add(aiResponseIdentifier);
 
     AiResponse aiResponse = new AiResponse(new AiMessage(response), responseIdentifiers);

@@ -19,7 +19,7 @@ public class SymphonyAi extends AiImpl {
 
   public SymphonyAi(SymphonyClient symphonyClient, boolean suggestCommand) {
     super(suggestCommand);
-    AiCommandInterpreter aiCommandInterpreter = new AiCommandInterpreterImpl();
+    AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(symphonyClient.getLocalUser());
     aiResponder = new SymphonyAiResponder(symphonyClient.getMessagesClient());
     aiEventListener = new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommand);
 

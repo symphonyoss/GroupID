@@ -1,5 +1,4 @@
 #This is a sample help desk service externalized config.
-
 helpdesk:
   mongo:
     host: mongo.symphony.com

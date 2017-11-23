@@ -1,6 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.exceptions.RoomException;
@@ -14,6 +14,7 @@ import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
@@ -39,7 +40,7 @@ import java.util.Set;
 public class MessageProxyService implements MessageListener {
   private static final Logger LOG = LoggerFactory.getLogger(MessageProxyService.class);
 
-  public static final int TICKET_ID_LENGTH = 7;
+  public static final int TICKET_ID_LENGTH = 10;
 
   private Map<String, MessageProxy> proxyMap = new HashMap<>();
 
@@ -95,26 +96,25 @@ public class MessageProxyService implements MessageListener {
       ticket = session.getTicketClient().getTicketByServiceStreamId(streamId);
       if (ticket != null && !proxyMap.containsKey(ticket.getId())) {
         createAgentProxy(ticket, aiSessionContext);
-        forwardAiMessage(aiSessionKey, symMessage);
+        forwardAiMessage(aiSessionContext, symMessage);
       } else if (ticket != null && aiConversation == null) {
         addAgentToProxy(ticket, aiSessionContext);
-        forwardAiMessage(aiSessionKey, symMessage);
+        forwardAiMessage(aiSessionContext, symMessage);
       } else if (ticket == null && aiSessionContext.getSessionType() == null) {
         createAgentSession(aiSessionContext);
-        forwardAiMessage(aiSessionKey, symMessage);
+        forwardAiMessage(aiSessionContext, symMessage);
       }
     } else {
       ticket = session.getTicketClient().getTicketByClientStreamId(streamId);
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        ticket = session.getTicketClient().createTicket(
-            ticketId, streamId, newServiceStream(ticketId, streamId), symMessage.getMessageText());
+        ticket = session.getTicketClient().createTicket(ticketId, streamId, newServiceStream(ticketId, streamId));
         sendTicketCreationMessages(ticket, symMessage);
         createClientProxy(ticket, aiSessionContext);
-        forwardAiMessage(aiSessionKey, symMessage);
+        forwardAiMessage(aiSessionContext, symMessage);
       } else if (!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, aiSessionContext);
-        forwardAiMessage(aiSessionKey, symMessage);
+        forwardAiMessage(aiSessionContext, symMessage);
       }
     }
   }
@@ -270,7 +270,7 @@ public class MessageProxyService implements MessageListener {
     return null;
   }
 
-  private void forwardAiMessage(AiSessionKey aiSessionKey, SymMessage symMessage) {
-    session.getHelpDeskAi().onAiMessage(aiSessionKey, new SymphonyAiMessage(symMessage));
+  private void forwardAiMessage(AiSessionContext aiSessionContext, SymMessage symMessage) {
+      session.getHelpDeskAi().onAiMessage(aiSessionContext.getAiSessionKey(), new SymphonyAiMessage(symMessage));
   }
 }
