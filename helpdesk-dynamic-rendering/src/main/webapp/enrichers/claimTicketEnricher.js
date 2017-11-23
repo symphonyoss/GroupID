@@ -21,7 +21,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    // this.services.ticketService.getTicket(entity.ticketId).then((rsp) => {
+    // return this.services.ticketService.getTicket(entity.ticketId).then((rsp) => {
     const claimTicketAction = {
       id: 'claimTicket',
       service: enricherServiceName,
@@ -29,14 +29,14 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       label: 'Claim',
       enricherInstanceId: entity.ticketId,
       // show: rsp.ticket.state === 'UNSERVICED',
-      show: true,
+      showClaim: true,
       userName: '', // TODO APP-1477.
     };
 
     const data = actionFactory([claimTicketAction], enricherServiceName, entity);
 
     const result = {
-      template: actions({ showClaim: data.claimTicket.data.show }),
+      template: actions({ showClaim: data.claimTicket.data.showClaim }),
       data,
       enricherInstanceId: entity.ticketId,
     };
@@ -54,12 +54,12 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         type: 'claimTicket',
         label: 'Claim',
         enricherInstanceId: rsp.ticketId,
-        show: rsp.ticket.state === 'UNSERVICED',
+        showClaim: rsp.ticket.state === 'UNSERVICED',
         userName: rsp.user.displayName,
       };
 
       const dataUpdate = actionFactory([claimTicketAction], enricherServiceName, data.entity);
-      const template = actions({ showClaim: dataUpdate.claimTicket.data.show,
+      const template = actions({ showClaim: dataUpdate.claimTicket.data.showClaim,
         userName: dataUpdate.claimTicket.data.userName });
 
       entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
