@@ -13,6 +13,7 @@ public abstract class  AiConversation {
   protected AiSessionContext aiSessionContext;
   protected Set<String> previousMessages = new HashSet<>();
   protected boolean allowCommands;
+  protected AiMessage lastMessage;
 
   public AiConversation(boolean allowCommands) {
     this.allowCommands = allowCommands;
@@ -38,5 +39,13 @@ public abstract class  AiConversation {
 
   public void setAiSessionContext(AiSessionContext sessionContext) {
     this.aiSessionContext = sessionContext;
+  }
+
+  public AiMessage getLastMessage() {
+    return lastMessage;
+  }
+
+  public void setLastMessage(AiMessage lastMessage) {
+    this.lastMessage = lastMessage;
   }
 }

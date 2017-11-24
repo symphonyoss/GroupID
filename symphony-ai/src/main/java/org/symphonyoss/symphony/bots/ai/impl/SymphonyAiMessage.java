@@ -113,4 +113,20 @@ public class SymphonyAiMessage extends AiMessage {
 
     return symMessage;
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if(o instanceof SymphonyAiMessage) {
+      SymphonyAiMessage aiMessage = (SymphonyAiMessage) o;
+      return entityData.equals(aiMessage.getEntityData()) &&
+          messageData.equals(aiMessage.getMessageData()) &&
+          fromUserId.equals(aiMessage.getFromUserId()) &&
+          messageData.equals(aiMessage.getMessageData()) &&
+          streamId.equals(aiMessage.getStreamId()) &&
+          timestamp.equals(aiMessage.getTimestamp()) &&
+          attachments.equals(aiMessage.getAttachments());
+    } else {
+      return false;
+    }
+  }
 }

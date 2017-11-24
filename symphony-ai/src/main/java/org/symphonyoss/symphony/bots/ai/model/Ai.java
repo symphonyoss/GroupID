@@ -15,22 +15,27 @@ public abstract class Ai {
     AiSessionContext sessionContext =  getSessionContext(aiSessionKey);
     AiConversation aiConversation = getAiConversationManager().getConversation(sessionContext);
 
-    if((aiConversation == null || aiConversation.isAllowCommands()) &&
-        sessionContext.getAiCommandMenu() != null) {
-      getAiEventListener().onCommand(message, sessionContext);
-    }
+    if(sessionContext.getLastMessage() == null || !sessionContext.getLastMessage().equals(message)) {
+      if ((aiConversation == null || aiConversation.isAllowCommands()) &&
+          sessionContext.getAiCommandMenu() != null) {
+        getAiEventListener().onCommand(message, sessionContext);
+      }
 
-    if(aiConversation != null) {
-      getAiEventListener().onConversation(message, aiConversation);
-    }
+      if (aiConversation != null) {
+        getAiEventListener().onConversation(message, aiConversation);
+      }
 
-    sessionContext.setLastMessage(message);
+      sessionContext.setLastMessage(message);
+    }
   }
 
-  public void startConversation(AiSessionKey aiSessionKey, AiConversation aiConversation) {
+  public void startConversation(AiSessionKey aiSessionKey, AiConversation aiConversation, boolean forwardMessage) {
     AiSessionContext aiSessionContext = getSessionContext(aiSessionKey);
     aiConversation.setAiSessionContext(aiSessionContext);
     getAiConversationManager().registerConversation(aiConversation.getAiSessionContext(), aiConversation);
+    if(aiSessionContext.getLastMessage() != null) {
+      getAiEventListener().onConversation(aiSessionContext.getLastMessage(), aiConversation);
+    }
   }
 
   public AiConversation getConversation(AiSessionKey aiSessionKey) {
@@ -51,9 +56,8 @@ public abstract class Ai {
   }
 
   public AiSessionContext getSessionContext(AiSessionKey aiSessionKey) {
-    AiSessionContext sessionContext =  getAiSessionContextManager().getSessionContext(aiSessionKey);
+    AiSessionContext sessionContext = getAiSessionContextManager().getSessionContext(aiSessionKey);
     if(sessionContext == null) {
-      getAiSessionContextManager().putSessionContext(aiSessionKey, new AiSessionContext());
       sessionContext = newAiSessionContext(aiSessionKey);
       getAiSessionContextManager().putSessionContext(aiSessionKey, sessionContext);
     }

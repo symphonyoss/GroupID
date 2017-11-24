@@ -1,9 +1,12 @@
 package org.symphonyoss.symphony.bots.ai;
 
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAi;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionContext;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 
 /**
  * Created by nick.tarsillo on 9/28/17.
@@ -20,12 +23,25 @@ public class HelpDeskAi extends SymphonyAi {
 
   @Override
   public AiSessionContext newAiSessionContext(AiSessionKey aiSessionKey) {
-    SymphonyAiSessionContext symphonyAiSessionContext = (SymphonyAiSessionContext) super.newAiSessionContext(aiSessionKey);
     HelpDeskAiSessionContext sessionContext = new HelpDeskAiSessionContext();
-    sessionContext.setSymphonyAiChatListener(symphonyAiSessionContext.getSymphonyAiChatListener());
-    sessionContext.setSymphonyAiMessageListener(symphonyAiSessionContext.getSymphonyAiMessageListener());
     sessionContext.setHelpDeskAiSession(helpDeskAiSession);
     sessionContext.setAiSessionKey(aiSessionKey);
+    sessionContext.setGroupId(helpDeskAiSession.getHelpDeskAiConfig().getGroupId());
+
+    SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) aiSessionKey;
+    Membership membership =
+        helpDeskAiSession.getMembershipClient().getMembership(sessionKey.getUid());
+    if (membership.getType().equals(MembershipClient.MembershipType.AGENT.getType())) {
+      Ticket ticket =
+          helpDeskAiSession.getTicketClient().getTicketByServiceStreamId(sessionKey.getStreamId());
+      if (ticket != null) {
+        sessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT_SERVICE);
+      } else {
+        sessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT);
+      }
+    } else {
+      sessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.CLIENT);
+    }
 
     return sessionContext;
   }

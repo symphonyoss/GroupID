@@ -14,7 +14,6 @@ import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
@@ -96,13 +95,8 @@ public class MessageProxyService implements MessageListener {
       ticket = session.getTicketClient().getTicketByServiceStreamId(streamId);
       if (ticket != null && !proxyMap.containsKey(ticket.getId())) {
         createAgentProxy(ticket, aiSessionContext);
-        forwardAiMessage(aiSessionContext, symMessage);
       } else if (ticket != null && aiConversation == null) {
         addAgentToProxy(ticket, aiSessionContext);
-        forwardAiMessage(aiSessionContext, symMessage);
-      } else if (ticket == null && aiSessionContext.getSessionType() == null) {
-        createAgentSession(aiSessionContext);
-        forwardAiMessage(aiSessionContext, symMessage);
       }
     } else {
       ticket = session.getTicketClient().getTicketByClientStreamId(streamId);
@@ -111,17 +105,10 @@ public class MessageProxyService implements MessageListener {
         ticket = session.getTicketClient().createTicket(ticketId, streamId, newServiceStream(ticketId, streamId));
         sendTicketCreationMessages(ticket, symMessage);
         createClientProxy(ticket, aiSessionContext);
-        forwardAiMessage(aiSessionContext, symMessage);
       } else if (!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, aiSessionContext);
-        forwardAiMessage(aiSessionContext, symMessage);
       }
     }
-  }
-
-  private void createAgentSession(HelpDeskAiSessionContext aiSessionContext) {
-    aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
-    aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT);
   }
 
   /**
@@ -131,14 +118,11 @@ public class MessageProxyService implements MessageListener {
    * @param aiSessionContext the ai session context
    */
   private void createAgentProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
-    aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
-    aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT_SERVICE);
-
     ProxyConversation aiConversation = new ProxyConversation(true,
         session.getAgentMakerCheckerService());
     aiConversation.addProxyId(ticket.getClientStreamId());
 
-    session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
+    session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
 
     proxyMap.put(ticket.getId(), new MessageProxy());
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
@@ -151,14 +135,10 @@ public class MessageProxyService implements MessageListener {
    * @param aiSessionContext the ai session context
    */
   private void addAgentToProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
-    aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
-    aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT_SERVICE);
-
-
     ProxyConversation aiConversation = new ProxyConversation(true,
         session.getClientMakerCheckerService());
     aiConversation.addProxyId(ticket.getClientStreamId());
-    session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
+    session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
 
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
   }
@@ -169,13 +149,10 @@ public class MessageProxyService implements MessageListener {
    * Registering the proxy in the proxy map.
    */
   private void createClientProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
-    aiSessionContext.setGroupId(session.getMessageProxyServiceConfig().getGroupId());
-    aiSessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.CLIENT);
-
     ProxyConversation aiConversation =
         new ProxyConversation(false, session.getClientMakerCheckerService());
     aiConversation.addProxyId(ticket.getServiceStreamId());
-    session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
+    session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
 
     proxyMap.put(ticket.getId(), new MessageProxy());
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
@@ -268,9 +245,5 @@ public class MessageProxyService implements MessageListener {
     }
 
     return null;
-  }
-
-  private void forwardAiMessage(AiSessionContext aiSessionContext, SymMessage symMessage) {
-      session.getHelpDeskAi().onAiMessage(aiSessionContext.getAiSessionKey(), new SymphonyAiMessage(symMessage));
   }
 }

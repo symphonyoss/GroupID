@@ -95,7 +95,7 @@ public class SymphonyAiCommandInterpreter extends AiCommandInterpreterImpl {
   }
 
   private String parsePrefix(String commandPrefix) {
-    if(commandPrefix.equals(MENTION)) {
+    if(commandPrefix != null && commandPrefix.equals(MENTION)) {
       return MENTION + aiSymUser.getId();
     } else {
       return commandPrefix;
