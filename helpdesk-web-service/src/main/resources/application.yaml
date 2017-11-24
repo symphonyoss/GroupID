@@ -8,13 +8,6 @@ server:
     trust-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
 
 helpdesk:
-  service:
-    databaseDriver: com.mysql.cj.jdbc.Driver
-    databaseUrl: jdbc:mysql://localhost:3306/helpdesk
-    databaseUser: root
-    databasePassword: password
-    membershipTableName: memberTable
-    ticketTableName: ticketTable
   mongo:
     host: mongo.symphony.com
     port: 27017

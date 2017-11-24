@@ -4,7 +4,7 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAi;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 

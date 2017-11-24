@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,9 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessi
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
@@ -66,9 +68,10 @@ public class V1HelpDeskController extends V1ApiController {
    * @return the ticket responses
    */
   @Override
-  public TicketResponse acceptTicket(String ticketId, String agentId) {
+  public TicketResponse acceptTicket(String ticketId, Long agentId) {
     Ticket ticket = ticketClient.getTicket(ticketId);
-    if(ticket == null) {
+
+    if (ticket == null) {
       throw new BadRequestException(TICKET_NOT_FOUND);
     }
 

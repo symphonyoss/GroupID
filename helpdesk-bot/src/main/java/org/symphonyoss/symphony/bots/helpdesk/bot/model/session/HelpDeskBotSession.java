@@ -10,8 +10,8 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 
 public class HelpDeskBotSession {
   private HelpDeskBotConfig helpDeskBotConfig;

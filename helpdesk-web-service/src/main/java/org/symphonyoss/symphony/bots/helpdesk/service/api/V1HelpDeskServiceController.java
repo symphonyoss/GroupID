@@ -2,94 +2,93 @@ package org.symphonyoss.symphony.bots.helpdesk.service.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.HealthcheckResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
-import org.symphonyoss.symphony.bots.helpdesk.service.dao.MembershipDao;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.MembershipResponse;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.MembershipDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.SuccessResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.bots.helpdesk.service.dao.TicketDao;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.TicketSearchResponse;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.health.HealthCheckFailedException;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao.TicketDao;
+
+import java.util.List;
 
 /**
  * Created by nick.tarsillo on 9/25/17.
  */
 @RestController
 public class V1HelpDeskServiceController extends V1ApiController {
+
+  private static final String DELETE_MEMBERSHIP_RESPONSE = "Membership deleted.";
+
+  private static final String DELETE_TICKET_RESPONSE = "Ticket deleted.";
+
   @Autowired
   private MembershipDao membershipDao;
+
   @Autowired
   private TicketDao ticketDao;
 
   @Override
-  public MembershipResponse createMembership(Membership membership) {
+  public Membership createMembership(Membership membership) {
+    validateRequiredParameter("groupId", membership.getGroupId(), "body");
+    validateRequiredParameter("id", membership.getId(), "body");
+    validateRequiredParameter("type", membership.getType(), "body");
+
     return membershipDao.createMembership(membership);
   }
 
   @Override
-  public SuccessResponse deleteMembership(String id, String groupId) {
-    membershipDao.deleteMembership(id, groupId);
-    return new SuccessResponse();
+  public SuccessResponse deleteMembership(String groupId, Long id) {
+    membershipDao.deleteMembership(groupId, id);
+    return new SuccessResponse().message(DELETE_MEMBERSHIP_RESPONSE);
   }
 
   @Override
-  public MembershipResponse getMembership(String id, String groupId) {
-    return membershipDao.getMembership(id, groupId);
+  public Membership getMembership(String groupId, Long id) {
+    return membershipDao.getMembership(groupId, id);
   }
 
   @Override
-  public MembershipResponse updateMembership(String id, String groupId, Membership ticket) {
-    return membershipDao.updateMembership(id, groupId, ticket);
+  public Membership updateMembership(String groupId, Long id, Membership membership) {
+    return membershipDao.updateMembership(groupId, id, membership);
   }
 
   @Override
-  public TicketResponse createTicket(Ticket ticket) {
+  public Ticket createTicket(Ticket ticket) {
+    validateRequiredParameter("groupId", ticket.getGroupId(), "body");
+    validateRequiredParameter("state", ticket.getState(), "body");
+
     return ticketDao.createTicket(ticket);
   }
 
   @Override
   public SuccessResponse deleteTicket(String id) {
     ticketDao.deleteTicket(id);
-    return new SuccessResponse();
+    return new SuccessResponse().message(DELETE_TICKET_RESPONSE);
   }
 
   @Override
-  public TicketResponse getTicket(String id) {
+  public Ticket getTicket(String id) {
     return ticketDao.getTicket(id);
   }
 
   @Override
-  public HealthcheckResponse healthcheck() {
-    HealthcheckResponse healthcheckResponse = new HealthcheckResponse();
+  public TicketSearchResponse searchTicket(String groupId, String serviceRoomId, String clientStreamId) {
+    validateRequiredParameter("groupId", groupId, "parameters");
 
-    try {
-      membershipDao.healthcheck();
-      healthcheckResponse.setMembershipDatabaseConnectivityCheck(true);
-    } catch (HealthCheckFailedException e) {
-      healthcheckResponse.setMembershipDatabaseConnectivityCheck(false);
-      healthcheckResponse.setMembershipDatabaseConnectivityError(e.getMessage());
+    List<Ticket> tickets = ticketDao.searchTicket(groupId, serviceRoomId, clientStreamId);
+
+    if ((tickets != null) && (!tickets.isEmpty())) {
+      TicketSearchResponse response = new TicketSearchResponse();
+      response.addAll(tickets);
+
+      return response;
     }
 
-    try {
-      ticketDao.healthcheck();
-      healthcheckResponse.setTicketDatabaseConnectivityCheck(true);
-    } catch (HealthCheckFailedException e) {
-      healthcheckResponse.setTicketDatabaseConnectivityCheck(false);
-      healthcheckResponse.setTicketDatabaseConnectivityError(e.getMessage());
-    }
-
-    return healthcheckResponse;
+    return null;
   }
 
   @Override
-  public TicketSearchResponse searchTicket(String id, String groupId, String serviceRoomId, String clientStreamId) {
-    return ticketDao.searchTicket(id, groupId, serviceRoomId, clientStreamId);
-  }
-
-  @Override
-  public TicketResponse updateTicket(String id, Ticket ticket) {
+  public Ticket updateTicket(String id, Ticket ticket) {
     return ticketDao.updateTicket(id, ticket);
   }
 }

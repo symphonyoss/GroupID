@@ -4,8 +4,8 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.MessageProxyServiceConfig;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 
 /**
  * Created by nick.tarsillo on 10/27/17.

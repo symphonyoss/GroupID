@@ -18,7 +18,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.RoomMembershipClient;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -55,7 +55,7 @@ public class AddMemberCommand extends AiCommand {
       try {
         Membership agentMembership = helpDeskAiSession.getMembershipClient().getMembership(aiSessionKey.getUid());
         SymUser user = helpDeskAiSession.getSymphonyClient().getUsersClient().getUserFromId(userId);
-        if(userId.toString().equals(aiSessionKey.getUid())) {
+        if(userId.equals(aiSessionKey.getUid())) {
           responder.addResponse(sessionContext, cannotPromoteSelf(aiSessionKey));
         } else if(user.equals(null)) {
           responder.addResponse(sessionContext, userNotFoundResponse(aiSessionKey));
@@ -65,13 +65,13 @@ public class AddMemberCommand extends AiCommand {
           responder.addResponse(sessionContext, agentNotPermitted(aiSessionKey));
         } else {
           Membership newMembership = new Membership();
-          newMembership.setId(userId.toString());
+          newMembership.setId(userId);
           newMembership.setGroupId(aiSessionContext.getGroupId());
           newMembership.setType(type.toUpperCase());
 
-          Membership membership = helpDeskAiSession.getMembershipClient().getMembership(userId.toString());
+          Membership membership = helpDeskAiSession.getMembershipClient().getMembership(userId);
           if(membership == null) {
-            helpDeskAiSession.getMembershipClient().newMembership(userId.toString(),
+            helpDeskAiSession.getMembershipClient().newMembership(userId,
                 MembershipClient.MembershipType.valueOf(type.toUpperCase()));
           } else {
             helpDeskAiSession.getMembershipClient().updateMembership(membership);

@@ -24,7 +24,8 @@ paths:
         - name: agentId
           in: header
           required: true
-          type: string
+          type: integer
+          format: int64
       produces:
         - application/json
       responses:
@@ -183,6 +184,7 @@ definitions:
     type: object
     properties:
       userId:
-        type: string
+        type: integer
+        format: int64
       displayName:
         type: string
