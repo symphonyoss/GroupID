@@ -24,7 +24,8 @@ paths:
         - name: agentId
           in: header
           required: true
-          type: string
+          type: integer
+          format: int64
       produces:
         - application/json
       responses:
@@ -165,12 +166,14 @@ definitions:
       groupId:
         type: string
       userId:
-        type: string
+        type: integer
+        format: int64
         description: The userId of the user who accepted the maker checker message.
   User:
     type: object
     properties:
       userId:
-        type: string
+        type: integer
+        format: int64
       displayName:
         type: string

@@ -1,9 +1,11 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.client;
+package org.symphonyoss.symphony.bots.helpdesk.service.membership.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.MembershipApi;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiException;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.Configuration;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 
 /**
@@ -42,9 +44,9 @@ public class MembershipClient {
    * @param userId the user id of the user.
    * @return
    */
-  public Membership getMembership(String userId) {
+  public Membership getMembership(Long userId) {
     try {
-      return membershipApi.getMembership(userId, groupId).getMembership();
+      return membershipApi.getMembership(groupId, userId);
     } catch (ApiException e) {
       LOG.error("Failed to get membership: ", e);
     }
@@ -57,17 +59,19 @@ public class MembershipClient {
    * @param userId the user id to create a membership for.
    * @return the new membership
    */
-  public Membership newMembership(String userId, MembershipType membershipType) {
+  public Membership newMembership(Long userId, MembershipType membershipType) {
     Membership membership = new Membership();
     membership.setId(userId);
     membership.setGroupId(groupId);
     membership.setType(membershipType.getType());
+
     try {
-      Membership newMembership = membershipApi.createMembership(membership).getMembership();
+      Membership newMembership = membershipApi.createMembership(membership);
       return newMembership;
     } catch (ApiException e) {
       LOG.error("Failed to create new membership for user: ", e);
     }
+
     return membership;
   }
 
@@ -78,7 +82,7 @@ public class MembershipClient {
    */
   public Membership updateMembership(Membership membership) {
     try {
-      Membership updateMembership = membershipApi.updateMembership(membership.getId(), groupId, membership).getMembership();
+      Membership updateMembership = membershipApi.updateMembership(groupId, membership.getId(), membership);
       LOG.info("Promoted client to agent for userid: " + membership.getId());
       return updateMembership;
     } catch (ApiException e) {

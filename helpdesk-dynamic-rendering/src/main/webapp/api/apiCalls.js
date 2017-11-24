@@ -1,14 +1,10 @@
 import axios from 'axios';
+import { getUserId } from '../utils/userUtils';
 
 const rejectPromise = (error) => {
   const response = error.response || {};
   const status = response.status || 500;
   return Promise.reject(new Error(status));
-};
-
-export const getUserId = () => {
-  const extendedUserService = SYMPHONY.services.subscribe('extended-user-service');
-  return extendedUserService.getUserId();
 };
 
 export const claimTicket = (data) => {

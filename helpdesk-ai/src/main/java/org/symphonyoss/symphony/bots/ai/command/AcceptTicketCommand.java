@@ -18,7 +18,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 
 import java.util.HashSet;
@@ -51,8 +51,9 @@ public class AcceptTicketCommand extends AiCommand {
             .getTicket(aiArgumentMap.getArgumentAsString(keySet.iterator().next()));
         if(ticket != null) {
           try {
-            helpDeskAiSession.getSymphonyClient().getRoomMembershipClient().addMemberToRoom(
-                ticket.getServiceStreamId(), Long.parseLong(aiSessionKey.getUid()));
+            helpDeskAiSession.getSymphonyClient()
+                .getRoomMembershipClient()
+                .addMemberToRoom(ticket.getServiceStreamId(), aiSessionKey.getUid());
             ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
             helpDeskAiSession.getTicketClient().updateTicket(ticket);
             responder.addResponse(sessionContext, successResponseAgent(helpDeskAiConfig, aiSessionKey));

@@ -2,8 +2,8 @@ package org.symphonyoss.symphony.bots.ai;
 
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 
 /**
  * Created by nick.tarsillo on 10/27/17.
