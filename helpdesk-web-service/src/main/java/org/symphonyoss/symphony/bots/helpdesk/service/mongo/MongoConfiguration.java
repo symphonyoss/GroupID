@@ -9,6 +9,7 @@ import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
@@ -26,6 +27,7 @@ import javax.net.ssl.SSLSocketFactory;
  */
 @Configuration
 @EnableConfigurationProperties({ MongoParameters.class })
+@Conditional(MongoCondition.class)
 public class MongoConfiguration extends AbstractMongoConfiguration {
 
   private MongoClient mongoClient;
@@ -85,6 +87,14 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
   @Bean
   public DB db(MongoTemplate mongoTemplate) {
     return mongoTemplate.getDb();
+  }
+
+  @Bean
+  public MappingMongoConverter mappingMongoConverter() throws Exception {
+    DefaultDbRefResolver dbRefResolver = new DefaultDbRefResolver(this.mongoDbFactory());
+    MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, this.mongoMappingContext());
+    converter.setCustomConversions(this.customConversions());
+    return converter;
   }
 
 }

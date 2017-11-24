@@ -1,13 +1,16 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao;
+package org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao.mongo;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
+import org.springframework.context.annotation.Conditional;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.mongo.MongoCondition;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao.TicketDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.CreateTicketException;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.DeleteTicketException;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.GetTicketException;
@@ -24,6 +27,7 @@ import java.util.List;
  * Created by rsanchez on 22/11/17.
  */
 @Component
+@Conditional(MongoCondition.class)
 public class MongoTicketDAO implements TicketDao {
 
   private static final String COLLECTION_NAME = "helpdeskticket";
