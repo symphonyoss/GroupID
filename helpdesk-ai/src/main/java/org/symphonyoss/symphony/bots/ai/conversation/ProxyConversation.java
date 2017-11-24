@@ -8,6 +8,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
+import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -45,7 +46,15 @@ public class ProxyConversation extends AiConversation {
         proxyToIds.add(aiResponseIdentifier.getResponseIdentifier());
       }
 
-      makerCheckerService.sendMakerCheckerMessage(symphonyAiMessage.toSymMessage(), proxyToIds);
+      Set<SymMessage> symMessages =
+          makerCheckerService.getMakerCheckerMessages(symphonyAiMessage.toSymMessage(), proxyToIds);
+      Set<AiResponseIdentifier> identifiers = new HashSet<>();
+      identifiers.add(new AiResponseIdentifierImpl(symphonyAiMessage.getStreamId()));
+      for(SymMessage symMessage: symMessages) {
+        AiResponse aiResponse = new AiResponse(new SymphonyAiMessage(symMessage), identifiers);
+        responder.addResponse(aiSessionContext, aiResponse);
+      }
+      responder.respond(aiSessionContext);
     }
   }
 
