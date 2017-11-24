@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.StreamsException;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStreamAttributes;
 

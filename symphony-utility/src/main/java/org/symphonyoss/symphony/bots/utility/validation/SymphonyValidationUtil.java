@@ -31,10 +31,9 @@ public class SymphonyValidationUtil {
    * @return if valid, return the sym user
    * @throws BadRequestException on user id is invalid or does not exists
    */
-  public SymUser validateUserId(String userId) {
+  public SymUser validateUserId(Long userId) {
     try {
-      return symphonyClient.getUsersClient().getUserFromId(
-          validateParseLong("User Id", userId));
+      return symphonyClient.getUsersClient().getUserFromId(userId);
     } catch (UsersClientException e) {
       throw new BadRequestException("The user id " + userId + INVALID);
     }
@@ -54,17 +53,4 @@ public class SymphonyValidationUtil {
     }
   }
 
-  /**
-   * Validate if a given parameter is
-   * @param name
-   * @param val
-   * @return
-   */
-  private Long validateParseLong(String name, String val) {
-    try {
-      return Long.parseLong(val);
-    } catch (NumberFormatException e) {
-      throw new BadRequestException(name + INVALID);
-    }
-  }
 }

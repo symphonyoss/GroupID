@@ -1,6 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -21,8 +21,8 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerSer
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.MessageProxyServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -202,10 +202,11 @@ public class HelpDeskBot {
       UsersClient userClient = helpDeskBotSession.getSymphonyClient().getUsersClient();
       try {
         SymUser symUser = userClient.getUserFromEmail(configuration.getDefaultAgentEmail());
-        Membership membership = membershipClient.getMembership(symUser.getId().toString());
+        Membership membership = membershipClient.getMembership(symUser.getId());
+
         if(membership == null) {
-          membershipClient.newMembership(symUser.getId().toString(), MembershipClient.MembershipType.AGENT);
-        } else if(!membership.getType().equals(MembershipClient.MembershipType.AGENT.getType())){
+          membershipClient.newMembership(symUser.getId(), MembershipClient.MembershipType.AGENT);
+        } else if(!MembershipClient.MembershipType.AGENT.getType().equals(membership.getType())){
           membership.setType(MembershipClient.MembershipType.AGENT.getType());
           membershipClient.updateMembership(membership);
         }

@@ -14,6 +14,10 @@ import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoDbFactory;
+import org.springframework.data.mongodb.core.convert.DefaultDbRefResolver;
+import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
+import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
+import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -69,7 +73,12 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
 
   @Bean
   public MongoTemplate mongoTemplate() throws Exception {
-    MongoTemplate template = new MongoTemplate(mongoDbFactory());
+    MappingMongoConverter converter =
+        new MappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory()),
+            new MongoMappingContext());
+    converter.setTypeMapper(new DefaultMongoTypeMapper(null));
+
+    MongoTemplate template = new MongoTemplate(mongoDbFactory(), converter);
     return template;
   }
 

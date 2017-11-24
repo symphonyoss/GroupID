@@ -21,8 +21,8 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
@@ -39,6 +39,7 @@ import javax.ws.rs.InternalServerErrorException;
  */
 @RestController
 public class V1HelpDeskController extends V1ApiController {
+
   private static final Logger LOG = LoggerFactory.getLogger(V1HelpDeskController.class);
   private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
   private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
@@ -63,9 +64,10 @@ public class V1HelpDeskController extends V1ApiController {
    * @return the ticket responses
    */
   @Override
-  public TicketResponse acceptTicket(String ticketId, String agentId) {
+  public TicketResponse acceptTicket(String ticketId, Long agentId) {
     Ticket ticket = ticketClient.getTicket(ticketId);
-    if(ticket == null) {
+
+    if (ticket == null) {
       throw new BadRequestException(TICKET_NOT_FOUND);
     }
 

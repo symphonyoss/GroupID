@@ -24,7 +24,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.model.health;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,6 +74,7 @@ public class HealthcheckHelper {
   public void checkAgentConnectivity() throws HealthCheckFailedException {
     Response response = checkConnectivity(agentHealthCheckTarget);
     JsonNode node = null;
+
     try {
       node = MAPPER.readTree((InputStream) response.getEntity());
     } catch (IOException e) {

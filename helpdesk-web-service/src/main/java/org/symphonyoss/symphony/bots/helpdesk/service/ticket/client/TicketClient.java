@@ -1,8 +1,11 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.client;
+package org.symphonyoss.symphony.bots.helpdesk.service.ticket.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.TicketApi;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiException;
+import org.symphonyoss.symphony.bots.helpdesk.service.client.Configuration;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 
 import java.util.List;
@@ -48,7 +51,7 @@ public class TicketClient {
    */
   public Ticket getTicket(String ticketId) {
     try {
-      return ticketApi.getTicket(ticketId).getTicket();
+      return ticketApi.getTicket(ticketId);
     } catch (ApiException e) {
       LOG.error("Get ticket failed: ", e);
     }
@@ -60,18 +63,18 @@ public class TicketClient {
    * Create a help desk ticket.
    * @param ticketId the ticket Id to use to create the ticket
    * @param clientStreamId the stream id of the client room
-   * @param transcript the help transcript to use to create the ticket
    * @return the ticket
    */
-  public Ticket createTicket(String ticketId, String clientStreamId, String newServiceStream, String transcript) {
+  public Ticket createTicket(String ticketId, String clientStreamId, String newServiceStream) {
     Ticket ticket = new Ticket();
     ticket.setId(ticketId);
     ticket.setGroupId(groupId);
     ticket.setClientStreamId(clientStreamId);
     ticket.setServiceStreamId(newServiceStream);
     ticket.setState(TicketStateType.UNSERVICED.getState());
+
     try {
-      return ticketApi.createTicket(ticket).getTicket();
+      return ticketApi.createTicket(ticket);
     } catch (ApiException e) {
       LOG.error("Creating ticket failed: ", e);
     }
@@ -86,8 +89,9 @@ public class TicketClient {
    */
   public Ticket getTicketByServiceStreamId(String serviceStreamId) {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, serviceStreamId, null).getTicketList();
-      if(!ticketList.isEmpty()) {
+      List<Ticket> ticketList = ticketApi.searchTicket(groupId, serviceStreamId, null);
+
+      if (ticketList != null) {
         for(Ticket ticket: ticketList) {
           if (ticket.getServiceStreamId().equals(serviceStreamId)) {
             return ticket;
@@ -108,8 +112,9 @@ public class TicketClient {
    */
   public Ticket getTicketByClientStreamId(String clientStreamId) {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket(null, groupId, null, clientStreamId).getTicketList();
-      if(!ticketList.isEmpty()) {
+      List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, clientStreamId);
+
+      if (ticketList != null) {
         for(Ticket ticket: ticketList) {
           if (ticket.getClientStreamId().equals(clientStreamId)
               && !ticket.getState().equals(TicketStateType.RESOLVED.getState())) {
@@ -131,7 +136,7 @@ public class TicketClient {
    */
   public Ticket updateTicket(Ticket ticket) {
     try {
-      return ticketApi.updateTicket(ticket.getId(), ticket).getTicket();
+      return ticketApi.updateTicket(ticket.getId(), ticket);
     } catch (ApiException e) {
       LOG.error("Updating ticket failed: ", e);
     }

@@ -1,6 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
-import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.exceptions.RoomException;
@@ -19,7 +19,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
@@ -40,7 +40,7 @@ import java.util.Set;
 public class MessageProxyService implements MessageListener {
   private static final Logger LOG = LoggerFactory.getLogger(MessageProxyService.class);
 
-  public static final int TICKET_ID_LENGTH = 7;
+  public static final int TICKET_ID_LENGTH = 10;
 
   private Map<String, MessageProxy> proxyMap = new HashMap<>();
 
@@ -73,10 +73,11 @@ public class MessageProxyService implements MessageListener {
    */
   @Override
   public void onMessage(SymMessage symMessage) {
-    String userId = symMessage.getFromUserId().toString();
+    Long userId = symMessage.getFromUserId();
     String streamId = symMessage.getStreamId();
 
     Membership membership = session.getMembershipClient().getMembership(userId);
+
     if (membership == null) {
       membership = session.getMembershipClient()
           .newMembership(userId, MembershipClient.MembershipType.CLIENT);
@@ -107,8 +108,7 @@ public class MessageProxyService implements MessageListener {
       ticket = session.getTicketClient().getTicketByClientStreamId(streamId);
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        ticket = session.getTicketClient().createTicket(
-            ticketId, streamId, newServiceStream(ticketId, streamId), symMessage.getMessageText());
+        ticket = session.getTicketClient().createTicket(ticketId, streamId, newServiceStream(ticketId, streamId));
         sendTicketCreationMessages(ticket, symMessage);
         createClientProxy(ticket, aiSessionContext);
         forwardAiMessage(aiSessionContext, symMessage);
@@ -183,7 +183,7 @@ public class MessageProxyService implements MessageListener {
 
   private void sendTicketCreationMessages(Ticket ticket, SymMessage symMessage) {
     SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) session.getHelpDeskAi()
-        .getSessionKey(symMessage.getFromUserId().toString(), symMessage.getStreamId());
+        .getSessionKey(symMessage.getFromUserId(), symMessage.getStreamId());
 
     SymphonyAiMessage aiMessage =
         new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());

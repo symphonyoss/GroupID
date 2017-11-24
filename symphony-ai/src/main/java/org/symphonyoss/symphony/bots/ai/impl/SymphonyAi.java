@@ -26,11 +26,7 @@ public class SymphonyAi extends AiImpl {
     this.symphonyClient = symphonyClient;
   }
 
-  public AiSessionKey getSessionKey(String userId) {
-    return new SymphonyAiSessionKey(userId, userId);
-  }
-
-  public AiSessionKey getSessionKey(String userId, String streamId) {
+  public AiSessionKey getSessionKey(Long userId, String streamId) {
     return new SymphonyAiSessionKey(userId + ":" + streamId, userId, streamId);
   }
 
@@ -44,7 +40,7 @@ public class SymphonyAi extends AiImpl {
       messageListener = new SymphonyAiMessageListener() {
         @Override
         public void onMessage(SymMessage symMessage) {
-          if(symMessage.getFromUserId().toString().equals(sessionKey.getUid())) {
+          if(symMessage.getFromUserId().equals(sessionKey.getUid())) {
             SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
             onAiMessage(sessionKey, symphonyAiMessage);
           }
@@ -54,7 +50,7 @@ public class SymphonyAi extends AiImpl {
       messageListener = new SymphonyAiMessageListener() {
         @Override
         public void onMessage(SymMessage symMessage) {
-          if(symMessage.getFromUserId().toString().equals(sessionKey.getUid())
+          if(symMessage.getFromUserId().equals(sessionKey.getUid())
               && symMessage.getStreamId().equals(sessionKey.getStreamId())) {
             SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
             onAiMessage(sessionKey, symphonyAiMessage);
