@@ -6,15 +6,12 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
  * Created by nick.tarsillo on 11/10/17.
  */
 public class SymphonyAiSessionKey extends AiSessionKey {
+
   private String streamId;
-  private String uid;
 
-  public SymphonyAiSessionKey(String sessionKey, String uid) {
-    super(sessionKey);
-    this.uid = uid;
-  }
+  private Long uid;
 
-  public SymphonyAiSessionKey(String sessionKey, String uid, String streamId) {
+  public SymphonyAiSessionKey(String sessionKey, Long uid, String streamId) {
     super(sessionKey);
     this.streamId = streamId;
     this.uid = uid;
@@ -28,11 +25,11 @@ public class SymphonyAiSessionKey extends AiSessionKey {
     this.streamId = streamId;
   }
 
-  public String getUid() {
+  public Long getUid() {
     return uid;
   }
 
-  public void setUid(String uid) {
+  public void setUid(Long uid) {
     this.uid = uid;
   }
 }

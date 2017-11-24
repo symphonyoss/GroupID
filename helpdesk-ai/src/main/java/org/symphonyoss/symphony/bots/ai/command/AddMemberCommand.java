@@ -53,10 +53,9 @@ public class AddMemberCommand extends AiCommand {
       String type = aiArgumentMap.getArgumentAsString(keySet.next());
 
       try {
-        Membership agentMembership = helpDeskAiSession.getMembershipClient()
-            .getMembership(Long.valueOf(aiSessionKey.getUid()));
+        Membership agentMembership = helpDeskAiSession.getMembershipClient().getMembership(aiSessionKey.getUid());
         SymUser user = helpDeskAiSession.getSymphonyClient().getUsersClient().getUserFromId(userId);
-        if(userId.toString().equals(aiSessionKey.getUid())) {
+        if(userId.equals(aiSessionKey.getUid())) {
           responder.addResponse(sessionContext, cannotPromoteSelf(aiSessionKey));
         } else if(user.equals(null)) {
           responder.addResponse(sessionContext, userNotFoundResponse(aiSessionKey));

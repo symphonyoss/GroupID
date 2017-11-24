@@ -86,7 +86,7 @@ public class MessageProxyService implements MessageListener {
       LOG.info("Found membership: " + membership.toString());
     }
 
-    AiSessionKey aiSessionKey = session.getHelpDeskAi().getSessionKey(userId.toString(), streamId);
+    AiSessionKey aiSessionKey = session.getHelpDeskAi().getSessionKey(userId, streamId);
     HelpDeskAiSessionContext aiSessionContext =
         (HelpDeskAiSessionContext) session.getHelpDeskAi().getSessionContext(aiSessionKey);
     AiConversation aiConversation = session.getHelpDeskAi().getConversation(aiSessionKey);
@@ -183,7 +183,7 @@ public class MessageProxyService implements MessageListener {
 
   private void sendTicketCreationMessages(Ticket ticket, SymMessage symMessage) {
     SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) session.getHelpDeskAi()
-        .getSessionKey(symMessage.getFromUserId().toString(), symMessage.getStreamId());
+        .getSessionKey(symMessage.getFromUserId(), symMessage.getStreamId());
 
     SymphonyAiMessage aiMessage =
         new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());

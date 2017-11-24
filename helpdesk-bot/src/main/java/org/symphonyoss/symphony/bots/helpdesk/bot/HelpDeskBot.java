@@ -206,7 +206,7 @@ public class HelpDeskBot {
 
         if(membership == null) {
           membershipClient.newMembership(symUser.getId(), MembershipClient.MembershipType.AGENT);
-        } else if(!membership.getType().equals(MembershipClient.MembershipType.AGENT.getType())){
+        } else if(!MembershipClient.MembershipType.AGENT.getType().equals(membership.getType())){
           membership.setType(MembershipClient.MembershipType.AGENT.getType());
           membershipClient.updateMembership(membership);
         }

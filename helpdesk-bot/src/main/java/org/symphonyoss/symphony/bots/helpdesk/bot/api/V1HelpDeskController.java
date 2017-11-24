@@ -39,6 +39,7 @@ import javax.ws.rs.InternalServerErrorException;
  */
 @RestController
 public class V1HelpDeskController extends V1ApiController {
+
   private static final Logger LOG = LoggerFactory.getLogger(V1HelpDeskController.class);
   private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
   private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
@@ -63,8 +64,7 @@ public class V1HelpDeskController extends V1ApiController {
    * @return the ticket responses
    */
   @Override
-  public TicketResponse acceptTicket(String ticketId, String agentId) {
-    Long userId = Long.valueOf(agentId);
+  public TicketResponse acceptTicket(String ticketId, Long agentId) {
     Ticket ticket = ticketClient.getTicket(ticketId);
 
     if (ticket == null) {
@@ -86,10 +86,10 @@ public class V1HelpDeskController extends V1ApiController {
 
       symphonyClient.getRoomMembershipClient().addMemberToRoom(ticket.getServiceStreamId(), agentUser.getId());
 
-      Membership membership = helpDeskBotSession.getMembershipClient().getMembership(userId);
+      Membership membership = helpDeskBotSession.getMembershipClient().getMembership(agentId);
 
       if (membership == null) {
-        helpDeskBotSession.getMembershipClient().newMembership(userId, MembershipClient.MembershipType.AGENT);
+        helpDeskBotSession.getMembershipClient().newMembership(agentId, MembershipClient.MembershipType.AGENT);
         LOG.info("Created new agent membership for userid: " + agentId);
       }
 

@@ -51,8 +51,9 @@ public class AcceptTicketCommand extends AiCommand {
             .getTicket(aiArgumentMap.getArgumentAsString(keySet.iterator().next()));
         if(ticket != null) {
           try {
-            helpDeskAiSession.getSymphonyClient().getRoomMembershipClient().addMemberToRoom(
-                ticket.getServiceStreamId(), Long.parseLong(aiSessionKey.getUid()));
+            helpDeskAiSession.getSymphonyClient()
+                .getRoomMembershipClient()
+                .addMemberToRoom(ticket.getServiceStreamId(), aiSessionKey.getUid());
             ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
             helpDeskAiSession.getTicketClient().updateTicket(ticket);
             responder.addResponse(sessionContext, successResponseAgent(helpDeskAiConfig, aiSessionKey));
