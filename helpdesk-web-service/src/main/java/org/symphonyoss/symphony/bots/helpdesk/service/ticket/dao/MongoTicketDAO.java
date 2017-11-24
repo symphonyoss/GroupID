@@ -5,7 +5,6 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.CreateTicketException;
@@ -15,7 +14,6 @@ import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.TicketNot
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.UpdateTicketException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

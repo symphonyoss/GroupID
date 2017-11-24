@@ -1,7 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.services.MessageListener;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
