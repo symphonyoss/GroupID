@@ -29,14 +29,14 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       label: 'Claim',
       enricherInstanceId: entity.ticketId,
       // show: rsp.ticket.state === 'UNSERVICED',
-      showClaim: true,
+      show: true,
       userName: '', // TODO APP-1477.
     };
 
     const data = actionFactory([claimTicketAction], enricherServiceName, entity);
 
     const result = {
-      template: actions({ showClaim: data.claimTicket.data.showClaim }),
+      template: actions({ showClaim: data.claimTicket.data.show }),
       data,
       enricherInstanceId: entity.ticketId,
     };
