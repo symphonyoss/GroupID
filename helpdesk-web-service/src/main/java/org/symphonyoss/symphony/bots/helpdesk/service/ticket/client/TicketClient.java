@@ -90,7 +90,8 @@ public class TicketClient {
   public Ticket getTicketByServiceStreamId(String serviceStreamId) {
     try {
       List<Ticket> ticketList = ticketApi.searchTicket(groupId, serviceStreamId, null);
-      if(!ticketList.isEmpty()) {
+
+      if (ticketList != null) {
         for(Ticket ticket: ticketList) {
           if (ticket.getServiceStreamId().equals(serviceStreamId)) {
             return ticket;
@@ -113,7 +114,7 @@ public class TicketClient {
     try {
       List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, clientStreamId);
 
-      if(!ticketList.isEmpty()) {
+      if (ticketList != null) {
         for(Ticket ticket: ticketList) {
           if (ticket.getClientStreamId().equals(clientStreamId)
               && !ticket.getState().equals(TicketStateType.RESOLVED.getState())) {
