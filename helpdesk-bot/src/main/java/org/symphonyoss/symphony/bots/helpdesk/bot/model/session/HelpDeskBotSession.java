@@ -6,6 +6,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.model.session;
 
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.services.ConnectionsEventListener;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
@@ -22,6 +23,7 @@ public class HelpDeskBotSession {
   private TicketClient ticketClient;
   private MembershipClient membershipClient;
   private MessageProxyService messageProxyService;
+  private ConnectionsEventListener connectionsEventListener;
 
   public SymphonyClient getSymphonyClient() {
     return this.symphonyClient;
@@ -87,5 +89,13 @@ public class HelpDeskBotSession {
   public void setMembershipClient(
       MembershipClient membershipClient) {
     this.membershipClient = membershipClient;
+  }
+
+  public ConnectionsEventListener getConnectionsEventListener() {
+    return connectionsEventListener;
+  }
+
+  public void setConnectionsEventListener(ConnectionsEventListener connectionsEventListener) {
+    this.connectionsEventListener = connectionsEventListener;
   }
 }

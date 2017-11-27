@@ -153,22 +153,33 @@ definitions:
   MakerCheckerMessageDetail:
     type: object
     properties:
+      type:
+        type: string
+        required: true
       streamId:
         type: string
+        required: true
       proxyToStreamIds:
         type: array
         items:
           type: string
+        required: true
       timeStamp:
         type: string
+        required: true
       messageId:
         type: string
+        required: true
       groupId:
         type: string
+        required: true
       userId:
         type: integer
         format: int64
         description: The userId of the user who accepted the maker checker message.
+      attachmentId:
+        type: string
+        required: false
   User:
     type: object
     properties:

@@ -7,7 +7,7 @@ const actions = require('../templates/attachmentActions.hbs');
 
 const enricherServiceName = 'helpdesk-attachment-enricher';
 const messageEvents = [
-  'org.symphonyoss.helpdesk.makerCheckerMessage',
+  'com.symphony.bots.helpdesk.event.makerchecker',
 ];
 
 export default class AttachmentEnricher extends MessageEnricherBase {
@@ -54,7 +54,6 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     const result = {
       template: actions({ showActions: canPerformActions,
         showButtons: !show,
-        title: 'above message contains an attachment and has therefore not been sent. Please have a checker approve this message.',
         body: 'You cannot approve a message you authored, please invite a checker',
         isApproved: rsp.state === 'Approved',
         userName: displayName }),
