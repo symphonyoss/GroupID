@@ -46,9 +46,9 @@ claimEntityHeader: "Equities Desk Bot"
 makerCheckerMessageTemplate:
   "<div class=\"entity\" data-entity-id=\"makerchecker\">
     <card class=\"barStyle\">
-      <body>
-        This is a test maker checker message.
-      </body>
+      <header>
+        The above message contains an attachment and has therefore not been sent. Please have a checker approve this message.
+      </header>
     </card>
   </div>"
 makerCheckerEntityTemplate:
