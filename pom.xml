@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <modules>
+        <module>helpdesk-service</module>
         <module>symphony-ai</module>
         <module>symphony-utility</module>
-        <module>helpdesk-web-service</module>
         <module>helpdesk-bot</module>
         <module>helpdesk-ai</module>
         <module>helpdesk-dynamic-rendering</module>
@@ -15,7 +15,6 @@
         <module>helpdesk-maker-checker-service</module>
         <module>helpdesk-message-proxy-service</module>
         <module>helpdesk-swagger</module>
-        <module>helpdesk-service</module>
     </modules>
 
     <parent>

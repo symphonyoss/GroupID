@@ -1,0 +1,65 @@
+package {{package}};
+
+{{^jdk8-no-delegate}}
+{{#imports}}import {{import}};
+{{/imports}}
+
+import io.swagger.annotations.*;
+
+import org.springframework.http.ResponseEntity;
+{{/jdk8-no-delegate}}
+import org.springframework.stereotype.Controller;
+{{^jdk8-no-delegate}}
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestHeader;
+
+import org.symphonyoss.symphony.bots.helpdesk.service.exception.BadRequestException;
+
+{{#useOptional}}
+import java.util.Optional;
+{{/useOptional}}
+{{#async}}
+import java.util.concurrent.Callable;
+{{/async}}{{/jdk8-no-delegate}}
+{{>generatedAnnotation}}
+@Controller
+{{#operations}}
+public abstract class {{classname}}Controller implements {{classname}} {
+{{^jdk8-no-delegate}}{{#operation}}
+    public {{#async}}Callable<{{/async}}ResponseEntity<{{>returnTypes}}>{{#async}}>{{/async}} {{{baseName}}}{{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
+        {{/hasMore}}{{/allParams}}) {
+        {{#queryParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "query"); {{/required}}{{/queryParams}}
+        {{#pathParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "path"); {{/required}}{{/pathParams}}
+        {{#headerParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "header"); {{/required}}{{/headerParams}}
+        {{#bodyParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "body"); {{/required}}{{/bodyParams}}
+        {{#formParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "form data");{{/required}}{{/formParams}}
+        {{^async}}
+        return ResponseEntity.ok({{operationId}}({{#allParams}}{{paramName}}{{#hasMore}}, {{/hasMore}}{{/allParams}}));{{/async}}{{#async}}
+        return new Callable<ResponseEntity<{{>returnTypes}}>>() {
+            @Override
+            public ResponseEntity<{{>returnTypes}}> call() throws Exception {
+                return new ResponseEntity<{{>returnTypes}}>(HttpStatus.OK);
+            }
+        };{{/async}}
+    }
+
+    public abstract {{>returnTypes}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
+    {{/hasMore}}{{/allParams}});
+{{/operation}}{{/jdk8-no-delegate}}
+
+    /**
+    * Validates a required parameter.
+    * Parses parameter name from camel case to sentence case.
+    * If example json class is provided, generates a json schema as example.
+    * @throws SymphonySwaggerException on null parameter value
+    */
+    protected void validateRequiredParameter(String paramName, Object paramValue, String requiredIn) {
+        if (paramValue == null) {
+            throw new BadRequestException("This request requires a " + paramName +
+                " to be provided with the " + requiredIn + ".");
+        }
+    }
+}
+{{/operations}}
