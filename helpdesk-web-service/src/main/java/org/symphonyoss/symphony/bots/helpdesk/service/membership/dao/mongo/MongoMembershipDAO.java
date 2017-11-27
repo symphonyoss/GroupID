@@ -1,8 +1,10 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.membership.dao;
+package org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.mongo;
 
+import org.springframework.context.annotation.Conditional;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.MembershipDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.model.MembershipEntity;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.model.MembershipIndex;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.exception
@@ -17,6 +19,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.membership.exception
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.exception
     .UpdateMembershipException;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.helpdesk.service.mongo.MongoCondition;
 
 /**
  * Mongo DAO for membership.
@@ -24,6 +27,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
  * Created by rsanchez on 22/11/17.
  */
 @Component
+@Conditional(MongoCondition.class)
 public class MongoMembershipDAO implements MembershipDao {
 
   private static final String COLLECTION_NAME = "helpdeskmembership";
