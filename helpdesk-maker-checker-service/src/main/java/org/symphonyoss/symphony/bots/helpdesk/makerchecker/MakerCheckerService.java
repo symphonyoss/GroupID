@@ -129,17 +129,50 @@ public class MakerCheckerService {
     for(Checker checker: checkerSet) {
       Set<Object> flagged = checker.check(symMessage);
       if(flagged != null && !flagged.isEmpty()) {
-        Set<SymMessage> symMessages = checker.buildSymCheckerMessages(flaggedData, symMessage);
+        Set<SymMessage> symMessages = checker.buildSymCheckerMessages(symMessage);
         for (SymMessage checkerMessage : symMessages) {
           MessageTemplate entityTemplate = new MessageTemplate(checkerMessage.getEntityData());
           checkerMessage.setEntityData(entityTemplate.buildFromData(
               new MakerCheckerEntityTemplateData(groupId, symMessage, proxyToIds)));
+          checkerMessage.setStreamId(symMessage.getStreamId());
+          checkerMessage.setFromUserId(symMessage.getFromUserId());
           makerCheckerMessages.add(checkerMessage);
         }
       }
     }
 
+    makerCheckerMessages.addAll(getMessagesFromUnflaggedData(symMessage, proxyToIds));
     return makerCheckerMessages;
+  }
+
+  private Set<SymMessage> getMessagesFromUnflaggedData(SymMessage symMessage, Set<String> proxyToIds) {
+    boolean messageContainsData = false;
+    Set<SymMessage> symMessages = new HashSet<>();
+    if(messageContainsData) {
+      for (String stream: proxyToIds) {
+        SymMessage unflaggedData = new SymMessage();
+        if (!flaggedData.contains(symMessage.getMessage())) {
+          unflaggedData.setMessage(symMessage.getMessage());
+          messageContainsData = true;
+        }
+        if (!flaggedData.contains(symMessage.getEntityData())) {
+          unflaggedData.setEntityData(symMessage.getEntityData());
+          messageContainsData = true;
+        }
+        if(!flaggedData.contains(symMessage.getAttachments())) {
+          unflaggedData.setAttachments(symMessage.getAttachments());
+          messageContainsData = true;
+        }
+        unflaggedData.setStreamId(stream);
+        unflaggedData.setFromUserId(symMessage.getFromUserId());
+
+        if(messageContainsData) {
+          symMessages.add(unflaggedData);
+        }
+      }
+    }
+
+    return symMessages;
   }
 
 }

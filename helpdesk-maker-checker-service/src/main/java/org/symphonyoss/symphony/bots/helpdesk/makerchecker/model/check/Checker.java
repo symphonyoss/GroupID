@@ -18,7 +18,7 @@ public interface Checker {
    */
   Set<Object> check(SymMessage message);
 
-  Set<SymMessage> buildSymCheckerMessages(Set<Object> flaggedData, SymMessage symMessage);
+  Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage);
 
   Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
 

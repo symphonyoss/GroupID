@@ -24,6 +24,8 @@ public class MongoParameters {
 
   private String writeConcern;
 
+  private boolean ignoreSSL;
+
   public String getHost() {
     return host;
   }
@@ -86,5 +88,13 @@ public class MongoParameters {
 
   public void setWriteConcern(String writeConcern) {
     this.writeConcern = writeConcern;
+  }
+
+  public boolean isIgnoreSSL() {
+    return ignoreSSL;
+  }
+
+  public void setIgnoreSSL(boolean ignoreSSL) {
+    this.ignoreSSL = ignoreSSL;
   }
 }

@@ -1,44 +1,8 @@
 #This is a sample help desk bot properties config.
 server:
-  port: 8090
-  ssl:
-    key-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/server.keystore
-    key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
-    trust-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/server.truststore
-    trust-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
+  port : 8090
 
-authentication:
-  keystore-file: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/bot.user1.p12
-  keystore-password: changeit
-  truststore-file: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/auth.truststore
-  truststore-password: changeit
-
-agent:
-  host: develop.symphony.com
-
-session_auth:
-  host: develop-api.symphony.com
-  port: 8444
-
-key_auth:
-  host: develop-api.symphony.com
-  port: 8444
-
-pod:
-  host: develop.symphony.com
-
-helpdesk-bot:
-  host: localhost.symphony.com
-  port: 8090
-
-helpdesk-service:
-  host: localhost.symphony.com
-  port: 8080
-
-agentStreamId: TVuowHrmpEdGeDXM16thIn___qBGsaWUdA
-
-email: bot.user1@symphony.com
-defaultAgentEmail: nick.tarsillo@symphony.com
+email: helpdesk@symphony.com
 groupId: Test
 
 claimMessageTemplate:
@@ -82,13 +46,8 @@ claimEntityHeader: "Equities Desk Bot"
 makerCheckerMessageTemplate:
   "<div class=\"entity\" data-entity-id=\"makerchecker\">
     <card class=\"barStyle\">
-      <header>
-        <span>${entity['helpdesk'].message.header}</span>
-      </header>
       <body>
-        <span><b>Company:</b> ${entity['helpdesk'].message.company}</span><br/>
-        <span><b>Customer:</b> ${entity['helpdesk'].message.customer}</span><br/>
-        <span><b>Question:</b> ${entity['helpdesk'].message.question}</span>
+        This is a test maker checker message.
       </body>
     </card>
   </div>"
@@ -97,21 +56,15 @@ makerCheckerEntityTemplate:
       \"makerchecker\": {
         \"type\": \"com.symphony.bots.helpdesk.event.makerchecker\",
         \"version\": \"1.0\",
-        \"url\": \"{HOST}/v1/ticket/{TICKET_ID}/accept\",
-        \"ticketId\": \"{TICKET_ID}\",
-        \"state\": \"{TICKET_STATE}\",
-        \"user\": {
-           \"displayName\": \"{USER_NAME}\"
-        },
-        \"message\" : {
-        \"type\": \"com.symphony.bots.helpdesk.event.ticket\",
-        \"version\": \"1.0\",
-        \"header\": \"{HEADER}\",
-        \"company\": \"{COMPANY}\",
-        \"customer\": \"{USER_NAME}\",
-        \"question\": \"{QUESTION}\"
+        \"uid\" : \"{UID}\",
+        \"streamId\" : \"{STREAM_ID}\",
+        \"proxyToStreamIds\" : \"{PROXY_TO_STREAM_IDS}\",
+        \"timestamp\" : \"{TIMESTAMP}\",
+        \"messageId\" : \"{MESSAGE_ID}\",
+        \"groupId\" : \"{GROUP_ID}\",
+        \"type\" : \"{TYPE}\",
+        \"attachmentId\" : \"{ATTACHMENT_ID}\"
       }
-    }
   }"
 
 aiServicePrefix: "@"

@@ -50,6 +50,7 @@ public class AgentExternalCheck implements Checker {
             streamAttributes.getCrossPod()) {
           Set<Object> flagged = new HashSet<>();
           flagged.add(message.getAttachments());
+          flagged.add(message.getEntityData());
           return flagged;
         }
       } catch (StreamsException e) {
@@ -61,7 +62,7 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public Set<SymMessage> buildSymCheckerMessages(Set<Object> flaggedData, SymMessage symMessage) {
+  public Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage) {
     Set<SymMessage> symCheckerMessages = new HashSet<>();
     MakerCheckerServiceConfig config = session.getMakerCheckerServiceConfig();
     for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
@@ -73,12 +74,6 @@ public class AgentExternalCheck implements Checker {
       checkerMessage.setEntityData(entityTemplate.buildFromData(
           new AttachmentEntityTemplateData(attachmentInfo.getId(), ATTACHMENT)));
 
-      symCheckerMessages.add(checkerMessage);
-    }
-
-    if(!flaggedData.contains(symMessage.getMessage())) {
-      SymMessage checkerMessage = new SymMessage();
-      checkerMessage.setMessage(symMessage.getMessage());
       symCheckerMessages.add(checkerMessage);
     }
 

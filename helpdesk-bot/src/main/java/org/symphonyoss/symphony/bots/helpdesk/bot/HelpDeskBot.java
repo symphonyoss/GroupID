@@ -14,6 +14,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.config.MakerCheckerServiceConfig;
@@ -79,6 +80,7 @@ public class HelpDeskBot {
     helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService());
     helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService());
     helpDeskBotSession.setMessageProxyService(initMessageProxyService());
+    helpDeskBotSession.setConnectionsEventListener(initAutoAcceptConnectionListener());
 
     registerDefaultAgent();
 
@@ -207,6 +209,15 @@ public class HelpDeskBot {
     helpDeskBotSession.getSymphonyClient().getMessageService().addMessageListener(messageProxyService);
 
     return messageProxyService;
+  }
+
+  private AutoConnectionAcceptListener initAutoAcceptConnectionListener() {
+    SymphonyClient symphonyClient = helpDeskBotSession.getSymphonyClient();
+    AutoConnectionAcceptListener connectionListener = new AutoConnectionAcceptListener(
+        symphonyClient.getConnectionsClient());
+    symphonyClient.getMessageService().addConnectionsEventListener(connectionListener);
+
+    return connectionListener;
   }
 
   private void registerDefaultAgent() {

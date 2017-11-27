@@ -48,9 +48,9 @@ public class ProxyConversation extends AiConversation {
 
       Set<SymMessage> symMessages =
           makerCheckerService.getMakerCheckerMessages(symphonyAiMessage.toSymMessage(), proxyToIds);
-      Set<AiResponseIdentifier> identifiers = new HashSet<>();
-      identifiers.add(new AiResponseIdentifierImpl(symphonyAiMessage.getStreamId()));
       for(SymMessage symMessage: symMessages) {
+        Set<AiResponseIdentifier> identifiers = new HashSet<>();
+        identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
         AiResponse aiResponse = new AiResponse(new SymphonyAiMessage(symMessage), identifiers);
         responder.addResponse(aiSessionContext, aiResponse);
       }

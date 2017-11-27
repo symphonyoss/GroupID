@@ -47,8 +47,10 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
       return this.mongoClient;
     }
 
-    MongoClientOptions.Builder builder = new MongoClientOptions.Builder()
-        .socketFactory(SSLSocketFactory.getDefault());
+    MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
+    if(!mongoParameters.isIgnoreSSL()) {
+      builder = builder.socketFactory(SSLSocketFactory.getDefault());
+    }
 
     MongoClientOptions options = builder.socketTimeout(mongoParameters.getSocketTimeout())
         .connectTimeout(mongoParameters.getConnectTimeout())

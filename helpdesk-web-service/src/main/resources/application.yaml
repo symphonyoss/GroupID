@@ -1,12 +1,4 @@
 #This is a sample help desk service externalized config.
-server:
-  port : 8080
-  ssl:
-    key-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/server.keystore
-    key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
-    trust-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/server.truststore
-    trust-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
-
 helpdesk:
   mongo:
     host: mongo.symphony.com
