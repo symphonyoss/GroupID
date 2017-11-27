@@ -6,8 +6,8 @@
 server:
   address: 0.0.0.0
   port: 9000
-  display-name: Help Desk Bot
-  context-path: /helpdesk
+  display-name: Help Desk Renderer
+  context-path: /helpdesk-renderer
   connection-timeout: 20000
 
 spring:

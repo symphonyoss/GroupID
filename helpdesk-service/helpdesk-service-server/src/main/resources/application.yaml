@@ -1,4 +1,10 @@
-#This is a sample help desk service externalized config.
+server:
+  address: 0.0.0.0
+  port : 8081
+  display-name: Help Desk Service
+  context-path: /helpdesk
+  connection-timeout: 20000
+
 helpdesk:
   mongo:
     host: mongo.symphony.com

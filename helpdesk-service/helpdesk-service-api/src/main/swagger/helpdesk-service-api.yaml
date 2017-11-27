@@ -10,7 +10,7 @@ tags:
 schemes:
   - http
   - https
-basePath: '/helpdesk/service'
+basePath: '/'
 paths:
   '/v1/ticket':
     post:
