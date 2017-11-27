@@ -59,6 +59,8 @@
                             <inputSpec>${swagger.source.service}</inputSpec>
                             <language>spring</language>
                             <templateDirectory>src/main/swagger/templates</templateDirectory>
+                            <generateApiTests>false</generateApiTests>
+                            <generateModelTests>false</generateModelTests>
                             <configOptions>
                                 <sourceFolder>src/main/java</sourceFolder>
                                 <apiPackage>${helpdesk.api.service.package}.api</apiPackage>
