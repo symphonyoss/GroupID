@@ -14,16 +14,18 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AgentExternalCheck;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.config.MakerCheckerServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.MessageProxyServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
@@ -78,6 +80,7 @@ public class HelpDeskBot {
     helpDeskBotSession.setAgentMakerCheckerService(initAgentMakerCheckerService());
     helpDeskBotSession.setClientMakerCheckerService(initClientMakerCheckerService());
     helpDeskBotSession.setMessageProxyService(initMessageProxyService());
+    helpDeskBotSession.setConnectionsEventListener(initAutoAcceptConnectionListener());
 
     registerDefaultAgent();
 
@@ -132,9 +135,15 @@ public class HelpDeskBot {
     HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
     MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
-    makerCheckerServiceSession.setEntityTemplate(configuration.getMakerCheckerMessageTemplate());
-    makerCheckerServiceSession.setMessageTemplate(configuration.getMakerCheckerMessageTemplate());
     makerCheckerServiceSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
+
+    MakerCheckerServiceConfig makerCheckerServiceConfig = new MakerCheckerServiceConfig();
+    makerCheckerServiceConfig.setAttachmentMessageTemplate(configuration.getMakerCheckerMessageTemplate());
+    makerCheckerServiceConfig.setAttachmentEntityTemplate(configuration.getMakerCheckerEntityTemplate());
+    makerCheckerServiceConfig.setGroupId(configuration.getGroupId());
+
+    makerCheckerServiceSession.setMakerCheckerServiceConfig(makerCheckerServiceConfig);
+
     MakerCheckerService agentMakerCheckerService = new MakerCheckerService(makerCheckerServiceSession);
     agentMakerCheckerService.addCheck(new AgentExternalCheck(helpDeskBotSession.getSymphonyClient(),
         helpDeskBotSession.getTicketClient()));
@@ -146,8 +155,15 @@ public class HelpDeskBot {
     HelpDeskBotConfig configuration = helpDeskBotSession.getHelpDeskBotConfig();
 
     MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
-    makerCheckerServiceSession.setEntityTemplate(configuration.getMakerCheckerMessageTemplate());
-    makerCheckerServiceSession.setMessageTemplate(configuration.getMakerCheckerMessageTemplate());
+    makerCheckerServiceSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
+
+    MakerCheckerServiceConfig makerCheckerServiceConfig = new MakerCheckerServiceConfig();
+    makerCheckerServiceConfig.setAttachmentMessageTemplate(configuration.getMakerCheckerMessageTemplate());
+    makerCheckerServiceConfig.setAttachmentEntityTemplate(configuration.getMakerCheckerEntityTemplate());
+    makerCheckerServiceConfig.setGroupId(configuration.getGroupId());
+
+    makerCheckerServiceSession.setMakerCheckerServiceConfig(makerCheckerServiceConfig);
+
     makerCheckerServiceSession.setSymphonyClient(helpDeskBotSession.getSymphonyClient());
     MakerCheckerService clientMakerCheckerService = new MakerCheckerService(makerCheckerServiceSession);
 
@@ -193,6 +209,15 @@ public class HelpDeskBot {
     helpDeskBotSession.getSymphonyClient().getMessageService().addMessageListener(messageProxyService);
 
     return messageProxyService;
+  }
+
+  private AutoConnectionAcceptListener initAutoAcceptConnectionListener() {
+    SymphonyClient symphonyClient = helpDeskBotSession.getSymphonyClient();
+    AutoConnectionAcceptListener connectionListener = new AutoConnectionAcceptListener(
+        symphonyClient.getConnectionsClient());
+    symphonyClient.getMessageService().addConnectionsEventListener(connectionListener);
+
+    return connectionListener;
   }
 
   private void registerDefaultAgent() {

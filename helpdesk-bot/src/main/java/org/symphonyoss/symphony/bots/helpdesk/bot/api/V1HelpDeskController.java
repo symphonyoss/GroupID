@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,12 +21,13 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthCheckFailed
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
+import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.util.HashSet;
@@ -39,12 +41,12 @@ import javax.ws.rs.InternalServerErrorException;
  */
 @RestController
 public class V1HelpDeskController extends V1ApiController {
-
   private static final Logger LOG = LoggerFactory.getLogger(V1HelpDeskController.class);
   private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
   private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
   private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
+  private static final String NO_MAKER_CHECKER_TYPE = "No checker type can support this maker checker message.";
 
   @Autowired
   private TicketClient ticketClient;
@@ -175,14 +177,34 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse acceptMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-    MakerCheckerMessage makerCheckerMessage = new MakerCheckerMessage(detail.getStreamId(),
-        detail.getProxyToStreamIds(), detail.getTimeStamp(), detail.getMessageId(), detail.getGroupId());
     HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
-    HelpDeskBotSession helpDeskBotSession = sessionManager.getSession(makerCheckerMessage.getGroupId());
+    HelpDeskBotSession botSession = sessionManager.getSession(detail.getGroupId());
 
     SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
 
-    helpDeskBotSession.getAgentMakerCheckerService().acceptMakerCheckerMessage(makerCheckerMessage);
+    if (StringUtils.isNotBlank(detail.getAttachmentId())) {
+      AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
+      checkerMessage.setAttachmentId(detail.getAttachmentId());
+      checkerMessage.setGroupId(detail.getGroupId());
+      checkerMessage.setMessageId(detail.getMessageId());
+      checkerMessage.setStreamId(detail.getStreamId());
+      checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
+      checkerMessage.setTimeStamp(detail.getTimeStamp());
+      checkerMessage.setType(detail.getType());
+
+      Set<SymMessage> symMessages =
+          botSession.getAgentMakerCheckerService().getAcceptMessages(checkerMessage);
+      AiSessionKey aiSessionKey =
+          botSession.getHelpDeskAi().getSessionKey(detail.getUserId(), detail.getStreamId());
+      for (SymMessage symMessage : symMessages) {
+        SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
+        Set<AiResponseIdentifier> identifiers = new HashSet<>();
+        identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+        botSession.getHelpDeskAi().sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
+      }
+    } else {
+      throw new BadRequestException(NO_MAKER_CHECKER_TYPE);
+    }
 
     MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
     makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);

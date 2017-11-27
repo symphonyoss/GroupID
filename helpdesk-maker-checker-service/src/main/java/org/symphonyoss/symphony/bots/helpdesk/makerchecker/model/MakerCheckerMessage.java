@@ -6,19 +6,12 @@ import java.util.List;
  * Created by nick.tarsillo on 10/26/17.
  */
 public class MakerCheckerMessage {
+  private String type;
   private String streamId;
-  private List<String> proxyToStreamIds;
   private String timeStamp;
   private String messageId;
   private String groupId;
-
-  public MakerCheckerMessage(String streamId, List<String> proxyToStreamIds, String timeStamp, String messageId, String groupId) {
-    this.streamId = streamId;
-    this.proxyToStreamIds = proxyToStreamIds;
-    this.timeStamp = timeStamp;
-    this.messageId = messageId;
-    this.groupId = groupId;
-  }
+  private List<String> proxyToStreamIds;
 
   public String getStreamId() {
     return streamId;
@@ -58,5 +51,13 @@ public class MakerCheckerMessage {
 
   public void setGroupId(String groupId) {
     this.groupId = groupId;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+  public void setType(String type) {
+    this.type = type;
   }
 }
