@@ -31,7 +31,8 @@ public class HelpDeskAi extends SymphonyAi {
     SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) aiSessionKey;
     Membership membership =
         helpDeskAiSession.getMembershipClient().getMembership(sessionKey.getUid());
-    if (membership.getType().equals(MembershipClient.MembershipType.AGENT.getType())) {
+
+    if ((membership != null) && (MembershipClient.MembershipType.AGENT.getType().equals(membership.getType()))) {
       Ticket ticket =
           helpDeskAiSession.getTicketClient().getTicketByServiceStreamId(sessionKey.getStreamId());
       if (ticket != null) {
