@@ -50,7 +50,7 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
     }
 
     MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
-    if(!mongoParameters.isIgnoreSSL()) {
+    if (!mongoParameters.isIgnoreSSL()) {
       builder = builder.socketFactory(SSLSocketFactory.getDefault());
     }
 
@@ -62,6 +62,11 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
         .build();
 
     String host = mongoParameters.getHost();
+
+    if (host == null) {
+      throw new IllegalArgumentException("Unknown mongo host");
+    }
+
     int port = mongoParameters.getPort();
 
     this.mongoClient = new MongoClient(new ServerAddress(host, port), options);

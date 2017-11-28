@@ -7,7 +7,6 @@ server:
 
 helpdesk:
   mongo:
-    host: mongo.symphony.com
     port: 27017
     database: helpdesk
     socketTimeout: 10000
