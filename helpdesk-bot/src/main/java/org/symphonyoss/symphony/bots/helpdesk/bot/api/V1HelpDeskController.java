@@ -23,6 +23,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessi
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Agent;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -110,6 +111,11 @@ public class V1HelpDeskController extends V1ApiController {
       responseIdentifierSet.add(new AiResponseIdentifierImpl(agentStreamId));
       helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
 
+      // Update ticket status and its agent
+      Agent agent = new Agent();
+      agent.setAgentId(agentId);
+      agent.setDisplayName(agentUser.getDisplayName());
+      ticket.setAgent(agent);
       ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
       helpDeskBotSession.getTicketClient().updateTicket(ticket);
 
