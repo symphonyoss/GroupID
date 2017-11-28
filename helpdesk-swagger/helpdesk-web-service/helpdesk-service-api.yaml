@@ -277,6 +277,8 @@ definitions:
         type: string
         description: |
           Accepted states - UNSERVICED, UNRESOLVED, RESOLVED
+      agent:
+        $ref: '#/definitions/Agent'
   Membership:
     type: object
     properties:
@@ -297,4 +299,12 @@ definitions:
     type: object
     properties:
       message:
+        type: string
+  Agent:
+    type: object
+    properties:
+      agentId:
+        type: integer
+        format: int64
+      displayName:
         type: string
