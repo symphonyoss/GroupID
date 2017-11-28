@@ -158,7 +158,7 @@ public class HelpDeskBotConfig {
       throw new IllegalStateException("Unknown HelpDesk bot address");
     }
 
-    return this.helpdeskBot.getUrl("helpdesk");
+    return this.helpdeskBot.getUrl("helpdesk-bot");
   }
 
   public String getHelpDeskServiceUrl() {
@@ -166,7 +166,7 @@ public class HelpDeskBotConfig {
       throw new IllegalStateException("Unknown HelpDesk service address");
     }
 
-    return this.helpdeskService.getUrl("helpdesk/service");
+    return this.helpdeskService.getUrl("helpdesk");
   }
 
   public AuthenticationConfig getAuthentication() {

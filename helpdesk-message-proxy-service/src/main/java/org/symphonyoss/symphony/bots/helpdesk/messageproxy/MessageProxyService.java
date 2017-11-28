@@ -99,7 +99,7 @@ public class MessageProxyService implements MessageListener {
         addAgentToProxy(ticket, aiSessionContext);
       }
     } else {
-      ticket = session.getTicketClient().getTicketByClientStreamId(streamId);
+      ticket = session.getTicketClient().getUnresolvedTicketByClientStreamId(streamId);
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
         ticket = session.getTicketClient().createTicket(ticketId, streamId, newServiceStream(ticketId, streamId));

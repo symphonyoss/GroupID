@@ -1,6 +1,10 @@
 #This is a sample help desk bot properties config.
 server:
+  address: 0.0.0.0
   port : 8090
+  display-name: Help Desk Bot
+  context-path: /helpdesk-bot
+  connection-timeout: 20000
 
 email: helpdesk@symphony.com
 groupId: Test

@@ -1,0 +1,298 @@
+swagger: '2.0'
+info:
+  version: '0.0.1'
+  title: Help Desk Web Service
+  description:
+produces:
+  - application/json
+tags:
+  - Service
+schemes:
+  - http
+  - https
+basePath: '/'
+paths:
+  '/v1/ticket':
+    post:
+      summary: Create a ticket.
+      operationId: createTicket
+      parameters:
+        - name: ticket
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Ticket'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Ticket'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Ticket
+  '/v1/ticket/{id}':
+    get:
+      summary: Get a ticket.
+      operationId: getTicket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Ticket'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Ticket
+    put:
+      summary: Update a ticket.
+      operationId: updateTicket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: ticket
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Ticket'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Ticket'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Ticket
+    delete:
+      summary: Delete a ticket.
+      operationId: deleteTicket
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Ticket
+  '/v1/ticket/search':
+    get:
+      summary: Search for a ticket.
+      operationId: searchTicket
+      parameters:
+        - name: groupId
+          in: query
+          required: false
+          type: string
+        - name: serviceStreamId
+          in: query
+          required: false
+          type: string
+        - name: clientStreamId
+          in: query
+          required: false
+          type: string
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/TicketSearchResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Ticket
+  '/v1/membership':
+    post:
+      summary: Create a membership.
+      operationId: createMembership
+      parameters:
+        - name: membership
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Membership'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Membership'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Membership
+  '/v1/membership/{groupId}/{id}':
+    get:
+      summary: Get a membership.
+      operationId: getMembership
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          type: string
+        - name: id
+          in: path
+          required: true
+          type: integer
+          format: int64
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Membership'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Membership
+    put:
+      summary: Update a membership.
+      operationId: updateMembership
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          type: string
+        - name: id
+          in: path
+          required: true
+          type: integer
+          format: int64
+        - name: membership
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Membership'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Membership'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Membership
+    delete:
+      summary: Delete a membership.
+      operationId: deleteMembership
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          type: string
+        - name: id
+          in: path
+          required: true
+          type: integer
+          format: int64
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Membership
+definitions:
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+  Ticket:
+    type: object
+    properties:
+      id:
+        type: string
+      groupId:
+        type: string
+      serviceStreamId:
+        type: string
+      clientStreamId:
+        type: string
+      state:
+        type: string
+        description: |
+          Accepted states - UNSERVICED, UNRESOLVED, RESOLVED
+  Membership:
+    type: object
+    properties:
+      groupId:
+        type: string
+      id:
+        type: integer
+        format: int64
+      type:
+        type: string
+        description: |
+          Accepted types - AGENT, CLIENT
+  TicketSearchResponse:
+    type: array
+    items:
+      $ref: '#/definitions/Ticket'
+  SuccessResponse:
+    type: object
+    properties:
+      message:
+        type: string
