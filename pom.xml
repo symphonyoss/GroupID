@@ -15,6 +15,7 @@
         <module>helpdesk-maker-checker-service</module>
         <module>helpdesk-message-proxy-service</module>
         <module>helpdesk-swagger</module>
+        <module>helpdesk-distribution</module>
     </modules>
 
     <parent>
@@ -117,6 +118,8 @@
         <jackson.version>2.7.3</jackson.version>
         <jersey.version>2.25.1</jersey.version>
         <spring.boot.version>1.5.8.RELEASE</spring.boot.version>
+
+        <build.number>0</build.number>
     </properties>
 
     <dependencyManagement>
