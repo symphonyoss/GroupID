@@ -30,4 +30,5 @@ server:
     key-store: ${CERTS_DIR}/server.keystore
     key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
 
+groupId: testgroup
 agentStreamId: 16Uit8rhM2BpllEjIxYlXX___qAlMAjidA
