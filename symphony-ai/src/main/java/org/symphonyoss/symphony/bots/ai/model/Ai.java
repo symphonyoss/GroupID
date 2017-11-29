@@ -20,12 +20,6 @@ public abstract class Ai {
           sessionContext.getAiCommandMenu() != null) {
         getAiEventListener().onCommand(message, sessionContext);
       }
-
-      if (aiConversation != null) {
-        getAiEventListener().onConversation(message, aiConversation);
-      }
-
-      sessionContext.setLastMessage(message);
     }
   }
 

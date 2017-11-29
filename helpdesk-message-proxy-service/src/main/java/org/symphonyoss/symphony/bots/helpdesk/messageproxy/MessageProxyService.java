@@ -177,6 +177,8 @@ public class MessageProxyService implements MessageListener {
     aiResponseIdentifierSet = new HashSet<>();
     aiResponseIdentifierSet.add(
         new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
+    aiResponseIdentifierSet.add(
+        new AiResponseIdentifierImpl(ticket.getServiceStreamId()));
     session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, sessionKey);
   }
 
