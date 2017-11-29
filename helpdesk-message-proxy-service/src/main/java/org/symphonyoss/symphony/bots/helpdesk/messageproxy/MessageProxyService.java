@@ -102,7 +102,9 @@ public class MessageProxyService implements MessageListener {
       ticket = session.getTicketClient().getUnresolvedTicketByClientStreamId(streamId);
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        ticket = session.getTicketClient().createTicket(ticketId, streamId, newServiceStream(ticketId, streamId));
+        ticket = session.getTicketClient().createTicket(ticketId, streamId,
+            newServiceStream(ticketId, streamId),
+            Long.valueOf(symMessage.getTimestamp()));
         sendTicketCreationMessages(ticket, symMessage);
         createClientProxy(ticket, aiSessionContext);
       } else if (!proxyMap.containsKey(ticket.getId())) {
@@ -169,15 +171,7 @@ public class MessageProxyService implements MessageListener {
     session.getHelpDeskAi()
         .sendMessage(aiMessage, aiResponseIdentifierSet, sessionKey);
 
-    String message = getClaimMessage();
-    String entity = getClaimEntity(ticket, symMessage);
-
-    aiMessage = new SymphonyAiMessage(message);
-    aiMessage.setEntityData(entity);
-    aiResponseIdentifierSet = new HashSet<>();
-    aiResponseIdentifierSet.add(
-        new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
-    session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, sessionKey);
+    sendClaimMessage(ticket, symMessage);
   }
 
   /**
@@ -221,11 +215,26 @@ public class MessageProxyService implements MessageListener {
     return room.getStreamId();
   }
 
-  private String getClaimMessage() {
+  private void sendClaimMessage(Ticket ticket, SymMessage symMessage) {
+    SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) session.getHelpDeskAi()
+        .getSessionKey(symMessage.getFromUserId(), symMessage.getStreamId());
+
+    String message = getClaimMessageData();
+    String entity = getClaimEntityData(ticket, symMessage);
+
+    SymphonyAiMessage aiMessage = new SymphonyAiMessage(message);
+    aiMessage.setEntityData(entity);
+    Set<AiResponseIdentifier> aiResponseIdentifierSet = new HashSet<>();
+    aiResponseIdentifierSet.add(
+        new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
+    session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, sessionKey);
+  }
+
+  private String getClaimMessageData() {
     return session.getMessageProxyServiceConfig().getClaimMessageTemplate();
   }
 
-  private String getClaimEntity(Ticket ticket, SymMessage symMessage) {
+  private String getClaimEntityData(Ticket ticket, SymMessage symMessage) {
     try {
       UsersClient usersClient = session.getSymphonyClient().getUsersClient();
       SymUser symUser = usersClient.getUserFromId(symMessage.getFromUserId());

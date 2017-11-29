@@ -165,7 +165,8 @@ definitions:
           type: string
         required: true
       timeStamp:
-        type: string
+        type: integer
+        format: int64
         required: true
       messageId:
         type: string

@@ -74,7 +74,7 @@ public class MakerCheckerService {
     try {
       List<SymMessage> symMessageList =
           session.getSymphonyClient().getMessagesClient().getMessagesFromStream(
-              stream, Long.parseLong(makerCheckerMessage.getTimeStamp()) - 1, 0, 10);
+              stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
 
       SymMessage match = null;
       for(SymMessage symMessage : symMessageList) {

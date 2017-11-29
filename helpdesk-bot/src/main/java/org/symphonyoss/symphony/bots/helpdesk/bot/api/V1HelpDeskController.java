@@ -27,6 +27,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Agent;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.util.SymphonyTicketUtil;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -48,6 +49,7 @@ public class V1HelpDeskController extends V1ApiController {
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
   private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
   private static final String NO_MAKER_CHECKER_TYPE = "No checker type can support this maker checker message.";
+  private static final String TRANSCRIPT_HEADER = "<header><b>Client transcript: </b></header>";
 
   @Autowired
   private TicketClient ticketClient;
@@ -109,6 +111,12 @@ public class V1HelpDeskController extends V1ApiController {
           helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketAgentSuccessResponse());
       responseIdentifierSet = new HashSet<>();
       responseIdentifierSet.add(new AiResponseIdentifierImpl(agentStreamId));
+      helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
+
+      SymphonyTicketUtil symphonyTicketUtil = new SymphonyTicketUtil(symphonyClient);
+      String transcript = String.join( "</li><li>", symphonyTicketUtil.getTicketTranscript(ticket));
+      transcript = TRANSCRIPT_HEADER + "<body><ul><li>" + transcript + "</li></ul></body>";
+      symphonyAiMessage.setAiMessage(transcript);
       helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
 
       // Update ticket status and its agent
