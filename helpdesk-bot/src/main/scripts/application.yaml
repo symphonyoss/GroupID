@@ -1,5 +1,5 @@
 authentication:
-  keystore-file: ${CERTS_DIR}/helpdesk.p12
+  keystore-file: /data/symphony/helpdesk-bot/certs/helpdesk.p12
   keystore-password: changeit
 
 agent:
@@ -17,18 +17,11 @@ pod:
   host: nexus2-dev.symphony.com
 
 helpdesk-bot:
-  host: localhost.symphony.com
+  host: nexus2-dev.symphony.com
   port: 8090
 
 helpdesk-service:
-  host: localhost.symphony.com
-  port: 8081
-
-server:
-  ssl:
-    enabled: true
-    key-store: ${CERTS_DIR}/server.keystore
-    key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
+  host: nexus2-dev.symphony.com
 
 groupId: testgroup
-agentStreamId: 16Uit8rhM2BpllEjIxYlXX___qAlMAjidA
+agentStreamId: b_YMc--mZ3tAz8pMgbk8FX___p_72nrDdA

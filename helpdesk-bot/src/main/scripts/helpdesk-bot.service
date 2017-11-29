@@ -1,0 +1,14 @@
+[Unit]
+Description=Symphony Helpdesk Bot
+After=syslog.target network.target
+
+[Service]
+ExecStart=/data/symphony/helpdesk-bot/bin/startup.sh
+
+KillSignal=SIGTERM
+
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
