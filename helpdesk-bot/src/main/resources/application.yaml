@@ -7,7 +7,6 @@ server:
   connection-timeout: 20000
 
 email: helpdesk@symphony.com
-groupId: Test
 
 claimMessageTemplate:
   "<div class=\"entity\" data-entity-id=\"helpdesk\">

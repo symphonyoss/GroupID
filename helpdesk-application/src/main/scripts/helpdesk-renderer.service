@@ -1,0 +1,14 @@
+[Unit]
+Description=Symphony Helpdesk Dynamic Renderer
+After=syslog.target network.target
+
+[Service]
+ExecStart=/data/symphony/helpdesk-renderer/bin/startup.sh
+
+KillSignal=SIGTERM
+
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

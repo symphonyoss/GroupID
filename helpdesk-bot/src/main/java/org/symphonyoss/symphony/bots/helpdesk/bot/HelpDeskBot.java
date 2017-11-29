@@ -70,7 +70,13 @@ public class HelpDeskBot {
    */
   @PostConstruct
   public void init() throws InitException {
-    LOG.info("Help Desk Bot starting up for groupId: " + configuration.getGroupId());
+    String groupId = configuration.getGroupId();
+
+    if (groupId == null) {
+      throw new IllegalStateException("GroupId were not provided");
+    }
+
+    LOG.info("Help Desk Bot starting up for groupId: " + groupId);
 
     helpDeskBotSession.setHelpDeskBotConfig(configuration);
     helpDeskBotSession.setSymphonyClient(initSymphonyClient());
