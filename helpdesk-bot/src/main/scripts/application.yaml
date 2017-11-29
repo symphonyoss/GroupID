@@ -1,0 +1,27 @@
+authentication:
+  keystore-file: /data/symphony/helpdesk-bot/certs/helpdesk.p12
+  keystore-password: changeit
+
+agent:
+  host: nexus2-dev.symphony.com
+
+session_auth:
+  host: sym-nexus2-dev-chat-glb-2-guse1-all.symphony.com
+  port: 8444
+
+key_auth:
+  host: sym-nexus2-dev-chat-glb-2-guse1-all.symphony.com
+  port: 8444
+
+pod:
+  host: nexus2-dev.symphony.com
+
+helpdesk-bot:
+  host: nexus2-dev.symphony.com
+  port: 8090
+
+helpdesk-service:
+  host: nexus2-dev.symphony.com
+
+groupId: testgroup
+agentStreamId: b_YMc--mZ3tAz8pMgbk8FX___p_72nrDdA
