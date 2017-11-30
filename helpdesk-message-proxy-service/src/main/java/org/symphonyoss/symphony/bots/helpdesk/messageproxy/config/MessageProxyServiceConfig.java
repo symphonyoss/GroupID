@@ -1,5 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.config;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by nick.tarsillo on 11/13/17.
  */
@@ -10,6 +12,9 @@ public class MessageProxyServiceConfig {
   private String claimMessageTemplate;
   private String claimEntityTemplate;
   private String claimEntityHeader;
+  private String idleClaimEntityHeader;
+  private int agentIdleTimeValue;
+  private TimeUnit agentIdleTimeUnit;
   private String ticketCreationMessage;
 
   public String getGroupId() {
@@ -68,4 +73,27 @@ public class MessageProxyServiceConfig {
     this.claimEntityHeader = claimEntityHeader;
   }
 
+  public String getIdleClaimEntityHeader() {
+    return idleClaimEntityHeader;
+  }
+
+  public void setIdleClaimEntityHeader(String idleClaimEntityHeader) {
+    this.idleClaimEntityHeader = idleClaimEntityHeader;
+  }
+
+  public int getAgentIdleTimeValue() {
+    return agentIdleTimeValue;
+  }
+
+  public void setAgentIdleTimeValue(int agentIdleTimeValue) {
+    this.agentIdleTimeValue = agentIdleTimeValue;
+  }
+
+  public TimeUnit getAgentIdleTimeUnit() {
+    return agentIdleTimeUnit;
+  }
+
+  public void setAgentIdleTimeUnit(TimeUnit agentIdleTimeUnit) {
+    this.agentIdleTimeUnit = agentIdleTimeUnit;
+  }
 }

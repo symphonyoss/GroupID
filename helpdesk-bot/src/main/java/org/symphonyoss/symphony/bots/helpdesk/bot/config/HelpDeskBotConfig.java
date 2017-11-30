@@ -3,6 +3,8 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.config;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Created by nick.tarsillo on 10/9/17.
  * A help desk bot configuration.
@@ -64,6 +66,12 @@ public class HelpDeskBotConfig {
   private String ticketCreationMessage;
 
   private String claimEntityHeader;
+
+  private String idleClaimEntityHeader;
+
+  private int agentIdleTimeValue;
+
+  private TimeUnit agentIdleTimeUnit;
 
   public String getEmail() {
     return email;
@@ -361,4 +369,27 @@ public class HelpDeskBotConfig {
     this.claimEntityHeader = claimEntityHeader;
   }
 
+  public String getIdleClaimEntityHeader() {
+    return idleClaimEntityHeader;
+  }
+
+  public void setIdleClaimEntityHeader(String idleClaimEntityHeader) {
+    this.idleClaimEntityHeader = idleClaimEntityHeader;
+  }
+
+  public int getAgentIdleTimeValue() {
+    return agentIdleTimeValue;
+  }
+
+  public void setAgentIdleTimeValue(int agentIdleTimeValue) {
+    this.agentIdleTimeValue = agentIdleTimeValue;
+  }
+
+  public TimeUnit getAgentIdleTimeUnit() {
+    return agentIdleTimeUnit;
+  }
+
+  public void setAgentIdleTimeUnit(TimeUnit agentIdleTimeUnit) {
+    this.agentIdleTimeUnit = agentIdleTimeUnit;
+  }
 }

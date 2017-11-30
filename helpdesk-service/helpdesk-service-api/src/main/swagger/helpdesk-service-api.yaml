@@ -281,7 +281,9 @@ definitions:
         items:
           $ref: '#/definitions/TimePeriod'
       agent:
-        $ref: '#/definitions/Agent'
+        $ref: '#/definitions/UserInfo'
+      client:
+        $ref: '#/definitions/UserInfo'
   Membership:
     type: object
     properties:
@@ -303,10 +305,10 @@ definitions:
     properties:
       message:
         type: string
-  Agent:
+  UserInfo:
     type: object
     properties:
-      agentId:
+      userId:
         type: integer
         format: int64
       displayName:

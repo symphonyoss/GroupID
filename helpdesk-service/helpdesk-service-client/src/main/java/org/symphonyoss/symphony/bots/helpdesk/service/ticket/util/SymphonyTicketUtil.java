@@ -58,4 +58,32 @@ public class SymphonyTicketUtil {
 
     return null;
   }
+
+  public String getTicketQuestion(Ticket ticket) {
+    MessagesClient messagesClient = symphonyClient.getMessagesClient();
+    SymStream stream = new SymStream();
+    stream.setStreamId(ticket.getClientStreamId());
+    try {
+      TimePeriod latest = null;
+      for (TimePeriod timePeriod : ticket.getTranscript()) {
+        if(latest == null) {
+          latest = timePeriod;
+        } else if(latest.getStartTimestamp() < timePeriod.getStartTimestamp()) {
+          latest = timePeriod;
+        }
+      }
+
+      List<SymMessage> symMessages =
+          messagesClient.getMessagesFromStream(stream, latest.getStartTimestamp(), 0, 10);
+      for(SymMessage symMessage: symMessages) {
+        if(symMessage.getTimestamp().equals(latest.getStartTimestamp())) {
+          return symMessage.getMessageText();
+        }
+      }
+    } catch (MessagesException e) {
+      e.printStackTrace();
+    }
+
+    return null;
+  }
 }

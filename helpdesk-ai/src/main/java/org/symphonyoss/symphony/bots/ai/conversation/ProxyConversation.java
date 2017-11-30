@@ -19,6 +19,7 @@ import java.util.Set;
  */
 public class ProxyConversation extends AiConversation {
   private Set<AiResponseIdentifier> proxyToIds = new HashSet<>();
+  private ProxyIdleTimer proxyIdleTimer;
   private MakerCheckerService makerCheckerService;
 
   public ProxyConversation(boolean allowCommands, MakerCheckerService makerCheckerService) {
@@ -56,6 +57,10 @@ public class ProxyConversation extends AiConversation {
       }
       responder.respond(aiSessionContext);
     }
+
+    if(proxyIdleTimer != null) {
+      proxyIdleTimer.reset();
+    }
   }
 
   /**
@@ -64,5 +69,14 @@ public class ProxyConversation extends AiConversation {
    */
   public void addProxyId(String streamId) {
     proxyToIds.add(new AiResponseIdentifierImpl(streamId));
+  }
+
+  public ProxyIdleTimer getProxyIdleTimer() {
+    return proxyIdleTimer;
+  }
+
+  public void setProxyIdleTimer(
+      ProxyIdleTimer proxyIdleTimer) {
+    this.proxyIdleTimer = proxyIdleTimer;
   }
 }

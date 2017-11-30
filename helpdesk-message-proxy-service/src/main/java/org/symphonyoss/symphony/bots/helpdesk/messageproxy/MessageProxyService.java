@@ -10,17 +10,21 @@ import org.symphonyoss.client.services.MessageListener;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
+import org.symphonyoss.symphony.bots.ai.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.MessageProxyServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.util.SymphonyTicketUtil;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -101,16 +105,34 @@ public class MessageProxyService implements MessageListener {
     } else {
       ticket = session.getTicketClient().getUnresolvedTicketByClientStreamId(streamId);
       if (ticket == null) {
-        String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        ticket = session.getTicketClient().createTicket(ticketId, streamId,
-            newServiceStream(ticketId, streamId),
-            Long.valueOf(symMessage.getTimestamp()));
-        sendTicketCreationMessages(ticket, symMessage);
+        ticket = createTicket(symMessage);
+        sendTicketCreationMessages(ticket);
         createClientProxy(ticket, aiSessionContext);
       } else if (!proxyMap.containsKey(ticket.getId())) {
         createClientProxy(ticket, aiSessionContext);
       }
     }
+  }
+
+  private Ticket createTicket(SymMessage symMessage) {
+    String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
+
+    try {
+      UsersClient usersClient = session.getSymphonyClient().getUsersClient();
+      SymUser symUser = usersClient.getUserFromId(symMessage.getFromUserId());
+      UserInfo client = new UserInfo();
+      client.setUserId(symUser.getId());
+      client.setDisplayName(symUser.getDisplayName());
+
+      return session.getTicketClient().createTicket(ticketId, symMessage.getStreamId(),
+          newServiceStream(ticketId, symMessage.getStreamId()),
+          Long.valueOf(symMessage.getTimestamp()),
+          client);
+    } catch (UsersClientException e) {
+      LOG.error("Could not get sym user when creating ticket: ", e);
+    }
+
+    return null;
   }
 
   /**
@@ -120,14 +142,25 @@ public class MessageProxyService implements MessageListener {
    * @param aiSessionContext the ai session context
    */
   private void createAgentProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
+    MessageProxyServiceConfig config = session.getMessageProxyServiceConfig();
+
     ProxyConversation aiConversation = new ProxyConversation(true,
         session.getAgentMakerCheckerService());
     aiConversation.addProxyId(ticket.getClientStreamId());
 
     session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
 
-    proxyMap.put(ticket.getId(), new MessageProxy());
-    proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
+    MessageProxy messageProxy = new MessageProxy();
+    messageProxy.setAgentProxyTimer(new ProxyIdleTimer(config.getAgentIdleTimeValue(),
+        config.getAgentIdleTimeUnit()) {
+      @Override
+      public void onIdleTimeout() {
+        sendClaimMessage(ticket, true);
+      }
+    });
+    proxyMap.put(ticket.getId(), messageProxy);
+    aiConversation.setProxyIdleTimer(messageProxy.getAgentProxyTimer());
+    messageProxy.addProxyConversation(aiConversation);
   }
 
   /**
@@ -142,7 +175,9 @@ public class MessageProxyService implements MessageListener {
     aiConversation.addProxyId(ticket.getClientStreamId());
     session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
 
-    proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
+    MessageProxy messageProxy = proxyMap.get(ticket.getId());
+    aiConversation.setProxyIdleTimer(messageProxy.getAgentProxyTimer());
+    messageProxy.addProxyConversation(aiConversation);
   }
 
   /**
@@ -160,9 +195,9 @@ public class MessageProxyService implements MessageListener {
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
   }
 
-  private void sendTicketCreationMessages(Ticket ticket, SymMessage symMessage) {
+  private void sendTicketCreationMessages(Ticket ticket) {
     SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) session.getHelpDeskAi()
-        .getSessionKey(symMessage.getFromUserId(), symMessage.getStreamId());
+        .getSessionKey(ticket.getClient().getUserId(), ticket.getClientStreamId());
 
     SymphonyAiMessage aiMessage =
         new SymphonyAiMessage(session.getMessageProxyServiceConfig().getTicketCreationMessage());
@@ -171,7 +206,7 @@ public class MessageProxyService implements MessageListener {
     session.getHelpDeskAi()
         .sendMessage(aiMessage, aiResponseIdentifierSet, sessionKey);
 
-    sendClaimMessage(ticket, symMessage);
+    sendClaimMessage(ticket, false);
   }
 
   /**
@@ -215,12 +250,15 @@ public class MessageProxyService implements MessageListener {
     return room.getStreamId();
   }
 
-  private void sendClaimMessage(Ticket ticket, SymMessage symMessage) {
+  private void sendClaimMessage(Ticket ticket, boolean isIdle) {
     SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) session.getHelpDeskAi()
-        .getSessionKey(symMessage.getFromUserId(), symMessage.getStreamId());
+        .getSessionKey(ticket.getClient().getUserId(), ticket.getClientStreamId());
+
+    SymphonyTicketUtil symphonyTicketUtil = new SymphonyTicketUtil(session.getSymphonyClient());
 
     String message = getClaimMessageData();
-    String entity = getClaimEntityData(ticket, symMessage);
+    String entity = getClaimEntityData(ticket, ticket.getClient().getUserId(),
+        symphonyTicketUtil.getTicketQuestion(ticket), isIdle);
 
     SymphonyAiMessage aiMessage = new SymphonyAiMessage(message);
     aiMessage.setEntityData(entity);
@@ -236,20 +274,23 @@ public class MessageProxyService implements MessageListener {
     return session.getMessageProxyServiceConfig().getClaimMessageTemplate();
   }
 
-  private String getClaimEntityData(Ticket ticket, SymMessage symMessage) {
+  private String getClaimEntityData(Ticket ticket, Long fromUserId, String question, boolean isIdle) {
     try {
       UsersClient usersClient = session.getSymphonyClient().getUsersClient();
-      SymUser symUser = usersClient.getUserFromId(symMessage.getFromUserId());
+      SymUser symUser = usersClient.getUserFromId(fromUserId);
 
       String username = symUser.getDisplayName();
       String host = session.getMessageProxyServiceConfig().getHelpDeskBotHost();
       String header = session.getMessageProxyServiceConfig().getClaimEntityHeader();
+      if(isIdle) {
+        header = session.getMessageProxyServiceConfig().getIdleClaimEntityHeader();
+      }
 
       MessageTemplate entityTemplate = new MessageTemplate(
           session.getMessageProxyServiceConfig().getClaimEntityTemplate());
       ClaimEntityTemplateData entityTemplateData =
           new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, host, header,
-              symUser.getCompany(), symMessage.getMessageText());
+              symUser.getCompany(), question);
       return entityTemplate.buildFromData(entityTemplateData);
     } catch (UsersClientException e) {
       LOG.error("Could not find user when creating claim message: ", e);
