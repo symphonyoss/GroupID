@@ -224,4 +224,19 @@ public class V1HelpDeskController extends V1ApiController {
 
     return makerCheckerResponse;
   }
+
+  /**
+   * Deny a maker checker message.
+   * @param detail the maker checker message detail
+   * @return a maker checker message response
+   */
+  @Override
+  public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
+    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
+    HelpDeskBotSession botSession = sessionManager.getSession(detail.getGroupId());
+
+    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+
+    return null;
+  }
 }

@@ -22,6 +22,8 @@ public interface Checker {
 
   Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
 
+  Set<SymMessage> makeDeniedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
+
   boolean isCheckerType(MakerCheckerMessage makerCheckerMessage);
 
   void setSession(MakerCheckerServiceSession makerCheckerServiceSession);
