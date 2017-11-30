@@ -22,7 +22,6 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
-import org.symphonyoss.symphony.bots.helpdesk.service.attachment.agent.AttachmentAgent;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Agent;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
@@ -223,7 +222,6 @@ public class V1HelpDeskController extends V1ApiController {
     User user = getUser(detail, agentUser);
 
     makerCheckerResponse.setUser(user);
-    makerCheckerResponse.setState(AttachmentAgent.AttachmentType.APPROVED.getState());
 
     return makerCheckerResponse;
   }
@@ -248,7 +246,6 @@ public class V1HelpDeskController extends V1ApiController {
     User user = getUser(detail, agentUser);
 
     makerCheckerResponse.setUser(user);
-    makerCheckerResponse.setState(AttachmentAgent.AttachmentType.DENIED.getState());
 
     return makerCheckerResponse;
   }
