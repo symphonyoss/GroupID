@@ -102,12 +102,6 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public Set<SymMessage> makeDeniedMessages(MakerCheckerMessage makerCheckerMessage,
-      SymMessage symMessage) {
-    return null;
-  }
-
-  @Override
   public boolean isCheckerType(MakerCheckerMessage makerCheckerMessage) {
     return StringUtils.isNotBlank(makerCheckerMessage.getType()) &&
         makerCheckerMessage.getType().equals(ATTACHMENT);

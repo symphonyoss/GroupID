@@ -22,6 +22,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.service.attachment.agent.AttachmentAgent;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Agent;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
@@ -44,6 +45,7 @@ import javax.ws.rs.InternalServerErrorException;
 public class V1HelpDeskController extends V1ApiController {
   private static final Logger LOG = LoggerFactory.getLogger(V1HelpDeskController.class);
   private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
+  private static final String MAKER_CHECKER_DENY_RESPONSE = "Maker checker message denied.";
   private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
   private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
@@ -79,7 +81,8 @@ public class V1HelpDeskController extends V1ApiController {
 
     SymUser agentUser = symphonyValidationUtil.validateUserId(agentId);
 
-    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
+    HelpDeskBotSessionManager sessionManager =
+        getHelpDeskBotSessionManager();
     HelpDeskBotSession helpDeskBotSession = sessionManager.getSession(ticket.getGroupId());
 
     try {
@@ -145,7 +148,8 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public HealthcheckResponse healthcheck(String groupId) {
-    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
+    HelpDeskBotSessionManager sessionManager =
+        getHelpDeskBotSessionManager();
     HelpDeskBotSession helpDeskBotSession = sessionManager.getSession(groupId);
 
     if(helpDeskBotSession == null) {
@@ -183,10 +187,10 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse acceptMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
+    HelpDeskBotSessionManager sessionManager = getHelpDeskBotSessionManager();
     HelpDeskBotSession botSession = sessionManager.getSession(detail.getGroupId());
 
-    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+    SymUser agentUser = getAgentUser(detail);
 
     if (StringUtils.isNotBlank(detail.getAttachmentId())) {
       AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
@@ -216,11 +220,10 @@ public class V1HelpDeskController extends V1ApiController {
     makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
     makerCheckerResponse.setMakerCheckerMessageDetail(detail);
 
-    User user = new User();
-    user.setDisplayName(agentUser.getDisplayName());
-    user.setUserId(detail.getUserId());
+    User user = getUser(detail, agentUser);
 
     makerCheckerResponse.setUser(user);
+    makerCheckerResponse.setState(AttachmentAgent.AttachmentType.APPROVED.getState());
 
     return makerCheckerResponse;
   }
@@ -232,11 +235,36 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
+    HelpDeskBotSessionManager sessionManager =
+        getHelpDeskBotSessionManager();
     HelpDeskBotSession botSession = sessionManager.getSession(detail.getGroupId());
 
-    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+    SymUser agentUser = getAgentUser(detail);
 
-    return null;
+    MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
+    makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
+    makerCheckerResponse.setMakerCheckerMessageDetail(detail);
+
+    User user = getUser(detail, agentUser);
+
+    makerCheckerResponse.setUser(user);
+    makerCheckerResponse.setState(AttachmentAgent.AttachmentType.DENIED.getState());
+
+    return makerCheckerResponse;
+  }
+
+  private SymUser getAgentUser(MakerCheckerMessageDetail detail) {
+    return symphonyValidationUtil.validateUserId(detail.getUserId());
+  }
+
+  private User getUser(MakerCheckerMessageDetail detail, SymUser agentUser) {
+    User user = new User();
+    user.setDisplayName(agentUser.getDisplayName());
+    user.setUserId(detail.getUserId());
+    return user;
+  }
+
+  private HelpDeskBotSessionManager getHelpDeskBotSessionManager() {
+    return HelpDeskBotSessionManager.getDefaultSessionManager();
   }
 }
