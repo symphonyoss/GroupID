@@ -18,7 +18,6 @@ pod:
 
 helpdesk-bot:
   host: nexus2-dev.symphony.com
-  port: 8090
 
 helpdesk-service:
   host: nexus2-dev.symphony.com
