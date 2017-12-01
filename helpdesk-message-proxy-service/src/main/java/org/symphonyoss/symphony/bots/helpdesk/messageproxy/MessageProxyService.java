@@ -37,6 +37,7 @@ import java.util.Set;
  * The message proxy service handles the proxying of messages between clients and agents.
  */
 public class MessageProxyService implements MessageListener {
+
   private static final Logger LOG = LoggerFactory.getLogger(MessageProxyService.class);
 
   public static final int TICKET_ID_LENGTH = 10;
@@ -177,8 +178,6 @@ public class MessageProxyService implements MessageListener {
     aiResponseIdentifierSet = new HashSet<>();
     aiResponseIdentifierSet.add(
         new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
-    aiResponseIdentifierSet.add(
-        new AiResponseIdentifierImpl(ticket.getServiceStreamId()));
     session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, sessionKey);
   }
 
@@ -215,7 +214,7 @@ public class MessageProxyService implements MessageListener {
     Room room = null;
     try {
       room = session.getSymphonyClient().getRoomService().createRoom(roomAttributes);
-      LOG.info("Created new room: " + room.toString());
+      LOG.info("Created new room: " + roomAttributes.getName());
     } catch (RoomException e) {
       LOG.error("Create room failed: ", e);
     }
