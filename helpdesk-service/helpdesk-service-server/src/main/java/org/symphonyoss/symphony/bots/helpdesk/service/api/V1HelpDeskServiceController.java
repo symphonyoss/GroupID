@@ -2,7 +2,9 @@ package org.symphonyoss.symphony.bots.helpdesk.service.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.MakercheckerDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.MembershipDao;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.SuccessResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -26,6 +28,20 @@ public class V1HelpDeskServiceController extends V1ApiController {
 
   @Autowired
   private TicketDao ticketDao;
+
+  @Autowired
+  private MakercheckerDao makercheckerDao;
+
+  @Override
+  public Makerchecker createMakerchecker(Makerchecker makerchecker) {
+    validateRequiredParameter("id", makerchecker.getId(),"body");
+    validateRequiredParameter("agentId", makerchecker.getAgentId(),"body");
+    validateRequiredParameter("ownerId", makerchecker.getOwnerId(),"body");
+    validateRequiredParameter("roomId", makerchecker.getRoomId(),"body");
+    validateRequiredParameter("state", makerchecker.getState(),"body");
+
+    return makercheckerDao.createMakerchecker(makerchecker);
+  }
 
   @Override
   public Membership createMembership(Membership membership) {
@@ -53,6 +69,11 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
+  public Makerchecker updateMembership(Long id, Makerchecker makerchecker) {
+    return makercheckerDao.updateMackerchecker(id, makerchecker);
+  }
+
+  @Override
   public Ticket createTicket(Ticket ticket) {
     validateRequiredParameter("groupId", ticket.getGroupId(), "body");
     validateRequiredParameter("state", ticket.getState(), "body");
@@ -65,6 +86,9 @@ public class V1HelpDeskServiceController extends V1ApiController {
     ticketDao.deleteTicket(id);
     return new SuccessResponse().message(DELETE_TICKET_RESPONSE);
   }
+
+  @Override
+  public Makerchecker getMakerchecker(Long id) { return makercheckerDao.getMakerchecker(id); }
 
   @Override
   public Ticket getTicket(String id) {

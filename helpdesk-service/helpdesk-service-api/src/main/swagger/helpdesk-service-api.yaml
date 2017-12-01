@@ -251,6 +251,83 @@ paths:
             $ref: '#/definitions/Error'
       tags:
         - Membership
+  '/v1/makerchecker':
+    post:
+      summary: Create a makerchecker.
+      operationId: createMakerchecker
+      parameters:
+        - name: makerchecker
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Makerchecker'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Makerchecker'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Makerchecker
+  '/v1/makerchecker/{id}':
+      get:
+        summary: Get a makerchecker.
+        operationId: getMakerchecker
+        parameters:
+          - name: id
+            in: path
+            required: true
+            type: integer
+            format: int64
+        produces:
+          - application/json
+        responses:
+          '200':
+            description: OK
+            schema:
+              $ref: '#/definitions/Makerchecker'
+          '500':
+            description: INTERNAL SERVER ERROR
+            schema:
+              $ref: '#/definitions/Error'
+        tags:
+          - Makerchecker
+      put:
+        summary: Update a membership.
+        operationId: updateMembership
+        parameters:
+          - name: id
+            in: path
+            required: true
+            type: integer
+            format: int64
+          - name: makerchecker
+            in: body
+            required: true
+            schema:
+              $ref: '#/definitions/Makerchecker'
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        responses:
+          '200':
+            description: OK
+            schema:
+              $ref: '#/definitions/Makerchecker'
+          '500':
+            description: INTERNAL SERVER ERROR
+            schema:
+              $ref: '#/definitions/Error'
+        tags:
+          - Makerchecker
 definitions:
   Error:
     type: object
@@ -306,3 +383,18 @@ definitions:
         format: int64
       displayName:
         type: string
+  Makerchecker:
+      type: object
+      properties:
+        id:
+          type: string
+        ownerId:
+          type: string
+        agentId:
+          type: string
+        roomId:
+          type: string
+        state:
+          type: string
+          description: |
+            Accepted states - OPENED, APPROVED, DENIED
