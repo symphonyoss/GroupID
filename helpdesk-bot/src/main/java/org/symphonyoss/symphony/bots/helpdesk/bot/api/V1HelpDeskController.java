@@ -22,6 +22,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Agent;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
@@ -221,6 +222,7 @@ public class V1HelpDeskController extends V1ApiController {
     user.setUserId(detail.getUserId());
 
     makerCheckerResponse.setUser(user);
+    makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
 
     return makerCheckerResponse;
   }

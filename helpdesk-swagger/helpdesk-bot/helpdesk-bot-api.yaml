@@ -139,6 +139,10 @@ definitions:
         $ref: '#/definitions/MakerCheckerMessageDetail'
       user:
         $ref: '#/definitions/User'
+      state:
+        type: string
+        description: |
+          Accepted states - APPROVED, DENIED, OPENED
   HealthcheckResponse:
     type: object
     properties:
