@@ -6,7 +6,7 @@
 
 - Set the error message:
 
-  errorMessageService.setChatBanner(streamId, 'CHAT', 'Test Error', 'ERROR');
+  errorMessageService.setChatBanner(streamId, 'CHAT', 'This is an error message', 'ERROR');
 
 The streamId must be retrieved in the enricher.
 
@@ -14,7 +14,7 @@ The streamId must be retrieved in the enricher.
 
 Create an error template and pass its message through the enricher using a template engine (e.g., Handlebars):
   
-  actions({ message: "Error Inline" })
+  actions({ message: "This is an error message" })
 
 Template:
 
