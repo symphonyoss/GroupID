@@ -23,6 +23,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExte
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.MessageProxyService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.MessageProxyServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -188,6 +189,13 @@ public class HelpDeskBot {
         configuration.getHelpDeskServiceUrl());
 
     return ticketClient;
+  }
+
+  private MakercheckerClient initMakercheckerClient() {
+    MakercheckerClient makercheckerClient = new MakercheckerClient(configuration.getGroupId(),
+        configuration.getHelpDeskServiceUrl());
+
+    return makercheckerClient;
   }
 
   private MessageProxyService initMessageProxyService() {
