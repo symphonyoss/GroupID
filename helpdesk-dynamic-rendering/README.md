@@ -1,18 +1,18 @@
-### How to use the error in Banner. 
+### How to set an error message at Symphony's error banner. 
 
-- Subscribe on error-banner:
+- Subscribe to error-banner service:
 
   const errorMessageService = SYMPHONY.services.subscribe('error-banner');
 
-- Set error on chat banner:
+- Set the error message:
 
   errorMessageService.setChatBanner(streamId, 'CHAT', 'Test Error', 'ERROR');
 
-Implements on enrich the property contains streamId.
+The streamId must be retrieved in the enricher.
 
-### How to use the error inline.
+### How to use an inline error message.
 
-Create a template for error Inline, on Enrich you can pass the message:
+Create an error template and pass its message through the enricher using a template engine (e.g., Handlebars):
   
   actions({ message: "Error Inline" })
 
