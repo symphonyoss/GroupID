@@ -12,7 +12,7 @@ Implements on enrich the property contains streamId.
 
 ### How to use the error inline.
 
-Create a template for errorInline, on Enrich you can pass the message:
+Create a template for error Inline, on Enrich you can pass the message:
   
   actions({ message: "Error Inline" })
 
