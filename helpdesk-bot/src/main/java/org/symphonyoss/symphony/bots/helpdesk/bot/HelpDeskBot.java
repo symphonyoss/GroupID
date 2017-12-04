@@ -128,6 +128,8 @@ public class HelpDeskBot {
           membership.setType(MembershipClient.MembershipType.AGENT.getType());
           membershipClient.updateMembership(membership);
         }
+
+        helpDeskAi.updateBotUserId(symUser.getId());
       } catch (UsersClientException e) {
         LOG.error("Error registering default agent user: ", e);
       }
