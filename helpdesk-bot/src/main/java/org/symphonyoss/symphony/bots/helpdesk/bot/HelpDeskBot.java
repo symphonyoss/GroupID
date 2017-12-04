@@ -131,8 +131,10 @@ public class HelpDeskBot {
 
         helpDeskAi.updateBotUserId(symUser.getId());
       } catch (UsersClientException e) {
-        LOG.error("Error registering default agent user: ", e);
+        throw new IllegalStateException("Error registering default agent user: ", e);
       }
+    } else {
+      throw new IllegalStateException("Bot email address were not provided");
     }
   }
 
