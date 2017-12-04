@@ -1,10 +1,10 @@
 ### How to use the error in Banner. 
 
-- Subscribe on error-banner/n
+- Subscribe on error-banner
 
   const errorMessageService = SYMPHONY.services.subscribe('error-banner');
-/n
-- Set error on chat banner/n
+
+- Set error on chat banner
 
   errorMessageService.setChatBanner(streamId, 'CHAT', 'Test Error', 'ERROR');
 
@@ -18,6 +18,6 @@ Create a template for errorInline, on Enrich you can pass the message:
 
 Template:
 
-<messageML>
+`<messageML>
   <span class="tempo-text-color--red">{{ message }}</span>
-</messageML> 
+</messageML>`
