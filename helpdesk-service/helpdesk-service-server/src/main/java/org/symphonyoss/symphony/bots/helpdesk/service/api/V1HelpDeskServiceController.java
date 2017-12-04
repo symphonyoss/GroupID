@@ -69,11 +69,6 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public Makerchecker updateMembership(Long id, Makerchecker makerchecker) {
-    return makercheckerDao.updateMackerchecker(id, makerchecker);
-  }
-
-  @Override
   public Ticket createTicket(Ticket ticket) {
     validateRequiredParameter("groupId", ticket.getGroupId(), "body");
     validateRequiredParameter("state", ticket.getState(), "body");
@@ -109,6 +104,11 @@ public class V1HelpDeskServiceController extends V1ApiController {
     }
 
     return null;
+  }
+
+  @Override
+  public Makerchecker updateMakerchecker(Long id, Makerchecker makerchecker) {
+    return makercheckerDao.updateMakerchecker(id, makerchecker);
   }
 
   @Override

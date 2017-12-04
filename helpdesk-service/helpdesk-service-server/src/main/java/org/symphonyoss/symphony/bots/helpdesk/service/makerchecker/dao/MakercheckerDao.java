@@ -11,7 +11,7 @@ public interface MakercheckerDao {
    * Create a new makerchecker in the database.
    *
    * @param makerchecker Makerchecker data
-   * @return Makerchecker 
+   * @return Makerchecker
    */
   Makerchecker createMakerchecker(Makerchecker makerchecker);
 
@@ -22,7 +22,7 @@ public interface MakercheckerDao {
    * @param id Makechecker id
    * @return Updated makerchecker
    */
-  Makerchecker updateMackerchecker(Long id, Makerchecker makerchecker);
+  Makerchecker updateMakerchecker(Long id, Makerchecker makerchecker);
 
   /**
    * Gets a makerchecker from the database.

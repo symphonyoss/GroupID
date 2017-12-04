@@ -300,8 +300,8 @@ paths:
         tags:
           - Makerchecker
       put:
-        summary: Update a membership.
-        operationId: updateMembership
+        summary: Update a makerchecker.
+        operationId: updateMakerchecker
         parameters:
           - name: id
             in: path
