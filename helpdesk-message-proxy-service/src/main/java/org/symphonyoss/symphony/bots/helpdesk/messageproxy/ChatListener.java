@@ -1,10 +1,9 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.services.MessageListener;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import javax.annotation.PostConstruct;
@@ -19,11 +18,15 @@ public class ChatListener implements MessageListener {
 
   private final SymphonyClient symphonyClient;
 
-  private final ProxyService proxyService;
+  private final TicketManagerService ticketManagerService;
 
-  public ChatListener(SymphonyClient symphonyClient, ProxyService proxyService) {
+  private final HelpDeskAi helpDeskAi;
+
+  public ChatListener(SymphonyClient symphonyClient, TicketManagerService ticketManagerService,
+      HelpDeskAi helpDeskAi) {
     this.symphonyClient = symphonyClient;
-    this.proxyService = proxyService;
+    this.ticketManagerService = ticketManagerService;
+    this.helpDeskAi = helpDeskAi;
   }
 
   @PostConstruct
@@ -33,7 +36,8 @@ public class ChatListener implements MessageListener {
 
   @Override
   public void onMessage(SymMessage symMessage) {
-    proxyService.messageReceived(symMessage);
+    ticketManagerService.messageReceived(symMessage);
+    helpDeskAi.onMessage(symMessage);
   }
 
 }

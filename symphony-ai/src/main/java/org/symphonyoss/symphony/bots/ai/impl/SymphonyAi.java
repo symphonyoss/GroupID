@@ -16,7 +16,6 @@ public class SymphonyAi extends AiImpl implements MessageListener {
     AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(symphonyClient.getLocalUser());
     aiResponder = new SymphonyAiResponder(symphonyClient.getMessagesClient());
     aiEventListener = new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommand);
-    symphonyClient.getMessageService().addMessageListener(this);
   }
 
   @Override

@@ -28,7 +28,9 @@ public class TicketMessageBuilder {
 
   private static final String CLAIM_MESSAGE_TEMPLATE = "claimMessage.xml";
 
-  private SymMessageBuilder messageBuilder;
+  private static String message;
+
+  private final SymMessageBuilder messageBuilder;
 
   private String host;
 
@@ -45,10 +47,14 @@ public class TicketMessageBuilder {
   private String question;
 
   public TicketMessageBuilder() {
-    parseTemplate();
+    if (StringUtils.isEmpty(message)) {
+      message = parseTemplate();
+    }
+
+    this.messageBuilder = SymMessageBuilder.message(message);
   }
 
-  private void parseTemplate() {
+  private String parseTemplate() {
     StringBuilder message = new StringBuilder();
     InputStream resource = getClass().getClassLoader().getResourceAsStream(CLAIM_MESSAGE_TEMPLATE);
 
@@ -58,11 +64,7 @@ public class TicketMessageBuilder {
       LOGGER.error("Fail to parse claim message template");
     }
 
-    String messageTemplate = message.toString();
-
-    if (StringUtils.isNotEmpty(messageTemplate)) {
-      this.messageBuilder = SymMessageBuilder.message(messageTemplate);
-    }
+    return message.toString();
   }
 
   public TicketMessageBuilder host(String host) {

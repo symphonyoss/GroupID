@@ -19,9 +19,9 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
  * Created by rsanchez on 01/12/17.
  */
 @Service
-public class ProxyService {
+public class TicketManagerService {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ProxyService.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(TicketManagerService.class);
 
   private static final int TICKET_ID_LENGTH = 10;
 
@@ -33,12 +33,16 @@ public class ProxyService {
 
   private final RoomService roomService;
 
-  public ProxyService(@Value("${groupId}") String groupId, SymphonyClient symphonyClient,
-      MembershipService membershipService, TicketService ticketService, RoomService roomService) {
+  private final MessageProxyService messageProxyService;
+
+  public TicketManagerService(@Value("${groupId}") String groupId,
+      MembershipService membershipService, TicketService ticketService, RoomService roomService,
+      MessageProxyService messageProxyService) {
     this.groupId = groupId;
     this.membershipService = membershipService;
     this.ticketService = ticketService;
     this.roomService = roomService;
+    this.messageProxyService = messageProxyService;
   }
 
   /**
@@ -57,13 +61,17 @@ public class ProxyService {
 
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-
         String serviceStreamId = roomService.newServiceStream(ticketId, groupId);
 
-        ticketService.createTicket(ticketId, message, serviceStreamId);
+        ticket = ticketService.createTicket(ticketId, message, serviceStreamId);
       } else {
         LOGGER.info("Ticket already exists");
       }
+
+      messageProxyService.onMessage(membership, ticket, message);
+    } else {
+      Ticket ticket = ticketService.getTicketByServiceStreamId(message.getStreamId());
+      messageProxyService.onMessage(membership, ticket, message);
     }
   }
 

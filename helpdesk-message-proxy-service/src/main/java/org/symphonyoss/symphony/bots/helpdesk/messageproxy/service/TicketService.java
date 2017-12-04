@@ -51,12 +51,17 @@ public class TicketService {
   public Ticket createTicket(String ticketId, SymMessage message, String serviceStreamId) {
     Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStreamId);
     sendTicketMessageToAgentStreamId(ticket, message);
+    sendClientMessageToServiceStreamId(serviceStreamId, message);
 
     return ticket;
   }
 
   public Ticket getUnresolvedTicket(String streamId) {
     return ticketClient.getUnresolvedTicketByClientStreamId(streamId);
+  }
+
+  public Ticket getTicketByServiceStreamId(String streamId) {
+    return ticketClient.getTicketByServiceStreamId(streamId);
   }
 
   private void sendTicketMessageToAgentStreamId(Ticket ticket, SymMessage message) {
@@ -88,7 +93,14 @@ public class TicketService {
     }
   }
 
-  public void sendClientMessageToServiceStreamId() {
-    // TODO
+  private void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
+    SymStream stream = new SymStream();
+    stream.setStreamId(streamId);
+
+    try {
+      messagesClient.sendMessage(stream, message);
+    } catch (MessagesException e) {
+      LOGGER.error("Could not send ticket message to agent stream ID: ", e);
+    }
   }
 }
