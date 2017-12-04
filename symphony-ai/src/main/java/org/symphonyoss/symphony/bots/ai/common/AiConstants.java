@@ -11,5 +11,6 @@ public class AiConstants {
   public static final String ARGUMENT_START_CHAR = "{";
   public static final String ARGUMENT_END_CHAR = "}";
   public static final String SUGGEST = "Did you mean, ";
+  public static final String NOT_COMMAND = "%s is not a command.";
   public static final String MENU_TITLE = "Check the usage: ";
 }
