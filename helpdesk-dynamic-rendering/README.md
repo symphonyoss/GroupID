@@ -1,8 +1,11 @@
 ### How to use the error in Banner. 
 
-- Subscribe on error-banner
+- Subscribe on error-banner/n
+
   const errorMessageService = SYMPHONY.services.subscribe('error-banner');
-- Set error on chat banner
+/n
+- Set error on chat banner/n
+
   errorMessageService.setChatBanner(streamId, 'CHAT', 'Test Error', 'ERROR');
 
 Implements on enrich the property contains streamId.
