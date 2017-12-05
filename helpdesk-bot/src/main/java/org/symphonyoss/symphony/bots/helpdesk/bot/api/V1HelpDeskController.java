@@ -113,12 +113,6 @@ public class V1HelpDeskController extends V1ApiController {
       responseIdentifierSet.add(new AiResponseIdentifierImpl(agentStreamId));
       helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
 
-      SymphonyTicketUtil symphonyTicketUtil = new SymphonyTicketUtil(symphonyClient);
-      String transcript = String.join( "</li><li>", symphonyTicketUtil.getTicketTranscript(ticket));
-      transcript = TRANSCRIPT_HEADER + "<body><ul><li>" + transcript + "</li></ul></body>";
-      symphonyAiMessage.setAiMessage(transcript);
-      helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
-
       // Update ticket status and its agent
       Agent agent = new Agent();
       agent.setAgentId(agentId);
@@ -131,6 +125,12 @@ public class V1HelpDeskController extends V1ApiController {
       ticketResponse.setMessage(TICKET_SUCCESS_RESPONSE);
       ticketResponse.setState(ticket.getState());
       ticketResponse.setTicketId(ticket.getId());
+
+      SymphonyTicketUtil symphonyTicketUtil = new SymphonyTicketUtil(symphonyClient);
+      String transcript = String.join( "</li><li>", symphonyTicketUtil.getTicketTranscript(ticket));
+      transcript = TRANSCRIPT_HEADER + "<body><ul><li>" + transcript + "</li></ul></body>";
+      symphonyAiMessage.setAiMessage(transcript);
+      helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
 
       User user = new User();
       user.setDisplayName(agentUser.getDisplayName());

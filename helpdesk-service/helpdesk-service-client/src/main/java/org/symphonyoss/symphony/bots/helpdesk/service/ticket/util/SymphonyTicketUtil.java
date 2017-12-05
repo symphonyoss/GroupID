@@ -1,5 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.ticket.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -20,6 +22,8 @@ import java.util.stream.Collectors;
  * Utility class for symphony based ticket functions.
  */
 public class SymphonyTicketUtil {
+  private static final Logger LOG = LoggerFactory.getLogger(SymphonyTicketUtil.class);
+
   private SymphonyClient symphonyClient;
 
   public SymphonyTicketUtil(SymphonyClient symphonyClient) {
@@ -53,7 +57,7 @@ public class SymphonyTicketUtil {
 
       return symMessages;
     } catch (MessagesException e) {
-      e.printStackTrace();
+      LOG.error("Failed to search for messages: " + e);
     }
 
     return null;
