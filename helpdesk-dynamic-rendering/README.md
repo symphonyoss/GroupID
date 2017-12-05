@@ -14,7 +14,7 @@ The streamId must be retrieved in the enricher.
 
 Create an error template and pass its message through the enricher using a template engine (e.g., Handlebars):
   
-  actions({ message: "This is an error message" })
+```actions({ message: "This is an error message" })```
 
 Template:
 
