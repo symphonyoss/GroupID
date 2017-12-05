@@ -84,8 +84,8 @@ public class SymphonyAiResponder extends AiResponderImpl {
    */
   @Override
   public void respondWithUseMenu(AiSessionContext sessionContext, AiMessage message) {
-    String response = "<header>" + String.format(AiConstants.NOT_COMMAND, message.getAiMessage()) +
-        "<br/><b>" + AiConstants.MENU_TITLE + "</b></header>" + "<body><ul><li>" +
+    String response = "<body>" + String.format(AiConstants.NOT_COMMAND, message.getAiMessage()) +
+        "<br/><hr/><b>" + AiConstants.MENU_TITLE + "</b><ul><li>" +
         sessionContext.getAiCommandMenu().toString().replace(
             "\n", "</li><li>") + "</li></ul></body>";
     response = response.replace("<li></li>", "");

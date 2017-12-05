@@ -31,7 +31,7 @@ public abstract class ProxyIdleTimer {
           }
         }
       }
-    }, 1000, 1000);
+    }, 10000, 10000);
   }
 
   private int time;

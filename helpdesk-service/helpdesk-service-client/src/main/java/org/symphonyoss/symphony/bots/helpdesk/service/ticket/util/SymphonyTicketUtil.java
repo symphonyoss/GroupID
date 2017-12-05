@@ -76,7 +76,7 @@ public class SymphonyTicketUtil {
       List<SymMessage> symMessages =
           messagesClient.getMessagesFromStream(stream, latest.getStartTimestamp(), 0, 10);
       for(SymMessage symMessage: symMessages) {
-        if(symMessage.getTimestamp().equals(latest.getStartTimestamp())) {
+        if(symMessage.getTimestamp().equals(latest.getStartTimestamp().toString())) {
           return symMessage.getMessageText();
         }
       }

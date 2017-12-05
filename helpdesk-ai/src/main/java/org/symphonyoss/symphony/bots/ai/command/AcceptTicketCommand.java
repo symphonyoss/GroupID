@@ -48,28 +48,25 @@ public class AcceptTicketCommand extends AiCommand {
       HelpDeskAiConfig helpDeskAiConfig = helpDeskAiSession.getHelpDeskAiConfig();
 
       Set<String> keySet = aiArgumentMap.getKeySet();
-      if (keySet.size() != 0) {
-        Ticket ticket = helpDeskAiSession.getTicketClient()
-            .getTicket(aiArgumentMap.getArgumentAsString(keySet.iterator().next()));
-        if(ticket != null) {
-          try {
-            helpDeskAiSession.getSymphonyClient()
-                .getRoomMembershipClient()
-                .addMemberToRoom(ticket.getServiceStreamId(), aiSessionKey.getUid());
-            ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
-            helpDeskAiSession.getTicketClient().updateTicket(ticket);
-            responder.addResponse(sessionContext, successResponseAgent(helpDeskAiConfig, aiSessionKey));
-            responder.addResponse(sessionContext, succesResponseTranscript(ticket, aiSessionContext));
-            responder.addResponse(sessionContext, successResponseClient(helpDeskAiConfig, ticket));
-          } catch (SymException e) {
-            LOG.error("Failed to add agent to service room: ", e);
-            responder.addResponse(sessionContext, failedToAddAgentToService(aiSessionKey));
-          }
-        } else {
-          responder.addResponse(sessionContext, ticketNotFoundResponse(aiSessionKey));
+      Ticket ticket = helpDeskAiSession.getTicketClient()
+          .getTicket(aiArgumentMap.getArgumentAsString(keySet.iterator().next()));
+      if (ticket != null) {
+        try {
+          helpDeskAiSession.getSymphonyClient()
+              .getRoomMembershipClient()
+              .addMemberToRoom(ticket.getServiceStreamId(), aiSessionKey.getUid());
+          ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
+          helpDeskAiSession.getTicketClient().updateTicket(ticket);
+          responder.addResponse(sessionContext,
+              successResponseAgent(helpDeskAiConfig, aiSessionKey));
+          responder.addResponse(sessionContext, succesResponseTranscript(ticket, aiSessionContext));
+          responder.addResponse(sessionContext, successResponseClient(helpDeskAiConfig, ticket));
+        } catch (SymException e) {
+          LOG.error("Failed to add agent to service room: ", e);
+          responder.addResponse(sessionContext, failedToAddAgentToService(aiSessionKey));
         }
       } else {
-        responder.respondWithUseMenu(sessionContext);
+        responder.addResponse(sessionContext, ticketNotFoundResponse(aiSessionKey));
       }
 
       responder.respond(sessionContext);
