@@ -102,9 +102,9 @@ public class MessageProxyService implements MessageListener {
       ticket = session.getTicketClient().getUnresolvedTicketByClientStreamId(streamId);
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        ticket = session.getTicketClient().createTicket(ticketId, streamId,
-            newServiceStream(ticketId, streamId),
-            Long.valueOf(symMessage.getTimestamp()));
+        ticket = session.getTicketClient()
+            .createTicket(ticketId, streamId, newServiceStream(ticketId, streamId),
+                Long.parseLong(symMessage.getTimestamp()));
         sendTicketCreationMessages(ticket, symMessage);
         createClientProxy(ticket, aiSessionContext);
       } else if (!proxyMap.containsKey(ticket.getId())) {
@@ -207,7 +207,7 @@ public class MessageProxyService implements MessageListener {
     Room room = null;
     try {
       room = session.getSymphonyClient().getRoomService().createRoom(roomAttributes);
-      LOG.info("Created new room: " + room.toString());
+      LOG.info("Created new room: " + roomAttributes.getName());
     } catch (RoomException e) {
       LOG.error("Create room failed: ", e);
     }

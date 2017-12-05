@@ -53,6 +53,10 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Ticket'
+        '204':
+          description: TICKET NOT FOUND
+          schema:
+            $ref: '#/definitions/Ticket'
         '500':
           description: INTERNAL SERVER ERROR
           schema:
