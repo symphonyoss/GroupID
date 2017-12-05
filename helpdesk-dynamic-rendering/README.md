@@ -18,6 +18,7 @@ Create an error template and pass its message through the enricher using a templ
 
 Template:
 
-```<messageML>
+```
+<messageML>
   <span class="tempo-text-color--red">{{ message }}</span>
 </messageML>```
