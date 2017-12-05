@@ -8,7 +8,15 @@
 
 ```errorMessageService.setChatBanner(streamId, 'CHAT', 'This is an error message', 'ERROR');```
 
-The streamId must be retrieved in the enricher.
+The streamId must be retrieved in the enricher, for example:
+
+```
+  enrich(type, entity) {
+    const claimTicketAction = {
+      streamId: entity.streamId,
+    };
+  }
+```
 
 ### How to use an inline error message.
 
