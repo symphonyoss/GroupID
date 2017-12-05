@@ -40,7 +40,7 @@ public class MakercheckerClient {
 
   public Makerchecker getMakerchecker(String id) {
     try {
-      return makercheckerApi.getMakerchecker(Long.valueOf(id));
+      return makercheckerApi.getMakerchecker(id);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Get makerchecker failed: " + id, e);
     }
@@ -63,7 +63,7 @@ public class MakercheckerClient {
 
   public Makerchecker updateMakerchecker(Makerchecker makerchecker) {
     try {
-      return makercheckerApi.updateMakerchecker(Long.valueOf(makerchecker.getId()), makerchecker);
+      return makercheckerApi.updateMakerchecker(makerchecker.getId(), makerchecker);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Updating makerchecker failed: " + makerchecker.getId(), e);
     }

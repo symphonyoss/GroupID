@@ -288,8 +288,7 @@ paths:
           - name: id
             in: path
             required: true
-            type: integer
-            format: int64
+            type: string
         produces:
           - application/json
         responses:
@@ -310,8 +309,7 @@ paths:
           - name: id
             in: path
             required: true
-            type: integer
-            format: int64
+            type: string
           - name: makerchecker
             in: body
             required: true

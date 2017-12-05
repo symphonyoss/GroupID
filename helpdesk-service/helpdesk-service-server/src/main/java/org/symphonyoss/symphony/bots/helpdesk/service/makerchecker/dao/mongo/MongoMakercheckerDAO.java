@@ -5,8 +5,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.MakercheckerDao;
-import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.model.MakerCheckerIndex;
-import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.model.MakercheckerEntity;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.exception
     .CreateMakercheckerExcpetion;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.exception
@@ -39,8 +37,7 @@ public class MongoMakercheckerDAO implements MakercheckerDao {
   @Override
   public Makerchecker createMakerchecker(Makerchecker makerchecker) {
     try {
-      MakercheckerEntity entity = new MakercheckerEntity(makerchecker);
-      this.mongoTemplate.insert(entity, COLLECTION_NAME);
+      this.mongoTemplate.insert(makerchecker, COLLECTION_NAME);
       return makerchecker;
 
     } catch (DuplicateKeyException e) {
@@ -51,15 +48,16 @@ public class MongoMakercheckerDAO implements MakercheckerDao {
   }
 
   @Override
-  public Makerchecker updateMakerchecker(Long id, Makerchecker makerchecker) {
+  public Makerchecker updateMakerchecker(String id, Makerchecker makerchecker) {
     Makerchecker saved = getMakerchecker(id);
     if (saved == null) {
       throw new MakercheckerNotFoundException(makerchecker.getId());
     }
 
     try {
-      MakercheckerEntity entity = new MakercheckerEntity(makerchecker);
-      this.mongoTemplate.save(entity, COLLECTION_NAME);
+      saved.setAgentId(makerchecker.getAgentId());
+      saved.setState(makerchecker.getState());
+      this.mongoTemplate.save(saved, COLLECTION_NAME);
       return makerchecker;
     } catch (Exception e) {
       throw new UpdateMakercheckerException(makerchecker.getId(), e);
@@ -68,24 +66,10 @@ public class MongoMakercheckerDAO implements MakercheckerDao {
   }
 
   @Override
-  public Makerchecker getMakerchecker(Long id) {
+  public Makerchecker getMakerchecker(String id) {
 
     try {
-      MakerCheckerIndex index = new MakerCheckerIndex(id.toString());
-
-      MakercheckerEntity entity =
-          this.mongoTemplate.findById(index, MakercheckerEntity.class, COLLECTION_NAME);
-
-      if (entity != null) {
-        Makerchecker makerchecker = new Makerchecker();
-        makerchecker.setAgentId(entity.getId().getAgentId());
-        makerchecker.setOwnerId(entity.getId().getOwnerId());
-        makerchecker.setRoomId(entity.getId().getRoomId());
-        makerchecker.setState(entity.getState());
-
-        return makerchecker;
-      }
-      return null;
+      return this.mongoTemplate.findById(id, Makerchecker.class, COLLECTION_NAME);
     } catch (Exception e) {
       throw new GetMakercheckerException(id, e);
     }

@@ -22,7 +22,7 @@ public interface MakercheckerDao {
    * @param id Makechecker id
    * @return Updated makerchecker
    */
-  Makerchecker updateMakerchecker(Long id, Makerchecker makerchecker);
+  Makerchecker updateMakerchecker(String id, Makerchecker makerchecker);
 
   /**
    * Gets a makerchecker from the database.
@@ -30,5 +30,5 @@ public interface MakercheckerDao {
    * @param id Makerchecker Id
    * @return Makerchecker
    */
-  Makerchecker getMakerchecker(Long id);
+  Makerchecker getMakerchecker(String id);
 }

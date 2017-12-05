@@ -35,7 +35,6 @@ public class V1HelpDeskServiceController extends V1ApiController {
   @Override
   public Makerchecker createMakerchecker(Makerchecker makerchecker) {
     validateRequiredParameter("id", makerchecker.getId(),"body");
-    validateRequiredParameter("agentId", makerchecker.getAgentId(),"body");
     validateRequiredParameter("ownerId", makerchecker.getOwnerId(),"body");
     validateRequiredParameter("roomId", makerchecker.getRoomId(),"body");
     validateRequiredParameter("state", makerchecker.getState(),"body");
@@ -83,7 +82,7 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public Makerchecker getMakerchecker(Long id) { return makercheckerDao.getMakerchecker(id); }
+  public Makerchecker getMakerchecker(String id) { return makercheckerDao.getMakerchecker(id); }
 
   @Override
   public Ticket getTicket(String id) {
@@ -107,7 +106,7 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public Makerchecker updateMakerchecker(Long id, Makerchecker makerchecker) {
+  public Makerchecker updateMakerchecker(String id, Makerchecker makerchecker) {
     return makercheckerDao.updateMakerchecker(id, makerchecker);
   }
 
