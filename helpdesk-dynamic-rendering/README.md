@@ -12,9 +12,19 @@ The streamId must be retrieved in the enricher, for example:
 
 ```
   enrich(type, entity) {
-    const claimTicketAction = {
+    const action = {
       streamId: entity.streamId,
+    }
+
+    const data = actionFactory([action], enricherServiceName, entity);
+
+    const result = {
+      template: actions(),
+      data,
+      enricherInstanceId: entity.id,
     };
+
+    return result;
   }
 ```
 
