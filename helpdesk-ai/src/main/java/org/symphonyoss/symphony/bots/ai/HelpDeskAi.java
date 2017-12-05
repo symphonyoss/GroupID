@@ -47,9 +47,7 @@ public class HelpDeskAi extends SymphonyAi {
   public void onAiMessage(AiSessionKey aiSessionKey, AiMessage message) {
     HelpDeskAiSessionContext sessionContext = (HelpDeskAiSessionContext) getSessionContext(aiSessionKey);
 
-    if (AGENT_SERVICE.equals(sessionContext.getSessionType()) && message != null) {
-      getAiEventListener().onCommand(message, sessionContext);
-    } else {
+    if (!AGENT_SERVICE.equals(sessionContext.getSessionType())) {
       super.onAiMessage(aiSessionKey, message);
     }
   }
