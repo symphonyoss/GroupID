@@ -45,20 +45,13 @@ public abstract class {{classname}}Controller implements {{classname}} {
         {{#bodyParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "body"); {{/required}}{{/bodyParams}}
         {{#formParams}}{{#required}}validateRequiredParameter("{{paramName}}", {{paramName}}, "form data");{{/required}}{{/formParams}}
 
-        try {
-            {{>returnTypes}} result = {{operationId}}({{#allParams}}{{paramName}}{{#hasMore}},{{/hasMore}}{{/allParams}});
+        {{>returnTypes}} result = {{operationId}}({{#allParams}}{{paramName}}{{#hasMore}},{{/hasMore}}{{/allParams}});
 
-            if (result == null) {
-                return ResponseEntity.noContent().build();
-            }
-
-            {{^async}}return ResponseEntity.ok(result);{{/async}}
-        } catch (ClientErrorException e) {
-            Error error = new Error();
-            error.setMessage(e.getMessage());
-            error.setCode(e.getResponse().getStatus());
-            return ResponseEntity.status(e.getResponse().getStatus()).body(error);
+        if (result == null) {
+            return ResponseEntity.noContent().build();
         }
+
+        {{^async}}return ResponseEntity.ok(result);{{/async}}
     }
 
     public abstract {{>returnTypes}} {{operationId}}({{#allParams}}{{>queryParams}}{{>pathParams}}{{>headerParams}}{{>bodyParams}}{{>formParams}}{{#hasMore}},
