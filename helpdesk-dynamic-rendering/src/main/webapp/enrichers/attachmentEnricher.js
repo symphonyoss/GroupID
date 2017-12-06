@@ -30,7 +30,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
   }
 
   showAttachmentsRender(entity, rsp, userId) {
-    const show = userId === entity.ownerId;
+    const show = userId === entity.makerId;
     const approveAttachmentAction = {
       id: 'approveAttachment',
       service: enricherServiceName,
