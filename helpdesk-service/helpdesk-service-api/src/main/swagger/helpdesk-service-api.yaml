@@ -279,11 +279,9 @@ definitions:
         type: string
         description: |
           Accepted states - UNSERVICED, UNRESOLVED, RESOLVED
-      transcript:
-        description: Timestamps between times when ticket was unserviced to unresolved.
-        type: array
-        items:
-          $ref: '#/definitions/TimePeriod'
+      questionTimestamp:
+        type: integer
+        format: int64
       agent:
         $ref: '#/definitions/UserInfo'
       client:
@@ -317,14 +315,3 @@ definitions:
         format: int64
       displayName:
         type: string
-  TimePeriod:
-    type: object
-    properties:
-      startTimestamp:
-        type: integer
-        format: int64
-        default: -1
-      endTimestamp:
-        type: integer
-        format: int64
-        default: -1

@@ -6,7 +6,6 @@ import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiException;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.Configuration;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.TimePeriod;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 
 import java.util.List;
@@ -64,8 +63,7 @@ public class TicketClient {
    * @return the ticket
    */
   public Ticket createTicket(String ticketId, String clientStreamId, String newServiceStream,
-      Long timestamp,
-      UserInfo client) {
+      Long timestamp, UserInfo client) {
     Ticket ticket = new Ticket();
     ticket.setId(ticketId);
     ticket.setGroupId(groupId);
@@ -73,10 +71,7 @@ public class TicketClient {
     ticket.setServiceStreamId(newServiceStream);
     ticket.setState(TicketStateType.UNSERVICED.getState());
     ticket.setClient(client);
-
-    TimePeriod timePeriod = new TimePeriod();
-    timePeriod.setStartTimestamp(timestamp);
-    ticket.addTranscriptItem(timePeriod);
+    ticket.setQuestionTimestamp(timestamp);
 
     try {
       return ticketApi.createTicket(ticket);
@@ -133,14 +128,6 @@ public class TicketClient {
    */
   public Ticket updateTicket(Ticket ticket) {
     try {
-      if(ticket.getState() != null && ticket.getState().equals(TicketStateType.UNRESOLVED.getState())) {
-        for (TimePeriod timePeriod : ticket.getTranscript()) {
-          if (timePeriod.getEndTimestamp() == -1) {
-            timePeriod.setEndTimestamp(System.currentTimeMillis());
-          }
-        }
-      }
-
       return ticketApi.updateTicket(ticket.getId(), ticket);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Updating ticket failed: " + ticket.getId(), e);

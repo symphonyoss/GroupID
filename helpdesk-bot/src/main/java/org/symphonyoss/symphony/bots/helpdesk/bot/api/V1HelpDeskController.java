@@ -27,7 +27,6 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.ticket.util.SymphonyTicketUtil;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -125,12 +124,6 @@ public class V1HelpDeskController extends V1ApiController {
       ticketResponse.setMessage(TICKET_SUCCESS_RESPONSE);
       ticketResponse.setState(ticket.getState());
       ticketResponse.setTicketId(ticket.getId());
-
-      SymphonyTicketUtil symphonyTicketUtil = new SymphonyTicketUtil(symphonyClient);
-      String transcript = String.join( "</li><li>", symphonyTicketUtil.getTicketTranscript(ticket));
-      transcript = TRANSCRIPT_HEADER + "<body><ul><li>" + transcript + "</li></ul></body>";
-      symphonyAiMessage.setAiMessage(transcript);
-      helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
 
       User user = new User();
       user.setDisplayName(agentUser.getDisplayName());

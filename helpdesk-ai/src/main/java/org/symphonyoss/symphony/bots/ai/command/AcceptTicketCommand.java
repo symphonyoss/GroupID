@@ -20,7 +20,6 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.ticket.util.SymphonyTicketUtil;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -59,7 +58,6 @@ public class AcceptTicketCommand extends AiCommand {
           helpDeskAiSession.getTicketClient().updateTicket(ticket);
           responder.addResponse(sessionContext,
               successResponseAgent(helpDeskAiConfig, aiSessionKey));
-          responder.addResponse(sessionContext, succesResponseTranscript(ticket, aiSessionContext));
           responder.addResponse(sessionContext, successResponseClient(helpDeskAiConfig, ticket));
         } catch (SymException e) {
           LOG.error("Failed to add agent to service room: ", e);
@@ -70,14 +68,6 @@ public class AcceptTicketCommand extends AiCommand {
       }
 
       responder.respond(sessionContext);
-    }
-
-    private AiResponse succesResponseTranscript(Ticket ticket, HelpDeskAiSessionContext sessionContext) {
-      SymphonyTicketUtil symphonyTicketUtil =
-          new SymphonyTicketUtil(sessionContext.getHelpDeskAiSession().getSymphonyClient());
-      String transcript = String.join( "</li><li>", symphonyTicketUtil.getTicketTranscript(ticket));
-      transcript = TRANSCRIPT_HEADER + "<body><ul><li>" + transcript + "</li></ul></body>";
-      return response(transcript, ((SymphonyAiSessionKey) sessionContext.getAiSessionKey()).getStreamId());
     }
 
     private AiResponse successResponseAgent(HelpDeskAiConfig helpDeskAiConfig, SymphonyAiSessionKey aiSessionKey) {
