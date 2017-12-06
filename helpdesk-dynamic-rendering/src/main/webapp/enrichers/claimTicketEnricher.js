@@ -3,6 +3,7 @@ import actionFactory from '../utils/actionFactory';
 import TicketService from '../services/ticketService';
 
 const actions = require('../templates/claimTicketActions.hbs');
+const error = require('../templates/error.hbs');
 
 const enricherServiceName = 'helpdesk-enricher';
 const messageEvents = [
@@ -21,28 +22,52 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    // return this.services.ticketService.getTicket(entity.ticketId).then((rsp) => {
-    const claimTicketAction = {
-      id: 'claimTicket',
-      service: enricherServiceName,
-      type: 'claimTicket',
-      label: 'Claim',
-      enricherInstanceId: entity.ticketId,
-      // show: rsp.ticket.state === 'UNSERVICED',
-      show: true,
-      userName: '', // TODO APP-1477.
-    };
+    if (entity.ticketUrl === undefined) {
+      const data = actionFactory([], enricherServiceName, entity);
 
-    const data = actionFactory([claimTicketAction], enricherServiceName, entity);
+      const result = {
+        template: error({ message: 'Cannot retrieve ticket state.' }),
+        data,
+        enricherInstanceId: entity.ticketId,
+      };
 
-    const result = {
-      template: actions({ showClaim: data.claimTicket.data.show }),
-      data,
-      enricherInstanceId: entity.ticketId,
-    };
+      return result;
+    }
 
-    return result;
-    // });
+    return this.services.ticketService.getTicket(entity.ticketUrl).then((rsp) => {
+      const displayName = rsp.data.agent && rsp.data.agent.displayName ? rsp.data.agent.displayName : '';
+      const claimTicketAction = {
+        id: 'claimTicket',
+        service: enricherServiceName,
+        type: 'claimTicket',
+        label: 'Claim',
+        enricherInstanceId: entity.ticketId,
+        show: rsp.data.state === 'UNSERVICED',
+        userName: displayName,
+      };
+
+      const data = actionFactory([claimTicketAction], enricherServiceName, entity);
+
+      const result = {
+        template: actions({ showClaim: data.claimTicket.data.show,
+          userName: data.claimTicket.data.userName }),
+        data,
+        enricherInstanceId: entity.ticketId,
+      };
+
+      return result;
+    }).catch((error) => {
+      switch (error.message) {
+        // TODO APP-1477 To map all errors from API
+        case '500': {
+          break;
+        }
+        default: {
+          // TODO APP-1477
+          break;
+        }
+      }
+    });
   }
 
   action(data) {
