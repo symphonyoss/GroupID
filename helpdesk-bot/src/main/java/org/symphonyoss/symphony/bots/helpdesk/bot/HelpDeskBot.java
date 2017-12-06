@@ -13,6 +13,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
+import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
@@ -102,7 +103,7 @@ public class HelpDeskBot {
   private SymphonyClient initSymphonyClient() throws InitException {
     SymAuth symAuth = authenticationService.authenticate();
 
-    SymphonyClient symClient = new SymphonyBasicClient();
+    SymphonyClient symClient = new HelpDeskSymphonyClient();
 
     symClient.init(symAuth, configuration.getEmail(), configuration.getAgentUrl(),
         configuration.getPodUrl());
