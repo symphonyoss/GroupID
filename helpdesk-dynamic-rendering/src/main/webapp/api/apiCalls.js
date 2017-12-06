@@ -22,7 +22,7 @@ export const claimTicket = (data) => {
 };
 
 export const getTicket = (data) => {
-  const apiUrl = `${data.entity.ticketUrl}`;
+  const apiUrl = `${data.ticketUrl}`;
   return axios({
     method: 'get',
     url: apiUrl,
