@@ -191,17 +191,17 @@ public class V1HelpDeskController extends V1ApiController {
     validateRequiredParameter("messageId", detail.getMessageId(), "body");
     validateRequiredParameter("userId", detail.getUserId(), "body");
 
+    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
     sendAcceptMarkerChekerMessages(detail);
 
-    return buildMakerCheckerResponse(detail);
+    return buildMakerCheckerResponse(agentUser, detail);
   }
 
-  private MakerCheckerResponse buildMakerCheckerResponse(MakerCheckerMessageDetail detail) {
+  private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser, MakerCheckerMessageDetail detail) {
     MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
     makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
     makerCheckerResponse.setMakerCheckerMessageDetail(detail);
 
-    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
     User user = new User();
     user.setDisplayName(agentUser.getDisplayName());
     user.setUserId(detail.getUserId());
