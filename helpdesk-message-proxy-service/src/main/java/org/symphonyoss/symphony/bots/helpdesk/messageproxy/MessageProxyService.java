@@ -232,14 +232,19 @@ public class MessageProxyService implements MessageListener {
       SymUser symUser = usersClient.getUserFromId(symMessage.getFromUserId());
 
       String username = symUser.getDisplayName();
-      String host = session.getMessageProxyServiceConfig().getHelpDeskBotHost();
+      String botHost = session.getMessageProxyServiceConfig().getHelpDeskBotHost();
+      String serviceHost = session.getMessageProxyServiceConfig().getHelpDeskServiceHost();
+      String agentStreamId = session.getMessageProxyServiceConfig().getAgentStreamId();
+
       String header = session.getMessageProxyServiceConfig().getClaimEntityHeader();
 
       MessageTemplate entityTemplate = new MessageTemplate(
           session.getMessageProxyServiceConfig().getClaimEntityTemplate());
       ClaimEntityTemplateData entityTemplateData =
-          new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, host, header,
-              symUser.getCompany(), symMessage.getMessageText());
+          new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, botHost,
+              serviceHost, agentStreamId, header, symUser.getCompany(),
+              symMessage.getMessageText());
+
       return entityTemplate.buildFromData(entityTemplateData);
     } catch (UsersClientException e) {
       LOG.error("Could not find user when creating claim message: ", e);
