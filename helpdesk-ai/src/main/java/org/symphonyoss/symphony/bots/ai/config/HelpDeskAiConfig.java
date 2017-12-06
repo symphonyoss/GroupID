@@ -8,7 +8,6 @@ public class HelpDeskAiConfig {
 
   private String groupId;
   private String agentStreamId;
-  private Long botUserId;
 
   private String defaultPrefix;
   private String agentServiceRoomPrefix;
@@ -127,11 +126,4 @@ public class HelpDeskAiConfig {
     this.groupId = groupId;
   }
 
-  public Long getBotUserId() {
-    return botUserId;
-  }
-
-  public void setBotUserId(Long botUserId) {
-    this.botUserId = botUserId;
-  }
 }

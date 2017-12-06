@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.messageproxy.message;
+package org.symphonyoss.symphony.bots.utility.message;
 
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;

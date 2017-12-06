@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.symphony.bots.utility.message.EntityBuilder;
+import org.symphonyoss.symphony.bots.utility.message.SymMessageBuilder;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.io.BufferedReader;

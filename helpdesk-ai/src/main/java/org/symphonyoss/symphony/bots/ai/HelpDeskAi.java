@@ -2,6 +2,7 @@ package org.symphonyoss.symphony.bots.ai;
 
 import static org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext.SessionType.AGENT;
 import static org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext.SessionType.AGENT_SERVICE;
+import static org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext.SessionType.CLIENT;
 
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
@@ -9,12 +10,11 @@ import org.symphonyoss.symphony.bots.ai.impl.AiCommandInterpreterImpl;
 import org.symphonyoss.symphony.bots.ai.impl.AiEventListenerImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAi;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
-import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.UsersClient;
 
@@ -44,14 +44,6 @@ public class HelpDeskAi extends SymphonyAi {
     this.aiEventListener = new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
   }
 
-  public void onAiMessage(AiSessionKey aiSessionKey, AiMessage message) {
-    HelpDeskAiSessionContext sessionContext = (HelpDeskAiSessionContext) getSessionContext(aiSessionKey);
-
-    if (!AGENT_SERVICE.equals(sessionContext.getSessionType())) {
-      super.onAiMessage(aiSessionKey, message);
-    }
-  }
-
   @Override
   public AiSessionContext newAiSessionContext(AiSessionKey aiSessionKey) {
     HelpDeskAiConfig config = helpDeskAiSession.getHelpDeskAiConfig();
@@ -65,23 +57,19 @@ public class HelpDeskAi extends SymphonyAi {
     Membership membership =
         helpDeskAiSession.getMembershipClient().getMembership(sessionKey.getUid());
 
-    if ((membership != null) && (MembershipClient.MembershipType.AGENT.getType()
-        .equals(membership.getType()))) {
-      if (membership.getId().equals(config.getBotUserId())) {
+    if ((membership != null) && (MembershipClient.MembershipType.AGENT.getType().equals(membership.getType()))) {
+      Ticket ticket =
+          helpDeskAiSession.getTicketClient().getTicketByServiceStreamId(sessionKey.getStreamId());
+      if (ticket != null) {
         sessionContext.setSessionType(AGENT_SERVICE);
       } else {
         sessionContext.setSessionType(AGENT);
       }
     } else {
-      sessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.CLIENT);
+      sessionContext.setSessionType(CLIENT);
     }
 
     return sessionContext;
   }
-
-  public void updateBotUserId(Long userId) {
-    helpDeskAiSession.getHelpDeskAiConfig().setBotUserId(userId);
-  }
-
 
 }
