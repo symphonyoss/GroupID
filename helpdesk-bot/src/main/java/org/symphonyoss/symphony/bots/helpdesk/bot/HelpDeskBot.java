@@ -203,6 +203,9 @@ public class HelpDeskBot {
     messageProxyServiceConfig.setHelpDeskBotHost(configuration.getHelpDeskBotUrl());
     messageProxyServiceConfig.setHelpDeskServiceHost(configuration.getHelpDeskServiceUrl());
     messageProxyServiceConfig.setClaimEntityHeader(configuration.getClaimEntityHeader());
+    messageProxyServiceConfig.setAgentIdleTimeValue(configuration.getAgentIdleTimeValue());
+    messageProxyServiceConfig.setAgentIdleTimeUnit(configuration.getAgentIdleTimeUnit());
+    messageProxyServiceConfig.setIdleClaimEntityHeader(configuration.getIdleClaimEntityHeader());
 
     proxyServiceSession.setMessageProxyServiceConfig(messageProxyServiceConfig);
     proxyServiceSession.setHelpDeskAi(helpDeskBotSession.getHelpDeskAi());

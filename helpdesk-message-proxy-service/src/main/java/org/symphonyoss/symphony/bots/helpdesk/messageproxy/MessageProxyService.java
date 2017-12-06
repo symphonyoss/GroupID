@@ -105,8 +105,6 @@ public class MessageProxyService implements MessageListener {
     } else {
       ticket = session.getTicketClient().getUnresolvedTicketByClientStreamId(streamId);
       if (ticket == null) {
-        createTicket(symMessage);
-        sendTicketCreationMessages(ticket);
         ticket = createTicket(symMessage);
         sendTicketCreationMessages(ticket);
         createClientProxy(ticket, aiSessionContext);
@@ -160,6 +158,7 @@ public class MessageProxyService implements MessageListener {
         sendClaimMessage(ticket, true);
       }
     });
+    messageProxy.getAgentProxyTimer().start();
     proxyMap.put(ticket.getId(), messageProxy);
     aiConversation.setProxyIdleTimer(messageProxy.getAgentProxyTimer());
     messageProxy.addProxyConversation(aiConversation);
@@ -188,12 +187,22 @@ public class MessageProxyService implements MessageListener {
    * Registering the proxy in the proxy map.
    */
   private void createClientProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
+    MessageProxyServiceConfig config = session.getMessageProxyServiceConfig();
     ProxyConversation aiConversation =
         new ProxyConversation(false, session.getClientMakerCheckerService());
     aiConversation.addProxyId(ticket.getServiceStreamId());
     session.getHelpDeskAi().startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
 
-    proxyMap.put(ticket.getId(), new MessageProxy());
+    MessageProxy messageProxy = new MessageProxy();
+    messageProxy.setAgentProxyTimer(new ProxyIdleTimer(config.getAgentIdleTimeValue(),
+        config.getAgentIdleTimeUnit()) {
+      @Override
+      public void onIdleTimeout() {
+        sendClaimMessage(ticket, true);
+      }
+    });
+    messageProxy.getAgentProxyTimer().start();
+    proxyMap.put(ticket.getId(), messageProxy);
     proxyMap.get(ticket.getId()).addProxyConversation(aiConversation);
   }
 
@@ -270,8 +279,10 @@ public class MessageProxyService implements MessageListener {
     Set<AiResponseIdentifier> aiResponseIdentifierSet = new HashSet<>();
     aiResponseIdentifierSet.add(
         new AiResponseIdentifierImpl(session.getMessageProxyServiceConfig().getAgentStreamId()));
-    aiResponseIdentifierSet.add(
-        new AiResponseIdentifierImpl(ticket.getServiceStreamId()));
+    if(!isIdle) {
+      aiResponseIdentifierSet.add(
+          new AiResponseIdentifierImpl(ticket.getServiceStreamId()));
+    }
     session.getHelpDeskAi().sendMessage(aiMessage, aiResponseIdentifierSet, sessionKey);
   }
 

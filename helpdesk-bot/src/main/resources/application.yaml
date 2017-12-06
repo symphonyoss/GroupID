@@ -49,6 +49,9 @@ claimEntityTemplate:
 claimEntityHeader: "<b>Equities Desk Bot</b>"
 idleClaimEntityHeader: "<b>Equities Desk Bot</b> <br> A client has not been serviced for an extended period of time."
 
+agentIdleTimeValue: "1"
+agentIdleTimeUnit: "HOURS"
+
 makerCheckerMessageTemplate:
   "<div class=\"entity\" data-entity-id=\"makerchecker\">
     <card class=\"barStyle\">
