@@ -8,7 +8,7 @@ const rejectPromise = (error) => {
 };
 
 export const claimTicket = (data) => {
-  const apiUrl = `${data.entity.url}`;
+  const apiUrl = `${data.entity.claimUrl}`;
   return getUserId().then((userId) => {
     const idUser = userId;
     return axios({
@@ -21,12 +21,13 @@ export const claimTicket = (data) => {
   }).catch(error => rejectPromise(error));
 };
 
-export const getTicket = (ticketId) => {
-  const apiUrl = `/v1/ticket/${ticketId}/get`;
+export const getTicket = (data) => {
+  const apiUrl = `${data.ticketUrl}`;
   return axios({
     method: 'get',
     url: apiUrl,
-  }).catch(error => rejectPromise(error));
+  })
+  .catch(error => rejectPromise(error));
 };
 
 export const approveAttachment = (messageAttachment) => {

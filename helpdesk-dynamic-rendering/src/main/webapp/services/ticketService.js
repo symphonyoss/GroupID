@@ -29,19 +29,7 @@ export default class TicketService {
       });
   }
 
-  getTicket(ticketId) {
-    return getTicket(ticketId)
-      .catch((error) => {
-        switch (error.message) {
-          // TODO APP-1477 To map all errors from API
-          case '': {
-            break;
-          }
-          default: {
-            // TODO APP-1477
-            break;
-          }
-        }
-      });
+  getTicket(data) {
+    return getTicket(data);
   }
 }
