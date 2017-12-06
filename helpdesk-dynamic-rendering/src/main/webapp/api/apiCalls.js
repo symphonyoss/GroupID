@@ -27,8 +27,7 @@ export const getTicket = (data) => {
     method: 'get',
     url: apiUrl,
   })
-  .catch(error =>
-    rejectPromise(error));
+  .catch(error => rejectPromise(error));
 };
 
 export const approveAttachment = (messageAttachment) => {
