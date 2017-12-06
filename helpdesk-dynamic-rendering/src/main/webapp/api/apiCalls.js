@@ -21,8 +21,8 @@ export const claimTicket = (data) => {
   }).catch(error => rejectPromise(error));
 };
 
-export const getTicket = (data) => {
-  const apiUrl = `${data.ticketUrl}`;
+export const getTicket = (ticketUrl) => {
+  const apiUrl = `${ticketUrl}`;
   return axios({
     method: 'get',
     url: apiUrl,

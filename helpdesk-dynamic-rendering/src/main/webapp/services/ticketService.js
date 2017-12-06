@@ -29,7 +29,7 @@ export default class TicketService {
       });
   }
 
-  getTicket(data) {
-    return getTicket(data);
+  getTicket(ticketUrl) {
+    return getTicket(ticketUrl);
   }
 }
