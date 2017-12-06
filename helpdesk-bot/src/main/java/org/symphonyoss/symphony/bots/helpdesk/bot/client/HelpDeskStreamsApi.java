@@ -8,6 +8,7 @@ import org.symphonyoss.symphony.pod.model.V3RoomAttributes;
 import org.symphonyoss.symphony.pod.model.V3RoomDetail;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,25 +30,29 @@ public class HelpDeskStreamsApi extends StreamsApi {
   }
 
   public V3RoomDetail v3RoomCreatePost(V3RoomAttributes payload, String sessionToken) throws ApiException {
-    if(payload == null) {
-      throw new ApiException(400, "Missing the required parameter \'payload\' when calling v4RoomCreatePost");
-    } else if(sessionToken == null) {
-      throw new ApiException(400, "Missing the required parameter \'sessionToken\' when calling v2RoomCreatePost");
-    } else {
-      String path = "/v3/room/create".replaceAll("\\{format\\}", "json");
+    validatePayload(payload);
+    validateSessionToken(sessionToken);
 
-      List<Pair> queryParams = new ArrayList<>();
-      Map<String, String> headerParams = new HashMap<>();
-      Map<String, Object> formParams = new HashMap<>();
+    String path = "/v3/room/create";
 
-      if(sessionToken != null) {
-        headerParams.put("sessionToken", this.apiClient.parameterToString(sessionToken));
-      }
+    Map<String, String> headerParams =
+        Collections.singletonMap("sessionToken", this.apiClient.parameterToString(sessionToken));
 
-      GenericType<V3RoomDetail> returnType = new GenericType<V3RoomDetail>() {};
+    GenericType<V3RoomDetail> returnType = new GenericType<V3RoomDetail>() {};
 
-      return this.apiClient.invokeAPI(path, "POST", queryParams, payload, headerParams, formParams,
-          MEDIA_TYPE, MEDIA_TYPE, new String[] {}, returnType);
+    return this.apiClient.invokeAPI(path, "POST", Collections.emptyList(), payload, headerParams,
+        Collections.emptyMap(), MEDIA_TYPE, MEDIA_TYPE, new String[] {}, returnType);
+  }
+
+  private void validatePayload(V3RoomAttributes payload) throws ApiException {
+    if (payload == null) {
+      throw new ApiException(400, "Missing the required parameter \'payload\' when calling v3RoomCreatePost");
+    }
+  }
+
+  private void validateSessionToken(String sessionToken) throws ApiException {
+    if (sessionToken == null) {
+      throw new ApiException(400, "Missing the required parameter \'sessionToken\' when calling v3RoomCreatePost");
     }
   }
 
