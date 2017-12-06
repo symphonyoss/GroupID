@@ -244,7 +244,7 @@ public class MessageProxyService implements MessageListener {
     Room room = null;
     try {
       room = session.getSymphonyClient().getRoomService().createRoom(roomAttributes);
-      LOG.info("Created new room: " + room.toString());
+      LOG.info("Created new room: " + roomAttributes.getName());
     } catch (RoomException e) {
       LOG.error("Create room failed: ", e);
     }
@@ -285,7 +285,10 @@ public class MessageProxyService implements MessageListener {
       SymUser symUser = usersClient.getUserFromId(fromUserId);
 
       String username = symUser.getDisplayName();
-      String host = session.getMessageProxyServiceConfig().getHelpDeskBotHost();
+      String botHost = session.getMessageProxyServiceConfig().getHelpDeskBotHost();
+      String serviceHost = session.getMessageProxyServiceConfig().getHelpDeskServiceHost();
+      String agentStreamId = session.getMessageProxyServiceConfig().getAgentStreamId();
+
       String header = session.getMessageProxyServiceConfig().getClaimEntityHeader();
       if(isIdle) {
         header = session.getMessageProxyServiceConfig().getIdleClaimEntityHeader();
@@ -294,8 +297,10 @@ public class MessageProxyService implements MessageListener {
       MessageTemplate entityTemplate = new MessageTemplate(
           session.getMessageProxyServiceConfig().getClaimEntityTemplate());
       ClaimEntityTemplateData entityTemplateData =
-          new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, host, header,
-              symUser.getCompany(), question);
+          new ClaimEntityTemplateData(ticket.getId(), ticket.getState(), username, botHost,
+              serviceHost, agentStreamId, header, symUser.getCompany(),
+              question);
+
       return entityTemplate.buildFromData(entityTemplateData);
     } catch (UsersClientException e) {
       LOG.error("Could not find user when creating claim message: ", e);

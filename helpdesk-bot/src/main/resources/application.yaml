@@ -27,9 +27,11 @@ claimEntityTemplate:
       \"helpdesk\": {
         \"type\": \"com.symphony.bots.helpdesk.event.ticket\",
         \"version\": \"1.0\",
-        \"url\": \"{HOST}/v1/ticket/{TICKET_ID}/accept\",
+        \"claimUrl\": \"{BOT_HOST}/v1/ticket/{TICKET_ID}/accept\",
+        \"ticketUrl\": \"{SERVICE_HOST}/v1/ticket/{TICKET_ID}\",
         \"ticketId\": \"{TICKET_ID}\",
         \"state\": \"{TICKET_STATE}\",
+        \"streamId\": \"{STREAM_ID}\",
         \"user\": {
            \"displayName\": \"{USER_NAME}\"
         },

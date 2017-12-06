@@ -12,7 +12,9 @@ public class ClaimEntityTemplateData extends TemplateData {
     TICKET_ID("TICKET_ID"),
     TICKET_STATE("TICKET_STATE"),
     USER_NAME("USER_NAME"),
-    HOST("HOST"),
+    BOT_HOST("BOT_HOST"),
+    SERVICE_HOST("SERVICE_HOST"),
+    STREAM_ID("STREAM_ID"),
     HEADER("HEADER"),
     COMPANY("COMPANY"),
     QUESTION("QUESTION");
@@ -26,12 +28,15 @@ public class ClaimEntityTemplateData extends TemplateData {
     }
   }
 
-  public ClaimEntityTemplateData(String ticketId, String ticketState, String username, String
-      host, String header, String company, String question) {
+  public ClaimEntityTemplateData(String ticketId, String ticketState, String username,
+      String botHost, String serviceHost, String streamId, String header, String company,
+      String question) {
     addData(ReplacementEnums.TICKET_ID.getReplacement(), ticketId);
     addData(ReplacementEnums.TICKET_STATE.getReplacement(), ticketState);
     addData(ReplacementEnums.USER_NAME.getReplacement(), username);
-    addData(ReplacementEnums.HOST.getReplacement(), host);
+    addData(ReplacementEnums.BOT_HOST.getReplacement(), botHost);
+    addData(ReplacementEnums.SERVICE_HOST.getReplacement(), serviceHost);
+    addData(ReplacementEnums.STREAM_ID.getReplacement(), streamId);
     addData(ReplacementEnums.HEADER.getReplacement(), header);
     addData(ReplacementEnums.COMPANY.getReplacement(), company);
     addData(ReplacementEnums.QUESTION.getReplacement(), question);

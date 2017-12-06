@@ -9,6 +9,7 @@ public class MessageProxyServiceConfig {
   private String groupId;
   private String agentStreamId;
   private String helpDeskBotHost;
+  private String helpDeskServiceHost;
   private String claimMessageTemplate;
   private String claimEntityTemplate;
   private String claimEntityHeader;
@@ -63,6 +64,14 @@ public class MessageProxyServiceConfig {
 
   public void setHelpDeskBotHost(String helpDeskBotHost) {
     this.helpDeskBotHost = helpDeskBotHost;
+  }
+
+  public String getHelpDeskServiceHost() {
+    return helpDeskServiceHost;
+  }
+
+  public void setHelpDeskServiceHost(String helpDeskServiceHost) {
+    this.helpDeskServiceHost = helpDeskServiceHost;
   }
 
   public String getClaimEntityHeader() {
