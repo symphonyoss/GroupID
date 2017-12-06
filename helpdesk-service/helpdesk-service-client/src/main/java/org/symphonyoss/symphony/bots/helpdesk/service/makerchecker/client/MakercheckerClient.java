@@ -12,6 +12,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
  */
 public class MakercheckerClient {
   public enum AttachmentStateType {
+
     OPENED("OPENED"),
     APPROVED("APPROVED"),
     DENIED("DENIED");
@@ -27,16 +28,17 @@ public class MakercheckerClient {
     }
   }
 
+
+  private final String groupId;
+
+  private final MakercheckerApi makercheckerApi;
+
   public MakercheckerClient(String groupId, String ticketServiceUrl) {
     ApiClient apiClient = Configuration.getDefaultApiClient();
     apiClient.setBasePath(ticketServiceUrl);
     makercheckerApi = new MakercheckerApi(apiClient);
     this.groupId = groupId;
   }
-
-  private MakercheckerApi makercheckerApi;
-
-  private String groupId;
 
   public Makerchecker getMakerchecker(String id) {
     try {
@@ -46,12 +48,13 @@ public class MakercheckerClient {
     }
   }
 
-  public Makerchecker createMakerchecker(String id, String agentId, String roomId, String ownerId) {
+  public Makerchecker createMakerchecker(String id, String makerId, String streamId,
+      String checkerId) {
     Makerchecker makerchecker = new Makerchecker();
     makerchecker.setState(AttachmentStateType.OPENED.getState());
-    makerchecker.setAgentId(agentId);
-    makerchecker.setRoomId(roomId);
-    makerchecker.setOwnerId(ownerId);
+    makerchecker.setCheckerId(checkerId);
+    makerchecker.setStreamId(streamId);
+    makerchecker.setMakerId(makerId);
     makerchecker.setId(id);
 
     try {

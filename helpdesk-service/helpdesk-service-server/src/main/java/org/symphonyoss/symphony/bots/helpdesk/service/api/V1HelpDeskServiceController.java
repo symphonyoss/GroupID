@@ -33,16 +33,6 @@ public class V1HelpDeskServiceController extends V1ApiController {
   private MakercheckerDao makercheckerDao;
 
   @Override
-  public Makerchecker createMakerchecker(Makerchecker makerchecker) {
-    validateRequiredParameter("id", makerchecker.getId(),"body");
-    validateRequiredParameter("ownerId", makerchecker.getOwnerId(),"body");
-    validateRequiredParameter("roomId", makerchecker.getRoomId(),"body");
-    validateRequiredParameter("state", makerchecker.getState(),"body");
-
-    return makercheckerDao.createMakerchecker(makerchecker);
-  }
-
-  @Override
   public Membership createMembership(Membership membership) {
     validateRequiredParameter("groupId", membership.getGroupId(), "body");
     validateRequiredParameter("id", membership.getId(), "body");
@@ -82,15 +72,13 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public Makerchecker getMakerchecker(String id) { return makercheckerDao.getMakerchecker(id); }
-
-  @Override
   public Ticket getTicket(String id) {
     return ticketDao.getTicket(id);
   }
 
   @Override
-  public TicketSearchResponse searchTicket(String groupId, String serviceRoomId, String clientStreamId) {
+  public TicketSearchResponse searchTicket(String groupId, String serviceRoomId,
+      String clientStreamId) {
     validateRequiredParameter("groupId", groupId, "parameters");
 
     List<Ticket> tickets = ticketDao.searchTicket(groupId, serviceRoomId, clientStreamId);
@@ -106,12 +94,32 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public Makerchecker updateMakerchecker(String id, Makerchecker makerchecker) {
-    return makercheckerDao.updateMakerchecker(id, makerchecker);
+  public Ticket updateTicket(String id, Ticket ticket) {
+    return ticketDao.updateTicket(id, ticket);
   }
 
   @Override
-  public Ticket updateTicket(String id, Ticket ticket) {
-    return ticketDao.updateTicket(id, ticket);
+  public Makerchecker createMakerchecker(Makerchecker makerchecker) {
+    validateRequiredParameter("id", makerchecker.getId(), "body");
+    validateRequiredParameter("makerId", makerchecker.getMakerId(), "body");
+    validateRequiredParameter("streamId", makerchecker.getStreamId(), "body");
+    validateRequiredParameter("state", makerchecker.getState(), "body");
+
+    return makercheckerDao.createMakerchecker(makerchecker);
+  }
+
+  @Override
+  public Makerchecker getMakerchecker(String id) {
+    return makercheckerDao.getMakerchecker(id);
+  }
+
+  @Override
+  public Makerchecker updateMakerchecker(String id, Makerchecker makerchecker) {
+    validateRequiredParameter("id", makerchecker.getId(), "body");
+    validateRequiredParameter("makerId", makerchecker.getMakerId(), "body");
+    validateRequiredParameter("streamId", makerchecker.getStreamId(), "body");
+    validateRequiredParameter("checkerId", makerchecker.getCheckerId()  , "body");
+    validateRequiredParameter("state", makerchecker.getState(), "body");
+    return makercheckerDao.updateMakerchecker(id, makerchecker);
   }
 }

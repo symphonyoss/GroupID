@@ -24,6 +24,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMaker
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Agent;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -48,11 +49,14 @@ public class V1HelpDeskController extends V1ApiController {
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
   private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
   private static final String NO_MAKER_CHECKER_TYPE = "No checker type can support this maker checker message.";
+  private static final String MAKER_CHECKER_NOT_FOUND = "Makerchecker not found.";
 
   @Autowired
   private TicketClient ticketClient;
   @Autowired
   private SymphonyValidationUtil symphonyValidationUtil;
+  @Autowired
+  private MakercheckerClient makercheckerClient;
 
   /**
    * Accepts a ticket.
@@ -208,7 +212,15 @@ public class V1HelpDeskController extends V1ApiController {
 
     makerCheckerResponse.setUser(user);
     makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
-    
+
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
+    if(makerchecker == null) {
+      throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
+    }
+    makerchecker.setCheckerId(detail.getUserId().toString());
+    makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
+    makercheckerClient.updateMakerchecker(makerchecker);
+
     return makerCheckerResponse;
   }
 

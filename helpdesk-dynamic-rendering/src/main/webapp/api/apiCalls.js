@@ -52,7 +52,7 @@ export const denyAttachment = (messageAttachment) => {
 };
 
 export const searchAttachment = (attachmentId) => {
-  const apiUrl = `/v1/makerchecker/searchAttachment/${attachmentId}`;
+  const apiUrl = `/v1/makerchecker/get/${attachmentId}`;
   return axios({
     method: 'get',
     url: apiUrl,

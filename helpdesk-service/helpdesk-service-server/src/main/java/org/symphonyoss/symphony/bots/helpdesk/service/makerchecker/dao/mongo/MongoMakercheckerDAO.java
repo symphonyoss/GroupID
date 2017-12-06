@@ -55,7 +55,7 @@ public class MongoMakercheckerDAO implements MakercheckerDao {
     }
 
     try {
-      saved.setAgentId(makerchecker.getAgentId());
+      saved.setMakerId(makerchecker.getMakerId());
       saved.setState(makerchecker.getState());
       this.mongoTemplate.save(saved, COLLECTION_NAME);
       return makerchecker;

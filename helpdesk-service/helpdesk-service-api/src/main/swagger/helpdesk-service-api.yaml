@@ -274,6 +274,15 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Makerchecker'
+        '400':
+          description: BAD REQUEST |
+            Invalid stream id.
+            Invald maker id.
+            Invalid id.
+            Invalid state.
+            Required parameter was not provided.
+          schema:
+            $ref: '#/definitions/Error'
         '500':
           description: INTERNAL SERVER ERROR
           schema:
@@ -294,6 +303,10 @@ paths:
         responses:
           '200':
             description: OK
+            schema:
+              $ref: '#/definitions/Makerchecker'
+          '204':
+            description: MAKERCHECKER NOT FOUND
             schema:
               $ref: '#/definitions/Makerchecker'
           '500':
@@ -324,6 +337,16 @@ paths:
             description: OK
             schema:
               $ref: '#/definitions/Makerchecker'
+          '400':
+            description: BAD REQUEST |
+              Invalid stream id.
+              Invald maker id.
+              Invalid checker id.
+              Invalid id.
+              Invalid state.
+              Required parameter was not provided.
+            schema:
+              $ref: '#/definitions/Error'
           '500':
             description: INTERNAL SERVER ERROR
             schema:
@@ -390,11 +413,15 @@ definitions:
       properties:
         id:
           type: string
-        ownerId:
+        makerId:
           type: string
-        agentId:
+          description: |
+            The id of agent who send an attachment
+        checkerId:
           type: string
-        roomId:
+          description: |
+            The id of agent who approved/denied an attachment
+        streamId:
           type: string
         state:
           type: string
