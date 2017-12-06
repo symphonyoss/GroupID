@@ -3,6 +3,7 @@ import actionFactory from '../utils/actionFactory';
 import TicketService from '../services/ticketService';
 
 const actions = require('../templates/claimTicketActions.hbs');
+const error = require('../templates/error.hbs');
 
 const enricherServiceName = 'helpdesk-enricher';
 const messageEvents = [
@@ -21,7 +22,20 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    return this.services.ticketService.getTicket(entity).then((rsp) => {
+    if (entity.ticketUrl === undefined) {
+      const data = actionFactory([], enricherServiceName, entity);
+
+      const result = {
+        template: error({ message: 'Cannot retrieve ticket state.' }),
+        data,
+        enricherInstanceId: entity.ticketId,
+      };
+
+      return result;
+    }
+
+    return this.services.ticketService.getTicket(entity.ticketUrl).then((rsp) => {
+      const displayName = rsp.data.agent && rsp.data.agent.displayName ? rsp.data.agent.displayName : '';
       const claimTicketAction = {
         id: 'claimTicket',
         service: enricherServiceName,
@@ -29,7 +43,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         label: 'Claim',
         enricherInstanceId: entity.ticketId,
         show: rsp.data.state === 'UNSERVICED',
-        userName: rsp.data.agent.displayName,
+        userName: displayName,
       };
 
       const data = actionFactory([claimTicketAction], enricherServiceName, entity);
