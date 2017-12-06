@@ -10,21 +10,17 @@ import org.symphonyoss.client.services.MessageListener;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
-import org.symphonyoss.symphony.bots.ai.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.MessageProxyServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.ClaimEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxyServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
-import org.symphonyoss.symphony.bots.helpdesk.service.ticket.util.SymphonyTicketUtil;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -105,6 +101,11 @@ public class MessageProxyService implements MessageListener {
     } else {
       ticket = session.getTicketClient().getUnresolvedTicketByClientStreamId(streamId);
       if (ticket == null) {
+        String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
+        ticket = session.getTicketClient()
+            .createTicket(ticketId, streamId, newServiceStream(ticketId, streamId),
+                Long.parseLong(symMessage.getTimestamp()));
+        sendTicketCreationMessages(ticket, symMessage);
         ticket = createTicket(symMessage);
         sendTicketCreationMessages(ticket);
         createClientProxy(ticket, aiSessionContext);

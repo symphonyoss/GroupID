@@ -60,22 +60,26 @@ public class SymphonyAiResponder extends AiResponderImpl {
 
     for (AiResponseIdentifier respond : response.keySet()) {
       SymphonyAiMessage symphonyAiMessage = response.get(respond);
-      String message = "<messageML>" + symphonyAiMessage.getAiMessage() + "</messageML>";
-      SymMessage symMessage = new SymMessage();
-      symMessage.setMessage(message);
-      symMessage.setEntityData(symphonyAiMessage.getEntityData());
-      symMessage.setAttachments(symphonyAiMessage.getAttachments());
-
-      SymStream stream = new SymStream();
-      stream.setStreamId(respond.getResponseIdentifier());
-      try {
-        messagesClient.sendMessage(stream, symMessage);
-      } catch (MessagesException e) {
-        LOG.error("Ai could not send message: ", e);
-      }
+      publishMessage(respond, symphonyAiMessage);
     }
 
     responseMap.put(sessionContext, new HashSet<>());
+  }
+
+  protected void publishMessage(AiResponseIdentifier respond, SymphonyAiMessage symphonyAiMessage) {
+    String message = "<messageML>" + symphonyAiMessage.getAiMessage() + "</messageML>";
+    SymMessage symMessage = new SymMessage();
+    symMessage.setMessage(message);
+    symMessage.setEntityData(symphonyAiMessage.getEntityData());
+    symMessage.setAttachments(symphonyAiMessage.getAttachments());
+
+    SymStream stream = new SymStream();
+    stream.setStreamId(respond.getResponseIdentifier());
+    try {
+      messagesClient.sendMessage(stream, symMessage);
+    } catch (MessagesException e) {
+      LOG.error("Ai could not send message: ", e);
+    }
   }
 
   /**
