@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.TicketMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -25,8 +26,6 @@ public class TicketService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketService.class);
 
-  private static final String HELPDESK_BOT_CONTEXT = "helpdesk-bot";
-
   private static final String TICKET_HEADER = "Equities Desk Bot";
 
   private final String agentStreamId;
@@ -37,12 +36,16 @@ public class TicketService {
 
   private final UsersClient usersClient;
 
+  private final HelpDeskBotInfo helpDeskBotInfo;
+
   private final HelpDeskServiceInfo helpDeskServiceInfo;
 
   public TicketService(@Value("${agentStreamId}") String agentStreamId, TicketClient ticketClient,
-      SymphonyClient symphonyClient, HelpDeskServiceInfo helpDeskServiceInfo) {
+      SymphonyClient symphonyClient, HelpDeskBotInfo helpDeskBotInfo,
+      HelpDeskServiceInfo helpDeskServiceInfo) {
     this.agentStreamId = agentStreamId;
     this.ticketClient = ticketClient;
+    this.helpDeskBotInfo = helpDeskBotInfo;
     this.helpDeskServiceInfo = helpDeskServiceInfo;
     this.messagesClient = symphonyClient.getMessagesClient();
     this.usersClient = symphonyClient.getUsersClient();
@@ -70,9 +73,12 @@ public class TicketService {
 
     TicketMessageBuilder builder = new TicketMessageBuilder();
 
-    builder.host(helpDeskServiceInfo.getUrl(HELPDESK_BOT_CONTEXT));
+    builder.botHost(helpDeskBotInfo.getUrl());
+    builder.serviceHost(helpDeskServiceInfo.getUrl());
+
     builder.ticketId(ticket.getId());
     builder.ticketState(ticket.getState());
+    builder.streamId(agentStreamId);
 
     builder.header(TICKET_HEADER);
 

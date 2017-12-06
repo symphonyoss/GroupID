@@ -183,35 +183,21 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse acceptMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
-    HelpDeskBotSession botSession = sessionManager.getSession(detail.getGroupId());
+
+    validateRequiredParameter("streamId", detail.getStreamId(), "body");
+    validateRequiredParameter("groupId", detail.getGroupId(), "body");
+    validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");
+    validateRequiredParameter("timestamp", detail.getTimeStamp(), "body");
+    validateRequiredParameter("messageId", detail.getMessageId(), "body");
+    validateRequiredParameter("userId", detail.getUserId(), "body");
 
     SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+    sendAcceptMarkerChekerMessages(detail);
 
-    if (StringUtils.isNotBlank(detail.getAttachmentId())) {
-      AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
-      checkerMessage.setAttachmentId(detail.getAttachmentId());
-      checkerMessage.setGroupId(detail.getGroupId());
-      checkerMessage.setMessageId(detail.getMessageId());
-      checkerMessage.setStreamId(detail.getStreamId());
-      checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
-      checkerMessage.setTimeStamp(detail.getTimeStamp());
-      checkerMessage.setType(detail.getType());
+    return buildMakerCheckerResponse(agentUser, detail);
+  }
 
-      Set<SymMessage> symMessages =
-          botSession.getAgentMakerCheckerService().getAcceptMessages(checkerMessage);
-      AiSessionKey aiSessionKey =
-          botSession.getHelpDeskAi().getSessionKey(detail.getUserId(), detail.getStreamId());
-      for (SymMessage symMessage : symMessages) {
-        SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
-        Set<AiResponseIdentifier> identifiers = new HashSet<>();
-        identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
-        botSession.getHelpDeskAi().sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
-      }
-    } else {
-      throw new BadRequestException(NO_MAKER_CHECKER_TYPE);
-    }
-
+  private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser, MakerCheckerMessageDetail detail) {
     MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
     makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
     makerCheckerResponse.setMakerCheckerMessageDetail(detail);
@@ -221,7 +207,31 @@ public class V1HelpDeskController extends V1ApiController {
     user.setUserId(detail.getUserId());
 
     makerCheckerResponse.setUser(user);
-
     return makerCheckerResponse;
+  }
+
+  private void sendAcceptMarkerChekerMessages(MakerCheckerMessageDetail detail) {
+    AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
+    checkerMessage.setAttachmentId(detail.getAttachmentId());
+    checkerMessage.setGroupId(detail.getGroupId());
+    checkerMessage.setMessageId(detail.getMessageId());
+    checkerMessage.setStreamId(detail.getStreamId());
+    checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
+    checkerMessage.setTimeStamp(detail.getTimeStamp());
+    checkerMessage.setType(detail.getType());
+
+    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
+    HelpDeskBotSession botSession = sessionManager.getSession(detail.getGroupId());
+
+    Set<SymMessage> symMessages =
+        botSession.getAgentMakerCheckerService().getAcceptMessages(checkerMessage);
+    AiSessionKey aiSessionKey =
+        botSession.getHelpDeskAi().getSessionKey(detail.getUserId(), detail.getStreamId());
+    for (SymMessage symMessage : symMessages) {
+      SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
+      Set<AiResponseIdentifier> identifiers = new HashSet<>();
+      identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+      botSession.getHelpDeskAi().sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
+    }
   }
 }

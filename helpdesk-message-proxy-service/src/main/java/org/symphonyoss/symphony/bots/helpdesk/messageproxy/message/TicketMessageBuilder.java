@@ -34,7 +34,11 @@ public class TicketMessageBuilder {
 
   private final SymMessageBuilder messageBuilder;
 
-  private String host;
+  private String botHost;
+
+  private String serviceHost;
+
+  private String streamId;
 
   private String ticketId;
 
@@ -69,8 +73,18 @@ public class TicketMessageBuilder {
     return message.toString();
   }
 
-  public TicketMessageBuilder host(String host) {
-    this.host = host;
+  public TicketMessageBuilder botHost(String host) {
+    this.botHost = host;
+    return this;
+  }
+
+  public TicketMessageBuilder serviceHost(String host) {
+    this.serviceHost = host;
+    return this;
+  }
+
+  public TicketMessageBuilder streamId(String streamId) {
+    this.streamId = streamId;
     return this;
   }
 
@@ -121,11 +135,15 @@ public class TicketMessageBuilder {
 
       EntityBuilder bodyBuilder = EntityBuilder.createEntity(BASE_TICKET_EVENT, VERSION);
 
-      String url = String.format("%s/v1/ticket/%s/accept", host, ticketId);
-      bodyBuilder.addField("url", url);
+      String claimUrl = String.format("%s/v1/ticket/%s/accept", botHost, ticketId);
+      bodyBuilder.addField("claimUrl", claimUrl);
+
+      String ticketUrl = String.format("%s/v1/ticket/%s", serviceHost, ticketId);
+      bodyBuilder.addField("ticketUrl", ticketUrl);
 
       bodyBuilder.addField("ticketId", ticketId);
       bodyBuilder.addField("state", ticketState);
+      bodyBuilder.addField("streamId", streamId);
       bodyBuilder.addField("user", userBuilder.toObject());
       bodyBuilder.addField("message", ticketMessageBuilder.toObject());
 
