@@ -163,10 +163,12 @@ public class MessageProxyService {
   }
 
   private void sendIdleMessage(Ticket ticket) {
+    String ticketMessage = String.format("Ticket #%s %s", ticket.getId(), idleTicketConfig.getMessage());
+
     SymMessage message = new SymMessage();
-    message.setMessage(idleTicketConfig.getMessage());
+    message.setMessage(ticketMessage);
 
     ticketService.sendIdleMessageToAgentStreamId(message);
   }
-
+  
 }
