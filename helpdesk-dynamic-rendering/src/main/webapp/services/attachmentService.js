@@ -1,4 +1,8 @@
 import { approveAttachment, denyAttachment, searchAttachment } from '../api/apiCalls';
+import { errorTypes } from '../utils/errorTypes';
+import { componentTypes } from '../utils/componentTypes';
+import messageByCode from '../errorMessages/messageByCode';
+import messages from '../errorMessages/messages';
 
 export default class AttachmentService {
   constructor(serviceName) {
@@ -9,14 +13,10 @@ export default class AttachmentService {
   approve(message) {
     return approveAttachment(message)
       .catch((error) => {
-        switch (error.message) {
-          case '': {
-            break;
-          }
-          default: {
-            break;
-          }
-        }
+        const messageText = error.code ? messageByCode[error.code]
+          : messages.PERFORM_ACTION_ERROR;
+        this.errorBanner.setChatBanner(message.streamId, componentTypes.CHAT,
+          messageText, errorTypes.ERROR);
       });
   }
 
