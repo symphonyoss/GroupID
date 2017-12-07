@@ -6,27 +6,7 @@ export default class TicketService {
   }
 
   claim(data) {
-    return claimTicket(data)
-      .catch((error) => {
-        switch (error.message) {
-          case '400': {
-            // TODO APP-1455
-            break;
-          }
-          case '401': {
-            // TODO APP-1455
-            break;
-          }
-          case '404': {
-            // TODO APP-1455
-            break;
-          }
-          default: {
-            // TODO APP-1455
-            break;
-          }
-        }
-      });
+    return claimTicket(data);
   }
 
   getTicket(ticketUrl) {

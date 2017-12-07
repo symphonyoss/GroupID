@@ -88,6 +88,25 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         userName: dataUpdate.claimTicket.data.userName });
 
       entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
+    }).catch((error) => {
+      switch (error.message) {
+        case '400': {
+          // TODO APP-1455
+          break;
+        }
+        case '401': {
+          // TODO APP-1455
+          break;
+        }
+        case '404': {
+          // TODO APP-1455
+          break;
+        }
+        default: {
+          // TODO APP-1455
+          break;
+        }
+      }
     });
   }
 }
