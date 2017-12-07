@@ -2,7 +2,9 @@ package org.symphonyoss.symphony.bots.helpdesk.service.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.MakercheckerDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.MembershipDao;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.SuccessResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -26,6 +28,9 @@ public class V1HelpDeskServiceController extends V1ApiController {
 
   @Autowired
   private TicketDao ticketDao;
+
+  @Autowired
+  private MakercheckerDao makercheckerDao;
 
   @Override
   public Membership createMembership(Membership membership) {
@@ -72,7 +77,8 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public TicketSearchResponse searchTicket(String groupId, String serviceRoomId, String clientStreamId) {
+  public TicketSearchResponse searchTicket(String groupId, String serviceRoomId,
+      String clientStreamId) {
     validateRequiredParameter("groupId", groupId, "parameters");
 
     List<Ticket> tickets = ticketDao.searchTicket(groupId, serviceRoomId, clientStreamId);
@@ -90,5 +96,30 @@ public class V1HelpDeskServiceController extends V1ApiController {
   @Override
   public Ticket updateTicket(String id, Ticket ticket) {
     return ticketDao.updateTicket(id, ticket);
+  }
+
+  @Override
+  public Makerchecker createMakerchecker(Makerchecker makerchecker) {
+    validateRequiredParameter("id", makerchecker.getId(), "body");
+    validateRequiredParameter("makerId", makerchecker.getMakerId(), "body");
+    validateRequiredParameter("streamId", makerchecker.getStreamId(), "body");
+    validateRequiredParameter("state", makerchecker.getState(), "body");
+
+    return makercheckerDao.createMakerchecker(makerchecker);
+  }
+
+  @Override
+  public Makerchecker getMakerchecker(String id) {
+    return makercheckerDao.getMakerchecker(id);
+  }
+
+  @Override
+  public Makerchecker updateMakerchecker(String id, Makerchecker makerchecker) {
+    validateRequiredParameter("id", makerchecker.getId(), "body");
+    validateRequiredParameter("makerId", makerchecker.getMakerId(), "body");
+    validateRequiredParameter("streamId", makerchecker.getStreamId(), "body");
+    validateRequiredParameter("checkerId", makerchecker.getCheckerId()  , "body");
+    validateRequiredParameter("state", makerchecker.getState(), "body");
+    return makercheckerDao.updateMakerchecker(id, makerchecker);
   }
 }

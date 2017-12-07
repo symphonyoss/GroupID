@@ -255,6 +255,104 @@ paths:
             $ref: '#/definitions/Error'
       tags:
         - Membership
+  '/v1/makerchecker':
+    post:
+      summary: Create a makerchecker.
+      operationId: createMakerchecker
+      parameters:
+        - name: makerchecker
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Makerchecker'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/Makerchecker'
+        '400':
+          description: BAD REQUEST |
+            Invalid stream id.
+            Invald maker id.
+            Invalid id.
+            Invalid state.
+            Required parameter was not provided.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - Makerchecker
+  '/v1/makerchecker/{id}':
+      get:
+        summary: Get a makerchecker.
+        operationId: getMakerchecker
+        parameters:
+          - name: id
+            in: path
+            required: true
+            type: string
+        produces:
+          - application/json
+        responses:
+          '200':
+            description: OK
+            schema:
+              $ref: '#/definitions/Makerchecker'
+          '204':
+            description: MAKERCHECKER NOT FOUND
+            schema:
+              $ref: '#/definitions/Makerchecker'
+          '500':
+            description: INTERNAL SERVER ERROR
+            schema:
+              $ref: '#/definitions/Error'
+        tags:
+          - Makerchecker
+      put:
+        summary: Update a makerchecker.
+        operationId: updateMakerchecker
+        parameters:
+          - name: id
+            in: path
+            required: true
+            type: string
+          - name: makerchecker
+            in: body
+            required: true
+            schema:
+              $ref: '#/definitions/Makerchecker'
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        responses:
+          '200':
+            description: OK
+            schema:
+              $ref: '#/definitions/Makerchecker'
+          '400':
+            description: BAD REQUEST |
+              Invalid stream id.
+              Invald maker id.
+              Invalid checker id.
+              Invalid id.
+              Invalid state.
+              Required parameter was not provided.
+            schema:
+              $ref: '#/definitions/Error'
+          '500':
+            description: INTERNAL SERVER ERROR
+            schema:
+              $ref: '#/definitions/Error'
+        tags:
+          - Makerchecker
 definitions:
   Error:
     type: object
@@ -310,3 +408,24 @@ definitions:
         format: int64
       displayName:
         type: string
+  Makerchecker:
+      type: object
+      properties:
+        id:
+          type: string
+        makerId:
+          type: integer
+          format: int64
+          description: |
+            The id of agent who send an attachment
+        checkerId:
+          type: integer
+          format: int64
+          description: |
+            The id of agent who approved/denied an attachment
+        streamId:
+          type: string
+        state:
+          type: string
+          description: |
+            Accepted states - OPENED, APPROVED, DENIED
