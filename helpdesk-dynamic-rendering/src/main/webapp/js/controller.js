@@ -10,7 +10,7 @@ const controllerName = 'helpdesk:controller';
 const registerApp = () => {
   claimTicketEnricher.init();
   attachmentEnricher.init();
-  return SYMPHONY.application.register(appId, ['ui', 'entity', 'extended-user-service'], [controllerName, claimTicketEnricher.name, attachmentEnricher.name]);
+  return SYMPHONY.application.register(appId, ['ui', 'entity', 'extended-user-service', 'error-banner'], [controllerName, claimTicketEnricher.name, attachmentEnricher.name]);
 };
 
 SYMPHONY.services.register(controllerName);

@@ -116,17 +116,43 @@ public class SymphonyAiMessage extends AiMessage {
 
   @Override
   public boolean equals(Object o) {
-    if(o instanceof SymphonyAiMessage) {
-      SymphonyAiMessage aiMessage = (SymphonyAiMessage) o;
-      return entityData.equals(aiMessage.getEntityData()) &&
-          messageData.equals(aiMessage.getMessageData()) &&
-          fromUserId.equals(aiMessage.getFromUserId()) &&
-          messageData.equals(aiMessage.getMessageData()) &&
-          streamId.equals(aiMessage.getStreamId()) &&
-          timestamp.equals(aiMessage.getTimestamp()) &&
-          attachments.equals(aiMessage.getAttachments());
-    } else {
+    if (this == o) { return true; }
+    if (o == null || getClass() != o.getClass()) { return false; }
+
+    SymphonyAiMessage that = (SymphonyAiMessage) o;
+
+    if (entityData != null ? !entityData.equals(that.entityData) : that.entityData != null) {
       return false;
     }
+    if (messageData != null ? !messageData.equals(that.messageData) : that.messageData != null) {
+      return false;
+    }
+    if (fromUserId != null ? !fromUserId.equals(that.fromUserId) : that.fromUserId != null) {
+      return false;
+    }
+    if (messageId != null ? !messageId.equals(that.messageId) : that.messageId != null) {
+      return false;
+    }
+    if (streamId != null ? !streamId.equals(that.streamId) : that.streamId != null) {
+      return false;
+    }
+    if (timestamp != null ? !timestamp.equals(that.timestamp) : that.timestamp != null) {
+      return false;
+    }
+    return attachments != null ? attachments.equals(that.attachments) : that.attachments == null;
+
   }
+
+  @Override
+  public int hashCode() {
+    int result = entityData != null ? entityData.hashCode() : 0;
+    result = 31 * result + (messageData != null ? messageData.hashCode() : 0);
+    result = 31 * result + (fromUserId != null ? fromUserId.hashCode() : 0);
+    result = 31 * result + (messageId != null ? messageId.hashCode() : 0);
+    result = 31 * result + (streamId != null ? streamId.hashCode() : 0);
+    result = 31 * result + (timestamp != null ? timestamp.hashCode() : 0);
+    result = 31 * result + (attachments != null ? attachments.hashCode() : 0);
+    return result;
+  }
+
 }
