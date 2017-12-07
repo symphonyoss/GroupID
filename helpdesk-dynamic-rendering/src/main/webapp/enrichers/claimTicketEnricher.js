@@ -10,6 +10,18 @@ const messageEvents = [
   'com.symphony.bots.helpdesk.event.ticket',
 ];
 
+function messageRendererDefault(entity, messageError) {
+  const data = actionFactory([], enricherServiceName, entity);
+
+  const result = {
+    template: error({ message: messageError }),
+    data,
+    enricherInstanceId: entity.ticketId,
+  };
+
+  return result;
+}
+
 export default class ClaimTicketEnricher extends MessageEnricherBase {
   constructor() {
     super(enricherServiceName, messageEvents);
@@ -23,18 +35,14 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
 
   enrich(type, entity) {
     if (entity.ticketUrl === undefined) {
-      const data = actionFactory([], enricherServiceName, entity);
-
-      const result = {
-        template: error({ message: 'Cannot retrieve ticket state.' }),
-        data,
-        enricherInstanceId: entity.ticketId,
-      };
-
-      return result;
+      return messageRendererDefault(entity, 'Cannot retrieve ticket state.');
     }
 
     return this.services.ticketService.getTicket(entity.ticketUrl).then((rsp) => {
+      if (rsp.code === '204') {
+        return messageRendererDefault(entity, 'Ticket not found.');
+      }
+
       const displayName = rsp.data.agent && rsp.data.agent.displayName ? rsp.data.agent.displayName : '';
       const claimTicketAction = {
         id: 'claimTicket',
@@ -58,13 +66,8 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       return result;
     }).catch((error) => {
       switch (error.message) {
-        // TODO APP-1477 To map all errors from API
-        case '500': {
-          break;
-        }
         default: {
-          // TODO APP-1477
-          break;
+          return messageRendererDefault(entity, 'Cannot retrieve ticket state.');
         }
       }
     });
