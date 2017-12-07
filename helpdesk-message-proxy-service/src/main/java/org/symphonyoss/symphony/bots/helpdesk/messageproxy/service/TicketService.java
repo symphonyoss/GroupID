@@ -11,6 +11,7 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInf
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.TicketMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.UsersClient;
@@ -26,9 +27,9 @@ public class TicketService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketService.class);
 
-  private static final String TICKET_HEADER = "Equities Desk Bot";
-
   private final String agentStreamId;
+
+  private final String claimHeader;
 
   private final TicketClient ticketClient;
 
@@ -40,11 +41,13 @@ public class TicketService {
 
   private final HelpDeskServiceInfo helpDeskServiceInfo;
 
-  public TicketService(@Value("${agentStreamId}") String agentStreamId, TicketClient ticketClient,
-      SymphonyClient symphonyClient, HelpDeskBotInfo helpDeskBotInfo,
-      HelpDeskServiceInfo helpDeskServiceInfo) {
+  public TicketService(@Value("${agentStreamId}") String agentStreamId,
+      @Value("${claimEntityHeader}") String claimHeader,
+      TicketClient ticketClient, SymphonyClient symphonyClient,
+      HelpDeskBotInfo helpDeskBotInfo, HelpDeskServiceInfo helpDeskServiceInfo) {
     this.agentStreamId = agentStreamId;
     this.ticketClient = ticketClient;
+    this.claimHeader = claimHeader;
     this.helpDeskBotInfo = helpDeskBotInfo;
     this.helpDeskServiceInfo = helpDeskServiceInfo;
     this.messagesClient = symphonyClient.getMessagesClient();
@@ -52,7 +55,20 @@ public class TicketService {
   }
 
   public Ticket createTicket(String ticketId, SymMessage message, String serviceStreamId) {
-    Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStreamId);
+    UserInfo client = null;
+
+    try {
+      SymUser symUser = usersClient.getUserFromId(message.getFromUserId());
+
+      client = new UserInfo();
+      client.setUserId(symUser.getId());
+      client.setDisplayName(symUser.getDisplayName());
+    } catch (UsersClientException e) {
+      LOGGER.error("Could not get symphony user when creating ticket: ", e);
+    }
+
+    Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStreamId,
+        Long.valueOf(message.getTimestamp()), client);
     sendTicketMessageToAgentStreamId(ticket, message);
     sendClientMessageToServiceStreamId(serviceStreamId, message);
 
@@ -80,7 +96,7 @@ public class TicketService {
     builder.ticketState(ticket.getState());
     builder.streamId(agentStreamId);
 
-    builder.header(TICKET_HEADER);
+    builder.header(claimHeader);
 
     try {
       SymUser symUser = usersClient.getUserFromId(message.getFromUserId());
@@ -102,6 +118,17 @@ public class TicketService {
   private void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
     SymStream stream = new SymStream();
     stream.setStreamId(streamId);
+
+    try {
+      messagesClient.sendMessage(stream, message);
+    } catch (MessagesException e) {
+      LOGGER.error("Could not send ticket message to agent stream ID: ", e);
+    }
+  }
+
+  public void sendIdleMessageToAgentStreamId(SymMessage message) {
+    SymStream stream = new SymStream();
+    stream.setStreamId(agentStreamId);
 
     try {
       messagesClient.sendMessage(stream, message);

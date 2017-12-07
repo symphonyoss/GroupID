@@ -8,6 +8,13 @@ server:
 
 email: helpdesk@symphony.com
 
+claimEntityHeader: "<b>Equities Desk Bot</b>"
+
+idle-ticket:
+  message: "has been idle for 60 minutes."
+  timeout: 1
+  unit: "HOURS"
+
 makerCheckerMessageTemplate:
   "<div class=\"entity\" data-entity-id=\"makerchecker\">
     <card class=\"barStyle\">

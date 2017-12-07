@@ -8,9 +8,9 @@ import java.util.List;
 public class MakerCheckerMessage {
   private String type;
   private String streamId;
-  private String timeStamp;
   private String messageId;
   private String groupId;
+  private Long timeStamp;
   private List<String> proxyToStreamIds;
 
   public String getStreamId() {
@@ -21,11 +21,11 @@ public class MakerCheckerMessage {
     this.streamId = streamId;
   }
 
-  public String getTimeStamp() {
+  public Long getTimeStamp() {
     return timeStamp;
   }
 
-  public void setTimeStamp(String timeStamp) {
+  public void setTimeStamp(Long timeStamp) {
     this.timeStamp = timeStamp;
   }
 
