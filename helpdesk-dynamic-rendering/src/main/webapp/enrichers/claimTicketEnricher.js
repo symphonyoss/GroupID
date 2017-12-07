@@ -22,7 +22,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    if (entity.ticketUrl === undefined) {
+    if (entity.url === undefined) {
       const data = actionFactory([], enricherServiceName, entity);
 
       const result = {
@@ -34,7 +34,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       return result;
     }
 
-    return this.services.ticketService.getTicket(entity.ticketUrl).then((rsp) => {
+    return this.services.ticketService.getTicket(entity.url).then((rsp) => {
       const displayName = rsp.data.agent && rsp.data.agent.displayName ? rsp.data.agent.displayName : '';
       const claimTicketAction = {
         id: 'claimTicket',
@@ -44,6 +44,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         enricherInstanceId: entity.ticketId,
         show: rsp.data.state === 'UNSERVICED',
         userName: displayName,
+        streamId: entity.streamId,
       };
 
       const data = actionFactory([claimTicketAction], enricherServiceName, entity);
@@ -88,26 +89,6 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         userName: dataUpdate.claimTicket.data.userName });
 
       entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
-    }).catch((error) => {
-      switch (error.message) {
-        case '400': {
-          // TODO APP-1455
-          break;
-        }
-        case '401': {
-          // TODO APP-1455
-          break;
-        }
-        case '404': {
-          // TODO APP-1455
-          break;
-        }
-        default: {
-          // TODO APP-1455
-          break;
-        }
-      }
     });
   }
 }
-
