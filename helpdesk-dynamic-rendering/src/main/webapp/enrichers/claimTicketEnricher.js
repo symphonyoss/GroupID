@@ -10,7 +10,7 @@ const messageEvents = [
   'com.symphony.bots.helpdesk.event.ticket',
 ];
 
-function messageRendererDefault(entity, messageError) {
+function renderErrorMessage(entity, messageError) {
   const data = actionFactory([], enricherServiceName, entity);
 
   const result = {
@@ -35,12 +35,12 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
 
   enrich(type, entity) {
     if (entity.ticketUrl === undefined) {
-      return messageRendererDefault(entity, 'Cannot retrieve ticket state.');
+      return renderErrorMessage(entity, 'Cannot retrieve ticket state.');
     }
 
     return this.services.ticketService.getTicket(entity.ticketUrl).then((rsp) => {
       if (rsp.code === '204') {
-        return messageRendererDefault(entity, 'Ticket not found.');
+        return renderErrorMessage(entity, 'Ticket not found.');
       }
 
       const displayName = rsp.data.agent && rsp.data.agent.displayName ? rsp.data.agent.displayName : '';
@@ -64,13 +64,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       };
 
       return result;
-    }).catch((error) => {
-      switch (error.message) {
-        default: {
-          return messageRendererDefault(entity, 'Cannot retrieve ticket state.');
-        }
-      }
-    });
+    }).catch(() => renderErrorMessage(entity, 'Cannot retrieve ticket state.'));
   }
 
   action(data) {
