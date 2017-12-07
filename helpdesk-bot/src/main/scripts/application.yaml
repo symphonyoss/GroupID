@@ -18,10 +18,10 @@ pod:
 
 helpdesk-bot:
   host: nexus2-dev.symphony.com
-  port: 8090
 
 helpdesk-service:
   host: nexus2-dev.symphony.com
 
 groupId: testgroup
 agentStreamId: b_YMc--mZ3tAz8pMgbk8FX___p_72nrDdA
+defaultAgentEmail: helpdesk@symphony.com

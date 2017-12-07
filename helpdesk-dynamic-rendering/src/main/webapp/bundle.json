@@ -6,8 +6,8 @@
       "name": "Help Desk",
       "blurb": "Help Desk Bot in Development Mode",
       "publisher": "Symphony",
-      "url": "https://localhost.symphony.com:8080/helpdesk/controller.html",
-      "icon": "https://localhost.symphony.com:8080/helpdesk/img/appstore-logo.png",
+      "url": "https://localhost.symphony.com:8100/helpdesk-renderer/controller.html",
+      "icon": "https://localhost.symphony.com:8100/helpdesk-renderer/img/appstore-logo.png",
       "domain": ".symphony.com"
     }
   ]
