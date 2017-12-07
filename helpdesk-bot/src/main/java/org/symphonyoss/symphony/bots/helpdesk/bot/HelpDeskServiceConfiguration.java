@@ -17,6 +17,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.config.MakerCheckerServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
@@ -35,6 +36,11 @@ public class HelpDeskServiceConfiguration {
   @Bean(name = "ticketClient")
   public TicketClient getTicketClient(HelpDeskBotConfig configuration) {
     return new TicketClient(configuration.getGroupId(), configuration.getHelpDeskServiceUrl());
+  }
+
+  @Bean(name = "makercheckerClient")
+  public MakercheckerClient getMakercheckerClient(HelpDeskBotConfig configuration) {
+    return new MakercheckerClient(configuration.getGroupId(), configuration.getHelpDeskServiceUrl());
   }
 
   @Bean(name = "symphonyClient")
@@ -79,7 +85,8 @@ public class HelpDeskServiceConfiguration {
 
   @Bean(name = "agentMakerCheckerService")
   public MakerCheckerService getAgentMakerCheckerService(HelpDeskBotConfig configuration,
-      SymphonyClient symphonyClient, TicketClient ticketClient) {
+      SymphonyClient symphonyClient, TicketClient ticketClient,
+      MakercheckerClient makercheckerClient) {
     MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
     makerCheckerServiceSession.setSymphonyClient(symphonyClient);
 
@@ -90,7 +97,8 @@ public class HelpDeskServiceConfiguration {
 
     makerCheckerServiceSession.setMakerCheckerServiceConfig(makerCheckerServiceConfig);
 
-    MakerCheckerService agentMakerCheckerService = new MakerCheckerService(makerCheckerServiceSession);
+    MakerCheckerService agentMakerCheckerService =
+        new MakerCheckerService(makercheckerClient, makerCheckerServiceSession);
     agentMakerCheckerService.addCheck(new AgentExternalCheck(symphonyClient, ticketClient));
 
     return  agentMakerCheckerService;
@@ -98,7 +106,7 @@ public class HelpDeskServiceConfiguration {
 
   @Bean(name = "clientMakerCheckerService")
   public MakerCheckerService getClientMakerCheckerService(HelpDeskBotConfig configuration,
-      SymphonyClient symphonyClient) {
+      SymphonyClient symphonyClient, MakercheckerClient makercheckerClient) {
     MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
     makerCheckerServiceSession.setSymphonyClient(symphonyClient);
 
@@ -110,7 +118,8 @@ public class HelpDeskServiceConfiguration {
     makerCheckerServiceSession.setMakerCheckerServiceConfig(makerCheckerServiceConfig);
     makerCheckerServiceSession.setSymphonyClient(symphonyClient);
 
-    MakerCheckerService clientMakerCheckerService = new MakerCheckerService(makerCheckerServiceSession);
+    MakerCheckerService clientMakerCheckerService =
+        new MakerCheckerService(makercheckerClient, makerCheckerServiceSession);
 
     return clientMakerCheckerService;
   }

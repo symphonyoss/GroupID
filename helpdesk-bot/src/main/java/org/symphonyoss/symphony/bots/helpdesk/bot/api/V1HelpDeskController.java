@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +21,10 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Agent;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -44,15 +45,19 @@ import javax.ws.rs.InternalServerErrorException;
 public class V1HelpDeskController extends V1ApiController {
   private static final Logger LOG = LoggerFactory.getLogger(V1HelpDeskController.class);
   private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
+  private static final String MAKER_CHECKER_DENY_RESPONSE = "Maker checker message denied.";
   private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
   private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
   private static final String NO_MAKER_CHECKER_TYPE = "No checker type can support this maker checker message.";
+  private static final String MAKER_CHECKER_NOT_FOUND = "Makerchecker not found.";
 
   @Autowired
   private TicketClient ticketClient;
   @Autowired
   private SymphonyValidationUtil symphonyValidationUtil;
+  @Autowired
+  private MakercheckerClient makercheckerClient;
 
   /**
    * Accepts a ticket.
@@ -183,7 +188,6 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse acceptMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-
     validateRequiredParameter("streamId", detail.getStreamId(), "body");
     validateRequiredParameter("groupId", detail.getGroupId(), "body");
     validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");
@@ -191,22 +195,32 @@ public class V1HelpDeskController extends V1ApiController {
     validateRequiredParameter("messageId", detail.getMessageId(), "body");
     validateRequiredParameter("userId", detail.getUserId(), "body");
 
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
+    if (makerchecker == null) {
+      throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
+    }
+
     SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
     sendAcceptMarkerChekerMessages(detail);
+
+    makerchecker.setCheckerId(detail.getUserId());
+    makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
+    makercheckerClient.updateMakerchecker(makerchecker);
 
     return buildMakerCheckerResponse(agentUser, detail);
   }
 
-  private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser, MakerCheckerMessageDetail detail) {
+  private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser,
+      MakerCheckerMessageDetail detail) {
     MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
     makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
     makerCheckerResponse.setMakerCheckerMessageDetail(detail);
 
-    User user = new User();
-    user.setDisplayName(agentUser.getDisplayName());
-    user.setUserId(detail.getUserId());
+    User user = getUser(detail, agentUser);
 
     makerCheckerResponse.setUser(user);
+    makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
+
     return makerCheckerResponse;
   }
 
@@ -234,4 +248,44 @@ public class V1HelpDeskController extends V1ApiController {
       botSession.getHelpDeskAi().sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
     }
   }
+
+  /**
+   * Deny a maker checker message.
+   * @param detail the maker checker message detail
+   * @return a maker checker message response
+   */
+  @Override
+  public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
+    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
+    HelpDeskBotSession botSession = sessionManager.getSession(detail.getGroupId());
+
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
+    if (makerchecker == null) {
+      throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
+    }
+
+    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+
+    makerchecker.setCheckerId(detail.getUserId());
+    makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
+    makercheckerClient.updateMakerchecker(makerchecker);
+
+    MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
+    makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
+    makerCheckerResponse.setMakerCheckerMessageDetail(detail);
+
+    User user = getUser(detail, agentUser);
+
+    makerCheckerResponse.setUser(user);
+
+    return makerCheckerResponse;
+  }
+
+  private User getUser(MakerCheckerMessageDetail detail, SymUser agentUser) {
+    User user = new User();
+    user.setDisplayName(agentUser.getDisplayName());
+    user.setUserId(detail.getUserId());
+    return user;
+  }
+
 }

@@ -23,14 +23,14 @@ export default class AttachmentEnricher extends MessageEnricherBase {
 
   enrich(type, entity) {
     let attachment;
-    return this.services.attachmentService.search(entity.attachmentId).then((rsp) => {
+    return this.services.attachmentService.search(entity.attachmentUrl).then((rsp) => {
       attachment = rsp;
       return getUserId();
     }).then(userId => this.showAttachmentsRender(entity, attachment, userId));
   }
 
   showAttachmentsRender(entity, rsp, userId) {
-    const show = userId === entity.ownerId;
+    const show = userId === entity.makerId;
     const approveAttachmentAction = {
       id: 'approveAttachment',
       service: enricherServiceName,
