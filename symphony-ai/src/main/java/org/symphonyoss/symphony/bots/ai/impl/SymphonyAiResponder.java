@@ -87,10 +87,11 @@ public class SymphonyAiResponder extends AiResponderImpl {
    * @param sessionContext the session context to base the response on.
    */
   @Override
-  public void respondWithUseMenu(AiSessionContext sessionContext) {
-    String response = "<header><b>" + AiConstants.MENU_TITLE + "</b></header>"
-        + "<body><ul><li>" + sessionContext.getAiCommandMenu().toString()
-        .replace("\n", "</li><li>") + "</li></ul></body>";
+  public void respondWithUseMenu(AiSessionContext sessionContext, AiMessage message) {
+    String response = "<body>" + String.format(AiConstants.NOT_COMMAND, message.getAiMessage()) +
+        "<br/><hr/><b>" + AiConstants.MENU_TITLE + "</b><ul><li>" +
+        sessionContext.getAiCommandMenu().toString().replace(
+            "\n", "</li><li>") + "</li></ul></body>";
     response = response.replace("<li></li>", "");
 
     SymphonyAiSessionKey symphonyAiSessionKey = (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
@@ -115,14 +116,14 @@ public class SymphonyAiResponder extends AiResponderImpl {
   @Override
   public void respondWithSuggestion(AiSessionContext sessionContext,
       AiCommandInterpreter aiCommandInterpreter, AiMessage command) {
-    respondWithUseMenu(sessionContext);
+    SymphonyAiSessionKey symphonyAiSessionKey = (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
 
     AiCommand bestOption = getBestCommand(sessionContext, aiCommandInterpreter, command.getAiMessage());
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
     AiResponseIdentifierImpl aiResponseIdentifier =
         new AiResponseIdentifierImpl(sessionContext.getSessionName(),
-            sessionContext.getAiSessionKey().getSessionKey());
+            symphonyAiSessionKey.getStreamId());
     responseIdentifiers.add(aiResponseIdentifier);
 
     AiResponse aiResponse = new AiResponse(

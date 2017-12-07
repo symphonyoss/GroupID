@@ -58,6 +58,8 @@ public class HelpDeskBotConfig {
 
   private String addMemberClientSuccessResponse;
 
+  private String claimEntityHeader;
+
   public String getEmail() {
     return email;
   }
@@ -320,6 +322,14 @@ public class HelpDeskBotConfig {
 
   public void setDefaultAgentEmail(String defaultAgentEmail) {
     this.defaultAgentEmail = defaultAgentEmail;
+  }
+
+  public String getClaimEntityHeader() {
+    return claimEntityHeader;
+  }
+
+  public void setClaimEntityHeader(String claimEntityHeader) {
+    this.claimEntityHeader = claimEntityHeader;
   }
 
 }

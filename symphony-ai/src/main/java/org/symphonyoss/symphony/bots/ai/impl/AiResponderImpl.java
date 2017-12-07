@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
@@ -8,8 +9,6 @@ import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
-
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,8 +49,9 @@ public class AiResponderImpl implements AiResponder {
   }
 
   @Override
-  public void respondWithUseMenu(AiSessionContext sessionContext) {
-    String response = AiConstants.MENU_TITLE + "\n" + sessionContext.getAiCommandMenu().toString();
+  public void respondWithUseMenu(AiSessionContext sessionContext, AiMessage message) {
+    String response = String.format(AiConstants.NOT_COMMAND, message.getAiMessage()) + "\n" +
+        AiConstants.MENU_TITLE + "\n" + sessionContext.getAiCommandMenu().toString();
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
     AiResponseIdentifierImpl aiResponseIdentifier =
@@ -67,8 +67,6 @@ public class AiResponderImpl implements AiResponder {
   @Override
   public void respondWithSuggestion(AiSessionContext sessionContext,
       AiCommandInterpreter aiCommandInterpreter, AiMessage command) {
-    respondWithUseMenu(sessionContext);
-
     AiCommand bestOption = getBestCommand(sessionContext, aiCommandInterpreter, command.getAiMessage());
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
