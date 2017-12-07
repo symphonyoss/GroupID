@@ -1,6 +1,4 @@
 import { approveAttachment, denyAttachment, searchAttachment } from '../api/apiCalls';
-import { errorTypes } from '../utils/errorTypes';
-import { componentTypes } from '../utils/componentTypes';
 
 export default class AttachmentService {
   constructor(serviceName) {
