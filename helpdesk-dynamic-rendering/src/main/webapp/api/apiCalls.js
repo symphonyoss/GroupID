@@ -52,8 +52,8 @@ export const denyAttachment = (messageAttachment) => {
   }).catch(error => rejectPromise(error));
 };
 
-export const searchAttachment = (attachmentId) => {
-  const apiUrl = `/v1/makerchecker/get/${attachmentId}`;
+export const searchAttachment = (attachmentUrl) => {
+  const apiUrl = `${attachmentUrl}`;
   return axios({
     method: 'get',
     url: apiUrl,

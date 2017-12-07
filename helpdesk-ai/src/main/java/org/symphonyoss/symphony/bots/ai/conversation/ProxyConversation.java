@@ -57,8 +57,10 @@ public class ProxyConversation extends AiConversation {
         identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
         AiResponse aiResponse = new AiResponse(new SymphonyAiMessage(symMessage), identifiers);
         responder.addResponse(aiSessionContext, aiResponse);
+
         String makercheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
-        makercheckerClient.createMakerchecker(makercheckerId, symMessage.getFromUserId().toString(), symMessage.getStreamId(), null);
+        makerCheckerService.createMakerchecker(makercheckerId, symMessage.getFromUserId(),
+            symMessage.getStreamId());
       }
       responder.respond(aiSessionContext);
     }

@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.bot.config;
+package org.symphonyoss.symphony.bots.utility.config;
 
 import org.apache.commons.lang3.StringUtils;
 

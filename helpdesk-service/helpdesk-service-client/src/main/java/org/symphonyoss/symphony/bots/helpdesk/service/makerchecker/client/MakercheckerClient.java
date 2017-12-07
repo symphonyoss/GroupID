@@ -48,11 +48,9 @@ public class MakercheckerClient {
     }
   }
 
-  public Makerchecker createMakerchecker(String id, String makerId, String streamId,
-      String checkerId) {
+  public Makerchecker createMakerchecker(String id, Long makerId, String streamId) {
     Makerchecker makerchecker = new Makerchecker();
     makerchecker.setState(AttachmentStateType.OPENED.getState());
-    makerchecker.setCheckerId(checkerId);
     makerchecker.setStreamId(streamId);
     makerchecker.setMakerId(makerId);
     makerchecker.setId(id);

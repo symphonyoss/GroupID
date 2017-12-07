@@ -187,7 +187,6 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse acceptMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-
     validateRequiredParameter("streamId", detail.getStreamId(), "body");
     validateRequiredParameter("groupId", detail.getGroupId(), "body");
     validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");
@@ -195,13 +194,23 @@ public class V1HelpDeskController extends V1ApiController {
     validateRequiredParameter("messageId", detail.getMessageId(), "body");
     validateRequiredParameter("userId", detail.getUserId(), "body");
 
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
+    if (makerchecker == null) {
+      throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
+    }
+
     SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
     sendAcceptMarkerChekerMessages(detail);
+
+    makerchecker.setCheckerId(detail.getUserId());
+    makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
+    makercheckerClient.updateMakerchecker(makerchecker);
 
     return buildMakerCheckerResponse(agentUser, detail);
   }
 
-  private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser, MakerCheckerMessageDetail detail) {
+  private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser,
+      MakerCheckerMessageDetail detail) {
     MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
     makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
     makerCheckerResponse.setMakerCheckerMessageDetail(detail);
@@ -212,14 +221,6 @@ public class V1HelpDeskController extends V1ApiController {
 
     makerCheckerResponse.setUser(user);
     makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
-
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
-    if(makerchecker == null) {
-      throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
-    }
-    makerchecker.setCheckerId(detail.getUserId().toString());
-    makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
-    makercheckerClient.updateMakerchecker(makerchecker);
 
     return makerCheckerResponse;
   }

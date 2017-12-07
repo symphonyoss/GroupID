@@ -414,11 +414,13 @@ definitions:
         id:
           type: string
         makerId:
-          type: string
+          type: integer
+          format: int64
           description: |
             The id of agent who send an attachment
         checkerId:
-          type: string
+          type: integer
+          format: int64
           description: |
             The id of agent who approved/denied an attachment
         streamId:

@@ -1,0 +1,14 @@
+<messageML>
+    <div class="entity" data-entity-id="helpdesk">
+        <card class="barStyle">
+            <header>
+                <span>${entity['helpdesk'].message.header}</span>
+            </header>
+            <body>
+                <span><b>Company:</b> ${entity['helpdesk'].message.company}</span><br/>
+                <span><b>Customer:</b> ${entity['helpdesk'].message.customer}</span><br/>
+                <span><b>Question:</b> ${entity['helpdesk'].message.question}</span>
+            </body>
+        </card>
+    </div>
+</messageML>

@@ -23,7 +23,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
 
   enrich(type, entity) {
     let attachment;
-    return this.services.attachmentService.search(entity.attachmentId).then((rsp) => {
+    return this.services.attachmentService.search(entity.attachmentUrl).then((rsp) => {
       attachment = rsp;
       return getUserId();
     }).then(userId => this.showAttachmentsRender(entity, attachment, userId));
@@ -37,6 +37,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       type: 'approveAttachment',
       label: 'Approve',
       enricherInstanceId: entity.attachmentId,
+      streamId: entity.streamId,
     };
 
     const denyAttachmentAction = {
