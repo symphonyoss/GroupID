@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.conversation;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -11,19 +12,20 @@ import java.util.concurrent.TimeUnit;
  * Created by nick.tarsillo on 11/28/17.
  */
 public abstract class ProxyIdleTimer {
-  private static Timer timer;
-  private static Set<ProxyIdleTimer> proxyIdleTimers;
+
+  private static Timer timer = new Timer();
+  private static Set<ProxyIdleTimer> proxyIdleTimers = Collections.synchronizedSet(new HashSet<>());
+
   static {
-    timer = new Timer();
-    proxyIdleTimers = Collections.newSetFromMap(new ConcurrentHashMap<>());
     timer.scheduleAtFixedRate(new TimerTask() {
       @Override
       public void run() {
         for(ProxyIdleTimer proxyIdleTimer: proxyIdleTimers) {
-          proxyIdleTimer.setTime(proxyIdleTimer.getTime() + 1);
+          proxyIdleTimer.setTime(proxyIdleTimer.getTime() + 5);
 
-          int idle = proxyIdleTimer.getIdleTime();
+          long idle = proxyIdleTimer.getIdleTime();
           int current = proxyIdleTimer.getTime();
+
           TimeUnit type = proxyIdleTimer.getTimeUnit();
           if(type.toSeconds(idle) < current) {
             proxyIdleTimer.onIdleTimeout();
@@ -31,14 +33,14 @@ public abstract class ProxyIdleTimer {
           }
         }
       }
-    }, 1000, 1000);
+    }, 1000, 5000);
   }
 
   private int time;
-  private int idleTime;
+  private long idleTime;
   private TimeUnit timeUnit;
 
-  public ProxyIdleTimer(int idleTime, TimeUnit timeUnit) {
+  public ProxyIdleTimer(long idleTime, TimeUnit timeUnit) {
     this.idleTime = idleTime;
     this.timeUnit = timeUnit;
   }
@@ -57,7 +59,7 @@ public abstract class ProxyIdleTimer {
 
   public abstract void onIdleTimeout();
 
-  public int getIdleTime() {
+  public Long getIdleTime() {
     return idleTime;
   }
 

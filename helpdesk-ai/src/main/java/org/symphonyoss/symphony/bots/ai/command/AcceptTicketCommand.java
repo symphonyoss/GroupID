@@ -28,8 +28,8 @@ import java.util.Set;
  * Created by nick.tarsillo on 10/10/17.
  */
 public class AcceptTicketCommand extends AiCommand {
+
   private static final Logger LOG = LoggerFactory.getLogger(AcceptTicketCommand.class);
-  private static final String TRANSCRIPT_HEADER = "<header><b>Client transcript: </b></header>";
 
   public AcceptTicketCommand(String command, String usage) {
     super(command, usage);

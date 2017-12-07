@@ -2,8 +2,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.concurrent.TimeUnit;
+import org.symphonyoss.symphony.bots.utility.config.ServiceInfo;
 
 /**
  * Created by nick.tarsillo on 10/9/17.
@@ -35,10 +34,6 @@ public class HelpDeskBotConfig {
 
   private String agentStreamId;
 
-  private String claimMessageTemplate;
-
-  private String claimEntityTemplate;
-
   private String makerCheckerMessageTemplate;
 
   private String makerCheckerEntityTemplate;
@@ -63,15 +58,7 @@ public class HelpDeskBotConfig {
 
   private String addMemberClientSuccessResponse;
 
-  private String ticketCreationMessage;
-
   private String claimEntityHeader;
-
-  private String idleClaimEntityHeader;
-
-  private int agentIdleTimeValue;
-
-  private TimeUnit agentIdleTimeUnit;
 
   public String getEmail() {
     return email;
@@ -233,22 +220,6 @@ public class HelpDeskBotConfig {
     this.agentStreamId = agentStreamId;
   }
 
-  public String getClaimMessageTemplate() {
-    return claimMessageTemplate;
-  }
-
-  public void setClaimMessageTemplate(String claimMessageTemplate) {
-    this.claimMessageTemplate = claimMessageTemplate;
-  }
-
-  public String getClaimEntityTemplate() {
-    return claimEntityTemplate;
-  }
-
-  public void setClaimEntityTemplate(String claimEntityTemplate) {
-    this.claimEntityTemplate = claimEntityTemplate;
-  }
-
   public String getMakerCheckerMessageTemplate() {
     return makerCheckerMessageTemplate;
   }
@@ -345,14 +316,6 @@ public class HelpDeskBotConfig {
     this.addMemberClientSuccessResponse = addMemberClientSuccessResponse;
   }
 
-  public String getTicketCreationMessage() {
-    return ticketCreationMessage;
-  }
-
-  public void setTicketCreationMessage(String ticketCreationMessage) {
-    this.ticketCreationMessage = ticketCreationMessage;
-  }
-
   public String getDefaultAgentEmail() {
     return defaultAgentEmail;
   }
@@ -369,27 +332,4 @@ public class HelpDeskBotConfig {
     this.claimEntityHeader = claimEntityHeader;
   }
 
-  public String getIdleClaimEntityHeader() {
-    return idleClaimEntityHeader;
-  }
-
-  public void setIdleClaimEntityHeader(String idleClaimEntityHeader) {
-    this.idleClaimEntityHeader = idleClaimEntityHeader;
-  }
-
-  public int getAgentIdleTimeValue() {
-    return agentIdleTimeValue;
-  }
-
-  public void setAgentIdleTimeValue(int agentIdleTimeValue) {
-    this.agentIdleTimeValue = agentIdleTimeValue;
-  }
-
-  public TimeUnit getAgentIdleTimeUnit() {
-    return agentIdleTimeUnit;
-  }
-
-  public void setAgentIdleTimeUnit(TimeUnit agentIdleTimeUnit) {
-    this.agentIdleTimeUnit = agentIdleTimeUnit;
-  }
 }

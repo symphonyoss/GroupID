@@ -81,6 +81,40 @@ paths:
             $ref: '#/definitions/Error'
       tags:
         - MakerChecker
+  /v1/makerchecker/deny:
+    post:
+      summary: Notify the help desk bot that a message has been denied for sending by another agent.
+      operationId: denyMakerCheckerMessage
+      parameters:
+        - name: message
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/MakerCheckerMessageDetail'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/MakerCheckerResponse'
+        '400':
+          description: BAD REQUEST |
+            Invalid stream id.
+            Invald group id.
+            Invalid proxy to stream id.
+            Message Id could not be found at message timestamp.
+            Required parameter was not provided.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
+      tags:
+        - MakerChecker
   /v1/{groupId}/healthcheck:
     get:
       summary: Check the health of a specific help desk bot.
@@ -139,6 +173,10 @@ definitions:
         $ref: '#/definitions/MakerCheckerMessageDetail'
       user:
         $ref: '#/definitions/User'
+      state:
+        type: string
+        description: |
+          Accepted states - APPROVED, DENIED, OPENED
   HealthcheckResponse:
     type: object
     properties:

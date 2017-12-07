@@ -21,8 +21,8 @@ export const claimTicket = (data) => {
   }).catch(error => rejectPromise(error));
 };
 
-export const getTicket = (data) => {
-  const apiUrl = `${data.ticketUrl}`;
+export const getTicket = (ticketUrl) => {
+  const apiUrl = `${ticketUrl}`;
   return axios({
     method: 'get',
     url: apiUrl,
@@ -52,8 +52,8 @@ export const denyAttachment = (messageAttachment) => {
   }).catch(error => rejectPromise(error));
 };
 
-export const searchAttachment = (attachmentId) => {
-  const apiUrl = `/v1/makerchecker/searchAttachment/${attachmentId}`;
+export const searchAttachment = (attachmentUrl) => {
+  const apiUrl = `${attachmentUrl}`;
   return axios({
     method: 'get',
     url: apiUrl,

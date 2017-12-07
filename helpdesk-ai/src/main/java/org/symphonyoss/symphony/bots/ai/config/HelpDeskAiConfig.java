@@ -125,4 +125,5 @@ public class HelpDeskAiConfig {
   public void setGroupId(String groupId) {
     this.groupId = groupId;
   }
+
 }

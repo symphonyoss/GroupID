@@ -8,6 +8,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerSer
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.Checker;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.template
     .MakerCheckerEntityTemplateData;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -30,9 +31,13 @@ public class MakerCheckerService {
 
   private Set<Checker> checkerSet = new HashSet<>();
   private Set<Object> flaggedData = new HashSet<>();
-  private MakerCheckerServiceSession session;
 
-  public MakerCheckerService(MakerCheckerServiceSession session) {
+  private final MakercheckerClient makercheckerClient;
+
+  private final MakerCheckerServiceSession session;
+
+  public MakerCheckerService(MakercheckerClient client, MakerCheckerServiceSession session) {
+    this.makercheckerClient = client;
     this.session = session;
   }
 
@@ -173,6 +178,10 @@ public class MakerCheckerService {
     }
 
     return symMessages;
+  }
+
+  public void createMakerchecker(String id, Long makerId, String streamId) {
+    this.makercheckerClient.createMakerchecker(id, makerId, streamId);
   }
 
 }
