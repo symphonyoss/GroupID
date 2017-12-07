@@ -37,6 +37,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       type: 'approveAttachment',
       label: 'Approve',
       enricherInstanceId: entity.attachmentId,
+      streamId: entity.streamId,
     };
 
     const denyAttachmentAction = {
