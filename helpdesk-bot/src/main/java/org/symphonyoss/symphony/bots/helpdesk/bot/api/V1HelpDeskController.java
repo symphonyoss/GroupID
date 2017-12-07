@@ -45,6 +45,7 @@ import javax.ws.rs.InternalServerErrorException;
 public class V1HelpDeskController extends V1ApiController {
   private static final Logger LOG = LoggerFactory.getLogger(V1HelpDeskController.class);
   private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
+  private static final String MAKER_CHECKER_DENY_RESPONSE = "Maker checker message denied.";
   private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
   private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
@@ -215,9 +216,7 @@ public class V1HelpDeskController extends V1ApiController {
     makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
     makerCheckerResponse.setMakerCheckerMessageDetail(detail);
 
-    User user = new User();
-    user.setDisplayName(agentUser.getDisplayName());
-    user.setUserId(detail.getUserId());
+    User user = getUser(detail, agentUser);
 
     makerCheckerResponse.setUser(user);
     makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
@@ -249,4 +248,44 @@ public class V1HelpDeskController extends V1ApiController {
       botSession.getHelpDeskAi().sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
     }
   }
+
+  /**
+   * Deny a maker checker message.
+   * @param detail the maker checker message detail
+   * @return a maker checker message response
+   */
+  @Override
+  public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
+    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
+    HelpDeskBotSession botSession = sessionManager.getSession(detail.getGroupId());
+
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
+    if (makerchecker == null) {
+      throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
+    }
+
+    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+
+    makerchecker.setCheckerId(detail.getUserId());
+    makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
+    makercheckerClient.updateMakerchecker(makerchecker);
+
+    MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
+    makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
+    makerCheckerResponse.setMakerCheckerMessageDetail(detail);
+
+    User user = getUser(detail, agentUser);
+
+    makerCheckerResponse.setUser(user);
+
+    return makerCheckerResponse;
+  }
+
+  private User getUser(MakerCheckerMessageDetail detail, SymUser agentUser) {
+    User user = new User();
+    user.setDisplayName(agentUser.getDisplayName());
+    user.setUserId(detail.getUserId());
+    return user;
+  }
+
 }
