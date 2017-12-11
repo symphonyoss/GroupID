@@ -1,5 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
+import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType.AGENT;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,8 +98,11 @@ public class V1HelpDeskController extends V1ApiController {
       Membership membership = helpDeskBotSession.getMembershipClient().getMembership(agentId);
 
       if (membership == null) {
-        helpDeskBotSession.getMembershipClient().newMembership(agentId, MembershipClient.MembershipType.AGENT);
+        helpDeskBotSession.getMembershipClient().newMembership(agentId, AGENT);
         LOG.info("Created new agent membership for userid: " + agentId);
+      } else if (!AGENT.getType().equals(membership.getType())) {
+        membership.setType(AGENT.getType());
+        helpDeskBotSession.getMembershipClient().updateMembership(membership);
       }
 
       SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(
