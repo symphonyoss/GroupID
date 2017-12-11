@@ -70,7 +70,6 @@ public class TicketService {
     Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStreamId,
         Long.valueOf(message.getTimestamp()), client);
     sendTicketMessageToAgentStreamId(ticket, message);
-    sendClientMessageToServiceStreamId(serviceStreamId, message);
 
     return ticket;
   }
@@ -110,17 +109,6 @@ public class TicketService {
 
     try {
       messagesClient.sendMessage(stream, builder.build());
-    } catch (MessagesException e) {
-      LOGGER.error("Could not send ticket message to agent stream ID: ", e);
-    }
-  }
-
-  private void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
-    SymStream stream = new SymStream();
-    stream.setStreamId(streamId);
-
-    try {
-      messagesClient.sendMessage(stream, message);
     } catch (MessagesException e) {
       LOGGER.error("Could not send ticket message to agent stream ID: ", e);
     }
