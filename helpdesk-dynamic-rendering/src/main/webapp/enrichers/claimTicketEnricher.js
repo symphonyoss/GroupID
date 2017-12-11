@@ -76,7 +76,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         type: 'claimTicket',
         label: 'Claim',
         enricherInstanceId: rsp.ticketId,
-        showClaim: rsp.data.state === 'UNSERVICED',
+        show: rsp.data.state === 'UNSERVICED',
         userName: rsp.data.user.displayName,
       };
 
