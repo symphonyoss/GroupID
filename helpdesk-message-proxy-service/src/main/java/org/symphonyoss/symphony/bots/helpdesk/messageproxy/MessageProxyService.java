@@ -10,6 +10,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.IdleMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
@@ -163,10 +164,9 @@ public class MessageProxyService {
   }
 
   private void sendIdleMessage(Ticket ticket) {
-    String ticketMessage = String.format("Ticket #%s %s", ticket.getId(), idleTicketConfig.getMessage());
-
-    SymMessage message = new SymMessage();
-    message.setMessage(ticketMessage);
+    SymMessage message = new IdleMessageBuilder().ticket(ticket.getId())
+        .message(idleTicketConfig.getMessage())
+        .build();
 
     ticketService.sendIdleMessageToAgentStreamId(message);
   }
