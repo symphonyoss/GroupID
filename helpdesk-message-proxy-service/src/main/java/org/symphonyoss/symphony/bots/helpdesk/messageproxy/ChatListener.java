@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.services.MessageListener;
@@ -36,8 +37,10 @@ public class ChatListener implements MessageListener {
 
   @Override
   public void onMessage(SymMessage symMessage) {
-    ticketManagerService.messageReceived(symMessage);
-    helpDeskAi.onMessage(symMessage);
+    if (StringUtils.isNotEmpty(symMessage.getMessageText())) {
+      ticketManagerService.messageReceived(symMessage);
+      helpDeskAi.onMessage(symMessage);
+    }
   }
 
 }
