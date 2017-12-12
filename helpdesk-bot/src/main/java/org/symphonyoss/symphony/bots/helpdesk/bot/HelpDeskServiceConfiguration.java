@@ -99,7 +99,7 @@ public class HelpDeskServiceConfiguration {
 
     MakerCheckerService agentMakerCheckerService =
         new MakerCheckerService(makercheckerClient, makerCheckerServiceSession);
-    agentMakerCheckerService.addCheck(new AgentExternalCheck(symphonyClient, ticketClient));
+    agentMakerCheckerService.addCheck(new AgentExternalCheck(ticketClient));
 
     return  agentMakerCheckerService;
   }
