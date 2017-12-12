@@ -1,22 +1,19 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check;
 
+import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
+    .TicketStateType.UNRESOLVED;
+
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.client.exceptions.StreamsException;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.config.MakerCheckerServiceConfig;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.template
-    .AttachmentEntityTemplateData;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.template.AttachmentEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
-import org.symphonyoss.symphony.clients.model.SymStreamAttributes;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -27,38 +24,36 @@ import java.util.Set;
  * Created by nick.tarsillo on 10/20/17.
  */
 public class AgentExternalCheck implements Checker {
-  private static final Logger LOG = LoggerFactory.getLogger(AgentExternalCheck.class);
+
   private final String ATTACHMENT = "ATTACHMENT";
 
   private MakerCheckerServiceSession session;
-  private TicketClient ticketClient;
-  private SymphonyClient symphonyClient;
 
-  public AgentExternalCheck(SymphonyClient symphonyClient, TicketClient ticketClient) {
+  private TicketClient ticketClient;
+
+  public AgentExternalCheck(TicketClient ticketClient) {
     this.ticketClient = ticketClient;
-    this.symphonyClient = symphonyClient;
   }
 
   @Override
   public Set<Object> check(SymMessage message) {
-    Ticket ticket = ticketClient.getTicketByServiceStreamId(message.getStreamId());
-    if(ticket != null) {
-      try {
-        SymStreamAttributes streamAttributes =
-            symphonyClient.getStreamsClient().getStreamAttributes(ticket.getClientStreamId());
-        if((message.getAttachments() != null || !message.getAttachments().isEmpty()) &&
-            streamAttributes.getCrossPod()) {
-          Set<Object> flagged = new HashSet<>();
-          flagged.add(message.getAttachments());
-          flagged.add(message.getEntityData());
-          return flagged;
-        }
-      } catch (StreamsException e) {
-        LOG.error("Could not get stream for client stream: ", e);
-      }
+    if (hasOpenTicketInServiceRoom(message) && hasAttachmentsInMessage(message)) {
+      Set<Object> flagged = new HashSet<>();
+      flagged.add(message.getAttachments());
+      flagged.add(message.getEntityData());
+      return flagged;
     }
 
     return null;
+  }
+
+  private boolean hasOpenTicketInServiceRoom(SymMessage message) {
+    Ticket ticket = ticketClient.getTicketByServiceStreamId(message.getStreamId());
+    return ticket != null && UNRESOLVED.getState().equals(ticket.getState());
+  }
+
+  private boolean hasAttachmentsInMessage(SymMessage message) {
+    return message.getAttachments() != null && !message.getAttachments().isEmpty();
   }
 
   @Override
