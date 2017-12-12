@@ -15,30 +15,6 @@ idle-ticket:
   timeout: 1
   unit: "HOURS"
 
-makerCheckerMessageTemplate:
-  "<div class=\"entity\" data-entity-id=\"makerchecker\">
-    <card class=\"barStyle\">
-      <header>
-        The above message contains an attachment and has therefore not been sent. Please have a checker approve this message.
-      </header>
-    </card>
-  </div>"
-makerCheckerEntityTemplate:
-  "{
-      \"makerchecker\": {
-        \"type\": \"com.symphony.bots.helpdesk.event.makerchecker\",
-        \"version\": \"1.0\",
-        \"uid\" : \"{UID}\",
-        \"streamId\" : \"{STREAM_ID}\",
-        \"proxyToStreamIds\" : {PROXY_TO_STREAM_IDS},
-        \"timestamp\" : \"{TIMESTAMP}\",
-        \"messageId\" : \"{MESSAGE_ID}\",
-        \"groupId\" : \"{GROUP_ID}\",
-        \"type\" : \"{TYPE}\",
-        \"attachmentId\" : \"{ATTACHMENT_ID}\"
-      }
-  }"
-
 aiServicePrefix: "@"
 aiDefaultPrefix: "/"
 closeTicketCommand: "Close Ticket"

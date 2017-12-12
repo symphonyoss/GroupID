@@ -23,17 +23,16 @@ export default class AttachmentService {
   }
 
   deny(message) {
+    const errorMessageService = SYMPHONY.services.subscribe('error-banner');
+    let errorCode;
     return denyAttachment(message)
-      .catch((error) => {
-        switch (error.message) {
-          case '': {
-            break;
-          }
-          default: {
-            break;
-          }
-        }
-      });
+    .catch((error) => {
+      errorCode = parseInt(error.message, 10);
+      const messageText = error.message ? messageByCode[errorCode]
+        : messages.GENERIC_ERROR;
+      errorMessageService.setChatBanner(message.streamId, componentTypes.CHAT,
+        messageText, errorTypes.ERROR);
+    });
   }
 
   search(attachmentId) {

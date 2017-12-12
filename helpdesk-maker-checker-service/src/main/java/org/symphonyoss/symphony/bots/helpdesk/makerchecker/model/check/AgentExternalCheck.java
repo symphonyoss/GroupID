@@ -3,19 +3,19 @@ package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check;
 import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
     .TicketStateType.UNRESOLVED;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.config.MakerCheckerServiceConfig;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.MakerCheckerMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.template.AttachmentEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
-import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,13 +25,23 @@ import java.util.Set;
  */
 public class AgentExternalCheck implements Checker {
 
+  private static final int MAKERCHECKER_ID_LENGTH = 10;
+
   private final String ATTACHMENT = "ATTACHMENT";
 
-  private MakerCheckerServiceSession session;
+  private final String botHost;
 
-  private TicketClient ticketClient;
+  private final String serviceHost;
 
-  public AgentExternalCheck(TicketClient ticketClient) {
+  private final String groupId;
+
+  private final TicketClient ticketClient;
+
+  public AgentExternalCheck(String botHost, String serviceHost, String groupId,
+      TicketClient ticketClient) {
+    this.botHost = botHost;
+    this.serviceHost = serviceHost;
+    this.groupId = groupId;
     this.ticketClient = ticketClient;
   }
 
@@ -57,17 +67,40 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage) {
+  public Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage, Object opaque) {
     Set<SymMessage> symCheckerMessages = new HashSet<>();
-    MakerCheckerServiceConfig config = session.getMakerCheckerServiceConfig();
+
+    String streamId = Base64.encodeBase64String(Base64.decodeBase64(symMessage.getStreamId()));
+    Long makerId = symMessage.getFromUserId();
+    Long timestamp = Long.valueOf(symMessage.getTimestamp());
+    String messageId = symMessage.getId();
+
+    Set<String> proxyToIds = (Set<String>) opaque;
+
     for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
-      SymMessage checkerMessage = new SymMessage();
+      MakerCheckerMessageBuilder messageBuilder = new MakerCheckerMessageBuilder();
+      messageBuilder.botHost(botHost);
+      messageBuilder.serviceHost(serviceHost);
 
-      checkerMessage.setMessage(config.getAttachmentMessageTemplate());
+      messageBuilder.makerId(makerId);
+      messageBuilder.streamId(streamId);
+      messageBuilder.timestamp(timestamp);
+      messageBuilder.messageId(messageId);
+      messageBuilder.groupId(groupId);
 
-      MessageTemplate entityTemplate = new MessageTemplate(config.getAttachmentEntityTemplate());
-      checkerMessage.setEntityData(entityTemplate.buildFromData(
-          new AttachmentEntityTemplateData(attachmentInfo.getId(), ATTACHMENT)));
+      proxyToIds.stream().forEach(id -> messageBuilder.addProxyToStreamId(id));
+
+      String attachmentId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
+      messageBuilder.attachmentId(attachmentId);
+
+      SymMessage checkerMessage = messageBuilder.build();
+      checkerMessage.setStreamId(symMessage.getStreamId());
+      checkerMessage.setFromUserId(makerId);
+
+      SymAttachmentInfo attachment = new SymAttachmentInfo();
+      attachment.setId(attachmentId);
+
+      checkerMessage.setAttachments(Arrays.asList(attachment));
 
       symCheckerMessages.add(checkerMessage);
     }
@@ -102,8 +135,4 @@ public class AgentExternalCheck implements Checker {
         makerCheckerMessage.getType().equals(ATTACHMENT);
   }
 
-  @Override
-  public void setSession(MakerCheckerServiceSession makerCheckerServiceSession) {
-    this.session = makerCheckerServiceSession;
-  }
 }
