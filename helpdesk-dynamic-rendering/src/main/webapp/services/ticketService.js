@@ -24,5 +24,5 @@ export default class TicketService {
 
   getTicket(ticketUrl) {
     return getTicket(ticketUrl);
-  } 
+  }
 }
