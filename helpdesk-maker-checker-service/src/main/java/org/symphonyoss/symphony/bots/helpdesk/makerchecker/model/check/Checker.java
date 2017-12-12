@@ -1,7 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check;
 
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.Set;
@@ -18,11 +17,16 @@ public interface Checker {
    */
   Set<Object> check(SymMessage message);
 
-  Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage);
+  /**
+   * Builds checker messages.
+   * @param symMessage Symphony message received
+   * @param opaque Data used by checker to mount the checker messages
+   * @return Checker messages
+   */
+  Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage, Object opaque);
 
   Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
 
   boolean isCheckerType(MakerCheckerMessage makerCheckerMessage);
 
-  void setSession(MakerCheckerServiceSession makerCheckerServiceSession);
 }

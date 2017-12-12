@@ -220,22 +220,6 @@ public class HelpDeskBotConfig {
     this.agentStreamId = agentStreamId;
   }
 
-  public String getMakerCheckerMessageTemplate() {
-    return makerCheckerMessageTemplate;
-  }
-
-  public void setMakerCheckerMessageTemplate(String makerCheckerMessageTemplate) {
-    this.makerCheckerMessageTemplate = makerCheckerMessageTemplate;
-  }
-
-  public String getMakerCheckerEntityTemplate() {
-    return makerCheckerEntityTemplate;
-  }
-
-  public void setMakerCheckerEntityTemplate(String makerCheckerEntityTemplate) {
-    this.makerCheckerEntityTemplate = makerCheckerEntityTemplate;
-  }
-
   public String getAiServicePrefix() {
     return aiServicePrefix;
   }

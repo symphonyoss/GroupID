@@ -1,16 +1,12 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker;
 
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.Checker;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.template
-    .MakerCheckerEntityTemplateData;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
-import org.symphonyoss.symphony.bots.utility.template.MessageTemplate;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 
@@ -26,20 +22,20 @@ import javax.ws.rs.BadRequestException;
  * Validates a messages, and requests validation from another user when checks fail.
  */
 public class MakerCheckerService {
+
   private static final Logger LOG = LoggerFactory.getLogger(MakerCheckerService.class);
   private static final String MESSAGE_NOT_FOUND = "Message with id %s could not be found.";
   private static final String STREAM_NOT_FOUND= "The stream %s could not be found.";
 
   private Set<Checker> checkerSet = new HashSet<>();
-  private Set<Object> flaggedData = new HashSet<>();
 
   private final MakercheckerClient makercheckerClient;
 
-  private final MakerCheckerServiceSession session;
+  private final SymphonyClient symphonyClient;
 
-  public MakerCheckerService(MakercheckerClient client, MakerCheckerServiceSession session) {
+  public MakerCheckerService(MakercheckerClient client, SymphonyClient symphonyClient) {
     this.makercheckerClient = client;
-    this.session = session;
+    this.symphonyClient = symphonyClient;
   }
 
   /**
@@ -48,7 +44,6 @@ public class MakerCheckerService {
    */
   public void addCheck(Checker checker) {
     checkerSet.add(checker);
-    checker.setSession(session);
   }
 
   /**
@@ -57,15 +52,14 @@ public class MakerCheckerService {
    * @return if all the checks passed.
    */
   public boolean allChecksPass(SymMessage symMessage) {
-    flaggedData = new HashSet<>();
     for(Checker checker: checkerSet) {
       Set<Object> flagged = checker.check(symMessage);
-      if(flagged != null && !flagged.isEmpty()) {
-        flaggedData.add(flagged);
+      if (flagged != null && !flagged.isEmpty()) {
+        return false;
       }
     }
 
-    return flaggedData.isEmpty();
+    return true;
   }
 
   /**
@@ -78,9 +72,8 @@ public class MakerCheckerService {
     SymStream stream = new SymStream();
     stream.setStreamId(makerCheckerMessage.getStreamId());
     try {
-      List<SymMessage> symMessageList =
-          session.getSymphonyClient().getMessagesClient().getMessagesFromStream(
-              stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
+      List<SymMessage> symMessageList = symphonyClient.getMessagesClient()
+          .getMessagesFromStream(stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
 
       SymMessage match = null;
       for(SymMessage symMessage : symMessageList) {
@@ -130,60 +123,22 @@ public class MakerCheckerService {
    * @return the maker checker message.
    */
   public Set<SymMessage> getMakerCheckerMessages(SymMessage symMessage, Set<String> proxyToIds) {
-    String groupId = session.getMakerCheckerServiceConfig().getGroupId();
-    String safeAgentStreamId = Base64.encodeBase64String(Base64.decodeBase64(symMessage.getStreamId()));
     Set<SymMessage> makerCheckerMessages = new HashSet<>();
+
     for(Checker checker: checkerSet) {
-      Set<Object> flagged = checker.check(symMessage);
-      if(flagged != null && !flagged.isEmpty()) {
-        Set<SymMessage> symMessages = checker.buildSymCheckerMessages(symMessage);
-        for (SymMessage checkerMessage : symMessages) {
-          MessageTemplate entityTemplate = new MessageTemplate(checkerMessage.getEntityData());
-          checkerMessage.setEntityData(entityTemplate.buildFromData(
-              new MakerCheckerEntityTemplateData(groupId, symMessage, proxyToIds)));
-          checkerMessage.setStreamId(safeAgentStreamId);
-          checkerMessage.setFromUserId(symMessage.getFromUserId());
-          makerCheckerMessages.add(checkerMessage);
-        }
+      Set<Object> checkFlagged = checker.check(symMessage);
+
+      if (checkFlagged != null && !checkFlagged.isEmpty()) {
+        makerCheckerMessages.addAll(checker.buildSymCheckerMessages(symMessage, proxyToIds));
       }
     }
 
-    makerCheckerMessages.addAll(getMessagesFromUnflaggedData(symMessage, proxyToIds));
     return makerCheckerMessages;
   }
 
-  private Set<SymMessage> getMessagesFromUnflaggedData(SymMessage symMessage, Set<String> proxyToIds) {
-    boolean messageContainsData = false;
-    Set<SymMessage> symMessages = new HashSet<>();
-    if(messageContainsData) {
-      for (String stream: proxyToIds) {
-        SymMessage unflaggedData = new SymMessage();
-        if (!flaggedData.contains(symMessage.getMessage())) {
-          unflaggedData.setMessage(symMessage.getMessage());
-          messageContainsData = true;
-        }
-        if (!flaggedData.contains(symMessage.getEntityData())) {
-          unflaggedData.setEntityData(symMessage.getEntityData());
-          messageContainsData = true;
-        }
-        if(!flaggedData.contains(symMessage.getAttachments())) {
-          unflaggedData.setAttachments(symMessage.getAttachments());
-          messageContainsData = true;
-        }
-        unflaggedData.setStreamId(stream);
-        unflaggedData.setFromUserId(symMessage.getFromUserId());
-
-        if(messageContainsData) {
-          symMessages.add(unflaggedData);
-        }
-      }
-    }
-
-    return symMessages;
-  }
-
-  public void createMakerchecker(String id, Long makerId, String streamId) {
-    this.makercheckerClient.createMakerchecker(id, makerId, streamId);
+  public void createMakerchecker(SymMessage symMessage) {
+    this.makercheckerClient.createMakerchecker(symMessage.getAttachments().get(0).getId(),
+        symMessage.getFromUserId(), symMessage.getStreamId());
   }
 
 }

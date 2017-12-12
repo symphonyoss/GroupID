@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
  */
 public class ProxyConversation extends AiConversation {
 
-  private static final int MAKERCHECKER_ID_LENGTH = 10;
-
   private Set<AiResponseIdentifier> proxyToIds = new HashSet<>();
 
   private ProxyIdleTimer proxyIdleTimer;
@@ -77,9 +75,7 @@ public class ProxyConversation extends AiConversation {
       AiResponse aiResponse = new AiResponse(new SymphonyAiMessage(symMessage), identifiers);
       responder.addResponse(aiSessionContext, aiResponse);
 
-      String makercheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
-      makerCheckerService.createMakerchecker(makercheckerId, symMessage.getFromUserId(),
-          symMessage.getStreamId());
+      makerCheckerService.createMakerchecker(symMessage);
     }
 
     responder.respond(aiSessionContext);
