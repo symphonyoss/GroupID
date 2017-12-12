@@ -30,7 +30,7 @@ makerCheckerEntityTemplate:
         \"version\": \"1.0\",
         \"uid\" : \"{UID}\",
         \"streamId\" : \"{STREAM_ID}\",
-        \"proxyToStreamIds\" : \"{PROXY_TO_STREAM_IDS}\",
+        \"proxyToStreamIds\" : {PROXY_TO_STREAM_IDS},
         \"timestamp\" : \"{TIMESTAMP}\",
         \"messageId\" : \"{MESSAGE_ID}\",
         \"groupId\" : \"{GROUP_ID}\",
