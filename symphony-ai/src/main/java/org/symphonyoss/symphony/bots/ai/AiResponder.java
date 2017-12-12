@@ -25,7 +25,7 @@ public interface AiResponder {
    * Send response menu.
    * @param sessionContext the session context to base the response menu on.
    */
-  void respondWithUseMenu(AiSessionContext sessionContext);
+  void respondWithUseMenu(AiSessionContext sessionContext, AiMessage message);
 
   /**
    * Send suggestion message based on menu.

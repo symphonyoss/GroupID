@@ -1,5 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
+import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType.AGENT;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +25,10 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessi
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.Agent;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -49,7 +51,6 @@ public class V1HelpDeskController extends V1ApiController {
   private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
   private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
-  private static final String NO_MAKER_CHECKER_TYPE = "No checker type can support this maker checker message.";
   private static final String MAKER_CHECKER_NOT_FOUND = "Makerchecker not found.";
 
   @Autowired
@@ -97,8 +98,11 @@ public class V1HelpDeskController extends V1ApiController {
       Membership membership = helpDeskBotSession.getMembershipClient().getMembership(agentId);
 
       if (membership == null) {
-        helpDeskBotSession.getMembershipClient().newMembership(agentId, MembershipClient.MembershipType.AGENT);
+        helpDeskBotSession.getMembershipClient().newMembership(agentId, AGENT);
         LOG.info("Created new agent membership for userid: " + agentId);
+      } else if (!AGENT.getType().equals(membership.getType())) {
+        membership.setType(AGENT.getType());
+        helpDeskBotSession.getMembershipClient().updateMembership(membership);
       }
 
       SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(
@@ -117,10 +121,11 @@ public class V1HelpDeskController extends V1ApiController {
       helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
 
       // Update ticket status and its agent
-      Agent agent = new Agent();
-      agent.setAgentId(agentId);
+      UserInfo agent = new UserInfo();
+      agent.setUserId(agentId);
       agent.setDisplayName(agentUser.getDisplayName());
       ticket.setAgent(agent);
+
       ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
       helpDeskBotSession.getTicketClient().updateTicket(ticket);
 
@@ -256,9 +261,6 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
-    HelpDeskBotSession botSession = sessionManager.getSession(detail.getGroupId());
-
     Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
     if (makerchecker == null) {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
@@ -277,6 +279,7 @@ public class V1HelpDeskController extends V1ApiController {
     User user = getUser(detail, agentUser);
 
     makerCheckerResponse.setUser(user);
+    makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
 
     return makerCheckerResponse;
   }

@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.exceptions.MessagesException;
@@ -79,7 +80,7 @@ public class MakerCheckerService {
     try {
       List<SymMessage> symMessageList =
           session.getSymphonyClient().getMessagesClient().getMessagesFromStream(
-              stream, Long.parseLong(makerCheckerMessage.getTimeStamp()) - 1, 0, 10);
+              stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
 
       SymMessage match = null;
       for(SymMessage symMessage : symMessageList) {
@@ -130,6 +131,7 @@ public class MakerCheckerService {
    */
   public Set<SymMessage> getMakerCheckerMessages(SymMessage symMessage, Set<String> proxyToIds) {
     String groupId = session.getMakerCheckerServiceConfig().getGroupId();
+    String safeAgentStreamId = Base64.encodeBase64String(Base64.decodeBase64(symMessage.getStreamId()));
     Set<SymMessage> makerCheckerMessages = new HashSet<>();
     for(Checker checker: checkerSet) {
       Set<Object> flagged = checker.check(symMessage);
@@ -139,7 +141,7 @@ public class MakerCheckerService {
           MessageTemplate entityTemplate = new MessageTemplate(checkerMessage.getEntityData());
           checkerMessage.setEntityData(entityTemplate.buildFromData(
               new MakerCheckerEntityTemplateData(groupId, symMessage, proxyToIds)));
-          checkerMessage.setStreamId(symMessage.getStreamId());
+          checkerMessage.setStreamId(safeAgentStreamId);
           checkerMessage.setFromUserId(symMessage.getFromUserId());
           makerCheckerMessages.add(checkerMessage);
         }

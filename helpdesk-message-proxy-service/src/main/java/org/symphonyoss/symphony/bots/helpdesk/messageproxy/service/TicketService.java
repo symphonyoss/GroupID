@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,12 +12,14 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInf
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.TicketMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
+
 
 /**
  * Created by rsanchez on 01/12/17.
@@ -26,9 +29,9 @@ public class TicketService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketService.class);
 
-  private static final String TICKET_HEADER = "Equities Desk Bot";
-
   private final String agentStreamId;
+
+  private final String claimHeader;
 
   private final TicketClient ticketClient;
 
@@ -40,11 +43,13 @@ public class TicketService {
 
   private final HelpDeskServiceInfo helpDeskServiceInfo;
 
-  public TicketService(@Value("${agentStreamId}") String agentStreamId, TicketClient ticketClient,
-      SymphonyClient symphonyClient, HelpDeskBotInfo helpDeskBotInfo,
-      HelpDeskServiceInfo helpDeskServiceInfo) {
+  public TicketService(@Value("${agentStreamId}") String agentStreamId,
+      @Value("${claimEntityHeader}") String claimHeader,
+      TicketClient ticketClient, SymphonyClient symphonyClient,
+      HelpDeskBotInfo helpDeskBotInfo, HelpDeskServiceInfo helpDeskServiceInfo) {
     this.agentStreamId = agentStreamId;
     this.ticketClient = ticketClient;
+    this.claimHeader = claimHeader;
     this.helpDeskBotInfo = helpDeskBotInfo;
     this.helpDeskServiceInfo = helpDeskServiceInfo;
     this.messagesClient = symphonyClient.getMessagesClient();
@@ -52,9 +57,21 @@ public class TicketService {
   }
 
   public Ticket createTicket(String ticketId, SymMessage message, String serviceStreamId) {
-    Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStreamId);
+    UserInfo client = null;
+
+    try {
+      SymUser symUser = usersClient.getUserFromId(message.getFromUserId());
+
+      client = new UserInfo();
+      client.setUserId(symUser.getId());
+      client.setDisplayName(symUser.getDisplayName());
+    } catch (UsersClientException e) {
+      LOGGER.error("Could not get symphony user when creating ticket: ", e);
+    }
+
+    Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStreamId,
+        Long.valueOf(message.getTimestamp()), client);
     sendTicketMessageToAgentStreamId(ticket, message);
-    sendClientMessageToServiceStreamId(serviceStreamId, message);
 
     return ticket;
   }
@@ -71,6 +88,8 @@ public class TicketService {
     SymStream stream = new SymStream();
     stream.setStreamId(agentStreamId);
 
+    String safeAgentStreamId = Base64.encodeBase64String(Base64.decodeBase64(agentStreamId));
+
     TicketMessageBuilder builder = new TicketMessageBuilder();
 
     builder.botHost(helpDeskBotInfo.getUrl());
@@ -78,9 +97,9 @@ public class TicketService {
 
     builder.ticketId(ticket.getId());
     builder.ticketState(ticket.getState());
-    builder.streamId(agentStreamId);
+    builder.streamId(safeAgentStreamId);
 
-    builder.header(TICKET_HEADER);
+    builder.header(claimHeader);
 
     try {
       SymUser symUser = usersClient.getUserFromId(message.getFromUserId());
@@ -99,9 +118,9 @@ public class TicketService {
     }
   }
 
-  private void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
+  public void sendIdleMessageToAgentStreamId(SymMessage message) {
     SymStream stream = new SymStream();
-    stream.setStreamId(streamId);
+    stream.setStreamId(agentStreamId);
 
     try {
       messagesClient.sendMessage(stream, message);

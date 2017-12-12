@@ -5,10 +5,14 @@ import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
+import org.symphonyoss.symphony.bots.ai.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.IdleMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -34,12 +38,19 @@ public class MessageProxyService {
 
   private final MakerCheckerService clientMakerCheckerService;
 
+  private final IdleTicketConfig idleTicketConfig;
+
+  private final TicketService ticketService;
+
   public MessageProxyService(HelpDeskAi helpDeskAi,
       @Qualifier("agentMakerCheckerService") MakerCheckerService agentMakerCheckerService,
-      @Qualifier("clientMakerCheckerService") MakerCheckerService clientMakerCheckerService) {
+      @Qualifier("clientMakerCheckerService") MakerCheckerService clientMakerCheckerService,
+      IdleTicketConfig idleTicketConfig, TicketService ticketService) {
     this.helpDeskAi = helpDeskAi;
     this.agentMakerCheckerService = agentMakerCheckerService;
     this.clientMakerCheckerService = clientMakerCheckerService;
+    this.idleTicketConfig = idleTicketConfig;
+    this.ticketService = ticketService;
   }
 
   /**
@@ -96,8 +107,19 @@ public class MessageProxyService {
 
     helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
 
-    agentProxy.put(ticket.getId(), new MessageProxy());
-    agentProxy.get(ticket.getId()).addProxyConversation(aiConversation);
+    MessageProxy messageProxy = new MessageProxy();
+    messageProxy.setAgentProxyTimer(new ProxyIdleTimer(idleTicketConfig.getTimeout(),
+        idleTicketConfig.getUnit()) {
+      @Override
+      public void onIdleTimeout() {
+        sendIdleMessage(ticket);
+      }
+    });
+    messageProxy.getAgentProxyTimer().start();
+
+    agentProxy.put(ticket.getId(), messageProxy);
+    aiConversation.setProxyIdleTimer(messageProxy.getAgentProxyTimer());
+    messageProxy.addProxyConversation(aiConversation);
   }
 
   /**
@@ -111,7 +133,9 @@ public class MessageProxyService {
     aiConversation.addProxyId(ticket.getClientStreamId());
     helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
 
-    agentProxy.get(ticket.getId()).addProxyConversation(aiConversation);
+    MessageProxy messageProxy = agentProxy.get(ticket.getId());
+    aiConversation.setProxyIdleTimer(messageProxy.getAgentProxyTimer());
+    messageProxy.addProxyConversation(aiConversation);
   }
 
   /**
@@ -122,10 +146,29 @@ public class MessageProxyService {
   private void createClientProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
     ProxyConversation aiConversation = new ProxyConversation(false, clientMakerCheckerService);
     aiConversation.addProxyId(ticket.getServiceStreamId());
+
     helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
 
-    clientProxy.put(ticket.getId(), new MessageProxy());
-    clientProxy.get(ticket.getId()).addProxyConversation(aiConversation);
+    MessageProxy messageProxy = new MessageProxy();
+    messageProxy.setAgentProxyTimer(new ProxyIdleTimer(idleTicketConfig.getTimeout(),
+        idleTicketConfig.getUnit()) {
+      @Override
+      public void onIdleTimeout() {
+        sendIdleMessage(ticket);
+      }
+    });
+    messageProxy.getAgentProxyTimer().start();
+
+    clientProxy.put(ticket.getId(), messageProxy);
+    messageProxy.addProxyConversation(aiConversation);
   }
 
+  private void sendIdleMessage(Ticket ticket) {
+    SymMessage message = new IdleMessageBuilder().ticket(ticket.getId())
+        .message(idleTicketConfig.getMessage())
+        .build();
+
+    ticketService.sendIdleMessageToAgentStreamId(message);
+  }
+  
 }

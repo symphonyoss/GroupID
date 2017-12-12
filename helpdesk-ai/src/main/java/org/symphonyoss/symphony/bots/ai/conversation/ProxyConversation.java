@@ -14,16 +14,21 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by nick.tarsillo on 9/28/17.
  * An extension of an AI conversation that proxys and validates messages.
  */
 public class ProxyConversation extends AiConversation {
+
   private static final int MAKERCHECKER_ID_LENGTH = 10;
+
   private Set<AiResponseIdentifier> proxyToIds = new HashSet<>();
+
+  private ProxyIdleTimer proxyIdleTimer;
+
   private MakerCheckerService makerCheckerService;
-  private MakercheckerClient makercheckerClient;
 
   public ProxyConversation(boolean allowCommands, MakerCheckerService makerCheckerService) {
     super(allowCommands);
@@ -40,30 +45,44 @@ public class ProxyConversation extends AiConversation {
   @Override
   public void onMessage(AiResponder responder, AiMessage message) {
     SymphonyAiMessage symphonyAiMessage = (SymphonyAiMessage) message;
+
     if(makerCheckerService.allChecksPass(symphonyAiMessage.toSymMessage())) {
-      AiResponse aiResponse = new AiResponse(symphonyAiMessage, proxyToIds);
-      responder.addResponse(aiSessionContext, aiResponse);
-      responder.respond(aiSessionContext);
+      dispatchMessage(responder, symphonyAiMessage);
     } else {
-      Set<String> proxyToIds = new HashSet<>();
-      for(AiResponseIdentifier aiResponseIdentifier : this.proxyToIds) {
-        proxyToIds.add(aiResponseIdentifier.getResponseIdentifier());
-      }
-
-      Set<SymMessage> symMessages =
-          makerCheckerService.getMakerCheckerMessages(symphonyAiMessage.toSymMessage(), proxyToIds);
-      for(SymMessage symMessage: symMessages) {
-        Set<AiResponseIdentifier> identifiers = new HashSet<>();
-        identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
-        AiResponse aiResponse = new AiResponse(new SymphonyAiMessage(symMessage), identifiers);
-        responder.addResponse(aiSessionContext, aiResponse);
-
-        String makercheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
-        makerCheckerService.createMakerchecker(makercheckerId, symMessage.getFromUserId(),
-            symMessage.getStreamId());
-      }
-      responder.respond(aiSessionContext);
+      dispatchMakerCheckerMessage(responder, symphonyAiMessage);
     }
+
+    if (proxyIdleTimer != null) {
+      proxyIdleTimer.reset();
+    }
+  }
+
+  private void dispatchMessage(AiResponder responder, SymphonyAiMessage symphonyAiMessage) {
+    AiResponse aiResponse = new AiResponse(symphonyAiMessage, proxyToIds);
+    responder.addResponse(aiSessionContext, aiResponse);
+    responder.respond(aiSessionContext);
+  }
+
+  private void dispatchMakerCheckerMessage(AiResponder responder, SymphonyAiMessage symphonyAiMessage) {
+    Set<String> proxyToIds = this.proxyToIds.stream()
+        .map(item -> item.getResponseIdentifier())
+        .collect(Collectors.toSet());
+
+    Set<SymMessage> symMessages =
+        makerCheckerService.getMakerCheckerMessages(symphonyAiMessage.toSymMessage(), proxyToIds);
+
+    for(SymMessage symMessage: symMessages) {
+      Set<AiResponseIdentifier> identifiers = new HashSet<>();
+      identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+      AiResponse aiResponse = new AiResponse(new SymphonyAiMessage(symMessage), identifiers);
+      responder.addResponse(aiSessionContext, aiResponse);
+
+      String makercheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
+      makerCheckerService.createMakerchecker(makercheckerId, symMessage.getFromUserId(),
+          symMessage.getStreamId());
+    }
+
+    responder.respond(aiSessionContext);
   }
 
   /**
@@ -72,5 +91,13 @@ public class ProxyConversation extends AiConversation {
    */
   public void addProxyId(String streamId) {
     proxyToIds.add(new AiResponseIdentifierImpl(streamId));
+  }
+
+  public ProxyIdleTimer getProxyIdleTimer() {
+    return proxyIdleTimer;
+  }
+
+  public void setProxyIdleTimer(ProxyIdleTimer proxyIdleTimer) {
+    this.proxyIdleTimer = proxyIdleTimer;
   }
 }

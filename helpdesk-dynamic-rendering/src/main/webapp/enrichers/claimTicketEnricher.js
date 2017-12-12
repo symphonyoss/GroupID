@@ -10,6 +10,18 @@ const messageEvents = [
   'com.symphony.bots.helpdesk.event.ticket',
 ];
 
+function renderErrorMessage(entity, messageError) {
+  const data = actionFactory([], enricherServiceName, entity);
+
+  const result = {
+    template: error({ message: messageError }),
+    data,
+    enricherInstanceId: entity.ticketId,
+  };
+
+  return result;
+}
+
 export default class ClaimTicketEnricher extends MessageEnricherBase {
   constructor() {
     super(enricherServiceName, messageEvents);
@@ -22,19 +34,15 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
-    if (entity.url === undefined) {
-      const data = actionFactory([], enricherServiceName, entity);
-
-      const result = {
-        template: error({ message: 'Cannot retrieve ticket state.' }),
-        data,
-        enricherInstanceId: entity.ticketId,
-      };
-
-      return result;
+    if (entity.ticketUrl === undefined) {
+      return renderErrorMessage(entity, 'Cannot retrieve ticket state.');
     }
 
-    return this.services.ticketService.getTicket(entity.url).then((rsp) => {
+    return this.services.ticketService.getTicket(entity.ticketUrl).then((rsp) => {
+      if (rsp.code === '204') {
+        return renderErrorMessage(entity, 'Ticket not found.');
+      }
+
       const displayName = rsp.data.agent && rsp.data.agent.displayName ? rsp.data.agent.displayName : '';
       const claimTicketAction = {
         id: 'claimTicket',
@@ -57,18 +65,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       };
 
       return result;
-    }).catch((error) => {
-      switch (error.message) {
-        // TODO APP-1477 To map all errors from API
-        case '500': {
-          break;
-        }
-        default: {
-          // TODO APP-1477
-          break;
-        }
-      }
-    });
+    }).catch(() => renderErrorMessage(entity, 'Cannot retrieve ticket state.'));
   }
 
   action(data) {
@@ -80,8 +77,8 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         type: 'claimTicket',
         label: 'Claim',
         enricherInstanceId: rsp.ticketId,
-        showClaim: rsp.ticket.state === 'UNSERVICED',
-        userName: rsp.user.displayName,
+        show: rsp.data.state === 'UNSERVICED',
+        userName: rsp.data.user.displayName,
       };
 
       const dataUpdate = actionFactory([claimTicketAction], enricherServiceName, data.entity);

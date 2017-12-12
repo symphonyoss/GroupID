@@ -41,7 +41,7 @@ public class AiEventListenerImpl implements AiEventListener {
     }
 
     if (!commandExecuted && aiCommandInterpreter.hasPrefix(command, commandMenu.getCommandPrefix())) {
-      aiResponder.respondWithUseMenu(sessionContext);
+      aiResponder.respondWithUseMenu(sessionContext, command);
       if (suggestCommands) {
         aiResponder.respondWithSuggestion(sessionContext, aiCommandInterpreter, command);
       }
