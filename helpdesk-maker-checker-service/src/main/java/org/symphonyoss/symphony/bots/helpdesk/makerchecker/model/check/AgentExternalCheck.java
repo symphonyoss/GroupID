@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check;
 import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
     .TicketStateType.UNRESOLVED;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.MakerCheckerMessageBuilder;
@@ -69,7 +70,7 @@ public class AgentExternalCheck implements Checker {
   public Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage, Object opaque) {
     Set<SymMessage> symCheckerMessages = new HashSet<>();
 
-    String streamId = symMessage.getStreamId();
+    String streamId = Base64.encodeBase64String(Base64.decodeBase64(symMessage.getStreamId()));
     Long makerId = symMessage.getFromUserId();
     Long timestamp = Long.valueOf(symMessage.getTimestamp());
     String messageId = symMessage.getId();
@@ -93,7 +94,7 @@ public class AgentExternalCheck implements Checker {
       messageBuilder.attachmentId(attachmentId);
 
       SymMessage checkerMessage = messageBuilder.build();
-      checkerMessage.setStreamId(streamId);
+      checkerMessage.setStreamId(symMessage.getStreamId());
       checkerMessage.setFromUserId(makerId);
 
       SymAttachmentInfo attachment = new SymAttachmentInfo();

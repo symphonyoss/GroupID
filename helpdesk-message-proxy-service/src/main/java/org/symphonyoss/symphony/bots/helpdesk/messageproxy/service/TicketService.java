@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,6 +19,7 @@ import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
+
 
 /**
  * Created by rsanchez on 01/12/17.
@@ -86,6 +88,8 @@ public class TicketService {
     SymStream stream = new SymStream();
     stream.setStreamId(agentStreamId);
 
+    String safeAgentStreamId = Base64.encodeBase64String(Base64.decodeBase64(agentStreamId));
+
     TicketMessageBuilder builder = new TicketMessageBuilder();
 
     builder.botHost(helpDeskBotInfo.getUrl());
@@ -93,7 +97,7 @@ public class TicketService {
 
     builder.ticketId(ticket.getId());
     builder.ticketState(ticket.getState());
-    builder.streamId(agentStreamId);
+    builder.streamId(safeAgentStreamId);
 
     builder.header(claimHeader);
 

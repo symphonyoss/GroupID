@@ -24,7 +24,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
   enrich(type, entity) {
     let attachment;
     return this.services.attachmentService.search(entity.attachmentUrl).then((rsp) => {
-      attachment = rsp;
+      attachment = rsp.data;
       return getUserId();
     }).then(userId => this.showAttachmentsRender(entity, attachment, userId));
   }
@@ -50,13 +50,13 @@ export default class AttachmentEnricher extends MessageEnricherBase {
 
     const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
       enricherServiceName, entity);
-    const canPerformActions = rsp.state !== 'Approved' && rsp.state !== 'Denied';
-    const displayName = rsp.user.displayName ? rsp.user.displayName : '';
+    const canPerformActions = rsp.state !== 'APPROVED' && rsp.state !== 'DENIED';
+    const displayName = rsp.user !== undefined ? rsp.user.displayName : '';
     const result = {
       template: actions({ showActions: canPerformActions,
         showButtons: !show,
         body: 'You cannot approve a message you authored, please invite a checker',
-        isApproved: rsp.state === 'Approved',
+        isApproved: rsp.state === 'APPROVED',
         userName: displayName }),
       data,
       enricherInstanceId: entity.attachmentId,
