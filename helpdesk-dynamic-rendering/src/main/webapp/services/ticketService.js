@@ -1,6 +1,8 @@
 import { claimTicket, getTicket } from '../api/apiCalls';
-import { errorTypes } from '../utils/errorTypes';
-import { componentTypes } from '../utils/componentTypes';
+import errorTypes from '../utils/errorTypes';
+import componentTypes from '../utils/componentTypes';
+import messageByCode from '../errorMessages/messageByCode';
+import messages from '../errorMessages/messages';
 
 export default class TicketService {
   constructor(serviceName) {
@@ -9,30 +11,18 @@ export default class TicketService {
 
   claim(data) {
     const errorMessageService = SYMPHONY.services.subscribe('error-banner');
+    let errorCode;
     return claimTicket(data)
-      .catch((error) => {
-        switch (error.message) {
-          case '400': {
-            errorMessageService.setChatBanner(data.streamId, componentTypes.CHAT, 'Ticket or agent could not be found.', errorTypes.ERROR);
-            break;
-          }
-          case '401': {
-            errorMessageService.setChatBanner(data.streamId, componentTypes.CHAT, 'Agent is unauthorized to claim this ticket.', errorTypes.ERROR);
-            break;
-          }
-          case '404': {
-            errorMessageService.setChatBanner(data.streamId, componentTypes.CHAT, 'Ticket not found;', errorTypes.ERROR);
-            break;
-          }
-          default: {
-            errorMessageService.setChatBanner(data.streamId, componentTypes.CHAT, 'Internal server error.', errorTypes.ERROR);
-            break;
-          }
-        }
-      });
+    .catch((error) => {
+      errorCode = parseInt(error.message, 10);
+      const messageText = error.message ? messageByCode[errorCode]
+        : messages.GENERIC_ERROR;
+      errorMessageService.setChatBanner(data.entity.streamId, componentTypes.CHAT,
+        messageText, errorTypes.ERROR);
+    });
   }
 
   getTicket(ticketUrl) {
     return getTicket(ticketUrl);
-  }
+  } 
 }
