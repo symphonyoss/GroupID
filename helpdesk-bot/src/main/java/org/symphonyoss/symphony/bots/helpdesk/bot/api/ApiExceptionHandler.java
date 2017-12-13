@@ -83,12 +83,11 @@ public class ApiExceptionHandler {
   @ResponseBody
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Error> handleInternalServerErrorException(Exception ex) {
-    String message = ex.getMessage();
-    LOGGER.error(message);
+    LOGGER.error("Unexpected error.", ex);
 
     HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 
-    Error response = new Error().code(status.value()).message(message);
+    Error response = new Error().code(status.value()).message(ex.getMessage());
     return ResponseEntity.status(status).body(response);
   }
 
