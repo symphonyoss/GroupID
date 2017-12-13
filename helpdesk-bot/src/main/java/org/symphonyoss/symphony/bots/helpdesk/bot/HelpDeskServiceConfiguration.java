@@ -102,15 +102,6 @@ public class HelpDeskServiceConfiguration {
     return new MakerCheckerService(makercheckerClient, symphonyClient);
   }
 
-  @Bean(name = "autoAcceptConnectionListener")
-  public AutoConnectionAcceptListener getAutoAcceptConnectionListener(SymphonyClient symphonyClient) {
-    AutoConnectionAcceptListener connectionListener =
-        new AutoConnectionAcceptListener(symphonyClient.getConnectionsClient());
-    symphonyClient.getMessageService().addConnectionsEventListener(connectionListener);
-
-    return connectionListener;
-  }
-
   @Bean(name = "validationUtil")
   public SymphonyValidationUtil getValidationUtil(SymphonyClient symphonyClient) {
     return new SymphonyValidationUtil(symphonyClient);
