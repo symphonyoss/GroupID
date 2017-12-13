@@ -38,7 +38,7 @@
     </dependencies>
 
     <build>
-        <finalName>helpdesk</finalName>
+        <finalName>helpdesk-bot</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
