@@ -1,0 +1,9 @@
+<messageML>
+    <div class="entity" data-entity-id="makerchecker">
+        <card class="barStyle">
+            <header>
+                The above message contains an attachment and has therefore not been sent. Please have a checker approve this message.
+            </header>
+        </card>
+    </div>
+</messageML>

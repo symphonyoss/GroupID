@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.InitException;
-import org.symphonyoss.client.impl.SymphonyBasicClient;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
@@ -14,8 +13,6 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.config.MakerCheckerServiceConfig;
-import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerServiceSession;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
@@ -87,41 +84,22 @@ public class HelpDeskServiceConfiguration {
   public MakerCheckerService getAgentMakerCheckerService(HelpDeskBotConfig configuration,
       SymphonyClient symphonyClient, TicketClient ticketClient,
       MakercheckerClient makercheckerClient) {
-    MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
-    makerCheckerServiceSession.setSymphonyClient(symphonyClient);
-
-    MakerCheckerServiceConfig makerCheckerServiceConfig = new MakerCheckerServiceConfig();
-    makerCheckerServiceConfig.setAttachmentMessageTemplate(configuration.getMakerCheckerMessageTemplate());
-    makerCheckerServiceConfig.setAttachmentEntityTemplate(configuration.getMakerCheckerEntityTemplate());
-    makerCheckerServiceConfig.setGroupId(configuration.getGroupId());
-
-    makerCheckerServiceSession.setMakerCheckerServiceConfig(makerCheckerServiceConfig);
-
     MakerCheckerService agentMakerCheckerService =
-        new MakerCheckerService(makercheckerClient, makerCheckerServiceSession);
-    agentMakerCheckerService.addCheck(new AgentExternalCheck(symphonyClient, ticketClient));
+        new MakerCheckerService(makercheckerClient, symphonyClient);
+
+    AgentExternalCheck agentExternalCheck =
+        new AgentExternalCheck(configuration.getHelpDeskBotUrl(),
+            configuration.getHelpDeskServiceUrl(), configuration.getGroupId(), ticketClient);
+
+    agentMakerCheckerService.addCheck(agentExternalCheck);
 
     return  agentMakerCheckerService;
   }
 
   @Bean(name = "clientMakerCheckerService")
-  public MakerCheckerService getClientMakerCheckerService(HelpDeskBotConfig configuration,
-      SymphonyClient symphonyClient, MakercheckerClient makercheckerClient) {
-    MakerCheckerServiceSession makerCheckerServiceSession = new MakerCheckerServiceSession();
-    makerCheckerServiceSession.setSymphonyClient(symphonyClient);
-
-    MakerCheckerServiceConfig makerCheckerServiceConfig = new MakerCheckerServiceConfig();
-    makerCheckerServiceConfig.setAttachmentMessageTemplate(configuration.getMakerCheckerMessageTemplate());
-    makerCheckerServiceConfig.setAttachmentEntityTemplate(configuration.getMakerCheckerEntityTemplate());
-    makerCheckerServiceConfig.setGroupId(configuration.getGroupId());
-
-    makerCheckerServiceSession.setMakerCheckerServiceConfig(makerCheckerServiceConfig);
-    makerCheckerServiceSession.setSymphonyClient(symphonyClient);
-
-    MakerCheckerService clientMakerCheckerService =
-        new MakerCheckerService(makercheckerClient, makerCheckerServiceSession);
-
-    return clientMakerCheckerService;
+  public MakerCheckerService getClientMakerCheckerService(SymphonyClient symphonyClient,
+      MakercheckerClient makercheckerClient) {
+    return new MakerCheckerService(makercheckerClient, symphonyClient);
   }
 
   @Bean(name = "autoAcceptConnectionListener")

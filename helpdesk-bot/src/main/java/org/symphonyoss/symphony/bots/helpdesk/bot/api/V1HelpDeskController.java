@@ -254,8 +254,6 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-    HelpDeskBotSessionManager sessionManager = HelpDeskBotSessionManager.getDefaultSessionManager();
-
     Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
     if (makerchecker == null) {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
@@ -274,6 +272,7 @@ public class V1HelpDeskController extends V1ApiController {
     User user = getUser(detail, agentUser);
 
     makerCheckerResponse.setUser(user);
+    makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
 
     return makerCheckerResponse;
   }

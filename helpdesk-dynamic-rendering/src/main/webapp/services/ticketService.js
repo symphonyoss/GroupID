@@ -1,4 +1,8 @@
 import { claimTicket, getTicket } from '../api/apiCalls';
+import errorTypes from '../utils/errorTypes';
+import componentTypes from '../utils/componentTypes';
+import messageByCode from '../errorMessages/messageByCode';
+import messages from '../errorMessages/messages';
 
 export default class TicketService {
   constructor(serviceName) {
@@ -6,27 +10,16 @@ export default class TicketService {
   }
 
   claim(data) {
+    const errorMessageService = SYMPHONY.services.subscribe('error-banner');
+    let errorCode;
     return claimTicket(data)
-      .catch((error) => {
-        switch (error.message) {
-          case '400': {
-            // TODO APP-1455
-            break;
-          }
-          case '401': {
-            // TODO APP-1455
-            break;
-          }
-          case '404': {
-            // TODO APP-1455
-            break;
-          }
-          default: {
-            // TODO APP-1455
-            break;
-          }
-        }
-      });
+    .catch((error) => {
+      errorCode = parseInt(error.message, 10);
+      const messageText = error.message ? messageByCode[errorCode]
+        : messages.GENERIC_ERROR;
+      errorMessageService.setChatBanner(data.entity.streamId, componentTypes.CHAT,
+        messageText, errorTypes.ERROR);
+    });
   }
 
   getTicket(ticketUrl) {
