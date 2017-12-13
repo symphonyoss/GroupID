@@ -96,6 +96,7 @@ public class AgentExternalCheck implements Checker {
       SymMessage checkerMessage = messageBuilder.build();
       checkerMessage.setStreamId(symMessage.getStreamId());
       checkerMessage.setFromUserId(makerId);
+      checkerMessage.setStream(symMessage.getStream());
 
       SymAttachmentInfo attachment = new SymAttachmentInfo();
       attachment.setId(attachmentId);
