@@ -136,7 +136,17 @@ public class MakerCheckerService {
     return makerCheckerMessages;
   }
 
-  public void createMakerchecker(SymMessage symMessage) {
+  public void sendMakerCheckerMesssage(SymMessage message)
+  {
+    try {
+      createMakerchecker(message);
+      symphonyClient.getMessagesClient().sendMessage(message.getStream(), message);
+    } catch (MessagesException e) {
+      LOG.error("Error sending an attachment to the room", e);
+    }
+  }
+
+  private void createMakerchecker(SymMessage symMessage) {
     this.makercheckerClient.createMakerchecker(symMessage.getAttachments().get(0).getId(),
         symMessage.getFromUserId(), symMessage.getStreamId());
   }
