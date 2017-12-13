@@ -94,7 +94,7 @@ public class TicketService {
         .message(instructionalMessageConfig.getMessage())
         .command(instructionalMessageConfig.getCommand())
         .mentionUserId(botUser.getId().toString());
-    sendClientMessageToServiceStreamId(message.getStreamId(), messageBuilder.build());
+    sendClientMessageToServiceStreamId(ticket.getServiceStreamId(), messageBuilder.build());
 
     return ticket;
   }
