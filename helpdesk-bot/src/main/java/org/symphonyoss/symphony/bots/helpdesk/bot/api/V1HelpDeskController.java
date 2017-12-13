@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
-import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType.AGENT;
+import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
+    .MembershipType.AGENT;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,6 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessi
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -113,13 +113,6 @@ public class V1HelpDeskController extends V1ApiController {
         helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
       }
 
-      String agentStreamId = symphonyClient.getStreamsClient().getStream(agentUser).getStreamId();
-      symphonyAiMessage = new SymphonyAiMessage(
-          helpDeskBotSession.getHelpDeskBotConfig().getAcceptTicketAgentSuccessResponse());
-      responseIdentifierSet = new HashSet<>();
-      responseIdentifierSet.add(new AiResponseIdentifierImpl(agentStreamId));
-      helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
-
       // Update ticket status and its agent
       UserInfo agent = new UserInfo();
       agent.setUserId(agentId);
@@ -198,7 +191,7 @@ public class V1HelpDeskController extends V1ApiController {
     validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");
     validateRequiredParameter("timestamp", detail.getTimeStamp(), "body");
     validateRequiredParameter("messageId", detail.getMessageId(), "body");
-    validateRequiredParameter("userId", detail.getUserId(), "body");
+    validateRequiredParameter("mentionUserId", detail.getUserId(), "body");
 
     Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
     if (makerchecker == null) {

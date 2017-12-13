@@ -15,6 +15,10 @@ idle-ticket:
   timeout: 1
   unit: "HOURS"
 
+instructional-ticket:
+  message: " to close the ticket upon ticket resolution."
+  command: "<mention uid=\"%s\"> Close"
+
 makerCheckerMessageTemplate:
   "<div class=\"entity\" data-entity-id=\"makerchecker\">
     <card class=\"barStyle\">
