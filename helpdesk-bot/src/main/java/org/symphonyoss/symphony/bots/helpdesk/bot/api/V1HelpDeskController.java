@@ -1,10 +1,12 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
- import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType.AGENT;
+import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
+    .MembershipType.AGENT;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
@@ -13,6 +15,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.HealthcheckResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
@@ -20,8 +23,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthCheckFailedException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSession;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
