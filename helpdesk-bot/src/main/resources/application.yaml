@@ -1,45 +1,12 @@
 #This is a sample help desk bot properties config.
 server:
-  port: 8443
-  ssl:
-    key-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/server.keystore
-    key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
-    trust-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/server.truststore
-    trust-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
+  address: 0.0.0.0
+  port : 8090
+  display-name: Help Desk Bot
+  context-path: /helpdesk-bot
+  connection-timeout: 20000
 
-authentication:
-  keystore-file: /Users/nick.tarsillo/Desktop/certs/helpdesk.demo.p12
-  keystore-password: changeit
-  truststore-file: /Users/nick.tarsillo/Desktop/certs/server.truststore
-  truststore-password: changeit
-
-agent:
-  host: nexus2-dev.symphony.com
-
-session_auth:
-  host: sym-nexus2-dev-chat-glb-2-guse1-all.symphony.com
-  port: 8444
-
-key_auth:
-  host: sym-nexus2-dev-chat-glb-2-guse1-all.symphony.com
-  port: 8444
-
-pod:
-  host: nexus2-dev.symphony.com
-
-helpdesk-bot:
-  host: localhost.symphony.com
-  port: 8443
-
-helpdesk-service:
-  host: localhost.symphony.com
-  port: 8445
-
-agentStreamId: nlSxIm6wtGZkA9WQyvt_qn___p_f_H9sdA
-
-email: helpdesk.demo@symphony.com
-defaultAgentEmail: nick.tarsillo@symphony.com
-groupId: Demo
+email: helpdesk@symphony.com
 
 claimEntityHeader: "<b>Equities Desk Bot</b>"
 
