@@ -50,6 +50,7 @@ public class V1HelpDeskController extends V1ApiController {
   private static final String MAKER_CHECKER_DENY_RESPONSE = "Maker checker message denied.";
   private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
+  private static final String TICKET_WAS_CLAIMED = "Ticket was claimed.";
   private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
   private static final String MAKER_CHECKER_NOT_FOUND = "Makerchecker not found.";
 
@@ -78,6 +79,10 @@ public class V1HelpDeskController extends V1ApiController {
 
     if (ticket == null) {
       throw new BadRequestException(TICKET_NOT_FOUND);
+    }
+
+    if (!TicketClient.TicketStateType.UNSERVICED.getState().equals(ticket.getState())) {
+      throw new BadRequestException(TICKET_WAS_CLAIMED);
     }
 
     symphonyValidationUtil.validateStream(ticket.getServiceStreamId());
