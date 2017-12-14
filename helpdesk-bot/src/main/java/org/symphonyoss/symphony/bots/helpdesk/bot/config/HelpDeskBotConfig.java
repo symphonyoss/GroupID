@@ -34,10 +34,6 @@ public class HelpDeskBotConfig {
 
   private String agentStreamId;
 
-  private String makerCheckerMessageTemplate;
-
-  private String makerCheckerEntityTemplate;
-
   private String aiServicePrefix;
 
   private String aiDefaultPrefix;
@@ -59,6 +55,8 @@ public class HelpDeskBotConfig {
   private String addMemberClientSuccessResponse;
 
   private String claimEntityHeader;
+
+  private String welcomeMessage;
 
   public String getEmail() {
     return email;
@@ -316,4 +314,11 @@ public class HelpDeskBotConfig {
     this.claimEntityHeader = claimEntityHeader;
   }
 
+  public String getWelcomeMessage() {
+    return welcomeMessage;
+  }
+
+  public void setWelcomeMessage(String welcomeMessage) {
+    this.welcomeMessage = welcomeMessage;
+  }
 }
