@@ -6,13 +6,13 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 public class InstructionalMessageBuilder {
   private static final String TEMPLATE = "<messageML>Use <b>%s</b> %s</messageML>";
 
-  private String mentionUserId;
+  private Long mentionUserId;
 
   private String message;
 
   private String command;
 
-  public InstructionalMessageBuilder mentionUserId(String userId) {
+  public InstructionalMessageBuilder mentionUserId(Long userId) {
     this.mentionUserId = userId;
     return this;
   }

@@ -93,7 +93,7 @@ public class TicketService {
     InstructionalMessageBuilder messageBuilder = new InstructionalMessageBuilder()
         .message(instructionalMessageConfig.getMessage())
         .command(instructionalMessageConfig.getCommand())
-        .mentionUserId(botUser.getId().toString());
+        .mentionUserId(botUser.getId());
     sendClientMessageToServiceStreamId(ticket.getServiceStreamId(), messageBuilder.build());
 
     return ticket;

@@ -191,7 +191,7 @@ public class V1HelpDeskController extends V1ApiController {
     validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");
     validateRequiredParameter("timestamp", detail.getTimeStamp(), "body");
     validateRequiredParameter("messageId", detail.getMessageId(), "body");
-    validateRequiredParameter("mentionUserId", detail.getUserId(), "body");
+    validateRequiredParameter("userId", detail.getUserId(), "body");
 
     Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
     if (makerchecker == null) {

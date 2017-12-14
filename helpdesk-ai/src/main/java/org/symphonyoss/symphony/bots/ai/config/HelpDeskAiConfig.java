@@ -18,7 +18,6 @@ public class HelpDeskAiConfig {
 
   private String addMemberClientSuccessResponse;
   private String addMemberAgentSuccessResponse;
-  private String acceptTicketAgentSuccessResponse;
   private String acceptTicketClientSuccessResponse;
   private String closeTicketSuccessResponse;
 
@@ -84,14 +83,6 @@ public class HelpDeskAiConfig {
 
   public void setAddMemberAgentSuccessResponse(String addMemberAgentSuccessResponse) {
     this.addMemberAgentSuccessResponse = addMemberAgentSuccessResponse;
-  }
-
-  public String getAcceptTicketAgentSuccessResponse() {
-    return acceptTicketAgentSuccessResponse;
-  }
-
-  public void setAcceptTicketAgentSuccessResponse(String acceptTicketAgentSuccessResponse) {
-    this.acceptTicketAgentSuccessResponse = acceptTicketAgentSuccessResponse;
   }
 
   public String getCloseTicketSuccessResponse() {
