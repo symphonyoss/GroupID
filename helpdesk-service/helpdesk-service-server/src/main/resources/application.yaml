@@ -1,10 +1,6 @@
 server:
-  port: 8445
-  ssl:
-    key-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/server.keystore
-    key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
-    trust-store: /Users/nick.tarsillo/dev/java/symphony/projects/symphony-jpm-helpdesk/helpdesk-bot/src/test/sample/server.truststore
-    trust-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
+  address: 0.0.0.0
+  port : 8081
   display-name: Help Desk Service
   context-path: /helpdesk
   connection-timeout: 20000
@@ -12,9 +8,7 @@ server:
 helpdesk:
   mongo:
     port: 27017
-    host: localhost
-    database: maestro
-    ignoreSSL: true
+    database: helpdesk
     socketTimeout: 10000
     connectTimeout: 5000
     waitTimeout: 10000
