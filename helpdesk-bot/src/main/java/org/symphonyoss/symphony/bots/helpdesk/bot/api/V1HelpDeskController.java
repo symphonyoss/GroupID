@@ -129,13 +129,6 @@ public class V1HelpDeskController extends V1ApiController {
         helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
       }
 
-      String agentStreamId = symphonyClient.getStreamsClient().getStream(agentUser).getStreamId();
-      symphonyAiMessage = new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketAgentSuccessResponse());
-
-      responseIdentifierSet = new HashSet<>();
-      responseIdentifierSet.add(new AiResponseIdentifierImpl(agentStreamId));
-      helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
-
       // Update ticket status and its agent
       UserInfo agent = new UserInfo();
       agent.setUserId(agentId);

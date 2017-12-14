@@ -56,8 +56,6 @@ public class AcceptTicketCommand extends AiCommand {
               .addMemberToRoom(ticket.getServiceStreamId(), aiSessionKey.getUid());
           ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
           helpDeskAiSession.getTicketClient().updateTicket(ticket);
-          responder.addResponse(sessionContext,
-              successResponseAgent(helpDeskAiConfig, aiSessionKey));
           responder.addResponse(sessionContext, successResponseClient(helpDeskAiConfig, ticket));
         } catch (SymException e) {
           LOG.error("Failed to add agent to service room: ", e);
@@ -68,10 +66,6 @@ public class AcceptTicketCommand extends AiCommand {
       }
 
       responder.respond(sessionContext);
-    }
-
-    private AiResponse successResponseAgent(HelpDeskAiConfig helpDeskAiConfig, SymphonyAiSessionKey aiSessionKey) {
-      return response(helpDeskAiConfig.getAcceptTicketAgentSuccessResponse(), aiSessionKey.getStreamId());
     }
 
     private AiResponse successResponseClient(HelpDeskAiConfig helpDeskAiConfig, Ticket ticket) {

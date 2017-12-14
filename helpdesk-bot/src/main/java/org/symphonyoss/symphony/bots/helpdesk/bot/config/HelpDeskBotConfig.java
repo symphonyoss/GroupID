@@ -44,8 +44,6 @@ public class HelpDeskBotConfig {
 
   private String addMemberCommand;
 
-  private String acceptTicketAgentSuccessResponse;
-
   private String acceptTicketClientSuccessResponse;
 
   private String closeTicketSuccessResponse;
@@ -256,14 +254,6 @@ public class HelpDeskBotConfig {
 
   public void setAddMemberCommand(String addMemberCommand) {
     this.addMemberCommand = addMemberCommand;
-  }
-
-  public String getAcceptTicketAgentSuccessResponse() {
-    return acceptTicketAgentSuccessResponse;
-  }
-
-  public void setAcceptTicketAgentSuccessResponse(String acceptTicketAgentSuccessResponse) {
-    this.acceptTicketAgentSuccessResponse = acceptTicketAgentSuccessResponse;
   }
 
   public String getAcceptTicketClientSuccessResponse() {
