@@ -38,7 +38,7 @@
             <directory>${project.build.directory}/apps</directory>
             <outputDirectory>${helpdesk.bot.dist}</outputDirectory>
             <includes>
-                <include>helpdesk.jar</include>
+                <include>helpdesk-bot.jar</include>
             </includes>
             <fileMode>755</fileMode>
             <directoryMode>755</directoryMode>
