@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.conversation;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
@@ -9,7 +8,6 @@ import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
-import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.HashSet;
@@ -47,7 +45,7 @@ public class ProxyConversation extends AiConversation {
     if(makerCheckerService.allChecksPass(symphonyAiMessage.toSymMessage())) {
       dispatchMessage(responder, symphonyAiMessage);
     } else {
-      dispatchMakerCheckerMessage(responder, symphonyAiMessage);
+      dispatchMakerCheckerMessage(symphonyAiMessage);
     }
 
     if (proxyIdleTimer != null) {
@@ -61,7 +59,7 @@ public class ProxyConversation extends AiConversation {
     responder.respond(aiSessionContext);
   }
 
-  private void dispatchMakerCheckerMessage(AiResponder responder, SymphonyAiMessage symphonyAiMessage) {
+  private void dispatchMakerCheckerMessage(SymphonyAiMessage symphonyAiMessage) {
     Set<String> proxyToIds = this.proxyToIds.stream()
         .map(item -> item.getResponseIdentifier())
         .collect(Collectors.toSet());
@@ -70,15 +68,8 @@ public class ProxyConversation extends AiConversation {
         makerCheckerService.getMakerCheckerMessages(symphonyAiMessage.toSymMessage(), proxyToIds);
 
     for(SymMessage symMessage: symMessages) {
-      Set<AiResponseIdentifier> identifiers = new HashSet<>();
-      identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
-      AiResponse aiResponse = new AiResponse(new SymphonyAiMessage(symMessage), identifiers);
-      responder.addResponse(aiSessionContext, aiResponse);
-
-      makerCheckerService.createMakerchecker(symMessage);
+     makerCheckerService.sendMakerCheckerMesssage(symMessage);
     }
-
-    responder.respond(aiSessionContext);
   }
 
   /**
