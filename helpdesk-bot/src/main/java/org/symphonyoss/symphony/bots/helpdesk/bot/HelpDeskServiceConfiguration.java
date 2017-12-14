@@ -11,7 +11,6 @@ import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
@@ -99,15 +98,6 @@ public class HelpDeskServiceConfiguration {
   public MakerCheckerService getClientMakerCheckerService(SymphonyClient symphonyClient,
       MakercheckerClient makercheckerClient) {
     return new MakerCheckerService(makercheckerClient, symphonyClient);
-  }
-
-  @Bean(name = "autoAcceptConnectionListener")
-  public AutoConnectionAcceptListener getAutoAcceptConnectionListener(SymphonyClient symphonyClient) {
-    AutoConnectionAcceptListener connectionListener =
-        new AutoConnectionAcceptListener(symphonyClient.getConnectionsClient());
-    symphonyClient.getMessageService().addConnectionsEventListener(connectionListener);
-
-    return connectionListener;
   }
 
   @Bean(name = "validationUtil")
