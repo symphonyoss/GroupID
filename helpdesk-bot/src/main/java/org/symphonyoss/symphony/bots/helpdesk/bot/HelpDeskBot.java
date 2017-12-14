@@ -65,10 +65,12 @@ public class HelpDeskBot {
   }
 
   private void registerDefaultAgent() {
-    if(!StringUtils.isBlank(configuration.getDefaultAgentEmail())) {
+    String email = configuration.getDefaultAgentEmail();
+
+    if(!StringUtils.isBlank(email)) {
       UsersClient userClient = symphonyClient.getUsersClient();
       try {
-        SymUser symUser = userClient.getUserFromEmail(configuration.getDefaultAgentEmail());
+        SymUser symUser = userClient.getUserFromEmail(email);
         Membership membership = membershipClient.getMembership(symUser.getId());
 
         if(membership == null) {
@@ -78,7 +80,7 @@ public class HelpDeskBot {
           membershipClient.updateMembership(membership);
         }
       } catch (UsersClientException e) {
-        throw new IllegalStateException("Error registering default agent user: ", e);
+        throw new IllegalStateException("Error registering default agent user: " + email, e);
       }
     } else {
       throw new IllegalStateException("Bot email address were not provided");
