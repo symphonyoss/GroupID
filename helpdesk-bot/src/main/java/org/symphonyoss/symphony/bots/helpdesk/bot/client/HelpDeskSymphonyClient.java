@@ -5,6 +5,7 @@ import org.symphonyoss.client.SymphonyClientConfigID;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.impl.SymphonyBasicClient;
 import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.client.services.MessageService;
 import org.symphonyoss.client.services.RoomService;
 
 /**
@@ -14,15 +15,20 @@ public class HelpDeskSymphonyClient extends SymphonyBasicClient {
 
   private HelpDeskRoomService roomService;
 
+  private HelpDeskMessageService messageService;
+
   @Override
   public void init(SymAuth symAuth, String email, String agentUrl, String podUrl) throws InitException {
     validateAgentUrl(agentUrl);
     validatePodUrl(podUrl);
     validateAuthentication(symAuth);
 
-    SymphonyClientConfig config = buildRoomService(symAuth, email, agentUrl, podUrl);
+    SymphonyClientConfig config = buildConfig(email, agentUrl, podUrl);
 
     super.init(symAuth, config);
+
+    buildRoomService(symAuth, config);
+    buildMessageService();
   }
 
   private void validateAgentUrl(String agentUrl) throws InitException {
@@ -44,20 +50,32 @@ public class HelpDeskSymphonyClient extends SymphonyBasicClient {
     }
   }
 
-  private SymphonyClientConfig buildRoomService(SymAuth symAuth, String email, String agentUrl, String podUrl) {
+  private SymphonyClientConfig buildConfig(String email, String agentUrl, String podUrl) {
     SymphonyClientConfig config = new SymphonyClientConfig(false);
     config.set(SymphonyClientConfigID.AGENT_URL, agentUrl);
     config.set(SymphonyClientConfigID.POD_URL, podUrl);
     config.set(SymphonyClientConfigID.USER_EMAIL, email);
-
-    this.roomService = new HelpDeskRoomService(this, symAuth, config);
+    config.set(SymphonyClientConfigID.DISABLE_SERVICES, Boolean.TRUE.toString());
 
     return config;
+  }
+
+  private void buildRoomService(SymAuth symAuth, SymphonyClientConfig config) {
+    this.roomService = new HelpDeskRoomService(this, symAuth, config);
+  }
+
+  private void buildMessageService() {
+    this.messageService = new HelpDeskMessageService(this);
   }
 
   @Override
   public RoomService getRoomService() {
     return this.roomService;
+  }
+
+  @Override
+  public MessageService getMessageService() {
+    return this.messageService;
   }
 
 }

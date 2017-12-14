@@ -9,7 +9,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.session.HelpDeskBotSessionManager;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 /**
@@ -32,10 +31,6 @@ public class SpringHelpDeskBotInit {
   public SpringHelpDeskBotInit(HelpDeskBotConfig configuration, HelpDeskBot helpDeskBot) {
     this.configuration = configuration;
     this.helpDeskBot = helpDeskBot;
-
-    HelpDeskBotSessionManager.setDefaultSessionManager(new HelpDeskBotSessionManager());
-    HelpDeskBotSessionManager.getDefaultSessionManager().registerSession(this.configuration.getGroupId(),
-        this.helpDeskBot.getHelpDeskBotSession());
   }
 
   /**
