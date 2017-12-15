@@ -17,22 +17,13 @@ import javax.annotation.PostConstruct;
 @Component
 public class ChatListener implements MessageListener {
 
-  private final SymphonyClient symphonyClient;
-
   private final TicketManagerService ticketManagerService;
 
   private final HelpDeskAi helpDeskAi;
 
-  public ChatListener(SymphonyClient symphonyClient, TicketManagerService ticketManagerService,
-      HelpDeskAi helpDeskAi) {
-    this.symphonyClient = symphonyClient;
+  public ChatListener(TicketManagerService ticketManagerService, HelpDeskAi helpDeskAi) {
     this.ticketManagerService = ticketManagerService;
     this.helpDeskAi = helpDeskAi;
-  }
-
-  @PostConstruct
-  public void init() {
-    this.symphonyClient.getMessageService().addMessageListener(this);
   }
 
   @Override

@@ -3,13 +3,9 @@ package org.symphonyoss.symphony.bots.helpdesk.bot;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.client.exceptions.InitException;
-import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
-import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
-import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
@@ -37,17 +33,6 @@ public class HelpDeskServiceConfiguration {
   @Bean(name = "makercheckerClient")
   public MakercheckerClient getMakercheckerClient(HelpDeskBotConfig configuration) {
     return new MakercheckerClient(configuration.getGroupId(), configuration.getHelpDeskServiceUrl());
-  }
-
-  @Bean(name = "symphonyClient")
-  public SymphonyClient getSymphonyClient(HelpDeskBotConfig configuration,
-      HelpDeskAuthenticationService authenticationService) throws InitException {
-    SymAuth symAuth = authenticationService.authenticate();
-
-    SymphonyClient symClient = new HelpDeskSymphonyClient();
-    symClient.init(symAuth, configuration.getEmail(), configuration.getAgentUrl(), configuration.getPodUrl());
-
-    return symClient;
   }
 
   @Bean(name = "helpdeskAi")

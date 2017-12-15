@@ -3,7 +3,6 @@ package org.symphonyoss.symphony.bots.helpdesk.bot;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -29,8 +28,6 @@ public class HelpDeskBotTest {
 
   private static final String MOCK_GROUP_ID = "mockgroupid";
 
-  private static final String MOCK_EMAIL = "email@test.com";
-
   private static final long MOCK_USERID = 123456;
 
   @Mock
@@ -54,12 +51,9 @@ public class HelpDeskBotTest {
     SymUser user = new SymUser();
     user.setId(MOCK_USERID);
 
-    doReturn(user).when(usersClient).getUserFromEmail(MOCK_EMAIL);
-
-    doReturn(usersClient).when(symphonyClient).getUsersClient();
+    doReturn(user).when(symphonyClient).getLocalUser();
 
     doReturn(MOCK_GROUP_ID).when(configuration).getGroupId();
-    doReturn(MOCK_EMAIL).when(configuration).getDefaultAgentEmail();
   }
 
   @Test
@@ -67,7 +61,7 @@ public class HelpDeskBotTest {
     doReturn(null).when(configuration).getGroupId();
 
     try {
-      this.helpDeskBot.init();
+      this.helpDeskBot.validateGroupId();
       fail();
     } catch (IllegalStateException e) {
       assertEquals("GroupId were not provided", e.getMessage());
@@ -75,32 +69,8 @@ public class HelpDeskBotTest {
   }
 
   @Test
-  public void testMissingDefaultAgentEmail() throws InitException {
-    doReturn(null).when(configuration).getDefaultAgentEmail();
-
-    try {
-      this.helpDeskBot.init();
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals("Bot email address were not provided", e.getMessage());
-    }
-  }
-
-  @Test
-  public void testFailUsersClient() throws InitException, UsersClientException {
-    doThrow(UsersClientException.class).when(usersClient).getUserFromEmail(MOCK_EMAIL);
-
-    try {
-      this.helpDeskBot.init();
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals("Error registering default agent user: " + MOCK_EMAIL, e.getMessage());
-    }
-  }
-
-  @Test
   public void testCreateMembership() throws InitException, UsersClientException {
-    this.helpDeskBot.init();
+    this.helpDeskBot.registerDefaultAgent();
     verify(membershipClient, times(1)).newMembership(MOCK_USERID, MembershipClient.MembershipType.AGENT);
   }
 
@@ -110,7 +80,7 @@ public class HelpDeskBotTest {
 
     doReturn(membership).when(membershipClient).getMembership(MOCK_USERID);
 
-    this.helpDeskBot.init();
+    this.helpDeskBot.registerDefaultAgent();
 
     verify(membershipClient, times(1)).updateMembership(membership);
   }

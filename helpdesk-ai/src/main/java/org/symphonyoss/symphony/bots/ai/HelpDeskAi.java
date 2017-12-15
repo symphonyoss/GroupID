@@ -28,9 +28,10 @@ public class HelpDeskAi extends SymphonyAi {
 
   public HelpDeskAi(HelpDeskAiSession helpDeskAiSession) {
     super(helpDeskAiSession.getSymphonyClient(), helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands());
-
     this.helpDeskAiSession = helpDeskAiSession;
+  }
 
+  public void init() {
     AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(
         helpDeskAiSession.getSymphonyClient().getLocalUser());
 

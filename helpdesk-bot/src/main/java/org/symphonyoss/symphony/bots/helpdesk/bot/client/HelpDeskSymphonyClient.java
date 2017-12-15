@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.client;
 
+import org.springframework.stereotype.Service;
 import org.symphonyoss.client.SymphonyClientConfig;
 import org.symphonyoss.client.SymphonyClientConfigID;
 import org.symphonyoss.client.exceptions.InitException;
@@ -7,20 +8,43 @@ import org.symphonyoss.client.impl.SymphonyBasicClient;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.client.services.MessageService;
 import org.symphonyoss.client.services.RoomService;
+import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
+import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 
 /**
  * Created by rsanchez on 05/12/17.
  */
+@Service
 public class HelpDeskSymphonyClient extends SymphonyBasicClient {
+
+  private final HelpDeskBotConfig configuration;
+
+  private final HelpDeskAuthenticationService authenticationService;
 
   private HelpDeskRoomService roomService;
 
   private HelpDeskMessageService messageService;
 
-  @Override
-  public void init(SymAuth symAuth, String email, String agentUrl, String podUrl) throws InitException {
+  public HelpDeskSymphonyClient(HelpDeskAuthenticationService authenticationService,
+      HelpDeskBotConfig configuration) throws InitException {
+    this.authenticationService = authenticationService;
+    this.configuration = configuration;
+  }
+
+  public void init() throws InitException {
+    String email = configuration.getEmail();
+    String agentUrl = configuration.getAgentUrl();
+    String podUrl = configuration.getPodUrl();
+
     validateAgentUrl(agentUrl);
     validatePodUrl(podUrl);
+
+    SymAuth symAuth = authenticationService.authenticate();
+    init(symAuth, email, agentUrl, podUrl);
+  }
+
+  @Override
+  public void init(SymAuth symAuth, String email, String agentUrl, String podUrl) throws InitException {
     validateAuthentication(symAuth);
 
     SymphonyClientConfig config = buildConfig(email, agentUrl, podUrl);
