@@ -1,14 +1,17 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
-import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType.AGENT;
-import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType.CLIENT;
+import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
+    .MembershipType.AGENT;
+import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
+    .MembershipType.CLIENT;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
+    .MembershipType;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
@@ -24,22 +27,27 @@ public class MembershipService {
 
   private final String agentStreamId;
 
-  public MembershipService(MembershipClient membershipClient, @Value("agentStreamId") String agentStreamId) {
+  public MembershipService(MembershipClient membershipClient,
+      @Value("agentStreamId") String agentStreamId) {
     this.membershipClient = membershipClient;
     this.agentStreamId = agentStreamId;
   }
 
-  public Membership updateMembership(SymMessage symMessage) {
+  public Membership updateMembership(SymMessage symMessage, String type) {
     Long userId = symMessage.getFromUserId();
 
     Membership membership = getMembership(userId);
 
-    if (membership == null) {
-      if (symMessage.getStreamId().equals(agentStreamId)) {
+    if (AGENT.getType().equals(type)) {
+      if (membership == null) {
         membership = createAgentMembership(userId);
       } else {
-        membership = createClientMembership(userId);
+        membership = updateAgentMembership(membership);
       }
+    }
+
+    if (CLIENT.getType().equals(type) && membership == null) {
+      membership = createClientMembership(userId);
     }
 
     return membership;
@@ -71,8 +79,21 @@ public class MembershipService {
     return membership;
   }
 
+  public Membership updateAgentMembership(Membership membership) {
+    membership.setType(AGENT.getType());
+    Membership updatedMembership = updateMembership(membership);
+
+    LOGGER.info("Updated agent membership for userid: " + membership.getId());
+
+    return updatedMembership;
+  }
+
   private Membership createMembership(Long userId, MembershipType type) {
     return membershipClient.newMembership(userId, type);
+  }
+
+  private Membership updateMembership(Membership membership) {
+    return membershipClient.updateMembership(membership);
   }
 
 }
