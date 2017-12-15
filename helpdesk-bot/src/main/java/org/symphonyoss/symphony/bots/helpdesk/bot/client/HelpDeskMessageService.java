@@ -1,10 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.client;
 
-import static org.symphonyoss.client.events.SymEventTypes.Type.USERJOINEDROOM;
-
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.events.SymEvent;
-import org.symphonyoss.client.events.SymEventTypes;
 import org.symphonyoss.client.services.MessageService;
 
 /**
@@ -22,9 +19,7 @@ public class HelpDeskMessageService extends MessageService {
 
   @Override
   public void onEvent(SymEvent symEvent) {
-    SymEventTypes.Type type = SymEventTypes.Type.fromValue(symEvent.getType());
-
-    if (USERJOINEDROOM.equals(type)) {
+    if (symEvent.getId() == null) {
       symEvent.setId(symEvent.getType());
     }
 

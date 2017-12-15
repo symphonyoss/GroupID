@@ -6,9 +6,9 @@ import static org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext.SessionT
 
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
-import org.symphonyoss.symphony.bots.ai.impl.AiCommandInterpreterImpl;
 import org.symphonyoss.symphony.bots.ai.impl.AiEventListenerImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAi;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
@@ -31,7 +31,8 @@ public class HelpDeskAi extends SymphonyAi {
 
     this.helpDeskAiSession = helpDeskAiSession;
 
-    AiCommandInterpreter aiCommandInterpreter = new AiCommandInterpreterImpl();
+    AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(
+        helpDeskAiSession.getSymphonyClient().getLocalUser());
 
     boolean suggestCommands = helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands();
     SymphonyClient symphonyClient = helpDeskAiSession.getSymphonyClient();
