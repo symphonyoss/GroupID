@@ -43,7 +43,7 @@ public class V1HelpDeskControllerTest {
     doReturn(ticket).when(ticketClient).getTicket(ticket.getId());
 
     try {
-      v1HelpDeskController.acceptTicket(MOCK_TICKET_ID, 1l);
+      v1HelpDeskController.acceptTicket(MOCK_TICKET_ID, null);
       fail();
     } catch (BadRequestException e) {
       assertEquals(EXPECTED_MESSAGE_TO_TICKET_WAS_CLAIMED, e.getMessage());
