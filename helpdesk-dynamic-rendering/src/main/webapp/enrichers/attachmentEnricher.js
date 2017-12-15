@@ -4,11 +4,24 @@ import AttachmentService from '../services/attachmentService';
 import { getUserId } from '../utils/userUtils';
 
 const actions = require('../templates/attachmentActions.hbs');
+const error = require('../templates/error.hbs');
 
 const enricherServiceName = 'helpdesk-attachment-enricher';
 const messageEvents = [
   'com.symphony.bots.helpdesk.event.makerchecker',
 ];
+
+function renderErrorMessage(entity, messageError) {
+  const data = actionFactory([], enricherServiceName, entity);
+
+  const result = {
+    template: error({ message: messageError }),
+    data,
+    enricherInstanceId: entity.ticketId,
+  };
+
+  return result;
+}
 
 export default class AttachmentEnricher extends MessageEnricherBase {
   constructor() {
@@ -22,11 +35,23 @@ export default class AttachmentEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
+    if (entity.attachmentUrl === undefined) {
+      return renderErrorMessage(entity, 'Cannot retrieve attachment state.');
+    }
+
     let attachment;
     return this.services.attachmentService.search(entity.attachmentUrl).then((rsp) => {
+      if (rsp.code === '204') {
+        return renderErrorMessage(entity, 'Ticket not found.');
+      }
+
       attachment = rsp.data;
       return getUserId();
-    }).then(userId => this.showAttachmentsRender(entity, attachment, userId));
+    }).then(userId =>
+      this.showAttachmentsRender(entity, attachment, userId)
+    ).catch(() =>
+      renderErrorMessage(entity, 'Cannot retrieve ticket state.')
+    );
   }
 
   showAttachmentsRender(entity, rsp, userId) {
