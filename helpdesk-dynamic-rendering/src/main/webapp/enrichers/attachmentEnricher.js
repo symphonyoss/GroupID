@@ -42,7 +42,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     let attachment;
     return this.services.attachmentService.search(entity.attachmentUrl).then((rsp) => {
       if (rsp.code === '204') {
-        return renderErrorMessage(entity, 'Ticket not found.');
+        return renderErrorMessage(entity, 'Attachment not found.');
       }
 
       attachment = rsp.data;
@@ -50,7 +50,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     }).then(userId =>
       this.showAttachmentsRender(entity, attachment, userId)
     ).catch(() =>
-      renderErrorMessage(entity, 'Cannot retrieve ticket state.')
+      renderErrorMessage(entity, 'Cannot retrieve attachment state.')
     );
   }
 
