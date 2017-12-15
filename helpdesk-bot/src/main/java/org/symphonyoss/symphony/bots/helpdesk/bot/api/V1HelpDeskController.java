@@ -101,70 +101,70 @@ public class V1HelpDeskController extends V1ApiController {
       throw new BadRequestException(TICKET_NOT_FOUND);
     }
 
-    if (!TicketClient.TicketStateType.UNSERVICED.getState().equals(ticket.getState())) {
-      throw new BadRequestException(TICKET_WAS_CLAIMED);
-    }
+    if (TicketClient.TicketStateType.UNSERVICED.getState().equals(ticket.getState())) {
+      symphonyValidationUtil.validateStream(ticket.getServiceStreamId());
+      symphonyValidationUtil.validateStream(ticket.getClientStreamId());
 
-    symphonyValidationUtil.validateStream(ticket.getServiceStreamId());
-    symphonyValidationUtil.validateStream(ticket.getClientStreamId());
+      SymUser agentUser = symphonyValidationUtil.validateUserId(agentId);
 
-    SymUser agentUser = symphonyValidationUtil.validateUserId(agentId);
+      try {
+        AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
 
-    try {
-      AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
+        symphonyClient.getRoomMembershipClient().addMemberToRoom(ticket.getServiceStreamId(), agentUser.getId());
 
-      symphonyClient.getRoomMembershipClient().addMemberToRoom(ticket.getServiceStreamId(), agentUser.getId());
+        Membership membership = membershipClient.getMembership(agentId);
 
-      Membership membership = membershipClient.getMembership(agentId);
+        if (membership == null) {
+          membershipClient.newMembership(agentId, AGENT);
+          LOG.info("Created new agent membership for userid: " + agentId);
+        } else if (!AGENT.getType().equals(membership.getType())) {
+          membership.setType(AGENT.getType());
+          membershipClient.updateMembership(membership);
+        }
 
-      if (membership == null) {
-        membershipClient.newMembership(agentId, AGENT);
-        LOG.info("Created new agent membership for userid: " + agentId);
-      } else if (!AGENT.getType().equals(membership.getType())) {
-        membership.setType(AGENT.getType());
-        membershipClient.updateMembership(membership);
-      }
+        SymphonyAiMessage symphonyAiMessage =
+            new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
 
-      SymphonyAiMessage symphonyAiMessage =
-          new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
+        Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
+        responseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
+        if(ticket.getState().equals(TicketClient.TicketStateType.UNSERVICED.getState())) {
+          helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
+        }
 
-      Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
-      responseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
-      if(ticket.getState().equals(TicketClient.TicketStateType.UNSERVICED.getState())) {
+        String agentStreamId = symphonyClient.getStreamsClient().getStream(agentUser).getStreamId();
+        symphonyAiMessage = new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketAgentSuccessResponse());
+
+        responseIdentifierSet = new HashSet<>();
+        responseIdentifierSet.add(new AiResponseIdentifierImpl(agentStreamId));
         helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
+
+        // Update ticket status and its agent
+        UserInfo agent = new UserInfo();
+        agent.setUserId(agentId);
+        agent.setDisplayName(agentUser.getDisplayName());
+        ticket.setAgent(agent);
+
+        ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
+        ticketClient.updateTicket(ticket);
+
+        TicketResponse ticketResponse = new TicketResponse();
+        ticketResponse.setMessage(TICKET_SUCCESS_RESPONSE);
+        ticketResponse.setState(ticket.getState());
+        ticketResponse.setTicketId(ticket.getId());
+
+        User user = new User();
+        user.setDisplayName(agentUser.getDisplayName());
+        user.setUserId(agentId);
+
+        ticketResponse.setUser(user);
+
+        return ticketResponse;
+      } catch (SymException e) {
+        LOG.error("Could not accept ticket: ", e);
+        throw new InternalServerErrorException();
       }
-
-      String agentStreamId = symphonyClient.getStreamsClient().getStream(agentUser).getStreamId();
-      symphonyAiMessage = new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketAgentSuccessResponse());
-
-      responseIdentifierSet = new HashSet<>();
-      responseIdentifierSet.add(new AiResponseIdentifierImpl(agentStreamId));
-      helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
-
-      // Update ticket status and its agent
-      UserInfo agent = new UserInfo();
-      agent.setUserId(agentId);
-      agent.setDisplayName(agentUser.getDisplayName());
-      ticket.setAgent(agent);
-
-      ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
-      ticketClient.updateTicket(ticket);
-
-      TicketResponse ticketResponse = new TicketResponse();
-      ticketResponse.setMessage(TICKET_SUCCESS_RESPONSE);
-      ticketResponse.setState(ticket.getState());
-      ticketResponse.setTicketId(ticket.getId());
-
-      User user = new User();
-      user.setDisplayName(agentUser.getDisplayName());
-      user.setUserId(agentId);
-
-      ticketResponse.setUser(user);
-
-      return ticketResponse;
-    } catch (SymException e) {
-      LOG.error("Could not accept ticket: ", e);
-      throw new InternalServerErrorException();
+    } else {
+      throw new BadRequestException(TICKET_WAS_CLAIMED);
     }
   }
 
