@@ -11,6 +11,11 @@ const messageEvents = [
   'com.symphony.bots.helpdesk.event.makerchecker',
 ];
 
+function AttachmentException(messageExeption) {
+  this.messageExeption = messageExeption;
+  this.name = 'AttachmentException';
+}
+
 export default class AttachmentEnricher extends MessageEnricherBase {
   constructor() {
     super(enricherServiceName, messageEvents);
@@ -28,18 +33,25 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     }
 
     let attachment;
+    let messageExeption;
     return this.services.attachmentService.search(entity.attachmentUrl).then((rsp) => {
-      if (rsp.code === '204') {
-        return renderErrorMessage(entity, 'Attachment not found.', enricherServiceName);
+      if (rsp.status === 204) {
+        throw new AttachmentException('Attachment not found.');
       }
 
       attachment = rsp.data;
       return getUserId();
     }).then(userId =>
       this.showAttachmentsRender(entity, attachment, userId)
-    ).catch(() =>
-      renderErrorMessage(entity, 'Cannot retrieve attachment state.', enricherServiceName)
-    );
+    ).catch((e) => {
+      messageExeption = e.messageExeption;
+
+      if (messageExeption === undefined) {
+        return renderErrorMessage(entity, 'Cannot retrieve attachment state.', enricherServiceName);
+      }
+
+      return renderErrorMessage(entity, messageExeption, enricherServiceName);
+    });
   }
 
   showAttachmentsRender(entity, rsp, userId) {
