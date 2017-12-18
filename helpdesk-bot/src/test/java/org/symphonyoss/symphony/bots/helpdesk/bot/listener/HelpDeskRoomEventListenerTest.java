@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.bot.client;
+package org.symphonyoss.symphony.bots.helpdesk.bot.listener;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -28,11 +28,11 @@ import org.symphonyoss.symphony.clients.model.SymUser;
 @RunWith(MockitoJUnitRunner.class)
 public class HelpDeskRoomEventListenerTest {
 
-  private static final String MOCK_EMAIL = "email@test.com";
+  private static final Long MOCK_USER = 123456L;
 
   private static final String MOCK_STREAM = "Yc-my4qYo4-ZoQyR6C16o3___q_zYfhtWB";
 
-  private static final String MOCK_BOT_EMAIL = "bot@test.com";
+  private static final Long MOCK_BOT_USER = 654321L;
 
   private static final String MOCK_BOT_STREAM = "Zs-nx3pQh3-XyKlT5B15m3___p_zHfetdA";
 
@@ -52,17 +52,21 @@ public class HelpDeskRoomEventListenerTest {
   @Before
   public void init() {
     doReturn(WELCOME_MESSAGE).when(config).getWelcomeMessage();
-    doReturn(MOCK_BOT_EMAIL).when(config).getDefaultAgentEmail();
     doReturn(MOCK_BOT_STREAM).when(config).getAgentStreamId();
 
     doReturn(messageService).when(symphonyClient).getMessageService();
+
+    SymUser symUser = new SymUser();
+    symUser.setId(MOCK_BOT_USER);
+
+    doReturn(symUser).when(symphonyClient).getLocalUser();
 
     this.listener = new HelpDeskRoomEventListener(symphonyClient, config);
   }
 
   @Test
   public void testJoinedRoomIsNotABotUser() throws MessagesException {
-    SymUserJoinedRoom joinedRoom = mockEvent(MOCK_EMAIL, MOCK_STREAM);
+    SymUserJoinedRoom joinedRoom = mockEvent(MOCK_USER, MOCK_STREAM);
 
     listener.onSymUserJoinedRoom(joinedRoom);
 
@@ -71,7 +75,7 @@ public class HelpDeskRoomEventListenerTest {
 
   @Test
   public void testJoinedRoomIsAgentStream() throws MessagesException {
-    SymUserJoinedRoom joinedRoom = mockEvent(MOCK_BOT_EMAIL, MOCK_BOT_STREAM);
+    SymUserJoinedRoom joinedRoom = mockEvent(MOCK_BOT_USER, MOCK_BOT_STREAM);
 
     listener.onSymUserJoinedRoom(joinedRoom);
 
@@ -80,16 +84,16 @@ public class HelpDeskRoomEventListenerTest {
 
   @Test
   public void testJoinedRoom() throws MessagesException {
-    SymUserJoinedRoom joinedRoom = mockEvent(MOCK_BOT_EMAIL, MOCK_STREAM);
+    SymUserJoinedRoom joinedRoom = mockEvent(MOCK_BOT_USER, MOCK_STREAM);
 
     listener.onSymUserJoinedRoom(joinedRoom);
 
     verify(messageService, times(1)).sendMessage(any(SymStream.class), any(SymMessage.class));
   }
 
-  private SymUserJoinedRoom mockEvent(String email, String stream) {
+  private SymUserJoinedRoom mockEvent(Long userId, String stream) {
     SymUser symUser = new SymUser();
-    symUser.setEmailAddress(email);
+    symUser.setId(userId);
     symUser.setDisplayName(StringUtils.EMPTY);
 
     SymStream symStream = new SymStream();

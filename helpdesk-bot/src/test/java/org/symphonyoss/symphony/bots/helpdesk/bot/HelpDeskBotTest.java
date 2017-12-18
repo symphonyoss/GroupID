@@ -1,8 +1,11 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -89,4 +92,31 @@ public class HelpDeskBotTest {
 
     verify(membershipClient, times(1)).updateMembership(membership);
   }
+
+  @Test
+  public void testRetrieveMembership() throws InitException, UsersClientException {
+    Membership membership = new Membership();
+    membership.setType(MembershipClient.MembershipType.AGENT.getType());
+
+    doReturn(membership).when(membershipClient).getMembership(MOCK_USERID);
+
+    Membership result = this.helpDeskBot.registerDefaultAgent();
+
+    verify(membershipClient, never()).newMembership(MOCK_USERID, MembershipClient.MembershipType.AGENT);
+    verify(membershipClient, never()).updateMembership(membership);
+
+    assertEquals(membership, result);
+  }
+
+  @Test
+  public void testReady() {
+    assertFalse(this.helpDeskBot.isReady());
+
+    this.helpDeskBot.ready();
+
+    verify(chatListener, times(1)).ready();
+
+    assertTrue(this.helpDeskBot.isReady());
+  }
+
 }

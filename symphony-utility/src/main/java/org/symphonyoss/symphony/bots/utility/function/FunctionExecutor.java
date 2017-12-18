@@ -31,7 +31,7 @@ public class FunctionExecutor<T, R> {
     do {
       if (count > 0) {
         int index = count % FIBONACCI.length;
-        Thread.sleep(TimeUnit.SECONDS.toMillis(FIBONACCI[index] * 10));
+        Thread.sleep(TimeUnit.SECONDS.toMillis(FIBONACCI[index]));
       }
 
       try {
