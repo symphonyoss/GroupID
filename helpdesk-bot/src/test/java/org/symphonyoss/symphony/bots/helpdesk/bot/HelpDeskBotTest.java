@@ -15,6 +15,7 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.UsersClient;
@@ -42,11 +43,15 @@ public class HelpDeskBotTest {
   @Mock
   private UsersClient usersClient;
 
+  @Mock
+  private ChatListener chatListener;
+
   private HelpDeskBot helpDeskBot;
 
   @Before
   public void init() throws UsersClientException {
-    this.helpDeskBot = new HelpDeskBot(configuration, symphonyClient, membershipClient);
+    this.helpDeskBot = new HelpDeskBot(configuration, symphonyClient, membershipClient,
+        chatListener);
 
     SymUser user = new SymUser();
     user.setId(MOCK_USERID);

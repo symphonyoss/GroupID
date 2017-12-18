@@ -21,6 +21,8 @@ public class ChatListener implements MessageListener {
 
   private final HelpDeskAi helpDeskAi;
 
+  private boolean ready;
+
   public ChatListener(TicketManagerService ticketManagerService, HelpDeskAi helpDeskAi) {
     this.ticketManagerService = ticketManagerService;
     this.helpDeskAi = helpDeskAi;
@@ -28,10 +30,14 @@ public class ChatListener implements MessageListener {
 
   @Override
   public void onMessage(SymMessage symMessage) {
-    if (StringUtils.isNotEmpty(symMessage.getMessageText())) {
+    if (StringUtils.isNotEmpty(symMessage.getMessageText()) && ready) {
       ticketManagerService.messageReceived(symMessage);
       helpDeskAi.onMessage(symMessage);
     }
+  }
+
+  public void ready() {
+    this.ready = true;
   }
 
 }

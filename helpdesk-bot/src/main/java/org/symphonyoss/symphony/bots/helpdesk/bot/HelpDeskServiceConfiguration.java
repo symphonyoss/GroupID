@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.symphonyoss.client.SymphonyClient;
@@ -7,6 +8,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.bot.filter.HelpDeskApiFilter;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
@@ -14,11 +16,15 @@ import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.Membersh
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 
+import java.util.Collections;
+
 /**
  * Created by rsanchez on 04/12/17.
  */
 @Configuration
 public class HelpDeskServiceConfiguration {
+
+  private static final String PATH_WILDCARD = "/*";
 
   @Bean(name = "membershipClient")
   public MembershipClient getMembershipClient(HelpDeskBotConfig configuration) {
@@ -88,6 +94,20 @@ public class HelpDeskServiceConfiguration {
   @Bean(name = "validationUtil")
   public SymphonyValidationUtil getValidationUtil(SymphonyClient symphonyClient) {
     return new SymphonyValidationUtil(symphonyClient);
+  }
+
+  /**
+   * Register API filter.
+   * @return Filter registration object
+   */
+  @Bean
+  public FilterRegistrationBean apiFilterRegistration() {
+    HelpDeskApiFilter filter = new HelpDeskApiFilter();
+
+    FilterRegistrationBean registration = new FilterRegistrationBean(filter);
+    registration.setUrlPatterns(Collections.singletonList(PATH_WILDCARD));
+
+    return registration;
   }
 
 }

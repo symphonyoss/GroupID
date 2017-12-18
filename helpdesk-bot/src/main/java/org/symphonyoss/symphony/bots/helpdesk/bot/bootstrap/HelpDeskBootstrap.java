@@ -5,18 +5,20 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.InitException;
+import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
+import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.HelpDeskRoomEventListener;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
-
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.utility.function.FunctionExecutor;
 
 /**
  * Listener to indicate the application is ready to service requests.
@@ -31,48 +33,62 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
   public void onApplicationEvent(ApplicationReadyEvent event) {
     ApplicationContext applicationContext = event.getApplicationContext();
 
-    Consumer<ApplicationContext> consumerClient = (context) -> initSymphonyClient(context);
-    Consumer<ApplicationContext> consumerBot = (context) -> registerBot(context);
-    Consumer<ApplicationContext> consumerAi = (context) -> initializeAi(context);
+    FunctionExecutor<ApplicationContext, SymAuth> functionAuth = new FunctionExecutor<>();
+    functionAuth
+        .function(context -> authenticateUser(context))
+        .onError(e -> LOGGER.error("Fail to authenticate user", e));
+
+    FunctionExecutor<SymAuth, SymphonyClient> functionClient = new FunctionExecutor<>();
+    functionClient
+        .function(auth -> initSymphonyClient(applicationContext, auth))
+        .onError(e -> LOGGER.error("Fail to create symphony client", e));
+
+    FunctionExecutor<ApplicationContext, Membership> functionRegisterBot = new FunctionExecutor<>();
+    functionRegisterBot
+        .function(context -> registerBot(context))
+        .onError(e -> LOGGER.error("Fail to register bot user", e));
+
+    FunctionExecutor<ApplicationContext, HelpDeskAi> functionAi = new FunctionExecutor<>();
+    functionAi
+        .function(context -> initializeAi(context))
+        .onError(e -> LOGGER.error("Fail to initilize Helpdesk Ai", e));
 
     try {
-      execMultiplesTimes(consumerClient.andThen(consumerBot).andThen(consumerAi),
-          applicationContext, 5);
+      SymAuth symAuth = functionAuth.executeBackoffExponential(applicationContext);
+      functionClient.executeBackoffExponential(symAuth);
+      functionRegisterBot.executeBackoffExponential(applicationContext);
+      functionAi.executeBackoffExponential(applicationContext);
+
+      ready(applicationContext);
     } catch (InterruptedException e) {
       LOGGER.error("Fail to start helpdesk bot", e);
     }
-
-    ready(applicationContext);
   }
 
-  private void execMultiplesTimes(Consumer<ApplicationContext> consumer,
-      ApplicationContext applicationContext, int times) throws InterruptedException {
-    int count = 0;
-
-    do {
-      try {
-        consumer.accept(applicationContext);
-        break;
-      } catch (Exception e) {
-        LOGGER.error(e.getMessage(), e);
-      }
-
-      count++;
-
-      Thread.sleep(TimeUnit.SECONDS.toMillis(count));
-    } while (count < times);
+  /**
+   * Authenticates bot user
+   * @param applicationContext Spring application context
+   * @return Symphony authentication
+   */
+  private SymAuth authenticateUser(ApplicationContext applicationContext) {
+    HelpDeskAuthenticationService authService = applicationContext.getBean(HelpDeskAuthenticationService.class);
+    return authService.authenticate();
   }
 
   /**
    * Authenticates bot user, starts symphony client, and register listeners
    * @param applicationContext Spring application context
    */
-  private void initSymphonyClient(ApplicationContext applicationContext) {
+  private HelpDeskSymphonyClient initSymphonyClient(ApplicationContext applicationContext, SymAuth symAuth) {
     try {
       HelpDeskSymphonyClient symphonyClient = applicationContext.getBean(HelpDeskSymphonyClient.class);
-      symphonyClient.init();
+      HelpDeskBotConfig config = applicationContext.getBean(HelpDeskBotConfig.class);
+
+      symphonyClient.init(symAuth, config.getEmail(), config.getAgentUrl(), config.getPodUrl());
 
       registerListeners(symphonyClient, applicationContext);
+
+      return symphonyClient;
     } catch (HelpDeskAuthenticationException | InitException e) {
       throw new HelpDeskBootstrapException("Fail to start helpdesk bot", e);
     }
@@ -97,18 +113,20 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * Register bot as a group id member
    * @param applicationContext Spring application context
    */
-  private void registerBot(ApplicationContext applicationContext) {
+  private Membership registerBot(ApplicationContext applicationContext) {
     HelpDeskBot helpDeskBot = applicationContext.getBean(HelpDeskBot.class);
-    helpDeskBot.registerDefaultAgent();
+    return helpDeskBot.registerDefaultAgent();
   }
 
   /**
    * Register Helpdesk AI
    * @param applicationContext Spring application context
    */
-  private void initializeAi(ApplicationContext applicationContext) {
+  private HelpDeskAi initializeAi(ApplicationContext applicationContext) {
     HelpDeskAi helpDeskAi = applicationContext.getBean(HelpDeskAi.class);
     helpDeskAi.init();
+
+    return helpDeskAi;
   }
 
   /**
