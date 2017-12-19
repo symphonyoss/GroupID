@@ -2,17 +2,17 @@ import { approveAttachment, denyAttachment, searchAttachment } from '../api/apiC
 import errorTypes from '../utils/errorTypes';
 import componentTypes from '../utils/componentTypes';
 import { getMessageByCode } from '../errorMessages/messageByCode';
-import { getUserId } from '../utils/userUtils';
 
 function createMessageAttachment(message) {
   const messageAttachment = {
-    streamId: message.streamId,
-    proxyToStreamIds: message.proxyToStreamId,
-    timeStamp: message.timestamp,
-    messageId: message.messageId,
-    groupId: message.groupId,
-    userId: message.userId,
-    attachmentId: message.attachmentId,
+    streamId: message.entity.streamId !== undefined ? message.entity.streamId : null,
+    proxyToStreamIds: message.entity.proxyToStreamIds !== undefined ?
+      message.entity.proxyToStreamIds : null,
+    timeStamp: message.entity.timestamp !== undefined ? message.entity.timestamp : null,
+    messageId: message.entity.messageId !== undefined ? message.entity.messageId : null,
+    groupId: message.entity.groupId !== undefined ? message.entity.groupId : null,
+    userId: message.userId !== undefined ? message.userId : null,
+    attachmentId: message.entity.attachmentId !== undefined ? message.entity.attachmentId : null,
   };
 
   return messageAttachment;
@@ -26,7 +26,7 @@ export default class AttachmentService {
   approve(message) {
     const errorMessageService = SYMPHONY.services.subscribe('error-banner');
     let errorCode;
-    return approveAttachment(createMessageAttachment(message))
+    return approveAttachment(message.approveUrl, createMessageAttachment(message))
       .catch((error) => {
         errorCode = parseInt(error.message, 10);
         const messageText = getMessageByCode(errorCode);
@@ -39,7 +39,7 @@ export default class AttachmentService {
     const errorMessageService = SYMPHONY.services.subscribe('error-banner');
     let errorCode;
 
-    return denyAttachment(createMessageAttachment(message))
+    return denyAttachment(message.denyUrl, createMessageAttachment(message))
     .catch((error) => {
       errorCode = parseInt(error.message, 10);
       const messageText = getMessageByCode(errorCode);
@@ -48,8 +48,8 @@ export default class AttachmentService {
     });
   }
 
-  search(attachmentId) {
-    return searchAttachment(attachmentId);
+  search(attachmentUrl) {
+    return searchAttachment(attachmentUrl);
   }
-  
+
 }

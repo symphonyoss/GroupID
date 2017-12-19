@@ -13,7 +13,7 @@ export default (actions, service, entity) =>
         enricherInstanceId: action.enricherInstanceId,
         show: action.show,
         userName: action.userName,
-        userId: action.userId,
+        userId: action.user_Id,
       },
     };
 
