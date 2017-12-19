@@ -30,26 +30,18 @@ export const getTicket = (ticketUrl) => {
   .catch(error => rejectPromise(error));
 };
 
-export const approveAttachment = (messageAttachment) => {
-  const apiUrl = '/v1/makerchecker/accept';
-  return axios({
-    method: 'post',
-    url: apiUrl,
-    body: {
-      message: messageAttachment,
-    },
-  }).catch(error => rejectPromise(error));
+export const approveAttachment = (approveUrl, messageAttachment) => {
+  const apiUrl = `${approveUrl}`;
+  return axios
+    .post(apiUrl, messageAttachment)
+    .catch(error => rejectPromise(error));
 };
 
-export const denyAttachment = (messageAttachment) => {
-  const apiUrl = '/v1/makerchecker/deny';
-  return axios({
-    method: 'post',
-    url: apiUrl,
-    body: {
-      message: messageAttachment,
-    },
-  }).catch(error => rejectPromise(error));
+export const denyAttachment = (denyUrl, messageAttachment) => {
+  const apiUrl = `${denyUrl}`;
+  return axios
+  .post(apiUrl, messageAttachment)
+  .catch(error => rejectPromise(error));
 };
 
 export const searchAttachment = (attachmentUrl) => {

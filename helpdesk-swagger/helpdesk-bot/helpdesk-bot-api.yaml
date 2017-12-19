@@ -47,10 +47,10 @@ paths:
 
       tags:
         - Ticket
-  /v1/makerchecker/accept:
+  /v1/makerchecker/approve:
     post:
       summary: Notify the help desk bot that a message has been accepted for sending by another agent.
-      operationId: acceptMakerCheckerMessage
+      operationId: approveMakerCheckerMessage
       parameters:
         - name: message
           in: body
