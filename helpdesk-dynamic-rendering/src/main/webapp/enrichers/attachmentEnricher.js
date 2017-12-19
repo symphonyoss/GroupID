@@ -63,7 +63,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       label: 'Approve',
       enricherInstanceId: entity.attachmentId,
       streamId: entity.streamId,
-      user_Id: userId,
+      userId,
     };
 
     const denyAttachmentAction = {
@@ -73,7 +73,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       label: 'Deny',
       enricherInstanceId: entity.attachmentId,
       streamId: entity.streamId,
-      user_Id: userId,
+      userId,
     };
 
     const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
