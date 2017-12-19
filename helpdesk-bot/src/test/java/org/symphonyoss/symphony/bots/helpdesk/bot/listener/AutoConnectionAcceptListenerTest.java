@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.bot.client;
+package org.symphonyoss.symphony.bots.helpdesk.bot.listener;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;

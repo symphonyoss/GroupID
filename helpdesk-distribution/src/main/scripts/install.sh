@@ -34,9 +34,8 @@ cp -f helpdesk-api/startup.sh /data/symphony/helpdesk/bin
 cp -f helpdesk-bot/startup.sh /data/symphony/helpdesk-bot/bin
 cp -f helpdesk-renderer/startup.sh /data/symphony/helpdesk-renderer/bin
 
-echo "Copy YAML descriptor"
 yamlfile=/data/symphony/helpdesk-bot/application.yaml
-if [ -f "yamlfile" ]
+if [ -f "$yamlfile" ]
 then
     echo "YAML descriptor already exists."
 else

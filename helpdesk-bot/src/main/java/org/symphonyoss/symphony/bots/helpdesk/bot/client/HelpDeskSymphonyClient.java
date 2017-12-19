@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.client;
 
+import org.springframework.stereotype.Service;
 import org.symphonyoss.client.SymphonyClientConfig;
 import org.symphonyoss.client.SymphonyClientConfigID;
 import org.symphonyoss.client.exceptions.InitException;
@@ -11,6 +12,7 @@ import org.symphonyoss.client.services.RoomService;
 /**
  * Created by rsanchez on 05/12/17.
  */
+@Service
 public class HelpDeskSymphonyClient extends SymphonyBasicClient {
 
   private HelpDeskRoomService roomService;
