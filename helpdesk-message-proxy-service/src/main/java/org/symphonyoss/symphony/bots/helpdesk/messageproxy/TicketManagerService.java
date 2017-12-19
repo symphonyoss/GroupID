@@ -55,7 +55,7 @@ public class TicketManagerService {
    * On message:
    * Check if the message was sent in a ticket room or in a queue room.
    * Check if membership exists, if exists and he is an agent, update him, if not, create membership
-   * according to gitthe type.
+   * according to the type.
    * Check if ticket exists, if not, create service room and ticket. Also sends ticket message
    * to agent stream id
    * @param message the message to proxy.
@@ -65,9 +65,9 @@ public class TicketManagerService {
     Ticket ticket = ticketService.getTicketByServiceStreamId(message.getStreamId());
 
     if (message.getStreamId().equals(agentStreamId) || ticket != null) {
-      membership = membershipService.updateMembership(message, AGENT.getType());
+      membership = membershipService.updateMembership(message, AGENT);
     } else {
-      membership = membershipService.updateMembership(message, CLIENT.getType());
+      membership = membershipService.updateMembership(message, CLIENT);
     }
 
     if (CLIENT.getType().equals(membership.getType())) {

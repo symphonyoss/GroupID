@@ -33,21 +33,16 @@ public class MembershipService {
     this.agentStreamId = agentStreamId;
   }
 
-  public Membership updateMembership(SymMessage symMessage, String type) {
+  public Membership updateMembership(SymMessage symMessage, MembershipType type) {
     Long userId = symMessage.getFromUserId();
 
     Membership membership = getMembership(userId);
 
-    if (AGENT.getType().equals(type)) {
-      if (membership == null) {
-        membership = createAgentMembership(userId);
-      } else {
-        membership = updateAgentMembership(membership);
-      }
-    }
-
-    if (CLIENT.getType().equals(type) && membership == null) {
-      membership = createClientMembership(userId);
+    if (membership == null) {
+      createMembership(userId, type);
+    } else if (AGENT.equals(type) && !type.equals(membership.getType())) {
+      membership.setType(AGENT.getType());
+      updateMembership(membership);
     }
 
     return membership;
