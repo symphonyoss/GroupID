@@ -33,13 +33,11 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
 
   private final HelpDeskBotConfig config;
 
-  private final MessageService messageService;
+  private final SymphonyClient symphonyClient;
 
   public HelpDeskRoomEventListener(SymphonyClient symphonyClient, HelpDeskBotConfig config) {
-    this.messageService = symphonyClient.getMessageService();
+    this.symphonyClient = symphonyClient;
     this.config = config;
-
-    messageService.addRoomServiceEventListener(this);
   }
 
   @Override
@@ -97,7 +95,7 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
       symMessage.setStream(symStream);
 
       try {
-        messageService.sendMessage(symStream, symMessage);
+        symphonyClient.getMessageService().sendMessage(symStream, symMessage);
       } catch (MessagesException e) {
         LOGGER.error("Fail to send welcome message", e);
       }
@@ -105,7 +103,7 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
   }
 
   private boolean isBotUser(SymUser symUser) {
-    return symUser.getEmailAddress().equals(config.getDefaultAgentEmail());
+    return symUser.getId().equals(symphonyClient.getLocalUser().getId());
   }
 
   private boolean isAgentStreamId(SymStream symStream) {

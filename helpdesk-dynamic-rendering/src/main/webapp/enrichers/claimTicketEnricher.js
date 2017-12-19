@@ -1,26 +1,14 @@
 import { MessageEnricherBase } from 'symphony-integration-commons';
 import actionFactory from '../utils/actionFactory';
 import TicketService from '../services/ticketService';
+import { renderErrorMessage } from '../utils/errorMessage';
 
 const actions = require('../templates/claimTicketActions.hbs');
-const error = require('../templates/error.hbs');
 
 const enricherServiceName = 'helpdesk-enricher';
 const messageEvents = [
   'com.symphony.bots.helpdesk.event.ticket',
 ];
-
-function renderErrorMessage(entity, messageError) {
-  const data = actionFactory([], enricherServiceName, entity);
-
-  const result = {
-    template: error({ message: messageError }),
-    data,
-    enricherInstanceId: entity.ticketId,
-  };
-
-  return result;
-}
 
 export default class ClaimTicketEnricher extends MessageEnricherBase {
   constructor() {
@@ -35,12 +23,12 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
 
   enrich(type, entity) {
     if (entity.ticketUrl === undefined) {
-      return renderErrorMessage(entity, 'Cannot retrieve ticket state.');
+      return renderErrorMessage(entity, 'Cannot retrieve ticket state.', enricherServiceName);
     }
 
     return this.services.ticketService.getTicket(entity.ticketUrl).then((rsp) => {
       if (rsp.code === '204') {
-        return renderErrorMessage(entity, 'Ticket not found.');
+        return renderErrorMessage(entity, 'Ticket not found.', enricherServiceName);
       }
 
       const displayName = rsp.data.agent && rsp.data.agent.displayName ? rsp.data.agent.displayName : '';
@@ -65,7 +53,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       };
 
       return result;
-    }).catch(() => renderErrorMessage(entity, 'Cannot retrieve ticket state.'));
+    }).catch(() => renderErrorMessage(entity, 'Cannot retrieve ticket state.', enricherServiceName));
   }
 
   action(data) {

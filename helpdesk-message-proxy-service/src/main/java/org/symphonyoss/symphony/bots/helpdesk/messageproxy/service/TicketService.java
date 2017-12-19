@@ -39,11 +39,7 @@ public class TicketService {
 
   private final TicketClient ticketClient;
 
-  private final MessagesClient messagesClient;
-
-  private final UsersClient usersClient;
-
-  private final SymUser botUser;
+  private final SymphonyClient symphonyClient;
 
   private final InstructionalMessageConfig instructionalMessageConfig;
 
@@ -60,20 +56,18 @@ public class TicketService {
     this.agentStreamId = agentStreamId;
     this.ticketClient = ticketClient;
     this.claimHeader = claimHeader;
+    this.symphonyClient = symphonyClient;
     this.helpDeskBotInfo = helpDeskBotInfo;
     this.helpDeskServiceInfo = helpDeskServiceInfo;
-    this.messagesClient = symphonyClient.getMessagesClient();
-    this.usersClient = symphonyClient.getUsersClient();
     this.createTicketMessage = createTicketMessage;
     this.instructionalMessageConfig = instructionalMessageConfig;
-    this.botUser = symphonyClient.getLocalUser();
   }
 
   public Ticket createTicket(String ticketId, SymMessage message, String serviceStreamId) {
     UserInfo client = null;
 
     try {
-      SymUser symUser = usersClient.getUserFromId(message.getFromUserId());
+      SymUser symUser = symphonyClient.getUsersClient().getUserFromId(message.getFromUserId());
 
       client = new UserInfo();
       client.setUserId(symUser.getId());
@@ -93,7 +87,7 @@ public class TicketService {
     InstructionalMessageBuilder messageBuilder = new InstructionalMessageBuilder()
         .message(instructionalMessageConfig.getMessage())
         .command(instructionalMessageConfig.getCommand())
-        .mentionUserId(botUser.getId());
+        .mentionUserId(symphonyClient.getLocalUser().getId());
     sendClientMessageToServiceStreamId(ticket.getServiceStreamId(), messageBuilder.build());
 
     return ticket;
@@ -125,7 +119,7 @@ public class TicketService {
     builder.header(claimHeader);
 
     try {
-      SymUser symUser = usersClient.getUserFromId(message.getFromUserId());
+      SymUser symUser = symphonyClient.getUsersClient().getUserFromId(message.getFromUserId());
       builder.username(symUser.getDisplayName());
       builder.company(symUser.getCompany());
     } catch (UsersClientException e) {
@@ -135,7 +129,7 @@ public class TicketService {
     builder.question(message.getMessageText());
 
     try {
-      messagesClient.sendMessage(stream, builder.build());
+      symphonyClient.getMessagesClient().sendMessage(stream, builder.build());
     } catch (MessagesException e) {
       LOGGER.error("Could not send ticket message to agent stream ID: ", e);
     }
@@ -146,7 +140,7 @@ public class TicketService {
     stream.setStreamId(streamId);
 
     try {
-      messagesClient.sendMessage(stream, message);
+      symphonyClient.getMessagesClient().sendMessage(stream, message);
     } catch (MessagesException e) {
       LOGGER.error("Could not send ticket message to agent stream ID: ", e);
     }
@@ -157,7 +151,7 @@ public class TicketService {
     stream.setStreamId(agentStreamId);
 
     try {
-      messagesClient.sendMessage(stream, message);
+      symphonyClient.getMessagesClient().sendMessage(stream, message);
     } catch (MessagesException e) {
       LOGGER.error("Could not send ticket message to agent stream ID: ", e);
     }

@@ -2,6 +2,7 @@ import { MessageEnricherBase } from 'symphony-integration-commons';
 import actionFactory from '../utils/actionFactory';
 import AttachmentService from '../services/attachmentService';
 import { getUserId } from '../utils/userUtils';
+import { renderErrorMessage } from '../utils/errorMessage';
 
 const actions = require('../templates/attachmentActions.hbs');
 
@@ -9,6 +10,11 @@ const enricherServiceName = 'helpdesk-attachment-enricher';
 const messageEvents = [
   'com.symphony.bots.helpdesk.event.makerchecker',
 ];
+
+function AttachmentException(messageException) {
+  this.messageException = messageException;
+  this.name = 'AttachmentException';
+}
 
 export default class AttachmentEnricher extends MessageEnricherBase {
   constructor() {
@@ -22,11 +28,30 @@ export default class AttachmentEnricher extends MessageEnricherBase {
   }
 
   enrich(type, entity) {
+    if (entity.attachmentUrl === undefined) {
+      return renderErrorMessage(entity, 'Cannot retrieve attachment state.', enricherServiceName);
+    }
+
     let attachment;
+    let messageException;
     return this.services.attachmentService.search(entity.attachmentUrl).then((rsp) => {
+      if (rsp.status === 204) {
+        throw new AttachmentException('Attachment not found.');
+      }
+
       attachment = rsp.data;
       return getUserId();
-    }).then(userId => this.showAttachmentsRender(entity, attachment, userId));
+    }).then(userId =>
+      this.showAttachmentsRender(entity, attachment, userId)
+    ).catch((e) => {
+      messageException = e.messageException;
+
+      if (messageException === undefined) {
+        return renderErrorMessage(entity, 'Cannot retrieve attachment state.', enricherServiceName);
+      }
+
+      return renderErrorMessage(entity, messageException, enricherServiceName);
+    });
   }
 
   showAttachmentsRender(entity, rsp, userId) {

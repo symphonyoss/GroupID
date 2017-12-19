@@ -1,9 +1,11 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -16,6 +18,7 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.UsersClient;
@@ -28,8 +31,6 @@ import org.symphonyoss.symphony.clients.model.SymUser;
 public class HelpDeskBotTest {
 
   private static final String MOCK_GROUP_ID = "mockgroupid";
-
-  private static final String MOCK_EMAIL = "email@test.com";
 
   private static final long MOCK_USERID = 123456;
 
@@ -45,21 +46,22 @@ public class HelpDeskBotTest {
   @Mock
   private UsersClient usersClient;
 
+  @Mock
+  private ChatListener chatListener;
+
   private HelpDeskBot helpDeskBot;
 
   @Before
   public void init() throws UsersClientException {
-    this.helpDeskBot = new HelpDeskBot(configuration, symphonyClient, membershipClient);
+    this.helpDeskBot = new HelpDeskBot(configuration, symphonyClient, membershipClient,
+        chatListener);
 
     SymUser user = new SymUser();
     user.setId(MOCK_USERID);
 
-    doReturn(user).when(usersClient).getUserFromEmail(MOCK_EMAIL);
-
-    doReturn(usersClient).when(symphonyClient).getUsersClient();
+    doReturn(user).when(symphonyClient).getLocalUser();
 
     doReturn(MOCK_GROUP_ID).when(configuration).getGroupId();
-    doReturn(MOCK_EMAIL).when(configuration).getDefaultAgentEmail();
   }
 
   @Test
@@ -67,7 +69,7 @@ public class HelpDeskBotTest {
     doReturn(null).when(configuration).getGroupId();
 
     try {
-      this.helpDeskBot.init();
+      this.helpDeskBot.validateGroupId();
       fail();
     } catch (IllegalStateException e) {
       assertEquals("GroupId were not provided", e.getMessage());
@@ -75,32 +77,8 @@ public class HelpDeskBotTest {
   }
 
   @Test
-  public void testMissingDefaultAgentEmail() throws InitException {
-    doReturn(null).when(configuration).getDefaultAgentEmail();
-
-    try {
-      this.helpDeskBot.init();
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals("Bot email address were not provided", e.getMessage());
-    }
-  }
-
-  @Test
-  public void testFailUsersClient() throws InitException, UsersClientException {
-    doThrow(UsersClientException.class).when(usersClient).getUserFromEmail(MOCK_EMAIL);
-
-    try {
-      this.helpDeskBot.init();
-      fail();
-    } catch (IllegalStateException e) {
-      assertEquals("Error registering default agent user: " + MOCK_EMAIL, e.getMessage());
-    }
-  }
-
-  @Test
   public void testCreateMembership() throws InitException, UsersClientException {
-    this.helpDeskBot.init();
+    this.helpDeskBot.registerDefaultAgent();
     verify(membershipClient, times(1)).newMembership(MOCK_USERID, MembershipClient.MembershipType.AGENT);
   }
 
@@ -110,8 +88,35 @@ public class HelpDeskBotTest {
 
     doReturn(membership).when(membershipClient).getMembership(MOCK_USERID);
 
-    this.helpDeskBot.init();
+    this.helpDeskBot.registerDefaultAgent();
 
     verify(membershipClient, times(1)).updateMembership(membership);
   }
+
+  @Test
+  public void testRetrieveMembership() throws InitException, UsersClientException {
+    Membership membership = new Membership();
+    membership.setType(MembershipClient.MembershipType.AGENT.getType());
+
+    doReturn(membership).when(membershipClient).getMembership(MOCK_USERID);
+
+    Membership result = this.helpDeskBot.registerDefaultAgent();
+
+    verify(membershipClient, never()).newMembership(MOCK_USERID, MembershipClient.MembershipType.AGENT);
+    verify(membershipClient, never()).updateMembership(membership);
+
+    assertEquals(membership, result);
+  }
+
+  @Test
+  public void testReady() {
+    assertFalse(this.helpDeskBot.isReady());
+
+    this.helpDeskBot.ready();
+
+    verify(chatListener, times(1)).ready();
+
+    assertTrue(this.helpDeskBot.isReady());
+  }
+
 }

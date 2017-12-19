@@ -1,8 +1,7 @@
 import { approveAttachment, denyAttachment, searchAttachment } from '../api/apiCalls';
 import errorTypes from '../utils/errorTypes';
 import componentTypes from '../utils/componentTypes';
-import messageByCode from '../errorMessages/messageByCode';
-import messages from '../errorMessages/messages';
+import { getMessageByCode } from '../errorMessages/messageByCode';
 import { getUserId } from '../utils/userUtils';
 
 function createMessageAttachment(message) {
@@ -30,8 +29,7 @@ export default class AttachmentService {
     return approveAttachment(createMessageAttachment(message))
       .catch((error) => {
         errorCode = parseInt(error.message, 10);
-        const messageText = error.message ? messageByCode[errorCode]
-          : messages.GENERIC_ERROR;
+        const messageText = getMessageByCode(errorCode);
         errorMessageService.setChatBanner(message.streamId, componentTypes.CHAT,
           messageText, errorTypes.ERROR);
       });
@@ -44,25 +42,14 @@ export default class AttachmentService {
     return denyAttachment(createMessageAttachment(message))
     .catch((error) => {
       errorCode = parseInt(error.message, 10);
-      const messageText = error.message ? messageByCode[errorCode]
-        : messages.GENERIC_ERROR;
+      const messageText = getMessageByCode(errorCode);
       errorMessageService.setChatBanner(message.streamId, componentTypes.CHAT,
         messageText, errorTypes.ERROR);
     });
   }
 
   search(attachmentId) {
-    return searchAttachment(attachmentId)
-      .catch((error) => {
-        switch (error.message) {
-          case '': {
-            break;
-          }
-          default: {
-            break;
-          }
-        }
-      });
+    return searchAttachment(attachmentId);
   }
-
+  
 }

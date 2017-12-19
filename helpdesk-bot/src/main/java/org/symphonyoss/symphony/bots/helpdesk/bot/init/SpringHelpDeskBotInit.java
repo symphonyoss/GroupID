@@ -8,6 +8,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
+import org.symphonyoss.symphony.bots.helpdesk.bot.bootstrap.HelpDeskBootstrap;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -20,17 +21,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableWebMvc
 public class SpringHelpDeskBotInit {
 
-  private final HelpDeskBotConfig configuration;
-
-  private final HelpDeskBot helpDeskBot;
-
   public static void main(String[] args) throws Exception {
-    SpringApplication.run(SpringHelpDeskBotInit.class, args);
-  }
+    SpringApplication application = new SpringApplication(SpringHelpDeskBotInit.class);
+    application.addListeners(new HelpDeskBootstrap());
 
-  public SpringHelpDeskBotInit(HelpDeskBotConfig configuration, HelpDeskBot helpDeskBot) {
-    this.configuration = configuration;
-    this.helpDeskBot = helpDeskBot;
+    application.run(args);
   }
 
   /**
