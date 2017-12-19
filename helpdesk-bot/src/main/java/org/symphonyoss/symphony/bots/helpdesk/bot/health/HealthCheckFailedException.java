@@ -20,7 +20,7 @@
  *
  */
 
-package org.symphonyoss.symphony.bots.helpdesk.bot.model.health;
+package org.symphonyoss.symphony.bots.helpdesk.bot.health;
 
 /**
  * Created by nick.tarsillo on 8/23/17.

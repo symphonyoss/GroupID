@@ -16,13 +16,10 @@ import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.HealthcheckResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthCheckFailedException;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.health.HealthcheckHelper;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
@@ -47,13 +44,14 @@ import javax.ws.rs.InternalServerErrorException;
  */
 @RestController
 public class V1HelpDeskController extends V1ApiController {
+
   private static final Logger LOG = LoggerFactory.getLogger(V1HelpDeskController.class);
+
   private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
   private static final String MAKER_CHECKER_DENY_RESPONSE = "Maker checker message denied.";
   private static final String TICKET_SUCCESS_RESPONSE = "Ticket accepted.";
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
   private static final String TICKET_WAS_CLAIMED = "Ticket was claimed.";
-  private static final String HELPDESKBOT_NOT_FOUND = "Help desk bot not found.";
   private static final String MAKER_CHECKER_NOT_FOUND = "Makerchecker not found.";
 
   @Autowired
@@ -83,7 +81,6 @@ public class V1HelpDeskController extends V1ApiController {
 
   /**
    * Accepts a ticket.
-   * Sends a message to the agent denoting that the ticket has successfully been accepted.
    * Sends a message to the client, notifying them that they are now being serviced by a agent,
    *    if the client was not being serviced prior.
    * Add agent to service room.
@@ -159,38 +156,6 @@ public class V1HelpDeskController extends V1ApiController {
     } else {
       throw new BadRequestException(TICKET_WAS_CLAIMED);
     }
-  }
-
-  /**
-   * Check pod connectivity.
-   * Check agent connectivity.
-   * @param groupId the group id of the bot to perform the health check on.
-   * @return the health check response
-   */
-  @Override
-  public HealthcheckResponse healthcheck(String groupId) {
-    String agentUrl = helpDeskBotConfig.getAgentUrl();
-    String podUrl = helpDeskBotConfig.getPodUrl();
-    HealthcheckHelper healthcheckHelper = new HealthcheckHelper(podUrl, agentUrl);
-
-    HealthcheckResponse response = new HealthcheckResponse();
-    try {
-      healthcheckHelper.checkPodConnectivity();
-      response.setPodConnectivityCheck(true);
-    } catch (HealthCheckFailedException e) {
-      response.setPodConnectivityCheck(false);
-      response.setPodConnectivityError(e.getMessage());
-    }
-
-    try {
-      healthcheckHelper.checkAgentConnectivity();
-      response.setAgentConnectivityCheck(true);
-    } catch (HealthCheckFailedException e) {
-      response.setAgentConnectivityCheck(false);
-      response.setAgentConnectivityError(e.getMessage());
-    }
-
-    return response;
   }
 
   /**
@@ -293,6 +258,12 @@ public class V1HelpDeskController extends V1ApiController {
     user.setDisplayName(agentUser.getDisplayName());
     user.setUserId(detail.getUserId());
     return user;
+  }
+
+  @Override
+  public TicketResponse joinConversation(String ticketId, Long agentId) {
+    // TODO
+    return null;
   }
 
 }

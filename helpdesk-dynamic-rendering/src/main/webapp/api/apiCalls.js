@@ -14,7 +14,7 @@ export const claimTicket = (data) => {
     return axios({
       method: 'post',
       url: apiUrl,
-      headers: {
+      params: {
         agentId: idUser,
       },
     });

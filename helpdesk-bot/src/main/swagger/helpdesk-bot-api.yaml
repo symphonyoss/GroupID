@@ -22,7 +22,7 @@ paths:
           required: true
           type: string
         - name: agentId
-          in: header
+          in: query
           required: true
           type: integer
           format: int64
@@ -45,6 +45,40 @@ paths:
           schema:
             $ref: '#/definitions/Error'
 
+      tags:
+        - Ticket
+  /v1/ticket/{ticketId}/join:
+    post:
+      summary: Join the conversation that already exists.
+      operationId: joinConversation
+      parameters:
+        - name: ticketId
+          in: path
+          required: true
+          type: string
+        - name: agentId
+          in: query
+          required: true
+          type: integer
+          format: int64
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/TicketResponse'
+        '400':
+          description: BAD REQUEST |
+            Ticket Id could not be found.
+            Agent Id could not be found.
+            Required parameter was not provided.
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: INTERNAL SERVER ERROR
+          schema:
+            $ref: '#/definitions/Error'
       tags:
         - Ticket
   /v1/makerchecker/approve:
@@ -115,28 +149,6 @@ paths:
             $ref: '#/definitions/Error'
       tags:
         - MakerChecker
-  /v1/{groupId}/healthcheck:
-    get:
-      summary: Check the health of a specific help desk bot.
-      operationId: healthcheck
-      parameters:
-        - name: groupId
-          in: path
-          required: true
-          type: string
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: OK
-          schema:
-            $ref: '#/definitions/HealthcheckResponse'
-        '500':
-          description: INTERNAL SERVER ERROR
-          schema:
-            $ref: '#/definitions/Error'
-      tags:
-        - Healthcheck
 definitions:
   Error:
     type: object
@@ -144,11 +156,6 @@ definitions:
       code:
         type: integer
         format: int32
-      message:
-        type: string
-  SuccessResponse:
-    type: object
-    properties:
       message:
         type: string
   TicketResponse:
@@ -177,17 +184,6 @@ definitions:
         type: string
         description: |
           Accepted states - APPROVED, DENIED, OPENED
-  HealthcheckResponse:
-    type: object
-    properties:
-      podConnectivityCheck:
-        type: boolean
-      podConnectivityError:
-        type: string
-      agentConnectivityCheck:
-        type: boolean
-      agentConnectivityError:
-        type: string
   MakerCheckerMessageDetail:
     type: object
     properties:
