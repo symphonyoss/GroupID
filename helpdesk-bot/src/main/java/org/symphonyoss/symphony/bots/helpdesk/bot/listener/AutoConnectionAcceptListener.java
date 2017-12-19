@@ -25,7 +25,6 @@ public class AutoConnectionAcceptListener implements ConnectionsEventListener {
 
   public AutoConnectionAcceptListener(SymphonyClient symphonyClient) {
     this.connectionsClient = symphonyClient.getConnectionsClient();
-    symphonyClient.getMessageService().addConnectionsEventListener(this);
   }
 
   @Override

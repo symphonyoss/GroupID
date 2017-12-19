@@ -30,8 +30,6 @@ public class HelpDeskBotConfig {
 
   private String groupId;
 
-  private String defaultAgentEmail;
-
   private String agentStreamId;
 
   private String aiServicePrefix;
@@ -286,14 +284,6 @@ public class HelpDeskBotConfig {
 
   public void setAddMemberClientSuccessResponse(String addMemberClientSuccessResponse) {
     this.addMemberClientSuccessResponse = addMemberClientSuccessResponse;
-  }
-
-  public String getDefaultAgentEmail() {
-    return defaultAgentEmail;
-  }
-
-  public void setDefaultAgentEmail(String defaultAgentEmail) {
-    this.defaultAgentEmail = defaultAgentEmail;
   }
 
   public String getClaimEntityHeader() {
