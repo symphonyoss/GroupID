@@ -199,7 +199,7 @@ public class V1HelpDeskController extends V1ApiController {
    * @return a maker checker message response
    */
   @Override
-  public MakerCheckerResponse acceptMakerCheckerMessage(MakerCheckerMessageDetail detail) {
+  public MakerCheckerResponse approveMakerCheckerMessage(MakerCheckerMessageDetail detail) {
     validateRequiredParameter("streamId", detail.getStreamId(), "body");
     validateRequiredParameter("groupId", detail.getGroupId(), "body");
     validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");

@@ -32,24 +32,16 @@ export const getTicket = (ticketUrl) => {
 
 export const approveAttachment = (approveUrl, messageAttachment) => {
   const apiUrl = `${approveUrl}`;
-  return axios({
-    method: 'post',
-    url: apiUrl,
-    body: {
-      message: messageAttachment,
-    },
-  }).catch(error => rejectPromise(error));
+  return axios
+    .post(apiUrl, messageAttachment)
+    .catch(error => rejectPromise(error));
 };
 
 export const denyAttachment = (denyUrl, messageAttachment) => {
   const apiUrl = `${denyUrl}`;
-  return axios({
-    method: 'post',
-    url: apiUrl,
-    body: {
-      message: messageAttachment,
-    },
-  }).catch(error => rejectPromise(error));
+  return axios
+  .post(apiUrl, messageAttachment)
+  .catch(error => rejectPromise(error));
 };
 
 export const searchAttachment = (attachmentUrl) => {

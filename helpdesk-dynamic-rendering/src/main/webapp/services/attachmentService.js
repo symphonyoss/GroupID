@@ -26,11 +26,11 @@ export default class AttachmentService {
   approve(message) {
     const errorMessageService = SYMPHONY.services.subscribe('error-banner');
     let errorCode;
-    return approveAttachment(message.approveUrl, createMessageAttachment(message))
+    return approveAttachment(message.entity.approveUrl, createMessageAttachment(message))
       .catch((error) => {
         errorCode = parseInt(error.message, 10);
         const messageText = getMessageByCode(errorCode);
-        errorMessageService.setChatBanner(message.streamId, componentTypes.CHAT,
+        errorMessageService.setChatBanner(message.entity.streamId, componentTypes.CHAT,
           messageText, errorTypes.ERROR);
       });
   }
@@ -39,11 +39,11 @@ export default class AttachmentService {
     const errorMessageService = SYMPHONY.services.subscribe('error-banner');
     let errorCode;
 
-    return denyAttachment(message.denyUrl, createMessageAttachment(message))
+    return denyAttachment(message.entity.denyUrl, createMessageAttachment(message))
     .catch((error) => {
       errorCode = parseInt(error.message, 10);
       const messageText = getMessageByCode(errorCode);
-      errorMessageService.setChatBanner(message.streamId, componentTypes.CHAT,
+      errorMessageService.setChatBanner(message.entity.streamId, componentTypes.CHAT,
         messageText, errorTypes.ERROR);
     });
   }
