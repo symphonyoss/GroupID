@@ -4,7 +4,6 @@ import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.M
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType;
@@ -21,8 +20,7 @@ public class MembershipService {
 
   private final MembershipClient membershipClient;
 
-  public MembershipService(MembershipClient membershipClient,
-      @Value("agentStreamId") String agentStreamId) {
+  public MembershipService(MembershipClient membershipClient) {
     this.membershipClient = membershipClient;
   }
 
