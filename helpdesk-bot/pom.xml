@@ -14,11 +14,33 @@
     <name>Symphony Help Desk Bot</name>
     <description>The Help Desk Bot</description>
 
+    <properties>
+        <swagger.source>${basedir}/src/main/swagger</swagger.source>
+        <swagger.source.bot>${swagger.source}/helpdesk-bot-api.yaml</swagger.source.bot>
+        <templates.source.server>${swagger.source}/templates</templates.source.server>
+        <helpdesk.api.bot.package>org.symphonyoss.symphony.bots.helpdesk.bot</helpdesk.api.bot.package>
+    </properties>
+
     <dependencies>
         <dependency>
-            <groupId>org.symphonyoss.symphony.bots</groupId>
-            <artifactId>helpdesk-swagger</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <groupId>io.swagger</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>${swagger-annotations-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.symphonyoss.symphony.bots</groupId>
@@ -55,6 +77,30 @@
                         <goals>
                             <goal>repackage</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>io.swagger</groupId>
+                <artifactId>swagger-codegen-maven-plugin</artifactId>
+                <version>${swagger-codegen-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>server-bot</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${swagger.source.bot}</inputSpec>
+                            <language>spring</language>
+                            <templateDirectory>${templates.source.server}</templateDirectory>
+                            <configOptions>
+                                <sourceFolder>src/main/java</sourceFolder>
+                                <apiPackage>${helpdesk.api.bot.package}.api</apiPackage>
+                                <modelPackage>${helpdesk.api.bot.package}.model</modelPackage>
+                                <library>spring-mvc</library>
+                            </configOptions>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
