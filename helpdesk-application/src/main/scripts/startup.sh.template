@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+{{ java_path }} -jar /opt/symphony/helpdesk-renderer/helpdesk-renderer.jar \
+    --logging.file=/data/symphony/helpdesk-renderer/logs/helpdesk-renderer.log
