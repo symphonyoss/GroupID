@@ -39,9 +39,10 @@ public class AccepTicketService extends TicketService {
 
   private final HelpDeskAi helpDeskAi;
 
-  public AccepTicketService(TicketClient ticketClient,
-      SymphonyValidationUtil symphonyValidationUtil, MembershipClient membershipClient,
-      HelpDeskBotConfig helpDeskBotConfig, HelpDeskAi helpDeskAi, SymphonyClient symphonyClient) {
+  public AccepTicketService(SymphonyValidationUtil symphonyValidationUtil,
+      MembershipClient membershipClient, SymphonyClient symphonyClient,
+      HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
+      HelpDeskAi helpDeskAi) {
     super(symphonyValidationUtil, membershipClient, symphonyClient, helpDeskBotConfig, ticketClient);
     this.helpDeskAi = helpDeskAi;
   }
