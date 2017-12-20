@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getUserId } from '../utils/userUtils';
 
 const rejectPromise = (error) => {
   const response = error.response || {};
@@ -9,29 +8,23 @@ const rejectPromise = (error) => {
 
 export const claimTicket = (data) => {
   const apiUrl = `${data.entity.claimUrl}`;
-  return getUserId().then((userId) => {
-    const idUser = userId;
-    return axios({
-      method: 'post',
-      url: apiUrl,
-      params: {
-        agentId: idUser,
-      },
-    });
+  return axios({
+    method: 'post',
+    url: apiUrl,
+    params: {
+      agentId: data.userId,
+    },
   }).catch(error => rejectPromise(error));
 };
 
 export const joinConversation = (data) => {
   const apiUrl = `${data.entity.joinUrl}`;
-  return getUserId().then((userId) => {
-    const idUser = userId;
-    return axios({
-      method: 'post',
-      url: apiUrl,
-      params: {
-        agentId: idUser,
-      },
-    });
+  return axios({
+    method: 'post',
+    url: apiUrl,
+    params: {
+      agentId: data.userId,
+    },
   }).catch(error => rejectPromise(error));
 };
 

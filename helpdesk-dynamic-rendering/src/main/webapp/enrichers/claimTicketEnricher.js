@@ -65,6 +65,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       show: ticket.state === 'UNSERVICED',
       userName: displayName,
       streamId: entity.streamId,
+      userId,
     };
 
     const actionObjs = [claimTicketAction];
@@ -79,6 +80,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         show: ticket.state === 'UNSERVICED',
         userName: displayName,
         streamId: entity.streamId,
+        userId,
       };
 
       actionObjs.push(joinConversationAction);
