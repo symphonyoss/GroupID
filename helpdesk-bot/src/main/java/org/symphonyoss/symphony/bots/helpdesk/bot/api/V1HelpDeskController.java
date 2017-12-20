@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
     .MembershipType.AGENT;
 
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -206,7 +207,7 @@ public class V1HelpDeskController extends V1ApiController {
     checkerMessage.setAttachmentId(detail.getAttachmentId());
     checkerMessage.setGroupId(detail.getGroupId());
     checkerMessage.setMessageId(detail.getMessageId());
-    checkerMessage.setStreamId(detail.getStreamId());
+    checkerMessage.setStreamId(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
     checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
     checkerMessage.setTimeStamp(detail.getTimeStamp());
     checkerMessage.setType(detail.getType());
