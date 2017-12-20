@@ -29,9 +29,9 @@ import javax.ws.rs.InternalServerErrorException;
  * Created by rsanchez on 19/12/17.
  */
 @Service
-public class AccepTicketService extends TicketService {
+public class AcceptTicketService extends TicketService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AccepTicketService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AcceptTicketService.class);
 
   private static final String TICKET_WAS_CLAIMED = "Ticket was claimed.";
 
@@ -39,7 +39,7 @@ public class AccepTicketService extends TicketService {
 
   private final HelpDeskAi helpDeskAi;
 
-  public AccepTicketService(SymphonyValidationUtil symphonyValidationUtil,
+  public AcceptTicketService(SymphonyValidationUtil symphonyValidationUtil,
       MembershipClient membershipClient, SymphonyClient symphonyClient,
       HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
       HelpDeskAi helpDeskAi) {

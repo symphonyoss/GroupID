@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.AccepTicketService;
+import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.AcceptTicketService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.JoinConversationService;
 
 
@@ -23,7 +23,7 @@ public class V1HelpDeskControllerTest {
   private static final Long MOCK_USER_ID = 123456L;
 
   @Mock
-  private AccepTicketService accepTicketService;
+  private AcceptTicketService acceptTicketService;
 
   @Mock
   private JoinConversationService joinConversationService;
@@ -34,7 +34,7 @@ public class V1HelpDeskControllerTest {
   @Test
   public void testAcceptTicket() {
     v1HelpDeskController.acceptTicket(MOCK_TICKET_ID, MOCK_USER_ID);
-    verify(accepTicketService, times(1)).execute(MOCK_TICKET_ID, MOCK_USER_ID);
+    verify(acceptTicketService, times(1)).execute(MOCK_TICKET_ID, MOCK_USER_ID);
   }
 
   @Test

@@ -12,7 +12,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetai
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
-import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.AccepTicketService;
+import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.AcceptTicketService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.JoinConversationService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
@@ -51,14 +51,14 @@ public class V1HelpDeskController extends V1ApiController {
   private HelpDeskAi helpDeskAi;
 
   @Autowired
-  private AccepTicketService accepTicketService;
+  private AcceptTicketService acceptTicketService;
 
   @Autowired
   private JoinConversationService joinConversationService;
 
   @Override
   public TicketResponse acceptTicket(String ticketId, Long agentId) {
-    return accepTicketService.execute(ticketId, agentId);
+    return acceptTicketService.execute(ticketId, agentId);
   }
 
   @Override

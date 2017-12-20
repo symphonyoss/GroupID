@@ -68,15 +68,15 @@ public class AcceptTicketServiceTest {
   @Mock
   private HelpDeskAi helpDeskAi;
 
-  private AccepTicketService accepTicketService;
+  private AcceptTicketService acceptTicketService;
 
   @Before
   public void init() {
     doReturn(roomMembershipClient).when(symphonyClient).getRoomMembershipClient();
     doReturn(MOCK_AGENT_STREAM_ID).when(helpDeskBotConfig).getAgentStreamId();
 
-    this.accepTicketService =
-        new AccepTicketService(symphonyValidationUtil, membershipClient, symphonyClient,
+    this.acceptTicketService =
+        new AcceptTicketService(symphonyValidationUtil, membershipClient, symphonyClient,
             helpDeskBotConfig, ticketClient, helpDeskAi);
   }
 
@@ -89,7 +89,7 @@ public class AcceptTicketServiceTest {
     agent.setId(MOCK_USER_ID);
 
     try {
-      accepTicketService.execute(ticket, agent);
+      acceptTicketService.execute(ticket, agent);
       fail();
     } catch (BadRequestException e) {
       assertEquals("Ticket was claimed.", e.getMessage());
@@ -107,7 +107,7 @@ public class AcceptTicketServiceTest {
     SymUser agent = new SymUser();
     agent.setId(MOCK_USER_ID);
 
-    accepTicketService.execute(ticket, agent);
+    acceptTicketService.execute(ticket, agent);
   }
 
   @Test
@@ -133,7 +133,7 @@ public class AcceptTicketServiceTest {
     agent.setId(MOCK_USER_ID);
     agent.setDisplayName(MOCK_USER_DISPLAY_NAME);
 
-    TicketResponse response = accepTicketService.execute(ticket, agent);
+    TicketResponse response = acceptTicketService.execute(ticket, agent);
 
     assertNotNull(response);
     assertEquals("Ticket accepted.", response.getMessage());
