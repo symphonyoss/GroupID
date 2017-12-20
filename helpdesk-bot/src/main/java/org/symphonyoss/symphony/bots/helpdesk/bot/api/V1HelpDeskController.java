@@ -1,5 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
+
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
@@ -114,7 +116,7 @@ public class V1HelpDeskController extends V1ApiController {
     checkerMessage.setAttachmentId(detail.getAttachmentId());
     checkerMessage.setGroupId(detail.getGroupId());
     checkerMessage.setMessageId(detail.getMessageId());
-    checkerMessage.setStreamId(detail.getStreamId());
+    checkerMessage.setStreamId(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
     checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
     checkerMessage.setTimeStamp(detail.getTimeStamp());
     checkerMessage.setType(detail.getType());
