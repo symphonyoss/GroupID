@@ -16,61 +16,22 @@ import java.io.InputStreamReader;
 /**
  * Created by rsanchez on 01/12/17.
  */
-public class TicketMessageBuilder {
+public abstract class TicketMessageBuilder {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketMessageBuilder.class);
 
-  private static final String BASE_TICKET_EVENT = "com.symphony.bots.helpdesk.event.ticket";
-
-  private static final String USER_TICKET_EVENT = BASE_TICKET_EVENT + ".user";
-
-  private static final String MESSAGE_TICKET_EVENT = BASE_TICKET_EVENT + ".message";
-
-  private static final String VERSION = "1.0";
-
-  private static final String CLAIM_MESSAGE_TEMPLATE = "claimMessage.xml";
-
-  private static String message;
-
   private final SymMessageBuilder messageBuilder;
 
-  private String botHost;
+  protected String botHost;
 
-  private String serviceHost;
+  protected String serviceHost;
 
-  private String streamId;
+  protected String streamId;
 
-  private String ticketId;
-
-  private String ticketState;
-
-  private String username;
-
-  private String header;
-
-  private String company;
-
-  private String question;
+  protected String ticketId;
 
   public TicketMessageBuilder() {
-    if (StringUtils.isEmpty(message)) {
-      message = parseTemplate();
-    }
-
-    this.messageBuilder = SymMessageBuilder.message(message);
-  }
-
-  private String parseTemplate() {
-    StringBuilder message = new StringBuilder();
-    InputStream resource = getClass().getClassLoader().getResourceAsStream(CLAIM_MESSAGE_TEMPLATE);
-
-    try (BufferedReader buffer = new BufferedReader(new InputStreamReader(resource))) {
-      buffer.lines().forEach(message::append);
-    } catch (IOException e) {
-      LOGGER.error("Fail to parse claim message template");
-    }
-
-    return message.toString();
+    this.messageBuilder = SymMessageBuilder.message(getMessageTemplate());
   }
 
   public TicketMessageBuilder botHost(String host) {
@@ -93,62 +54,23 @@ public class TicketMessageBuilder {
     return this;
   }
 
-  public TicketMessageBuilder ticketState(String ticketState) {
-    this.ticketState = ticketState;
-    return this;
-  }
+  protected String parseTemplate(String templateFilename) {
+    StringBuilder message = new StringBuilder();
+    InputStream resource = getClass().getClassLoader().getResourceAsStream(templateFilename);
 
-  public TicketMessageBuilder username(String username) {
-    this.username = username;
-    return this;
-  }
+    try (BufferedReader buffer = new BufferedReader(new InputStreamReader(resource))) {
+      buffer.lines().forEach(message::append);
+    } catch (IOException e) {
+      LOGGER.error("Fail to parse claim message template");
+    }
 
-  public TicketMessageBuilder header(String header) {
-    this.header = header;
-    return this;
-  }
-
-  public TicketMessageBuilder company(String company) {
-    this.company = company;
-    return this;
-  }
-
-  public TicketMessageBuilder question(String question) {
-    this.question = question;
-    return this;
+    return message.toString();
   }
 
   public SymMessage build() {
-    if (messageBuilder == null) {
-      return null;
-    }
-
     try {
-      EntityBuilder userBuilder = EntityBuilder.createEntity(USER_TICKET_EVENT, VERSION);
-      userBuilder.addField("displayName", username);
-
-      EntityBuilder ticketMessageBuilder = EntityBuilder.createEntity(MESSAGE_TICKET_EVENT, VERSION);
-      ticketMessageBuilder.addField("header", header);
-      ticketMessageBuilder.addField("company", company);
-      ticketMessageBuilder.addField("customer", username);
-      ticketMessageBuilder.addField("question", question);
-
-      EntityBuilder bodyBuilder = EntityBuilder.createEntity(BASE_TICKET_EVENT, VERSION);
-
-      String claimUrl = String.format("%s/v1/ticket/%s/accept", botHost, ticketId);
-      bodyBuilder.addField("claimUrl", claimUrl);
-
-      String ticketUrl = String.format("%s/v1/ticket/%s", serviceHost, ticketId);
-      bodyBuilder.addField("ticketUrl", ticketUrl);
-
-      bodyBuilder.addField("ticketId", ticketId);
-      bodyBuilder.addField("state", ticketState);
-      bodyBuilder.addField("streamId", streamId);
-      bodyBuilder.addField("user", userBuilder.toObject());
-      bodyBuilder.addField("message", ticketMessageBuilder.toObject());
-
       EntityBuilder builder = EntityBuilder.createEntity();
-      builder.addField("helpdesk", bodyBuilder.toObject());
+      builder.addField("helpdesk", getBodyBuilder().toObject());
 
       String entityData = builder.build();
 
@@ -158,5 +80,9 @@ public class TicketMessageBuilder {
       return null;
     }
   }
+
+  protected abstract String getMessageTemplate();
+
+  protected abstract EntityBuilder getBodyBuilder();
 
 }
