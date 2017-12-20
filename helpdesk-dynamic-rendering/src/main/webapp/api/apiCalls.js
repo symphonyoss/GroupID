@@ -21,6 +21,20 @@ export const claimTicket = (data) => {
   }).catch(error => rejectPromise(error));
 };
 
+export const joinConversation = (data) => {
+  const apiUrl = `${data.entity.joinUrl}`;
+  return getUserId().then((userId) => {
+    const idUser = userId;
+    return axios({
+      method: 'post',
+      url: apiUrl,
+      params: {
+        agentId: idUser,
+      },
+    });
+  }).catch(error => rejectPromise(error));
+};
+
 export const getTicket = (ticketUrl) => {
   const apiUrl = `${ticketUrl}`;
   return axios({

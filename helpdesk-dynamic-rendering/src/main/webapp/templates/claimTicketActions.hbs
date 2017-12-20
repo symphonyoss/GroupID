@@ -2,6 +2,11 @@
     {{#if showClaim}}
         <action id="claimTicket" class="tempo-btn tempo-btn--good"/>
     {{else}}
-        <label class="label">Claimed by: {{userName}}</label>
+        <label class="label">Claimed by: {{userName}}.</label>
+        {{#if resolved}}
+            <label class="label">This ticket is closed.</label>
+        {{else}}
+            <action id="joinConversation" class="tempo-text-color--link"/>
+        {{/if}}
     {{/if}}
 </messageML>
