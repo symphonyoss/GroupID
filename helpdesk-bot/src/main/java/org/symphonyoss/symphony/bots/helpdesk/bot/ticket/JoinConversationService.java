@@ -7,6 +7,7 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -30,17 +31,17 @@ public class JoinConversationService extends TicketService {
 
   public JoinConversationService(SymphonyValidationUtil symphonyValidationUtil,
       MembershipClient membershipClient, SymphonyClient symphonyClient,
-      HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient) {
-    super(symphonyValidationUtil, membershipClient, symphonyClient, helpDeskBotConfig, ticketClient);
+      HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
+      ValidateMembershipService validateMembershipService) {
+    super(symphonyValidationUtil, membershipClient, symphonyClient, helpDeskBotConfig, ticketClient,
+        validateMembershipService);
   }
 
   /**
    * Joins the conversation. This method should update the group memberships if required and add
    * this agent to the service stream.
-   *
    * @param ticket Ticket info
    * @param agent User agent
-   *
    * @return Ticket API response
    */
   @Override

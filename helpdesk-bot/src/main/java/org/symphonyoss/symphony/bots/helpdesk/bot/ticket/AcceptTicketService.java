@@ -12,6 +12,7 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
@@ -42,8 +43,9 @@ public class AcceptTicketService extends TicketService {
   public AcceptTicketService(SymphonyValidationUtil symphonyValidationUtil,
       MembershipClient membershipClient, SymphonyClient symphonyClient,
       HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
-      HelpDeskAi helpDeskAi) {
-    super(symphonyValidationUtil, membershipClient, symphonyClient, helpDeskBotConfig, ticketClient);
+      HelpDeskAi helpDeskAi, ValidateMembershipService validateMembershipService) {
+    super(symphonyValidationUtil, membershipClient, symphonyClient, helpDeskBotConfig, ticketClient,
+        validateMembershipService);
     this.helpDeskAi = helpDeskAi;
   }
 
@@ -51,10 +53,8 @@ public class AcceptTicketService extends TicketService {
    * Accepts the ticket. This method should update the group memberships if required, add this
    * agent to the service stream, send the accept message to the client, and update the ticket
    * state to UNRESOLVED.
-   *
    * @param ticket Ticket info
    * @param agent User agent
-   *
    * @return Ticket API response
    */
   @Override
@@ -83,7 +83,6 @@ public class AcceptTicketService extends TicketService {
 
   /**
    * Sends accept message to client stream.
-   *
    * @param ticket Ticket info
    * @param agentId Agent user id
    */
@@ -100,7 +99,6 @@ public class AcceptTicketService extends TicketService {
 
   /**
    * Update ticket status.
-   *
    * @param ticket Ticket info
    * @param agent Agent user
    * @param state Ticket state

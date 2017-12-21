@@ -16,6 +16,7 @@ import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -61,6 +62,9 @@ public class JoinConversationServiceTest {
   @Mock
   private RoomMembershipClient roomMembershipClient;
 
+  @Mock
+  private ValidateMembershipService validateMembershipService;
+
   private JoinConversationService joinConversationService;
 
   @Before
@@ -70,7 +74,7 @@ public class JoinConversationServiceTest {
 
     this.joinConversationService =
         new JoinConversationService(symphonyValidationUtil, membershipClient, symphonyClient,
-            helpDeskBotConfig, ticketClient);
+            helpDeskBotConfig, ticketClient, validateMembershipService);
   }
 
   @Test

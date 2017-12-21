@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -16,9 +17,12 @@ public class MockTicketService extends TicketService {
 
   private static final String SUCCESS_RESPONSE = "Success";
 
-  public MockTicketService(SymphonyValidationUtil symphonyValidationUtil, MembershipClient membershipClient,
-      SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient) {
-    super(symphonyValidationUtil, membershipClient, symphonyClient, helpDeskBotConfig, ticketClient);
+  public MockTicketService(SymphonyValidationUtil symphonyValidationUtil,
+      MembershipClient membershipClient,
+      SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
+      ValidateMembershipService validateMembershipService) {
+    super(symphonyValidationUtil, membershipClient, symphonyClient, helpDeskBotConfig, ticketClient,
+        validateMembershipService);
   }
 
   @Override

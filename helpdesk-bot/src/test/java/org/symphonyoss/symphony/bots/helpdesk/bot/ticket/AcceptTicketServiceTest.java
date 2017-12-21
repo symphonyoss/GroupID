@@ -20,6 +20,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -68,6 +69,9 @@ public class AcceptTicketServiceTest {
   @Mock
   private HelpDeskAi helpDeskAi;
 
+  @Mock
+  private ValidateMembershipService validateMembershipService;
+
   private AcceptTicketService acceptTicketService;
 
   @Before
@@ -77,7 +81,7 @@ public class AcceptTicketServiceTest {
 
     this.acceptTicketService =
         new AcceptTicketService(symphonyValidationUtil, membershipClient, symphonyClient,
-            helpDeskBotConfig, ticketClient, helpDeskAi);
+            helpDeskBotConfig, ticketClient, helpDeskAi, validateMembershipService);
   }
 
   @Test
