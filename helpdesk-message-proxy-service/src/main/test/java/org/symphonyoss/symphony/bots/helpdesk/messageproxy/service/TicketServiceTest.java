@@ -15,8 +15,8 @@ import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.InstructionalMessageConfig;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.ClaimMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.InstructionalMessageBuilder;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.TicketMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -76,7 +76,7 @@ public class TicketServiceTest {
 
   private SymMessage getTestClaimMessage() {
     String safeAgentStreamId = Base64.encodeBase64String(Base64.decodeBase64(TEST_AGENT_STREAM));
-    TicketMessageBuilder builder = new TicketMessageBuilder();
+    ClaimMessageBuilder builder = new ClaimMessageBuilder();
 
     builder.streamId(safeAgentStreamId);
     builder.username(TEST_DISPLAY_NAME);

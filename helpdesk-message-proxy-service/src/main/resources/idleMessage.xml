@@ -1,0 +1,11 @@
+<messageML>
+    <div class="entity" data-entity-id="helpdesk">
+        <card class="barStyle">
+            <header>
+                <span>
+                    Ticket ${entity['helpdesk'].ticketId} ${entity['helpdesk'].message}
+                </span>
+            </header>
+        </card>
+    </div>
+</messageML>

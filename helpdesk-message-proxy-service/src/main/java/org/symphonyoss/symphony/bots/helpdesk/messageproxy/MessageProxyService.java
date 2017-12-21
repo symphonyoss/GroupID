@@ -1,6 +1,8 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
@@ -9,6 +11,8 @@ import org.symphonyoss.symphony.bots.ai.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.IdleMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
@@ -42,15 +46,26 @@ public class MessageProxyService {
 
   private final TicketService ticketService;
 
+  private final HelpDeskBotInfo helpDeskBotInfo;
+
+  private final HelpDeskServiceInfo helpDeskServiceInfo;
+
+  private final String agentStreamId;
+
   public MessageProxyService(HelpDeskAi helpDeskAi,
       @Qualifier("agentMakerCheckerService") MakerCheckerService agentMakerCheckerService,
       @Qualifier("clientMakerCheckerService") MakerCheckerService clientMakerCheckerService,
-      IdleTicketConfig idleTicketConfig, TicketService ticketService) {
+      IdleTicketConfig idleTicketConfig, TicketService ticketService,
+      HelpDeskBotInfo helpDeskBotInfo, HelpDeskServiceInfo helpDeskServiceInfo,
+      @Value("${agentStreamId}") String agentStreamId) {
     this.helpDeskAi = helpDeskAi;
     this.agentMakerCheckerService = agentMakerCheckerService;
     this.clientMakerCheckerService = clientMakerCheckerService;
     this.idleTicketConfig = idleTicketConfig;
     this.ticketService = ticketService;
+    this.helpDeskBotInfo = helpDeskBotInfo;
+    this.helpDeskServiceInfo = helpDeskServiceInfo;
+    this.agentStreamId = agentStreamId;
   }
 
   /**
@@ -164,8 +179,14 @@ public class MessageProxyService {
   }
 
   private void sendIdleMessage(Ticket ticket) {
-    SymMessage message = new IdleMessageBuilder().ticket(ticket.getId())
+    String safeAgentStreamId = Base64.encodeBase64String(Base64.decodeBase64(agentStreamId));
+
+    SymMessage message = new IdleMessageBuilder()
         .message(idleTicketConfig.getMessage())
+        .botHost(helpDeskBotInfo.getUrl())
+        .serviceHost(helpDeskServiceInfo.getUrl())
+        .ticketId(ticket.getId())
+        .streamId(safeAgentStreamId)
         .build();
 
     ticketService.sendIdleMessageToAgentStreamId(message);
