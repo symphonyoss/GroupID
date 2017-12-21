@@ -102,6 +102,7 @@ public class MakerCheckerService {
               copy.setEntityData(symMessage.getEntityData());
               copy.setAttachments(symMessage.getAttachments());
               copy.setTimestamp(symMessage.getTimestamp());
+              copy.setFromUserId(symMessage.getFromUserId());
 
               acceptMessages.add(copy);
             }
