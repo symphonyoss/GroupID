@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+{{ java_path }} -jar /opt/symphony/helpdesk-bot/helpdesk-bot.jar \
+    --spring.config.location=/data/symphony/helpdesk-bot/application.yaml \
+    --logging.file=/data/symphony/helpdesk-bot/logs/helpdesk-bot.log

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { getUserId } from '../utils/userUtils';
 
 const rejectPromise = (error) => {
   const response = error.response || {};
@@ -9,15 +8,23 @@ const rejectPromise = (error) => {
 
 export const claimTicket = (data) => {
   const apiUrl = `${data.entity.claimUrl}`;
-  return getUserId().then((userId) => {
-    const idUser = userId;
-    return axios({
-      method: 'post',
-      url: apiUrl,
-      headers: {
-        agentId: idUser,
-      },
-    });
+  return axios({
+    method: 'post',
+    url: apiUrl,
+    params: {
+      agentId: data.userId,
+    },
+  }).catch(error => rejectPromise(error));
+};
+
+export const joinConversation = (data) => {
+  const apiUrl = `${data.entity.joinUrl}`;
+  return axios({
+    method: 'post',
+    url: apiUrl,
+    params: {
+      agentId: data.userId,
+    },
   }).catch(error => rejectPromise(error));
 };
 
@@ -30,26 +37,18 @@ export const getTicket = (ticketUrl) => {
   .catch(error => rejectPromise(error));
 };
 
-export const approveAttachment = (messageAttachment) => {
-  const apiUrl = '/v1/makerchecker/accept';
-  return axios({
-    method: 'post',
-    url: apiUrl,
-    body: {
-      message: messageAttachment,
-    },
-  }).catch(error => rejectPromise(error));
+export const approveAttachment = (approveUrl, messageAttachment) => {
+  const apiUrl = `${approveUrl}`;
+  return axios
+    .post(apiUrl, messageAttachment)
+    .catch(error => rejectPromise(error));
 };
 
-export const denyAttachment = (messageAttachment) => {
-  const apiUrl = '/v1/makerchecker/deny';
-  return axios({
-    method: 'post',
-    url: apiUrl,
-    body: {
-      message: messageAttachment,
-    },
-  }).catch(error => rejectPromise(error));
+export const denyAttachment = (denyUrl, messageAttachment) => {
+  const apiUrl = `${denyUrl}`;
+  return axios
+  .post(apiUrl, messageAttachment)
+  .catch(error => rejectPromise(error));
 };
 
 export const searchAttachment = (attachmentUrl) => {

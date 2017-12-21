@@ -63,6 +63,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       label: 'Approve',
       enricherInstanceId: entity.attachmentId,
       streamId: entity.streamId,
+      userId,
     };
 
     const denyAttachmentAction = {
@@ -71,6 +72,8 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       type: 'denyAttachment',
       label: 'Deny',
       enricherInstanceId: entity.attachmentId,
+      streamId: entity.streamId,
+      userId,
     };
 
     const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
@@ -94,8 +97,8 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     const dataUpdate = actionFactory([], enricherServiceName, data.entity);
 
     if (data.type === 'approveAttachment') {
-      this.services.attachmentService.approve(data.entity).then((rsp) => {
-        const displayName = rsp.message.makerCheckerMessageDetail.user.displayName;
+      this.services.attachmentService.approve(data).then((rsp) => {
+        const displayName = rsp.data.user.displayName !== undefined ? rsp.data.user.displayName : '';
         const templateApproved = actions({ showActions: false,
           isApproved: true,
           userName: displayName });
@@ -105,8 +108,8 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     }
 
     if (data.type === 'denyAttachment') {
-      this.services.attachmentService.deny(data.entity).then((rsp) => {
-        const displayName = rsp.message.makerCheckerMessageDetail.user.displayName;
+      this.services.attachmentService.deny(data).then((rsp) => {
+        const displayName = rsp.data.user.displayName !== undefined ? rsp.data.user.displayName : '';
         const templateDeny = actions({ showActions: false,
           isApproved: false,
           userName: displayName });

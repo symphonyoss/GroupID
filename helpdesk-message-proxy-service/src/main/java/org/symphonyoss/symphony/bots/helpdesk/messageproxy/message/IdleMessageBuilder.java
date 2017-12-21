@@ -1,32 +1,54 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.message;
 
+import org.apache.commons.lang3.StringUtils;
+import org.symphonyoss.symphony.bots.utility.message.EntityBuilder;
 import org.symphonyoss.symphony.bots.utility.message.SymMessageBuilder;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**
  * Created by rsanchez on 11/12/17.
  */
-public class IdleMessageBuilder {
+public class IdleMessageBuilder extends TicketMessageBuilder {
 
-  private static final String TEMPLATE = "<messageML>Ticket #%s %s</messageML>";
+  private static final String TICKET_EVENT = "com.symphony.bots.helpdesk.event.ticket";
 
-  private String ticketId;
+  private static final String VERSION = "1.0";
+
+  private static final String IDLE_MESSAGE_TEMPLATE = "idleMessage.xml";
+
+  private static String template;
 
   private String message;
-
-  public IdleMessageBuilder ticket(String ticketId) {
-    this.ticketId = ticketId;
-    return this;
-  }
 
   public IdleMessageBuilder message(String message) {
     this.message = message;
     return this;
   }
 
-  public SymMessage build() {
-    String ticketMessage = String.format(TEMPLATE, ticketId, message);
-    return SymMessageBuilder.message(ticketMessage).build();
+  @Override
+  protected String getMessageTemplate() {
+    if (StringUtils.isEmpty(template)) {
+      template = parseTemplate(IDLE_MESSAGE_TEMPLATE);
+    }
+
+    return template;
+  }
+
+  @Override
+  protected EntityBuilder getBodyBuilder() {
+    EntityBuilder bodyBuilder = EntityBuilder.createEntity(TICKET_EVENT, VERSION);
+
+    String joinUrl = String.format("%s/v1/ticket/%s/join", botHost, ticketId);
+    bodyBuilder.addField("joinUrl", joinUrl);
+
+    String ticketUrl = String.format("%s/v1/ticket/%s", serviceHost, ticketId);
+    bodyBuilder.addField("ticketUrl", ticketUrl);
+
+    bodyBuilder.addField("ticketId", ticketId);
+    bodyBuilder.addField("streamId", streamId);
+    bodyBuilder.addField("message", message);
+
+    return bodyBuilder;
   }
 
 }

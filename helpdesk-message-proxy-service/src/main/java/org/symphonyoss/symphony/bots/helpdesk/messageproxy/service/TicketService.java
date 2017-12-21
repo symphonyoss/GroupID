@@ -11,13 +11,11 @@ import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.InstructionalMessageConfig;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.ClaimMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.InstructionalMessageBuilder;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.TicketMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
-import org.symphonyoss.symphony.clients.MessagesClient;
-import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -107,7 +105,7 @@ public class TicketService {
 
     String safeAgentStreamId = Base64.encodeBase64String(Base64.decodeBase64(agentStreamId));
 
-    TicketMessageBuilder builder = new TicketMessageBuilder();
+    ClaimMessageBuilder builder = new ClaimMessageBuilder();
 
     builder.botHost(helpDeskBotInfo.getUrl());
     builder.serviceHost(helpDeskServiceInfo.getUrl());
