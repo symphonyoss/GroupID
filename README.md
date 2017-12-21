@@ -24,7 +24,7 @@ You’ll build the three java applications described above.
 * Webpack (globally installed)
 * A service user on the pod that will act as the HelpDesk bot
 * A cert for the HelpDesk bot user
-* HelpDesk App installed on pod
+* HelpDesk App installed on pod ([Bundle File](/helpdesk-dynamic-rendering/src/main/webapp/bundle.json))
 
 ### Build with maven
 These applications are compatible with Apache Maven 3.0.5 or above. If you don’t already have Maven installed you can follow the instructions at maven.apache.org.
