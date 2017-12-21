@@ -18,10 +18,9 @@ public class MockTicketService extends TicketService {
   private static final String SUCCESS_RESPONSE = "Success";
 
   public MockTicketService(SymphonyValidationUtil symphonyValidationUtil,
-      MembershipClient membershipClient,
       SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
       ValidateMembershipService validateMembershipService) {
-    super(symphonyValidationUtil, membershipClient, symphonyClient, helpDeskBotConfig, ticketClient,
+    super(symphonyValidationUtil, symphonyClient, helpDeskBotConfig, ticketClient,
         validateMembershipService);
   }
 

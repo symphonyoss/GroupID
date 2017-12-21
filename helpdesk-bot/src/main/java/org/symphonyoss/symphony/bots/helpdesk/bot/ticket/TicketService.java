@@ -1,14 +1,11 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
-import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
@@ -21,13 +18,9 @@ import javax.ws.rs.BadRequestException;
  */
 public abstract class TicketService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TicketService.class);
-
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
 
   private final SymphonyValidationUtil symphonyValidationUtil;
-
-  private final MembershipClient membershipClient;
 
   private final SymphonyClient symphonyClient;
 
@@ -37,12 +30,10 @@ public abstract class TicketService {
 
   private final ValidateMembershipService validateMembershipService;
 
-  public TicketService(SymphonyValidationUtil symphonyValidationUtil,
-      MembershipClient membershipClient, SymphonyClient symphonyClient,
+  public TicketService(SymphonyValidationUtil symphonyValidationUtil, SymphonyClient symphonyClient,
       HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
       ValidateMembershipService validateMembershipService) {
     this.symphonyValidationUtil = symphonyValidationUtil;
-    this.membershipClient = membershipClient;
     this.symphonyClient = symphonyClient;
     this.helpDeskBotConfig = helpDeskBotConfig;
     this.ticketClient = ticketClient;

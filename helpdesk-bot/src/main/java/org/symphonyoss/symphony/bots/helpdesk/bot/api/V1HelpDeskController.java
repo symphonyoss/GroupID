@@ -40,8 +40,6 @@ public class V1HelpDeskController extends V1ApiController {
   private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
   private static final String MAKER_CHECKER_DENY_RESPONSE = "Maker checker message denied.";
   private static final String MAKER_CHECKER_NOT_FOUND = "Makerchecker not found.";
-  private static final String INACTIVE_OR_EXTERNAL_USER_EXCEPTION = "This action can not be "
-      + "performed because agent is inactive or is external.";
   private static final String OPEN_MAKERCHECKER_NOT_FOUND =
       "This action can not be perfomed because this attachment was approved/denied before.";
   private static final String OWN_ATTACHMENT_EXCPETION =
@@ -78,11 +76,6 @@ public class V1HelpDeskController extends V1ApiController {
     return joinConversationService.execute(ticketId, agentId);
   }
 
-  /**
-   * Accept a maker checker message.
-   * @param detail the maker checker message detail
-   * @return a maker checker message response
-   */
   /**
    * Accept a maker checker message.
    * @param detail the maker checker message detail

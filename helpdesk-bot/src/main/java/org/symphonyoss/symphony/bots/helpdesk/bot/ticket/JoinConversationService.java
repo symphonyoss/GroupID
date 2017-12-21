@@ -30,10 +30,9 @@ public class JoinConversationService extends TicketService {
   private static final String TICKET_SUCCESS_RESPONSE = "User joined the conversation.";
 
   public JoinConversationService(SymphonyValidationUtil symphonyValidationUtil,
-      MembershipClient membershipClient, SymphonyClient symphonyClient,
-      HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
+      SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
       ValidateMembershipService validateMembershipService) {
-    super(symphonyValidationUtil, membershipClient, symphonyClient, helpDeskBotConfig, ticketClient,
+    super(symphonyValidationUtil, symphonyClient, helpDeskBotConfig, ticketClient,
         validateMembershipService);
   }
 

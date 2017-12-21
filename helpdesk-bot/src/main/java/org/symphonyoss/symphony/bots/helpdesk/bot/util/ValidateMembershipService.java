@@ -25,7 +25,7 @@ public class ValidateMembershipService {
 
   private final SymphonyClient symphonyClient;
 
-  protected final HelpDeskBotConfig helpDeskBotConfig;
+  private final HelpDeskBotConfig helpDeskBotConfig;
 
   public ValidateMembershipService(
       MembershipClient membershipClient, SymphonyClient symphonyClient,
