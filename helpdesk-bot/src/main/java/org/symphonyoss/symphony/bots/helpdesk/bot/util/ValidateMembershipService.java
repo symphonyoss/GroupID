@@ -4,6 +4,7 @@ import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.M
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
@@ -17,6 +18,7 @@ import javax.ws.rs.BadRequestException;
 /**
  * Created by alexandre-silva-daitan on 20/12/17.
  */
+@Component
 public class ValidateMembershipService {
 
   private static final Logger LOG = LoggerFactory.getLogger(TicketService.class);
