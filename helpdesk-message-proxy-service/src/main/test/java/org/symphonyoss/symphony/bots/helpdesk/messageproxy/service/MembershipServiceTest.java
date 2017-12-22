@@ -1,17 +1,18 @@
-package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
+package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
-import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType.AGENT;
-import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType.CLIENT;
+import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**
  * Created by alexandre-silva-daitan on 19/12/17
@@ -23,55 +24,117 @@ public class MembershipServiceTest {
   @Mock
   private MembershipClient membershipClient;
 
+  private MembershipService membershipService;
+
   private static final String STREAM_ID = "STREAM_ID";
+
+  private static final Long AGENT_ID = 012345L;
+
+  private static final Long CLIENT_ID = 678900L;
+
+  private static final String GROUP_ID = "GROUP_ID";
+
+  @Before
+  public void initMocks() {
+    membershipService =
+        new MembershipService(membershipClient);
+  }
+
+  @Test
+  public void getMembershipNull() {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setStreamId(STREAM_ID);
+
+    doReturn(null).when(membershipClient).getMembership(AGENT_ID);
+
+    Membership membership = membershipService.getMembership(AGENT_ID);
+
+    verify(membershipClient, times(1)).getMembership(AGENT_ID);
+    assertEquals(null,membership);
+
+  }
 
   @Test
   public void createMembershipClient() {
-    MembershipService membershipService = new MembershipService(membershipClient);
-    SymMessage message = new SymMessage();
-    message.setStreamId(STREAM_ID);
+    SymMessage symMessage = new SymMessage();
+    symMessage.setFromUserId(CLIENT_ID);
+    Membership client = getMembershipClient();
 
-    MembershipType type type = new MembershipType(CLIENT);
+    doReturn(null).when(membershipClient).getMembership(CLIENT_ID);
 
-    when(symMessage.getFromUserId()).thenReturn(STREAM_ID);
-    Long userId = symMessage.getFromUserId();
+    doReturn(client).when(membershipClient).newMembership(CLIENT_ID,
+        MembershipClient.MembershipType.CLIENT);
 
-    when(getMembership(userId)).thenReturn(null);
-    Membership membership = getMembership(userId);
+    Membership actual = membershipService.updateMembership(symMessage, MembershipClient.MembershipType.CLIENT);
 
-    when(membership == null).thenReturn(true);
-    if(membership == null) {
-      membership = createMembership(userId, type);
-    }
+    verify(membershipClient, times(1)).newMembership(CLIENT_ID, MembershipClient.MembershipType.CLIENT);
 
-    verify(membershipService, times(1)).createMembership(userId, CLIENT);
+    assertEquals(client, actual);
+
   }
 
   @Test
   public void createMembershipAgent() {
-    MembershipService membershipService = new MembershipService(membershipClient);
-    SymMessage message = new SymMessage();
-    message.setStreamId(STREAM_ID);
+    SymMessage symMessage = new SymMessage();
+    symMessage.setFromUserId(AGENT_ID);
 
-    MembershipType type type = new MembershipType(AGENT);
+    Membership agent = getMembershipAgent();
 
-    when(symMessage.getFromUserId()).thenReturn(STREAM_ID);
-    Long userId = symMessage.getFromUserId();
+    doReturn(null).when(membershipClient).getMembership(AGENT_ID);
 
-    when(getMembership(userId)).thenReturn(null);
-    Membership membership = getMembership(userId);
+    doReturn(agent).when(membershipClient).newMembership(AGENT_ID,
+        MembershipClient.MembershipType.AGENT);
 
-    when(membership == null).thenReturn(false);
-    when(AGENT.equals(type) && !type.toString().equals(membership.getType())).thenReturn(true);
+    Membership actual = membershipService.updateMembership(symMessage, MembershipClient.MembershipType.AGENT);
 
-    if(membership == null) {
-      membership = createMembership(userId, type);
-    } else if(AGENT.equals(type) && !type.toString().equals(membership.getType())) {
-      membership.setType(AGENT.getType());
-      membership = updateMembership(membership);
-    }
+    verify(membershipClient, times(1)).newMembership(AGENT_ID, MembershipClient.MembershipType.AGENT);
 
-    verify(membershipService, times(1)).createMembership(userId, AGENT);
+    assertEquals(agent, actual);
   }
 
+  @Test
+  public void updateMembership() {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setFromUserId(CLIENT_ID);
+    Membership client = getMembershipClient();
+    Membership agent = getMembershipClientUpdated();
+
+    doReturn(client).when(membershipClient).getMembership(CLIENT_ID);
+
+    doReturn(agent).when(membershipClient).updateMembership(client);
+
+    Membership actual = membershipService.updateMembership(symMessage, MembershipClient.MembershipType.AGENT);
+
+    verify(membershipClient, times(1)).updateMembership(client);
+
+    assertEquals(agent, actual);
+  }
+
+
+  private Membership getMembershipAgent() {
+    Membership membership = new Membership();
+    membership.setType(MembershipClient.MembershipType.AGENT.getType());
+    membership.setGroupId(GROUP_ID);
+    membership.setId(AGENT_ID);
+
+    return membership;
+  }
+
+  private Membership getMembershipClient() {
+    Membership membership = new Membership();
+    membership.setType(MembershipClient.MembershipType.CLIENT.getType());
+    membership.setGroupId(GROUP_ID);
+    membership.setId(CLIENT_ID);
+
+    return membership;
+  }
+
+  private Membership getMembershipClientUpdated() {
+    Membership membership = new Membership();
+    membership.setType(MembershipClient.MembershipType.AGENT.getType());
+    membership.setGroupId(GROUP_ID);
+    membership.setId(CLIENT_ID);
+
+    return membership;
+  }
 }

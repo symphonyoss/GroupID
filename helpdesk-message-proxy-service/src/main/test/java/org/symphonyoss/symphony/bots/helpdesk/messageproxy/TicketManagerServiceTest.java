@@ -1,19 +1,26 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.symphony.clients.model.SymMessage;
-import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
-    .MembershipType.AGENT;
-import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
-    .MembershipType.CLIENT;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**
  * Created by alexandre-silva-daitan on 19/12/17
@@ -34,52 +41,163 @@ public class TicketManagerServiceTest {
   @Mock
   private MessageProxyService messageProxyService;
 
-  private static final String MOCK_TEXT = "Mock text";
+  private TicketManagerService ticketManagerService;
 
   private static final String STREAM_ID = "STREAM_ID";
 
   private static final String GROUP_ID = "GROUP_ID";
 
-  @Test
-  public void updateMembershipAgent(){
-    SymMessage message = new SymMessage();
-    message.setMessageText(MOCK_TEXT);
-    message.setStreamId(STREAM_ID);
+  private static final Long AGENT_ID = 012345L;
 
-    Ticket mockTicket = mock(Ticket.class);
+  private static final Long CLIENT_ID = 67890L;
 
-    TicketManagerServiceTest serviceTest = new TicketManagerServiceTest(STREAM_ID, GROUP_ID,
-        membershipService, ticketService, roomService, messageProxyService);
+  private static final String CLIENT_STREAM_ID = "CLIENT_STREAM_ID";
 
-    when(ticketService.getTicketByServiceStreamId(message.getStreamId()).thenReturn(mockTicket);
-    Ticket ticket = ticketService.getTicketByServiceStreamId(message.getStreamId();
+  private static final String AGENT_NAME = "AGENT_NAME";
 
-    when((message.getStreamId().equals(agentStreamId) || ticket != null)).thenReturn(true));
-    if((message.getStreamId().equals(agentStreamId) || ticket != null)) {
-      membership = membershipService.updateMembership(message, AGENT);
-    }
+  private static final String TICKET_ID = "TICKET_ID";
 
-    verify(serviceTest, times(1)).updateMembershipAgent(message, AGENT);
+  private static final String CLIENT_NAME = "CLIENT_NAME";
+
+  private static final Long QUESTION_TIMESTAMP = 111111L;
+
+  private static final String SERVICE_STREAM_ID = "SERVICE_STREAM_ID";
+
+  private static final String NEW_STREAM_ID = "NEW_STREAM_ID";
+
+  private static final String NEW_SERVICE_STREAM_ID = "NEW_SERVICE_STRAM_ID";
+
+  private static final int TICKET_ID_LENGTH = 10;
+
+  @Before
+  public void initMocks() {
+    ticketManagerService =
+        new TicketManagerService(STREAM_ID, GROUP_ID, membershipService, ticketService, roomService,
+            messageProxyService);
+
   }
 
   @Test
-  public void updateMembershipClient(){
-    SymMessage message = new SymMessage();
-    message.setMessageText(MOCK_TEXT);
-    message.setStreamId(STREAM_ID);
+  public void updateMembershipAgent() {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setStreamId(STREAM_ID);
+    Ticket ticket = getTicket();
+    Membership membershipAgent = getMembershipAgent();
 
-    TicketManagerServiceTest serviceTest = new TicketManagerServiceTest(STREAM_ID, GROUP_ID,
-        membershipService, ticketService, roomService, messageProxyService);
+    doReturn(ticket).when(ticketService).getTicketByServiceStreamId(STREAM_ID);
 
-    when(ticketService.getTicketByServiceStreamId(message.getStreamId()).thenReturn(null);
-    Ticket ticket = ticketService.getTicketByServiceStreamId(message.getStreamId();
+    doReturn(membershipAgent).when(membershipService).updateMembership(symMessage,
+        MembershipClient.MembershipType.AGENT);
 
-    when((message.getStreamId().equals(agentStreamId) || ticket != null)).thenReturn(false));
-    if((message.getStreamId().equals(agentStreamId) || ticket != null)) {
-      membership = membershipService.updateMembership(message, CLIENT);
-    }
+    ticketManagerService.messageReceived(symMessage);
 
-    verify(serviceTest, times(1)).updateMembershipAgent(message, CLIENT);
+    verify(membershipService, times(1)).updateMembership(symMessage,
+        MembershipClient.MembershipType.AGENT);
+
+    verify(messageProxyService, times(1)).onMessage(membershipAgent, ticket, symMessage);
   }
+
+  @Test
+  public void updateMembershipClient() {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setStreamId(NEW_STREAM_ID);
+    Ticket ticket = getTicket();
+    Membership membershipClient = getMembershipClient();
+
+    doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
+
+    doReturn(membershipClient).when(membershipService).updateMembership(symMessage,
+        MembershipClient.MembershipType.CLIENT);
+
+    doReturn(ticket).when(ticketService).getUnresolvedTicket(NEW_STREAM_ID);
+
+    ticketManagerService.messageReceived(symMessage);
+
+    verify(membershipService, times(1)).updateMembership(symMessage,
+        MembershipClient.MembershipType.CLIENT);
+
+    verify(ticketService, never()).createTicket(anyString(), eq(symMessage), eq(NEW_STREAM_ID));
+
+    verify(messageProxyService, times(1)).onMessage(membershipClient, ticket, symMessage);
+  }
+
+  @Test
+  public void updateMembershipClientAndCreateATicket() {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setStreamId(NEW_STREAM_ID);
+    Ticket ticket = getTicket();
+    Membership membershipClient = getMembershipClient();
+
+    doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
+
+    doReturn(membershipClient).when(membershipService).updateMembership(symMessage,
+        MembershipClient.MembershipType.CLIENT);
+
+    doReturn(null).when(ticketService).getUnresolvedTicket(NEW_STREAM_ID);
+
+    doReturn(NEW_SERVICE_STREAM_ID).when(roomService).newServiceStream(anyString(), eq(GROUP_ID));
+
+    doReturn(ticket).when(ticketService)
+        .createTicket(anyString(), eq(symMessage), eq(NEW_SERVICE_STREAM_ID));
+
+    ticketManagerService.messageReceived(symMessage);
+
+    verify(membershipService, times(1)).updateMembership(symMessage,
+        MembershipClient.MembershipType.CLIENT);
+
+    verify(ticketService, times(1)).createTicket(anyString(), eq(symMessage), eq(
+        NEW_SERVICE_STREAM_ID));
+
+    verify(messageProxyService, times(1)).onMessage(membershipClient, ticket, symMessage);
+  }
+
+  private Membership getMembershipAgent() {
+    Membership membership = new Membership();
+    membership.setType(MembershipClient.MembershipType.AGENT.getType());
+    membership.setGroupId(GROUP_ID);
+    membership.setId(AGENT_ID);
+
+    return membership;
+  }
+
+  private Membership getMembershipClient() {
+    Membership membership = new Membership();
+    membership.setType(MembershipClient.MembershipType.CLIENT.getType());
+    membership.setGroupId(GROUP_ID);
+    membership.setId(CLIENT_ID);
+
+    return membership;
+  }
+
+  private Ticket getTicket() {
+    Ticket ticket = new Ticket();
+    ticket.setGroupId(GROUP_ID);
+    ticket.setAgent(getAgentInfo());
+    ticket.setClient(getAgentInfo());
+    ticket.setId(TICKET_ID);
+    ticket.setClientStreamId(CLIENT_STREAM_ID);
+    ticket.setQuestionTimestamp(QUESTION_TIMESTAMP);
+    ticket.setServiceStreamId(SERVICE_STREAM_ID);
+    ticket.setState(TicketClient.TicketStateType.UNSERVICED.getState());
+
+    return ticket;
+  }
+
+  private UserInfo getClientInfo() {
+    UserInfo client = new UserInfo();
+    client.setUserId(CLIENT_ID);
+    client.setDisplayName(CLIENT_NAME);
+
+    return client;
+  }
+
+  private UserInfo getAgentInfo() {
+    UserInfo agent = new UserInfo();
+    agent.setUserId(AGENT_ID);
+    agent.setDisplayName(AGENT_NAME);
+
+    return agent;
+  }
+
 
 }
