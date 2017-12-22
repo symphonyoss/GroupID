@@ -64,6 +64,7 @@ public class V1HelpDeskController extends V1ApiController {
   @Autowired
   private JoinConversationService joinConversationService;
 
+  @Autowired
   private ValidateMembershipService validateMembershipService;
 
   @Override
