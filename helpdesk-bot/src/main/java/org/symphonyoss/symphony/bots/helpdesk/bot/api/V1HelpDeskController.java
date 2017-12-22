@@ -5,6 +5,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
+import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
@@ -16,6 +17,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.AcceptTicketService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.JoinConversationService;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
@@ -38,6 +40,10 @@ public class V1HelpDeskController extends V1ApiController {
   private static final String MAKER_CHECKER_SUCCESS_RESPONSE = "Maker checker message accepted.";
   private static final String MAKER_CHECKER_DENY_RESPONSE = "Maker checker message denied.";
   private static final String MAKER_CHECKER_NOT_FOUND = "Makerchecker not found.";
+  private static final String OPEN_MAKERCHECKER_NOT_FOUND =
+      "This action can not be perfomed because this attachment was approved/denied before.";
+  private static final String OWN_ATTACHMENT_EXCPETION =
+      "You can not perform this action in your own attachment.";
 
   @Autowired
   private SymphonyValidationUtil symphonyValidationUtil;
@@ -57,6 +63,9 @@ public class V1HelpDeskController extends V1ApiController {
 
   @Autowired
   private JoinConversationService joinConversationService;
+
+  @Autowired
+  private ValidateMembershipService validateMembershipService;
 
   @Override
   public TicketResponse acceptTicket(String ticketId, Long agentId) {
@@ -87,14 +96,29 @@ public class V1HelpDeskController extends V1ApiController {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
     }
 
-    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
-    sendAcceptMarkerChekerMessages(detail);
+    if (makerchecker.getMakerId().equals(detail.getUserId())) {
+      throw new BadRequestException(OWN_ATTACHMENT_EXCPETION);
+    }
 
-    makerchecker.setCheckerId(detail.getUserId());
-    makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
-    makercheckerClient.updateMakerchecker(makerchecker);
+    try {
+      validateMembershipService.updateMembership(detail.getUserId());
+    } catch (SymException e) {
+      throw new BadRequestException("User is not an agent");
+    }
 
-    return buildMakerCheckerResponse(agentUser, detail);
+    if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
+      SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+      sendAcceptMarkerChekerMessages(detail);
+
+      makerchecker.setCheckerId(detail.getUserId());
+      makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
+      makercheckerClient.updateMakerchecker(makerchecker);
+
+      return buildMakerCheckerResponse(agentUser, detail);
+    } else {
+      throw new BadRequestException(OPEN_MAKERCHECKER_NOT_FOUND);
+    }
+
   }
 
   private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser,
@@ -116,7 +140,8 @@ public class V1HelpDeskController extends V1ApiController {
     checkerMessage.setAttachmentId(detail.getAttachmentId());
     checkerMessage.setGroupId(detail.getGroupId());
     checkerMessage.setMessageId(detail.getMessageId());
-    checkerMessage.setStreamId(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
+    checkerMessage.setStreamId(
+        Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
     checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
     checkerMessage.setTimeStamp(detail.getTimeStamp());
     checkerMessage.setType(detail.getType());
@@ -145,22 +170,36 @@ public class V1HelpDeskController extends V1ApiController {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
     }
 
-    SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+    if (makerchecker.getMakerId().equals(detail.getUserId())) {
+      throw new BadRequestException(OWN_ATTACHMENT_EXCPETION);
+    }
 
-    makerchecker.setCheckerId(detail.getUserId());
-    makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
-    makercheckerClient.updateMakerchecker(makerchecker);
+    try {
+      validateMembershipService.updateMembership(detail.getUserId());
+    } catch (SymException e) {
+      throw new BadRequestException("User is not an agent");
+    }
 
-    MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
-    makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
-    makerCheckerResponse.setMakerCheckerMessageDetail(detail);
+    if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
+      SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
 
-    User user = getUser(detail, agentUser);
+      makerchecker.setCheckerId(detail.getUserId());
+      makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
+      makercheckerClient.updateMakerchecker(makerchecker);
 
-    makerCheckerResponse.setUser(user);
-    makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
+      MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
+      makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
+      makerCheckerResponse.setMakerCheckerMessageDetail(detail);
 
-    return makerCheckerResponse;
+      User user = getUser(detail, agentUser);
+
+      makerCheckerResponse.setUser(user);
+      makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
+
+      return makerCheckerResponse;
+    } else {
+      throw new BadRequestException(OPEN_MAKERCHECKER_NOT_FOUND);
+    }
   }
 
   private User getUser(MakerCheckerMessageDetail detail, SymUser agentUser) {

@@ -20,15 +20,13 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.RoomMembershipClient;
 import org.symphonyoss.symphony.clients.model.SymUser;
-import org.symphonyoss.symphony.pod.model.MemberInfo;
-import org.symphonyoss.symphony.pod.model.MembershipList;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
@@ -44,8 +42,6 @@ public class AcceptTicketServiceTest {
   private static final Long MOCK_USER_ID = 123456L;
 
   private static final String MOCK_USER_DISPLAY_NAME = "mock user";
-
-  private static final String MOCK_AGENT_STREAM_ID = "Zs-nx3pQh3-XyKlT5B15m3___p_zHfetdA";
 
   @Mock
   private SymphonyValidationUtil symphonyValidationUtil;
@@ -68,16 +64,18 @@ public class AcceptTicketServiceTest {
   @Mock
   private HelpDeskAi helpDeskAi;
 
+  @Mock
+  private ValidateMembershipService validateMembershipService;
+
   private AcceptTicketService acceptTicketService;
 
   @Before
   public void init() {
     doReturn(roomMembershipClient).when(symphonyClient).getRoomMembershipClient();
-    doReturn(MOCK_AGENT_STREAM_ID).when(helpDeskBotConfig).getAgentStreamId();
 
     this.acceptTicketService =
-        new AcceptTicketService(symphonyValidationUtil, membershipClient, symphonyClient,
-            helpDeskBotConfig, ticketClient, helpDeskAi);
+        new AcceptTicketService(symphonyValidationUtil, symphonyClient,
+            helpDeskBotConfig, ticketClient, helpDeskAi, validateMembershipService);
   }
 
   @Test
@@ -98,7 +96,7 @@ public class AcceptTicketServiceTest {
 
   @Test(expected = InternalServerErrorException.class)
   public void testInternalServerErrorToAddedAgentToStream() throws SymException {
-    doThrow(SymException.class).when(roomMembershipClient).getRoomMembership(MOCK_AGENT_STREAM_ID);
+    doThrow(SymException.class).when(validateMembershipService).updateMembership(MOCK_USER_ID);
 
     Ticket ticket = new Ticket();
     ticket.setId(MOCK_TICKET_ID);
@@ -112,19 +110,6 @@ public class AcceptTicketServiceTest {
 
   @Test
   public void testSuccess() throws SymException {
-    Membership membership = new Membership();
-    membership.setType(MembershipClient.MembershipType.AGENT.getType());
-
-    doReturn(membership).when(membershipClient).getMembership(MOCK_USER_ID);
-
-    MemberInfo memberInfo = new MemberInfo();
-    memberInfo.setId(MOCK_USER_ID);
-
-    MembershipList membershipList = new MembershipList();
-    membershipList.add(memberInfo);
-
-    doReturn(membershipList).when(roomMembershipClient).getRoomMembership(MOCK_AGENT_STREAM_ID);
-
     Ticket ticket = new Ticket();
     ticket.setId(MOCK_TICKET_ID);
     ticket.setState(TicketClient.TicketStateType.UNSERVICED.getState());
