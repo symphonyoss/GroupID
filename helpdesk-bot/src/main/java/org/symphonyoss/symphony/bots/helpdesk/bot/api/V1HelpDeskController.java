@@ -85,6 +85,7 @@ public class V1HelpDeskController extends V1ApiController {
   @Override
   public MakerCheckerResponse approveMakerCheckerMessage(MakerCheckerMessageDetail detail) {
     validateRequiredParameter("streamId", detail.getStreamId(), "body");
+    symphonyValidationUtil.validateStream(detail.getStreamId());
     validateRequiredParameter("groupId", detail.getGroupId(), "body");
     validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");
     validateRequiredParameter("timestamp", detail.getTimeStamp(), "body");
@@ -165,6 +166,8 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
+    symphonyValidationUtil.validateStream(detail.getStreamId());
+
     Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
     if (makerchecker == null) {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
