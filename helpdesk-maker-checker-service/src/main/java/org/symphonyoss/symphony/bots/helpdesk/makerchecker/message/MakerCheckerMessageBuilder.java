@@ -48,7 +48,7 @@ public class MakerCheckerMessageBuilder {
 
   private String groupId;
 
-  private String attachmentId;
+  private String makerCheckerId;
 
   public MakerCheckerMessageBuilder() {
     if (StringUtils.isEmpty(message)) {
@@ -111,8 +111,8 @@ public class MakerCheckerMessageBuilder {
     return this;
   }
 
-  public MakerCheckerMessageBuilder attachmentId(String attachmentId) {
-    this.attachmentId = attachmentId;
+  public MakerCheckerMessageBuilder makerCheckerId(String makerCheckerId) {
+    this.makerCheckerId = makerCheckerId;
     return this;
   }
 
@@ -124,7 +124,7 @@ public class MakerCheckerMessageBuilder {
     try {
       EntityBuilder bodyBuilder = EntityBuilder.createEntity(BASE_EVENT, VERSION);
 
-      String attachmentUrl = String.format("%s/v1/makerchecker/%s", serviceHost, attachmentId);
+      String attachmentUrl = String.format("%s/v1/makerchecker/%s", serviceHost, makerCheckerId);
       bodyBuilder.addField("attachmentUrl", attachmentUrl);
 
       String approveUrl = String.format("%s/v1/makerchecker/approve", botHost);
@@ -139,7 +139,7 @@ public class MakerCheckerMessageBuilder {
       bodyBuilder.addField("timestamp", timestamp);
       bodyBuilder.addField("messageId", messageId);
       bodyBuilder.addField("groupId", groupId);
-      bodyBuilder.addField("attachmentId", attachmentId);
+      bodyBuilder.addField("makerCheckerId", makerCheckerId);
 
       EntityBuilder builder = EntityBuilder.createEntity();
       builder.addField("makerchecker", bodyBuilder.toObject());

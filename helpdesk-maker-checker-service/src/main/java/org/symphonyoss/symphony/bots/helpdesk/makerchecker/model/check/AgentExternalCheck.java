@@ -79,7 +79,7 @@ public class AgentExternalCheck implements Checker {
     for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
       MakerCheckerMessageBuilder messageBuilder = new MakerCheckerMessageBuilder();
       String makerCheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
-      messageBuilder.attachmentId(makerCheckerId);
+      messageBuilder.makerCheckerId(makerCheckerId);
       messageBuilder.botHost(botHost);
       messageBuilder.serviceHost(serviceHost);
       messageBuilder.makerId(makerId);
