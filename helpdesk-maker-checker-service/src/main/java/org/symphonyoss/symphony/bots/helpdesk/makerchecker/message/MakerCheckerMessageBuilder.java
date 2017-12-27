@@ -48,8 +48,6 @@ public class MakerCheckerMessageBuilder {
 
   private String groupId;
 
-  private String attachmentType;
-
   private String attachmentId;
 
   public MakerCheckerMessageBuilder() {
@@ -113,11 +111,6 @@ public class MakerCheckerMessageBuilder {
     return this;
   }
 
-  public MakerCheckerMessageBuilder attachmentType(String attachmentType) {
-    this.attachmentType = attachmentType;
-    return this;
-  }
-
   public MakerCheckerMessageBuilder attachmentId(String attachmentId) {
     this.attachmentId = attachmentId;
     return this;
@@ -146,7 +139,6 @@ public class MakerCheckerMessageBuilder {
       bodyBuilder.addField("timestamp", timestamp);
       bodyBuilder.addField("messageId", messageId);
       bodyBuilder.addField("groupId", groupId);
-      bodyBuilder.addField("attachmentType", attachmentType);
       bodyBuilder.addField("attachmentId", attachmentId);
 
       EntityBuilder builder = EntityBuilder.createEntity();
