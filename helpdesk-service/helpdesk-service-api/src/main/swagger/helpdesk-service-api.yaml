@@ -430,6 +430,8 @@ definitions:
             The id of agent who approved/denied an attachment
         streamId:
           type: string
+        attachmentId:
+          type: string
         state:
           type: string
           description: |
