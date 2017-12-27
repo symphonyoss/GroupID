@@ -137,8 +137,7 @@ public class MakerCheckerService {
     return makerCheckerMessages;
   }
 
-  public void sendMakerCheckerMesssage(SymMessage message)
-  {
+  public void sendMakerCheckerMesssage(SymMessage message) {
     try {
       createMakerchecker(message);
       symphonyClient.getMessagesClient().sendMessage(message.getStream(), message);
@@ -148,8 +147,11 @@ public class MakerCheckerService {
   }
 
   private void createMakerchecker(SymMessage symMessage) {
-    this.makercheckerClient.createMakerchecker(symMessage.getAttachments().get(0).getId(),
-        symMessage.getFromUserId(), symMessage.getStreamId());
+    String makerCheckerId = symMessage.getId();
+    String attachmentId = symMessage.getAttachments().get(0).getId();
+
+    this.makercheckerClient.createMakerchecker(makerCheckerId, symMessage.getFromUserId(),
+        symMessage.getStreamId(), attachmentId);
   }
 
 }

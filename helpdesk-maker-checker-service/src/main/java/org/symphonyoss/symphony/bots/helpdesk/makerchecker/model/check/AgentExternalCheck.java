@@ -74,14 +74,14 @@ public class AgentExternalCheck implements Checker {
     Long makerId = symMessage.getFromUserId();
     Long timestamp = Long.valueOf(symMessage.getTimestamp());
     String messageId = symMessage.getId();
-
     Set<String> proxyToIds = (Set<String>) opaque;
 
     for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
       MakerCheckerMessageBuilder messageBuilder = new MakerCheckerMessageBuilder();
+      String makerCheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
+      messageBuilder.attachmentId(makerCheckerId);
       messageBuilder.botHost(botHost);
       messageBuilder.serviceHost(serviceHost);
-
       messageBuilder.makerId(makerId);
       messageBuilder.streamId(streamId);
       messageBuilder.timestamp(timestamp);
@@ -90,16 +90,14 @@ public class AgentExternalCheck implements Checker {
 
       proxyToIds.stream().forEach(id -> messageBuilder.addProxyToStreamId(id));
 
-      String attachmentId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
-      messageBuilder.attachmentId(attachmentId);
-
       SymMessage checkerMessage = messageBuilder.build();
+      checkerMessage.setId(makerCheckerId);
       checkerMessage.setStreamId(symMessage.getStreamId());
       checkerMessage.setFromUserId(makerId);
       checkerMessage.setStream(symMessage.getStream());
 
       SymAttachmentInfo attachment = new SymAttachmentInfo();
-      attachment.setId(attachmentId);
+      attachment.setId(attachmentInfo.getId());
 
       checkerMessage.setAttachments(Arrays.asList(attachment));
 
