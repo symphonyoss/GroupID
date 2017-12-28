@@ -1,13 +1,15 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
-import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType.CLIENT;
+import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
+    .MembershipType.AGENT;
+import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
+    .MembershipType.CLIENT;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
@@ -35,7 +37,10 @@ public class TicketManagerService {
 
   private final MessageProxyService messageProxyService;
 
-  public TicketManagerService(@Value("${groupId}") String groupId,
+  private final String agentStreamId;
+
+  public TicketManagerService(@Value("${agentStreamId}") String agentStreamId,
+      @Value("${groupId}") String groupId,
       MembershipService membershipService, TicketService ticketService, RoomService roomService,
       MessageProxyService messageProxyService) {
     this.groupId = groupId;
@@ -43,21 +48,30 @@ public class TicketManagerService {
     this.ticketService = ticketService;
     this.roomService = roomService;
     this.messageProxyService = messageProxyService;
+    this.agentStreamId = agentStreamId;
   }
 
   /**
    * On message:
-   *    Check if membership exists, if not, create membership.
-   *    Check if ticket exists, if not, create service room and ticket. Also sends ticket message
-   *    to agent stream id
-   *
+   * Check if the message was sent in a ticket room or in a queue room.
+   * Check if membership exists, if exists and he is an agent, update him, if not, create membership
+   * according to the type.
+   * Check if ticket exists, if not, create service room and ticket. Also sends ticket message
+   * to agent stream id
    * @param message the message to proxy.
    */
   public void messageReceived(SymMessage message) {
-    Membership membership = membershipService.updateMembership(message);
+    Membership membership;
+    Ticket ticket = ticketService.getTicketByServiceStreamId(message.getStreamId());
+
+    if (message.getStreamId().equals(agentStreamId) || ticket != null) {
+      membership = membershipService.updateMembership(message, AGENT);
+    } else {
+      membership = membershipService.updateMembership(message, CLIENT);
+    }
 
     if (CLIENT.getType().equals(membership.getType())) {
-      Ticket ticket = ticketService.getUnresolvedTicket(message.getStreamId());
+      ticket = ticketService.getUnresolvedTicket(message.getStreamId());
 
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
@@ -67,10 +81,8 @@ public class TicketManagerService {
       } else {
         LOGGER.info("Ticket already exists");
       }
-
       messageProxyService.onMessage(membership, ticket, message);
     } else {
-      Ticket ticket = ticketService.getTicketByServiceStreamId(message.getStreamId());
       messageProxyService.onMessage(membership, ticket, message);
     }
   }
