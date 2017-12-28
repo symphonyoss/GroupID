@@ -14,6 +14,8 @@ function createMessageAttachment(message) {
     userId: message.userId !== undefined ? message.userId : null,
     makerCheckerId: message.entity.makerCheckerId !== undefined ?
       message.entity.makerCheckerId : null,
+    attachmentId: message.entity.attachmentId !== undefined ?
+      message.entity.attachmentId : null,
     type: 'ATTACHMENT',
   };
 

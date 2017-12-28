@@ -87,6 +87,7 @@ public class AgentExternalCheck implements Checker {
       messageBuilder.timestamp(timestamp);
       messageBuilder.messageId(messageId);
       messageBuilder.groupId(groupId);
+      messageBuilder.attachmentId(attachmentInfo.getId());
 
       proxyToIds.stream().forEach(id -> messageBuilder.addProxyToStreamId(id));
 

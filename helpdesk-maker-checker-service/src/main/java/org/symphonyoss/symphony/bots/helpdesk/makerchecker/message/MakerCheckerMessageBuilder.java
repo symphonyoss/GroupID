@@ -50,6 +50,8 @@ public class MakerCheckerMessageBuilder {
 
   private String makerCheckerId;
 
+  private String attachmentId;
+
   public MakerCheckerMessageBuilder() {
     if (StringUtils.isEmpty(message)) {
       message = parseTemplate();
@@ -116,6 +118,11 @@ public class MakerCheckerMessageBuilder {
     return this;
   }
 
+  public MakerCheckerMessageBuilder attachmentId(String attachmentId) {
+    this.attachmentId = attachmentId;
+    return this;
+  }
+
   public SymMessage build() {
     if (messageBuilder == null) {
       return null;
@@ -140,6 +147,7 @@ public class MakerCheckerMessageBuilder {
       bodyBuilder.addField("messageId", messageId);
       bodyBuilder.addField("groupId", groupId);
       bodyBuilder.addField("makerCheckerId", makerCheckerId);
+      bodyBuilder.addField("attachmentId", attachmentId);
 
       EntityBuilder builder = EntityBuilder.createEntity();
       builder.addField("makerchecker", bodyBuilder.toObject());
