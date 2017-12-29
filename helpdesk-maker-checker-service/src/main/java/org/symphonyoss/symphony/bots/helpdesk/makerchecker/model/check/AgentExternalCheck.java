@@ -109,24 +109,19 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage,
+  public SymAttachmentInfo getApprovedAttachment(MakerCheckerMessage makerCheckerMessage,
       SymMessage symMessage) {
     AttachmentMakerCheckerMessage checkerMessage = (AttachmentMakerCheckerMessage) makerCheckerMessage;
+    SymAttachmentInfo attachmentInfoApproved = new SymAttachmentInfo();
 
-    SymMessage acceptMessage = new SymMessage();
-    List<SymAttachmentInfo> attachmentInfoSet = new ArrayList<>();
     for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
       if(attachmentInfo.getId().equals(checkerMessage.getAttachmentId())) {
-        attachmentInfoSet.add(attachmentInfo);
+        attachmentInfoApproved = attachmentInfo;
         break;
       }
     }
-    acceptMessage.setAttachments(attachmentInfoSet);
-    acceptMessage.setMessageText("");
 
-    Set<SymMessage> acceptMessages = new HashSet<>();
-    acceptMessages.add(acceptMessage);
-    return acceptMessages;
+    return attachmentInfoApproved;
   }
 
   @Override

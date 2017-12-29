@@ -5,6 +5,7 @@ import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,10 +17,11 @@ import java.util.List;
 public class SymphonyAiMessage extends AiMessage {
   protected String entityData;
   protected String messageData;
-  protected String fromUserId;
+  protected Long fromUserId;
   protected String messageId;
   protected String streamId;
   protected String timestamp;
+  protected File attachment;
   protected List<SymAttachmentInfo> attachments;
 
   public SymphonyAiMessage(String message) {
@@ -36,10 +38,16 @@ public class SymphonyAiMessage extends AiMessage {
     this.messageId = symMessage.getId();
     this.timestamp = symMessage.getTimestamp();
     this.streamId = symMessage.getStreamId();
+    this.attachment = symMessage.getAttachment();
+    this.fromUserId = symMessage.getFromUserId();
+  }
 
-    if (symMessage.getFromUserId() != null) {
-      this.fromUserId = symMessage.getFromUserId().toString();
-    }
+  public File getAttachment() {
+    return attachment;
+  }
+
+  public void setAttachment(File attachment) {
+    this.attachment = attachment;
   }
 
   public String getEntityData() {
@@ -58,11 +66,11 @@ public class SymphonyAiMessage extends AiMessage {
     this.attachments = attachments;
   }
 
-  public String getFromUserId() {
+  public Long getFromUserId() {
     return fromUserId;
   }
 
-  public void setFromUserId(String fromUserId) {
+  public void setFromUserId(Long fromUserId) {
     this.fromUserId = fromUserId;
   }
 
@@ -109,10 +117,11 @@ public class SymphonyAiMessage extends AiMessage {
     symMessage.setStream(stream);
     symMessage.setStreamId(streamId);
 
-    symMessage.setFromUserId(Long.parseLong(fromUserId));
+    symMessage.setFromUserId(fromUserId);
     symMessage.setId(messageId);
     symMessage.setTimestamp(timestamp);
     symMessage.setAttachments(attachments);
+    symMessage.setAttachment(attachment);
 
     return symMessage;
   }
@@ -142,6 +151,9 @@ public class SymphonyAiMessage extends AiMessage {
     if (timestamp != null ? !timestamp.equals(that.timestamp) : that.timestamp != null) {
       return false;
     }
+    if (attachment != null ? !attachment.equals(that.attachment) : that.attachment != null) {
+      return false;
+    }
     return attachments != null ? attachments.equals(that.attachments) : that.attachments == null;
 
   }
@@ -155,6 +167,8 @@ public class SymphonyAiMessage extends AiMessage {
     result = 31 * result + (streamId != null ? streamId.hashCode() : 0);
     result = 31 * result + (timestamp != null ? timestamp.hashCode() : 0);
     result = 31 * result + (attachments != null ? attachments.hashCode() : 0);
+    result = 31 * result + (attachment != null ? attachment.hashCode() : 0);
+
     return result;
   }
 

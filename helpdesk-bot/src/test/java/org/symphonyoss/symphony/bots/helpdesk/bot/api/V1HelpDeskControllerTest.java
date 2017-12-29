@@ -47,6 +47,8 @@ public class V1HelpDeskControllerTest {
 
   private static final String MOCK_MAKERCHECKER_ID = "XJW9H3XPCU";
 
+  private static final String MOCK_ATTACHMENT_ID = "internal_9826885173254";
+
   private static final Long MOCK_MAKER_ID = 10651518946916l;
 
   private static final Long MOCK_AGENT_ID = 10651518946915l;
@@ -199,6 +201,7 @@ public class V1HelpDeskControllerTest {
     makerchecker.setId(MOCK_MAKERCHECKER_ID);
     makerchecker.setMakerId(MOCK_MAKER_ID);
     makerchecker.setCheckerId(null);
+    makerchecker.setAttachmentId(MOCK_ATTACHMENT_ID);
 
     return makerchecker;
   }
@@ -206,13 +209,14 @@ public class V1HelpDeskControllerTest {
   private MakerCheckerMessageDetail mockMakerCheckerMessageDetail() {
     MakerCheckerMessageDetail detail = new MakerCheckerMessageDetail();
     detail.setUserId(MOCK_MAKER_ID);
-    detail.setAttachmentId(MOCK_MAKERCHECKER_ID);
     detail.setGroupId(MOCK_GROUP_ID);
     detail.setMessageId(MOCK_MESSAGE_ID);
     detail.setProxyToStreamIds(null);
     detail.setStreamId(MOCK_SERVICE_STREAM_ID);
     detail.setTimeStamp(MOCK_TIMESTAMP);
     detail.setType(null);
+    detail.setAttachmentId(MOCK_ATTACHMENT_ID);
+    detail.setMakerCheckerId(MOCK_MAKERCHECKER_ID);
 
     return detail;
   }
