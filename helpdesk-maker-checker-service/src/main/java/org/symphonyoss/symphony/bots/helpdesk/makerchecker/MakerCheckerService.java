@@ -39,9 +39,6 @@ public class MakerCheckerService {
   private static final String MESSAGE_NOT_FOUND = "Message with id %s could not be found.";
   private static final String MESSAGE_STREAM_NOT_FOUND = "The stream %s could not be found.";
   private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
-  private static final String PREFIX = "byte2file";
-  private static final String SUFFIX = ".tmp";
-  private static final String PATH_TMP = "/tmp";
 
   private Set<Checker> checkerSet = new HashSet<>();
 
@@ -137,7 +134,9 @@ public class MakerCheckerService {
   private File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
     File tempFile;
     try {
-      tempFile = File.createTempFile(PREFIX, SUFFIX);
+      String prefix = symAttachmentInfo.getName().split("\\.")[0];
+      String suffix = "." + symAttachmentInfo.getName().split("\\.")[1];
+      tempFile = File.createTempFile(prefix, suffix);
     } catch (IOException e) {
       throw new BadRequestException(MESSAGE_COULD_NOT_CREATE_TEMP_FILE);
     }
@@ -149,18 +148,10 @@ public class MakerCheckerService {
       throw new BadRequestException(MESSAGE_ATTACHMENT_NOT_FOUND);
     }
 
+    tempFile.deleteOnExit();
     InputStream inputStream = new ByteArrayInputStream(aByte);
     try {
-      FileUtils.copyInputStreamToFile(inputStream, new File(PATH_TMP));
-    } catch (IOException e) {
-      throw new BadRequestException(MESSAGE_FAILED_TO_CREATE_FILE);
-    }
-
-    tempFile.deleteOnExit();
-    try {
-      try (FileOutputStream out = new FileOutputStream(tempFile)) {
-        IOUtils.copy(inputStream, out);
-      }
+      FileUtils.copyInputStreamToFile(inputStream, tempFile);
     } catch (IOException e) {
       throw new BadRequestException(MESSAGE_FAILED_TO_CREATE_FILE);
     }
