@@ -110,7 +110,7 @@ public class V1HelpDeskController extends V1ApiController {
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
       SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
-      UserInfo checker = getChecker(detail, agentUser);
+      UserInfo checker = getChecker(agentUser);
       sendAcceptMarkerChekerMessages(detail);
 
       makerchecker.setChecker(checker);
@@ -187,7 +187,7 @@ public class V1HelpDeskController extends V1ApiController {
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
       SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
-      UserInfo checker = getChecker(detail, agentUser);
+      UserInfo checker = getChecker(agentUser);
 
       makerchecker.setChecker(checker);
       makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
@@ -215,10 +215,10 @@ public class V1HelpDeskController extends V1ApiController {
     return user;
   }
 
-  private UserInfo getChecker(MakerCheckerMessageDetail detail, SymUser agentUser) {
+  private UserInfo getChecker(SymUser agentUser) {
     UserInfo user = new UserInfo();
     user.setDisplayName(agentUser.getDisplayName());
-    user.setUserId(detail.getUserId());
+    user.setUserId(agentUser.getId());
     return user;
   }
 

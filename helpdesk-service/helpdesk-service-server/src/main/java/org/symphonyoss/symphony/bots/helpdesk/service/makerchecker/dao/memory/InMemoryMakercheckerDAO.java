@@ -33,8 +33,7 @@ public class InMemoryMakercheckerDAO implements MakercheckerDao {
       throw new MakercheckerNotFoundException(makerchecker.getId());
     }
 
-    saved.setChecker(makerchecker.getChecker());
-    saved.state(makerchecker.getState());
+    saved.setId(makerchecker.getId());
 
     return createMakerchecker(saved);
   }

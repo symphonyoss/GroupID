@@ -13,11 +13,11 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.AcceptTicketService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.JoinConversationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
@@ -78,6 +78,8 @@ public class V1HelpDeskControllerTest {
   private static final String MOCKED_GUY = "MOCKED_GUY";
   private static final String SYM_MESSAGE = "SYM_MESSAGE";
   private static final String SYM_MESSAGE_ID = "SYM_MESSAGE_ID";
+  private static final String MESSAGE_ACCEPTED = "Maker checker message accepted.";
+  private static final String MESSAGE_DENIED = "Maker checker message denied.";
 
 
   @Mock
@@ -101,7 +103,6 @@ public class V1HelpDeskControllerTest {
   @Mock
   private ValidateMembershipService validateMembershipService;
 
-  @Qualifier("agentMakerCheckerService")
   @Mock
   private MakerCheckerService agentMakerCheckerService;
 
@@ -219,7 +220,8 @@ public class V1HelpDeskControllerTest {
     MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
     detail.setUserId(MOCK_AGENT_ID);
 
-    v1HelpDeskController.approveMakerCheckerMessage(detail);
+    MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(detail);
+    assertEquals(MESSAGE_ACCEPTED, response.getMessage());
 
     verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
 
@@ -236,7 +238,8 @@ public class V1HelpDeskControllerTest {
     MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
     detail.setUserId(MOCK_AGENT_ID);
 
-    v1HelpDeskController.denyMakerCheckerMessage(detail);
+    MakerCheckerResponse response = v1HelpDeskController.denyMakerCheckerMessage(detail);
+    assertEquals(MESSAGE_DENIED, response.getMessage());
 
     verify(makercheckerClient, times(1)).updateMakerchecker(makerchecker);
     verify(helpDeskAi, never()).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
