@@ -156,6 +156,8 @@ public class V1HelpDeskController extends V1ApiController {
     AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(detail.getUserId(), detail.getStreamId());
 
     helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
+
+    symphonyAiMessage.getAttachment().delete();
   }
 
   /**

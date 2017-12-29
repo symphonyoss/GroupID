@@ -86,19 +86,7 @@ public class MakerCheckerService {
       SymStream stream = new SymStream();
       stream.setStreamId(makerCheckerMessage.getStreamId());
 
-      List<SymMessage> symMessageList = symphonyClient.getMessagesClient()
-          .getMessagesFromStream(stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
-
-      SymMessage symMessageApproved = null;
-      for(SymMessage symMessage : symMessageList) {
-        if(symMessage.getId().equals(makerCheckerMessage.getMessageId())) {
-          symMessageApproved = symMessage;
-        }
-      }
-
-      if(symMessageApproved == null) {
-        throw new BadRequestException(String.format(MESSAGE_NOT_FOUND, makerCheckerMessage.getMessageId()));
-      }
+      SymMessage symMessage = getSymMessageApproved(makerCheckerMessage, stream);
 
       SymMessage approvedMessage = new SymMessage();
       for(Checker checker: checkerSet) {
@@ -109,16 +97,16 @@ public class MakerCheckerService {
 
             approvedMessage.setStreamId(streamId);
             approvedMessage.setStream(stream);
-            approvedMessage.setMessage(symMessageApproved.getMessage());
-            approvedMessage.setEntityData(symMessageApproved.getEntityData());
-            approvedMessage.setTimestamp(symMessageApproved.getTimestamp());
-            approvedMessage.setFromUserId(symMessageApproved.getFromUserId());
+            approvedMessage.setMessage(symMessage.getMessage());
+            approvedMessage.setEntityData(symMessage.getEntityData());
+            approvedMessage.setTimestamp(symMessage.getTimestamp());
+            approvedMessage.setFromUserId(symMessage.getFromUserId());
 
             List<SymAttachmentInfo> attachmentInfoList = new ArrayList<>();
-            attachmentInfoList.add(checker.getApprovedAttachment(makerCheckerMessage, symMessageApproved));
+            attachmentInfoList.add(checker.getApprovedAttachment(makerCheckerMessage, symMessage));
             approvedMessage.setAttachments(attachmentInfoList);
 
-            File file = getFileAttachment(attachmentInfoList.get(0), symMessageApproved);
+            File file = getFileAttachment(attachmentInfoList.get(0), symMessage);
             approvedMessage.setAttachment(file);
           }
         }
@@ -129,6 +117,24 @@ public class MakerCheckerService {
       LOG.warn("Error accepting maker checker message: ", e);
       throw new BadRequestException(String.format(MESSAGE_STREAM_NOT_FOUND, makerCheckerMessage.getStreamId()));
     }
+  }
+
+  private SymMessage getSymMessageApproved(MakerCheckerMessage makerCheckerMessage, SymStream stream) throws MessagesException {
+    List<SymMessage> symMessageList = symphonyClient.getMessagesClient()
+        .getMessagesFromStream(stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
+
+    SymMessage symMessage = null;
+    for(SymMessage symMessages : symMessageList) {
+      if(symMessages.getId().equals(makerCheckerMessage.getMessageId())) {
+        symMessage = symMessages;
+      }
+    }
+
+    if(symMessage == null) {
+      throw new BadRequestException(String.format(MESSAGE_NOT_FOUND, makerCheckerMessage.getMessageId()));
+    }
+
+    return symMessage;
   }
 
   private File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
@@ -148,7 +154,6 @@ public class MakerCheckerService {
       throw new BadRequestException(MESSAGE_ATTACHMENT_NOT_FOUND);
     }
 
-    tempFile.deleteOnExit();
     InputStream inputStream = new ByteArrayInputStream(aByte);
     try {
       FileUtils.copyInputStreamToFile(inputStream, tempFile);
