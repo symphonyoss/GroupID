@@ -29,13 +29,10 @@ public abstract class Ai {
     }
   }
 
-  public void startConversation(AiSessionKey aiSessionKey, AiConversation aiConversation, boolean forwardMessage) {
+  public void startConversation(AiSessionKey aiSessionKey, AiConversation aiConversation) {
     AiSessionContext aiSessionContext = getSessionContext(aiSessionKey);
     aiConversation.setAiSessionContext(aiSessionContext);
-    getAiConversationManager().registerConversation(aiConversation.getAiSessionContext(), aiConversation);
-    if(aiSessionContext.getLastMessage() != null) {
-      getAiEventListener().onConversation(aiSessionContext.getLastMessage(), aiConversation);
-    }
+    getAiConversationManager().registerConversation(aiSessionContext, aiConversation);
   }
 
   public AiConversation getConversation(AiSessionKey aiSessionKey) {
