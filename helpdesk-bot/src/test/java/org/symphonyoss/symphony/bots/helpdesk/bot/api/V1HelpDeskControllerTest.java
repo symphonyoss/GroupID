@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -14,17 +15,25 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.AcceptTicketService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.JoinConversationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
+import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
 
@@ -66,6 +75,12 @@ public class V1HelpDeskControllerTest {
   private static final String OWN_ATTACHMENT_EXCPETION =
       "You can not perform this action in your own attachment.";
 
+  private static final String MOCKED_GUY = "MOCKED_GUY";
+  private static final String SYM_MESSAGE = "SYM_MESSAGE";
+  private static final String SYM_MESSAGE_ID = "SYM_MESSAGE_ID";
+  private static final String MESSAGE_ACCEPTED = "Maker checker message accepted.";
+  private static final String MESSAGE_DENIED = "Maker checker message denied.";
+
 
   @Mock
   private AcceptTicketService acceptTicketService;
@@ -87,6 +102,12 @@ public class V1HelpDeskControllerTest {
 
   @Mock
   private ValidateMembershipService validateMembershipService;
+
+  @Mock
+  private MakerCheckerService agentMakerCheckerService;
+
+  @Mock
+  private HelpDeskAi helpDeskAi;
 
   @InjectMocks
   private V1HelpDeskController v1HelpDeskController;
@@ -180,6 +201,51 @@ public class V1HelpDeskControllerTest {
     }
   }
 
+  @Test()
+  public void ApproveAttachment() throws SymException {
+    AttachmentMakerCheckerMessage attachmentMakerCheckerMessage =
+        mockAttachmentMakerCheckerMessage();
+    Makerchecker makerchecker = mockMakerchecker();
+    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
+
+    SymUser agent = mockActiveSymUser();
+    doReturn(agent).when(symphonyValidationUtil).validateUserId(MOCK_AGENT_ID);
+
+    Set<SymMessage> symMessages = new HashSet<>();
+    SymMessage message = mockSysMessage();
+    symMessages.add(message);
+    doReturn(symMessages).when(agentMakerCheckerService)
+        .getAcceptMessages(attachmentMakerCheckerMessage);
+
+    MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
+    detail.setUserId(MOCK_AGENT_ID);
+
+    MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(detail);
+    assertEquals(MESSAGE_ACCEPTED, response.getMessage());
+
+    verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
+
+  }
+
+  @Test()
+  public void DenyAttachment() throws SymException {
+    Makerchecker makerchecker = mockMakerchecker();
+    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
+
+    SymUser agent = mockActiveSymUser();
+    doReturn(agent).when(symphonyValidationUtil).validateUserId(MOCK_AGENT_ID);
+
+    MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
+    detail.setUserId(MOCK_AGENT_ID);
+
+    MakerCheckerResponse response = v1HelpDeskController.denyMakerCheckerMessage(detail);
+    assertEquals(MESSAGE_DENIED, response.getMessage());
+
+    verify(makercheckerClient, times(1)).updateMakerchecker(makerchecker);
+    verify(helpDeskAi, never()).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
+
+  }
+
   private Ticket mockTicketUnresolved() {
     Ticket ticket = new Ticket();
     ticket.setId(MOCK_TICKET_ID);
@@ -198,7 +264,7 @@ public class V1HelpDeskControllerTest {
     makerchecker.setStreamId(MOCK_SERVICE_STREAM_ID);
     makerchecker.setId(MOCK_MAKERCHECKER_ID);
     makerchecker.setMakerId(MOCK_MAKER_ID);
-    makerchecker.setCheckerId(null);
+    makerchecker.checker(null);
 
     return makerchecker;
   }
@@ -217,10 +283,32 @@ public class V1HelpDeskControllerTest {
     return detail;
   }
 
-  private SymUser mockActiveSymUser () {
+  private SymUser mockActiveSymUser() {
     SymUser symUser = new SymUser();
     symUser.setActive(true);
+    symUser.setDisplayName(MOCKED_GUY);
 
     return symUser;
+  }
+
+  private SymMessage mockSysMessage() {
+    SymMessage message = new SymMessage();
+    message.setId(MOCK_MAKERCHECKER_ID);
+    message.setMessage(SYM_MESSAGE);
+
+    return message;
+  }
+
+  private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {
+    AttachmentMakerCheckerMessage makerCheckerMessage = new AttachmentMakerCheckerMessage();
+    makerCheckerMessage.setAttachmentId(MOCK_MAKERCHECKER_ID);
+    makerCheckerMessage.setGroupId(MOCK_GROUP_ID);
+    makerCheckerMessage.setMessageId(MOCK_MESSAGE_ID);
+    makerCheckerMessage.setProxyToStreamIds(null);
+    makerCheckerMessage.setStreamId(MOCK_SERVICE_STREAM_ID);
+    makerCheckerMessage.setTimeStamp(MOCK_TIMESTAMP);
+    makerCheckerMessage.setType(null);
+
+    return makerCheckerMessage;
   }
 }

@@ -22,6 +22,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -109,9 +110,10 @@ public class V1HelpDeskController extends V1ApiController {
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
       SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+      UserInfo checker = getChecker(agentUser);
       sendAcceptMarkerChekerMessages(detail);
 
-      makerchecker.setCheckerId(detail.getUserId());
+      makerchecker.setChecker(checker);
       makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
       makercheckerClient.updateMakerchecker(makerchecker);
 
@@ -185,8 +187,9 @@ public class V1HelpDeskController extends V1ApiController {
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
       SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+      UserInfo checker = getChecker(agentUser);
 
-      makerchecker.setCheckerId(detail.getUserId());
+      makerchecker.setChecker(checker);
       makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
       makercheckerClient.updateMakerchecker(makerchecker);
 
@@ -209,6 +212,13 @@ public class V1HelpDeskController extends V1ApiController {
     User user = new User();
     user.setDisplayName(agentUser.getDisplayName());
     user.setUserId(detail.getUserId());
+    return user;
+  }
+
+  private UserInfo getChecker(SymUser agentUser) {
+    UserInfo user = new UserInfo();
+    user.setDisplayName(agentUser.getDisplayName());
+    user.setUserId(agentUser.getId());
     return user;
   }
 
