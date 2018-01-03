@@ -109,7 +109,7 @@ public class V1HelpDeskController extends V1ApiController {
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
       SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
-      sendApprovedMarkerChekerMessages(detail);
+      sendApprovedMarkerChekerMessage(detail);
 
       makerchecker.setCheckerId(detail.getUserId());
       makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
@@ -136,7 +136,7 @@ public class V1HelpDeskController extends V1ApiController {
     return makerCheckerResponse;
   }
 
-  private void sendApprovedMarkerChekerMessages(MakerCheckerMessageDetail detail) {
+  private void sendApprovedMarkerChekerMessage(MakerCheckerMessageDetail detail) {
     AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
     checkerMessage.setAttachmentId(detail.getAttachmentId());
     checkerMessage.setGroupId(detail.getGroupId());
