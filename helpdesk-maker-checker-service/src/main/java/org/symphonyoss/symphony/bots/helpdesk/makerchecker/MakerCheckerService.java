@@ -104,7 +104,9 @@ public class MakerCheckerService {
 
             List<SymAttachmentInfo> attachmentInfoList = new ArrayList<>();
             attachmentInfoList.add(checker.getApprovedAttachment(makerCheckerMessage, symMessage));
-            approvedMessage.setAttachments(attachmentInfoList);
+            if (!attachmentInfoList.isEmpty() && attachmentInfoList.size() > 0) {
+              approvedMessage.setAttachments(attachmentInfoList);
+            }
 
             File file = getFileAttachment(attachmentInfoList.get(0), symMessage);
             approvedMessage.setAttachment(file);
