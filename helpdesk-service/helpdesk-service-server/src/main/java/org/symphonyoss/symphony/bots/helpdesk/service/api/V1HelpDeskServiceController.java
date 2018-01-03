@@ -118,7 +118,7 @@ public class V1HelpDeskServiceController extends V1ApiController {
     validateRequiredParameter("id", makerchecker.getId(), "body");
     validateRequiredParameter("makerId", makerchecker.getMakerId(), "body");
     validateRequiredParameter("streamId", makerchecker.getStreamId(), "body");
-    validateRequiredParameter("checkerId", makerchecker.getCheckerId()  , "body");
+    validateRequiredParameter("checker", makerchecker.getChecker()  , "body");
     validateRequiredParameter("state", makerchecker.getState(), "body");
     return makercheckerDao.updateMakerchecker(id, makerchecker);
   }

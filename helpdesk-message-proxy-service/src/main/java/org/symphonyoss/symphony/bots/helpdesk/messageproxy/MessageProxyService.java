@@ -120,7 +120,7 @@ public class MessageProxyService {
     ProxyConversation aiConversation = new ProxyConversation(true, agentMakerCheckerService);
     aiConversation.addProxyId(ticket.getClientStreamId());
 
-    helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
+    helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
 
     MessageProxy messageProxy = new MessageProxy();
     messageProxy.setAgentProxyTimer(new ProxyIdleTimer(idleTicketConfig.getTimeout(),
@@ -146,7 +146,7 @@ public class MessageProxyService {
   private void addAgentToProxy(Ticket ticket, HelpDeskAiSessionContext aiSessionContext) {
     ProxyConversation aiConversation = new ProxyConversation(true, agentMakerCheckerService);
     aiConversation.addProxyId(ticket.getClientStreamId());
-    helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
+    helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
 
     MessageProxy messageProxy = agentProxy.get(ticket.getId());
     aiConversation.setProxyIdleTimer(messageProxy.getAgentProxyTimer());
@@ -162,7 +162,7 @@ public class MessageProxyService {
     ProxyConversation aiConversation = new ProxyConversation(false, clientMakerCheckerService);
     aiConversation.addProxyId(ticket.getServiceStreamId());
 
-    helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation, true);
+    helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
 
     MessageProxy messageProxy = new MessageProxy();
     messageProxy.setAgentProxyTimer(new ProxyIdleTimer(idleTicketConfig.getTimeout(),
