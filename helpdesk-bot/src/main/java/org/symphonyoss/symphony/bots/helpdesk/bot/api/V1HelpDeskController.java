@@ -146,7 +146,7 @@ public class V1HelpDeskController extends V1ApiController {
     checkerMessage.setTimeStamp(detail.getTimeStamp());
     checkerMessage.setType(detail.getType());
 
-    SymMessage symMessage = agentMakerCheckerService.getApprovedMessage(checkerMessage);
+    SymMessage symMessage = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
 
     SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
 
