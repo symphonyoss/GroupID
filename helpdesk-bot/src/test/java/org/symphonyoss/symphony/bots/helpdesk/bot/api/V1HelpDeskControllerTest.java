@@ -3,7 +3,6 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -215,8 +214,8 @@ public class V1HelpDeskControllerTest {
     SymUser agent = mockActiveSymUser();
     doReturn(agent).when(symphonyValidationUtil).validateUserId(MOCK_AGENT_ID);
 
-    SymMessage message = mockSysMessage();
-    doReturn(message).when(agentMakerCheckerService)
+    Set<SymMessage> symMessages = mockSymMessages();
+    doReturn(symMessages).when(agentMakerCheckerService)
         .getApprovedMakercheckerMessage(any(AttachmentMakerCheckerMessage.class));
 
     MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
@@ -295,12 +294,16 @@ public class V1HelpDeskControllerTest {
     return symUser;
   }
 
-  private SymMessage mockSysMessage() {
+  private Set<SymMessage> mockSymMessages() {
+    Set<SymMessage> symMessages = new HashSet<>();
+
     SymMessage message = new SymMessage();
     message.setId(MOCK_MAKERCHECKER_ID);
     message.setMessage(SYM_MESSAGE);
 
-    return message;
+    symMessages.add(message);
+
+    return symMessages;
   }
 
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {
