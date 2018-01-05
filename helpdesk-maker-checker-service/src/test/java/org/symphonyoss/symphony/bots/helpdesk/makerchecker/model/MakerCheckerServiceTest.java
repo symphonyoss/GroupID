@@ -24,6 +24,7 @@ import org.symphonyoss.symphony.clients.model.SymStream;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MakerCheckerServiceTest {
@@ -67,7 +68,7 @@ public class MakerCheckerServiceTest {
     makerCheckerService = new MakerCheckerService(mockMakercheckerClient(), symphonyClient);
 
     AgentExternalCheck agentExternalCheck =
-        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient);
+        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient);
 
     makerCheckerService.addCheck(agentExternalCheck);
   }
@@ -83,12 +84,14 @@ public class MakerCheckerServiceTest {
       fail();
     }
 
-    SymMessage symMessage =
+    Set<SymMessage> symMessages =
         makerCheckerService.getApprovedMakercheckerMessage(mockAttachmentMakerCheckerMessage());
 
-    assertNotNull(symMessage);
-    assertEquals(STREAM_ID, symMessage.getStreamId());
-    assertEquals(TIMESTAMP.toString(), symMessage.getTimestamp());
+    for (SymMessage symMessage : symMessages) {
+      assertNotNull(symMessages);
+      assertEquals(STREAM_ID, symMessage.getStreamId());
+      assertEquals(TIMESTAMP.toString(), symMessage.getTimestamp());
+    }
   }
 
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {

@@ -147,19 +147,21 @@ public class V1HelpDeskController extends V1ApiController {
     checkerMessage.setTimeStamp(detail.getTimeStamp());
     checkerMessage.setType(detail.getType());
 
-    SymMessage symMessage = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
+    Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
 
-    SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
+    for (SymMessage symMessage : symMessages) {
+      SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
 
-    Set<AiResponseIdentifier> identifiers = new HashSet<>();
-    identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+      Set<AiResponseIdentifier> identifiers = new HashSet<>();
+      identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
 
-    AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(detail.getUserId(), detail.getStreamId());
+      AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(detail.getUserId(), detail.getStreamId());
 
-    helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
+      helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
 
-    if (symphonyAiMessage.getAttachment() != null) {
-      symphonyAiMessage.getAttachment().delete();
+      if (symphonyAiMessage.getAttachment() != null) {
+        symphonyAiMessage.getAttachment().delete();
+      }
     }
   }
 

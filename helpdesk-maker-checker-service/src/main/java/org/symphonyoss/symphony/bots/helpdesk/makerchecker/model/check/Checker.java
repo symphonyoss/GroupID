@@ -30,4 +30,6 @@ public interface Checker {
 
   boolean isCheckerType(MakerCheckerMessage makerCheckerMessage);
 
+  Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
+
 }

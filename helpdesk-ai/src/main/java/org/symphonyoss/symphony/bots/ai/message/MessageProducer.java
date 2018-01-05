@@ -41,10 +41,9 @@ public class MessageProducer {
   private SymMessage buildMessage(SymphonyAiMessage symphonyAiMessage) {
     StringBuilder message = new StringBuilder("<messageML>");
 
-    Long fromUserId = symphonyAiMessage.getFromUserId();
+    Long userId = symphonyAiMessage.getFromUserId();
 
     if (symphonyAiMessage.getFromUserId() != null) {
-      Long userId = fromUserId;
       Membership membership = membershipClient.getMembership(userId);
 
       if ((membership != null) && (MembershipClient.MembershipType.CLIENT.getType()
