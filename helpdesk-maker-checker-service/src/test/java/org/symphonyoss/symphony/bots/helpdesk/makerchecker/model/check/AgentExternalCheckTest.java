@@ -1,7 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +15,7 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AgentExternalCheckTest {
@@ -49,10 +50,10 @@ public class AgentExternalCheckTest {
     SymMessage symMessage = mockSymMessage();
 
 
-    SymAttachmentInfo symAttachmentInfo = agentExternalCheck.getApprovedAttachment(attachmentMakerCheckerMessage, symMessage);
+    Optional<SymAttachmentInfo> symAttachmentInfo = agentExternalCheck.getApprovedAttachment(attachmentMakerCheckerMessage, symMessage);
 
-    assertEquals(ATTACHMENT_ID, symAttachmentInfo.getId());
-    assertEquals(ATTACHMENT_NAME, symAttachmentInfo.getName());
+    assertEquals(ATTACHMENT_ID, symAttachmentInfo.get().getId());
+    assertEquals(ATTACHMENT_NAME, symAttachmentInfo.get().getName());
   }
 
   @Test
@@ -62,9 +63,9 @@ public class AgentExternalCheckTest {
     SymMessage symMessage = new SymMessage();
 
 
-    SymAttachmentInfo symAttachmentInfo = agentExternalCheck.getApprovedAttachment(attachmentMakerCheckerMessage, symMessage);
+    Optional<SymAttachmentInfo> symAttachmentInfo = agentExternalCheck.getApprovedAttachment(attachmentMakerCheckerMessage, symMessage);
 
-    assertNull(symAttachmentInfo.getId());
+    assertFalse(symAttachmentInfo.isPresent());
   }
 
   private void mockAgentExternalCheckUnresolved() {

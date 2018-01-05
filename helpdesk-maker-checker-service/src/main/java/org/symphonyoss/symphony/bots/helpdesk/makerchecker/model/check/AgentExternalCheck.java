@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import javax.swing.text.html.Option;
 import javax.ws.rs.BadRequestException;
 
 /**
@@ -92,6 +94,7 @@ public class AgentExternalCheck implements Checker {
     String messageId = symMessage.getId();
     Set<String> proxyToIds = (Set<String>) opaque;
 
+
     for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
       MakerCheckerMessageBuilder messageBuilder = new MakerCheckerMessageBuilder();
       String makerCheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
@@ -125,19 +128,14 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public SymAttachmentInfo getApprovedAttachment(MakerCheckerMessage makerCheckerMessage,
+  public Optional<SymAttachmentInfo> getApprovedAttachment(MakerCheckerMessage makerCheckerMessage,
       SymMessage symMessage) {
     AttachmentMakerCheckerMessage checkerMessage = (AttachmentMakerCheckerMessage) makerCheckerMessage;
-    SymAttachmentInfo attachmentInfoApproved = new SymAttachmentInfo();
 
-    for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
-      if(attachmentInfo.getId().equals(checkerMessage.getAttachmentId())) {
-        attachmentInfoApproved = attachmentInfo;
-        break;
-      }
-    }
-
-    return attachmentInfoApproved;
+    return symMessage.getAttachments()
+        .stream()
+        .filter(attachmentInfo -> attachmentInfo.getId().equals(checkerMessage.getAttachmentId()))
+        .findFirst();
   }
 
   @Override
@@ -163,13 +161,15 @@ public class AgentExternalCheck implements Checker {
       approvedMessage.setTimestamp(symMessage.getTimestamp());
       approvedMessage.setFromUserId(symMessage.getFromUserId());
 
-      SymAttachmentInfo symAttachmentInfo = getApprovedAttachment(makerCheckerMessage, symMessage);
-      if (symAttachmentInfo != null && symAttachmentInfo.getId() != null) {
+      Optional<SymAttachmentInfo> symApprovedAttachmentInfo = getApprovedAttachment(makerCheckerMessage, symMessage);
+      if (symApprovedAttachmentInfo.isPresent()) {
+        SymAttachmentInfo symAttachmentInfo = symApprovedAttachmentInfo.get();
+
         List<SymAttachmentInfo> attachmentInfoList = new ArrayList<>();
         attachmentInfoList.add(symAttachmentInfo);
         approvedMessage.setAttachments(attachmentInfoList);
 
-        File file = getFileAttachment(attachmentInfoList.get(0), symMessage);
+        File file = getFileAttachment(symAttachmentInfo, symMessage);
         approvedMessage.setAttachment(file);
       }
 

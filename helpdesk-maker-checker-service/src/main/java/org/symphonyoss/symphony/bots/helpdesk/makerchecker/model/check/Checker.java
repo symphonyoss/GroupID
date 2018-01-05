@@ -4,6 +4,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMes
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -26,7 +27,7 @@ public interface Checker {
    */
   Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage, Object opaque);
 
-  SymAttachmentInfo getApprovedAttachment(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
+  Optional<SymAttachmentInfo> getApprovedAttachment(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
 
   boolean isCheckerType(MakerCheckerMessage makerCheckerMessage);
 
