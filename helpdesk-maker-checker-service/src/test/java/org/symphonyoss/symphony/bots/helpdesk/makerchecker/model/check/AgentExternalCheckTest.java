@@ -19,9 +19,9 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class AgentExternalCheckTest {
 
-  private static final String BOT_HOST = "192.168.0.2";
+  private static final String BOT_HOST = "https://nexus2.symphony.com/helpdesk-bot";
 
-  private static final String SERVICE_HOST = "192.168.0.3";
+  private static final String SERVICE_HOST = "https://nexus2.symphony.com/helpdesk-service";
 
   private static final String GROUP_ID = "test";
 

@@ -12,9 +12,9 @@ public class MakerCheckerMessageBuilderTest {
 
   private static final String MAKER_CHECKER_ID = "6JFEVDBXP54";
 
-  private static final String BOT_HOST = "192.168.0.2";
+  private static final String BOT_HOST = "https://nexus2.symphony.com/helpdesk-bot";
 
-  private static final String SERVICE_HOST = "192.168.0.3";
+  private static final String SERVICE_HOST = "https://nexus2.symphony.com/helpdesk-service";
 
   private static final long MAKER_ID = 9826885203304l;
 
@@ -33,9 +33,9 @@ public class MakerCheckerMessageBuilderTest {
 
   private static final String EXPECTED_ENTITY_DATA = "{\"makerchecker\":{\"type\":\"com.symphony"
       + ".bots.helpdesk.event.makerchecker\",\"version\":\"1.0\","
-      + "\"attachmentUrl\":\"192.168.0.3/v1/makerchecker/6JFEVDBXP54\","
-      + "\"approveUrl\":\"192.168.0.2/v1/makerchecker/approve\","
-      + "\"denyUrl\":\"192.168.0.2/v1/makerchecker/deny\",\"makerId\":9826885203304,"
+      + "\"attachmentUrl\":\"https://nexus2.symphony.com/helpdesk-service/v1/makerchecker/6JFEVDBXP54\","
+      + "\"approveUrl\":\"https://nexus2.symphony.com/helpdesk-bot/v1/makerchecker/approve\","
+      + "\"denyUrl\":\"https://nexus2.symphony.com/helpdesk-bot/v1/makerchecker/deny\",\"makerId\":9826885203304,"
       + "\"streamId\":\"pT4nMlbsOgqfgPuQTQO9yn___p9c7xwsdA\","
       + "\"proxyToStreamIds\":[\"pT4nMlbsOgqfgPuQTQO9yn___p9c7xwsdA\"],"
       + "\"timestamp\":545465456465,\"messageId\":\"1322154564545\",\"groupId\":\"test\","
