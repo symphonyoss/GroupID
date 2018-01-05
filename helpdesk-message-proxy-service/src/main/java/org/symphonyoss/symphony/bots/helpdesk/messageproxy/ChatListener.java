@@ -5,7 +5,10 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.services.MessageListener;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -30,7 +33,7 @@ public class ChatListener implements MessageListener {
 
   @Override
   public void onMessage(SymMessage symMessage) {
-    if (StringUtils.isNotEmpty(symMessage.getMessageText()) && ready) {
+    if (hasContent(symMessage) && ready) {
       ticketManagerService.messageReceived(symMessage);
       helpDeskAi.onMessage(symMessage);
     }
@@ -38,6 +41,15 @@ public class ChatListener implements MessageListener {
 
   public void ready() {
     this.ready = true;
+  }
+
+  private boolean hasContent(SymMessage symMessage) {
+    return StringUtils.isNotEmpty(symMessage.getMessageText()) || hasAttachment(symMessage);
+  }
+
+  private boolean hasAttachment(SymMessage symMessage) {
+    List<SymAttachmentInfo> attachments = symMessage.getAttachments();
+    return attachments != null && !attachments.isEmpty();
   }
 
 }
