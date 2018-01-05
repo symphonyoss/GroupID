@@ -3,23 +3,28 @@ package org.symphonyoss.symphony.bots.ai.impl;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.AiEventListener;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
+import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by nick.tarsillo on 8/20/17.
  */
 public class AiEventListenerImpl implements AiEventListener {
+
   private AiCommandInterpreter aiCommandInterpreter;
+
   private AiResponder aiResponder;
+
   private boolean suggestCommands;
 
-  public AiEventListenerImpl(
-      AiCommandInterpreter aiCommandInterpreter,
-      AiResponder aiResponder,
+  public AiEventListenerImpl(AiCommandInterpreter aiCommandInterpreter, AiResponder aiResponder,
       boolean suggestCommands) {
     this.aiCommandInterpreter = aiCommandInterpreter;
     this.aiResponder = aiResponder;
@@ -28,23 +33,29 @@ public class AiEventListenerImpl implements AiEventListener {
 
   @Override
   public void onCommand(AiMessage command, AiSessionContext sessionContext) {
-    boolean commandExecuted = false;
     AiCommandMenu commandMenu = sessionContext.getAiCommandMenu();
-    for (AiCommand aiCommand : commandMenu.getCommandSet()) {
-      if (aiCommandInterpreter.hasPrefix(command, commandMenu.getCommandPrefix()) &&
-          aiCommandInterpreter.isCommand(aiCommand, command, commandMenu.getCommandPrefix())) {
-        aiCommand.executeCommand(sessionContext, aiResponder,
-            aiCommandInterpreter.readCommandArguments(aiCommand, command,
-                commandMenu.getCommandPrefix()));
-        commandExecuted = true;
-      }
+    String prefix = commandMenu.getCommandPrefix();
+
+    if (!aiCommandInterpreter.hasPrefix(command, prefix)) {
+      return;
     }
 
-    if (!commandExecuted && aiCommandInterpreter.hasPrefix(command, commandMenu.getCommandPrefix())) {
+    List<AiCommand> commands = commandMenu.getCommandSet()
+        .stream()
+        .filter(aiCommand -> aiCommandInterpreter.isCommand(aiCommand, command, prefix))
+        .collect(Collectors.toList());
+
+    if (commands.isEmpty()) {
       aiResponder.respondWithUseMenu(sessionContext, command);
+
       if (suggestCommands) {
         aiResponder.respondWithSuggestion(sessionContext, aiCommandInterpreter, command);
       }
+    } else {
+      commands.forEach(aiCommand -> {
+        AiArgumentMap args = aiCommandInterpreter.readCommandArguments(aiCommand, command, prefix);
+        aiCommand.executeCommand(sessionContext, aiResponder, args);
+      });
     }
   }
 
