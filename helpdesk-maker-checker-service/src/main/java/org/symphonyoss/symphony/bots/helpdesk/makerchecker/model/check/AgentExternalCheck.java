@@ -41,6 +41,7 @@ public class AgentExternalCheck implements Checker {
   private static final String MESSAGE_COULD_NOT_CREATE_FILE = "Couldn't create a file.";
   private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
   private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
+  private static final String TEMP_DIRECTORY = "/tmp/";
 
   private final String ATTACHMENT = "ATTACHMENT";
 
@@ -192,7 +193,7 @@ public class AgentExternalCheck implements Checker {
   }
 
   private File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
-    File diretorio = new File("/tmp/" + symAttachmentInfo.getId());
+    File diretorio = new File(TEMP_DIRECTORY + symAttachmentInfo.getId());
     if (!diretorio.exists()) {
       diretorio.mkdir();
     }
