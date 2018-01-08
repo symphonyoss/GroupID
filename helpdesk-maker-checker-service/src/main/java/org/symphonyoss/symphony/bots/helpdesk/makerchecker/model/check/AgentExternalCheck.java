@@ -38,7 +38,7 @@ import javax.ws.rs.BadRequestException;
 public class AgentExternalCheck implements Checker {
 
   private static final int MAKERCHECKER_ID_LENGTH = 10;
-  private static final String MESSAGE_COULD_NOT_CREATE_TEMP_FILE = "Couldn't create a temp file.";
+  private static final String MESSAGE_COULD_NOT_CREATE_FILE = "Couldn't create a file.";
   private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
   private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
 
@@ -178,15 +178,30 @@ public class AgentExternalCheck implements Checker {
     return symApprovedMessages;
   }
 
+  @Override
+  public void removeAttachmentAndDirectory(SymAttachmentInfo symAttachmentInfo) {
+    File diretorio = new File("/tmp/" + symAttachmentInfo.getId());
+
+    File[] files = diretorio.listFiles();
+    if (files.length > 0) {
+      Arrays.stream(files)
+          .forEach(file -> file.delete());
+    }
+
+    diretorio.delete();
+  }
+
   private File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
-    File tempFile;
+    File diretorio = new File("/tmp/" + symAttachmentInfo.getId());
+    if (!diretorio.exists()) {
+      diretorio.mkdir();
+    }
+
+    File file = new File(diretorio + "/" + symAttachmentInfo.getName());
     try {
-      String splitFileName[] = symAttachmentInfo.getName().split("\\.");
-      String prefix = splitFileName[0];
-      String suffix = "." + splitFileName[1];
-      tempFile = File.createTempFile(prefix, suffix);
+      file.createNewFile();
     } catch (IOException e) {
-      throw new BadRequestException(MESSAGE_COULD_NOT_CREATE_TEMP_FILE);
+      throw new BadRequestException(MESSAGE_COULD_NOT_CREATE_FILE);
     }
 
     byte[] aByte;
@@ -198,13 +213,12 @@ public class AgentExternalCheck implements Checker {
 
     InputStream inputStream = new ByteArrayInputStream(aByte);
     try {
-      FileUtils.copyInputStreamToFile(inputStream, tempFile);
+      FileUtils.copyInputStreamToFile(inputStream, file);
     } catch (IOException e) {
       throw new BadRequestException(MESSAGE_FAILED_TO_CREATE_FILE);
     }
 
-    return tempFile;
+    return file;
   }
-
 
 }
