@@ -41,10 +41,9 @@ public class MessageProducer {
   private SymMessage buildMessage(SymphonyAiMessage symphonyAiMessage) {
     StringBuilder message = new StringBuilder("<messageML>");
 
-    String fromUserId = symphonyAiMessage.getFromUserId();
+    Long userId = symphonyAiMessage.getFromUserId();
 
-    if (symphonyAiMessage.getFromUserId() != null) {
-      Long userId = Long.valueOf(fromUserId);
+    if (userId != null) {
       Membership membership = membershipClient.getMembership(userId);
 
       if ((membership != null) && (MembershipClient.MembershipType.CLIENT.getType()
@@ -68,6 +67,7 @@ public class MessageProducer {
     symMessage.setMessage(message.toString());
     symMessage.setEntityData(symphonyAiMessage.getEntityData());
     symMessage.setAttachments(symphonyAiMessage.getAttachments());
+    symMessage.setAttachment(symphonyAiMessage.getAttachment());
 
     return symMessage;
   }

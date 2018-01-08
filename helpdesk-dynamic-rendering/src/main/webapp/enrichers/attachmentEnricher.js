@@ -61,7 +61,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       service: enricherServiceName,
       type: 'approveAttachment',
       label: 'Approve',
-      enricherInstanceId: entity.attachmentId,
+      enricherInstanceId: entity.makerCheckerId,
       streamId: entity.streamId,
       userId,
     };
@@ -71,7 +71,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
       service: enricherServiceName,
       type: 'denyAttachment',
       label: 'Deny',
-      enricherInstanceId: entity.attachmentId,
+      enricherInstanceId: entity.makerCheckerId,
       streamId: entity.streamId,
       userId,
     };
@@ -87,7 +87,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
         isApproved: rsp.state === 'APPROVED',
         userName: displayName }),
       data,
-      enricherInstanceId: entity.attachmentId,
+      enricherInstanceId: entity.makerCheckerId,
     };
     return result;
   }

@@ -2,6 +2,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -55,6 +56,8 @@ public class V1HelpDeskControllerTest {
   private static final String MOCK_CLIENT_STREAM_ID = "m3TYBJ-g-k9VDZLn5YaOuH___qA1PJWtdA";
 
   private static final String MOCK_MAKERCHECKER_ID = "XJW9H3XPCU";
+
+  private static final String MOCK_ATTACHMENT_ID = "internal_9826885173254";
 
   private static final Long MOCK_MAKER_ID = 10651518946916l;
 
@@ -211,11 +214,9 @@ public class V1HelpDeskControllerTest {
     SymUser agent = mockActiveSymUser();
     doReturn(agent).when(symphonyValidationUtil).validateUserId(MOCK_AGENT_ID);
 
-    Set<SymMessage> symMessages = new HashSet<>();
-    SymMessage message = mockSysMessage();
-    symMessages.add(message);
+    Set<SymMessage> symMessages = mockSymMessages();
     doReturn(symMessages).when(agentMakerCheckerService)
-        .getAcceptMessages(attachmentMakerCheckerMessage);
+        .getApprovedMakercheckerMessage(any(AttachmentMakerCheckerMessage.class));
 
     MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
     detail.setUserId(MOCK_AGENT_ID);
@@ -264,6 +265,7 @@ public class V1HelpDeskControllerTest {
     makerchecker.setStreamId(MOCK_SERVICE_STREAM_ID);
     makerchecker.setId(MOCK_MAKERCHECKER_ID);
     makerchecker.setMakerId(MOCK_MAKER_ID);
+    makerchecker.setAttachmentId(MOCK_ATTACHMENT_ID);
     makerchecker.checker(null);
 
     return makerchecker;
@@ -272,13 +274,14 @@ public class V1HelpDeskControllerTest {
   private MakerCheckerMessageDetail mockMakerCheckerMessageDetail() {
     MakerCheckerMessageDetail detail = new MakerCheckerMessageDetail();
     detail.setUserId(MOCK_MAKER_ID);
-    detail.setAttachmentId(MOCK_MAKERCHECKER_ID);
     detail.setGroupId(MOCK_GROUP_ID);
     detail.setMessageId(MOCK_MESSAGE_ID);
     detail.setProxyToStreamIds(null);
     detail.setStreamId(MOCK_SERVICE_STREAM_ID);
     detail.setTimeStamp(MOCK_TIMESTAMP);
     detail.setType(null);
+    detail.setAttachmentId(MOCK_ATTACHMENT_ID);
+    detail.setMakerCheckerId(MOCK_MAKERCHECKER_ID);
 
     return detail;
   }
@@ -291,12 +294,16 @@ public class V1HelpDeskControllerTest {
     return symUser;
   }
 
-  private SymMessage mockSysMessage() {
+  private Set<SymMessage> mockSymMessages() {
+    Set<SymMessage> symMessages = new HashSet<>();
+
     SymMessage message = new SymMessage();
     message.setId(MOCK_MAKERCHECKER_ID);
     message.setMessage(SYM_MESSAGE);
 
-    return message;
+    symMessages.add(message);
+
+    return symMessages;
   }
 
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {

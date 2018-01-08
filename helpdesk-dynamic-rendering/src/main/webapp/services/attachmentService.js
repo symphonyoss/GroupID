@@ -12,7 +12,10 @@ function createMessageAttachment(message) {
     messageId: message.entity.messageId !== undefined ? message.entity.messageId : null,
     groupId: message.entity.groupId !== undefined ? message.entity.groupId : null,
     userId: message.userId !== undefined ? message.userId : null,
-    attachmentId: message.entity.attachmentId !== undefined ? message.entity.attachmentId : null,
+    makerCheckerId: message.entity.makerCheckerId !== undefined ?
+      message.entity.makerCheckerId : null,
+    attachmentId: message.entity.attachmentId !== undefined ?
+      message.entity.attachmentId : null,
     type: 'ATTACHMENT',
   };
 

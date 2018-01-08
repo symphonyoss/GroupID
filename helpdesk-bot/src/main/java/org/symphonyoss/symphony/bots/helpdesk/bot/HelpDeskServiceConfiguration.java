@@ -78,7 +78,7 @@ public class HelpDeskServiceConfiguration {
 
     AgentExternalCheck agentExternalCheck =
         new AgentExternalCheck(configuration.getHelpDeskBotUrl(),
-            configuration.getHelpDeskServiceUrl(), configuration.getGroupId(), ticketClient);
+            configuration.getHelpDeskServiceUrl(), configuration.getGroupId(), ticketClient, symphonyClient);
 
     agentMakerCheckerService.addCheck(agentExternalCheck);
 

@@ -48,7 +48,7 @@ public class MakerCheckerMessageBuilder {
 
   private String groupId;
 
-  private String attachmentType;
+  private String makerCheckerId;
 
   private String attachmentId;
 
@@ -113,8 +113,8 @@ public class MakerCheckerMessageBuilder {
     return this;
   }
 
-  public MakerCheckerMessageBuilder attachmentType(String attachmentType) {
-    this.attachmentType = attachmentType;
+  public MakerCheckerMessageBuilder makerCheckerId(String makerCheckerId) {
+    this.makerCheckerId = makerCheckerId;
     return this;
   }
 
@@ -131,7 +131,7 @@ public class MakerCheckerMessageBuilder {
     try {
       EntityBuilder bodyBuilder = EntityBuilder.createEntity(BASE_EVENT, VERSION);
 
-      String attachmentUrl = String.format("%s/v1/makerchecker/%s", serviceHost, attachmentId);
+      String attachmentUrl = String.format("%s/v1/makerchecker/%s", serviceHost, makerCheckerId);
       bodyBuilder.addField("attachmentUrl", attachmentUrl);
 
       String approveUrl = String.format("%s/v1/makerchecker/approve", botHost);
@@ -146,7 +146,7 @@ public class MakerCheckerMessageBuilder {
       bodyBuilder.addField("timestamp", timestamp);
       bodyBuilder.addField("messageId", messageId);
       bodyBuilder.addField("groupId", groupId);
-      bodyBuilder.addField("attachmentType", attachmentType);
+      bodyBuilder.addField("makerCheckerId", makerCheckerId);
       bodyBuilder.addField("attachmentId", attachmentId);
 
       EntityBuilder builder = EntityBuilder.createEntity();

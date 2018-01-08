@@ -93,7 +93,7 @@ public class V1HelpDeskController extends V1ApiController {
     validateRequiredParameter("messageId", detail.getMessageId(), "body");
     validateRequiredParameter("userId", detail.getUserId(), "body");
 
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getMakerCheckerId());
     if (makerchecker == null) {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
     }
@@ -110,9 +110,8 @@ public class V1HelpDeskController extends V1ApiController {
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
       SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
+      sendApprovedMakerChekerMessage(detail);
       UserInfo checker = getChecker(agentUser);
-      sendAcceptMarkerChekerMessages(detail);
-
       makerchecker.setChecker(checker);
       makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
       makercheckerClient.updateMakerchecker(makerchecker);
@@ -138,26 +137,31 @@ public class V1HelpDeskController extends V1ApiController {
     return makerCheckerResponse;
   }
 
-  private void sendAcceptMarkerChekerMessages(MakerCheckerMessageDetail detail) {
+  private void sendApprovedMakerChekerMessage(MakerCheckerMessageDetail detail) {
     AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
     checkerMessage.setAttachmentId(detail.getAttachmentId());
     checkerMessage.setGroupId(detail.getGroupId());
     checkerMessage.setMessageId(detail.getMessageId());
-    checkerMessage.setStreamId(
-        Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
+    checkerMessage.setStreamId(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
     checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
     checkerMessage.setTimeStamp(detail.getTimeStamp());
     checkerMessage.setType(detail.getType());
 
-    Set<SymMessage> symMessages = agentMakerCheckerService.getAcceptMessages(checkerMessage);
-
     AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(detail.getUserId(), detail.getStreamId());
+
+    Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
 
     for (SymMessage symMessage : symMessages) {
       SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
+
       Set<AiResponseIdentifier> identifiers = new HashSet<>();
       identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+
       helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
+
+      if (symphonyAiMessage.getAttachment() != null) {
+        symphonyAiMessage.getAttachment().delete();
+      }
     }
   }
 
@@ -170,7 +174,7 @@ public class V1HelpDeskController extends V1ApiController {
   public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
     symphonyValidationUtil.validateStream(detail.getStreamId());
 
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getAttachmentId());
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getMakerCheckerId());
     if (makerchecker == null) {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
     }

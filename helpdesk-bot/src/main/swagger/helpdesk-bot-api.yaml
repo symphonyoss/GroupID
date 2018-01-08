@@ -212,9 +212,12 @@ definitions:
         type: integer
         format: int64
         description: The userId of the user who accepted the maker checker message.
+      makerCheckerId:
+        type: string
+        required: true
       attachmentId:
         type: string
-        required: false
+        required: true
   User:
     type: object
     properties:
