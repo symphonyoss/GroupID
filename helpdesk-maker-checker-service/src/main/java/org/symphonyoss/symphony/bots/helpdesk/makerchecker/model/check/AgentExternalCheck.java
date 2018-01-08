@@ -41,7 +41,6 @@ public class AgentExternalCheck implements Checker {
   private static final String MESSAGE_COULD_NOT_CREATE_FILE = "Couldn't create a file.";
   private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
   private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
-  private static final String TEMP_DIRECTORY = "/tmp/";
 
   private final String ATTACHMENT = "ATTACHMENT";
 
@@ -180,25 +179,24 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public void removeAttachmentAndDirectory(SymAttachmentInfo symAttachmentInfo) {
-    File diretorio = new File("/tmp/" + symAttachmentInfo.getId());
+  public void afterSendApprovedMessage(SymAttachmentInfo symAttachmentInfo) {
+    String tmpDir = System.getProperty("java.io.tmpdir");
+    File directory = new File(tmpDir + File.separator + symAttachmentInfo.getId());
 
-    File[] files = diretorio.listFiles();
-    if (files.length > 0) {
-      Arrays.stream(files)
-          .forEach(file -> file.delete());
-    }
+    File[] files = directory.listFiles();
+    Arrays.stream(files).forEach(file -> file.delete());
 
-    diretorio.delete();
+    directory.delete();
   }
 
   private File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
-    File diretorio = new File(TEMP_DIRECTORY + symAttachmentInfo.getId());
-    if (!diretorio.exists()) {
-      diretorio.mkdir();
+    String tmpDir = System.getProperty("java.io.tmpdir");
+    File directory = new File(tmpDir + File.separator + symAttachmentInfo.getId());
+    if (!directory.exists()) {
+      directory.mkdir();
     }
 
-    File file = new File(diretorio + "/" + symAttachmentInfo.getName());
+    File file = new File(directory + File.separator + symAttachmentInfo.getName());
     try {
       file.createNewFile();
     } catch (IOException e) {

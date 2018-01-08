@@ -143,9 +143,9 @@ public class MakerCheckerService {
         symMessage.getStreamId(), attachmentId);
   }
 
-  public void removeAttachmentsAndDirectory(List<SymAttachmentInfo> symAttachmentInfo) {
+  public void afterSendApprovedMessage(List<SymAttachmentInfo> symAttachmentInfo) {
     for (Checker checker : checkerSet) {
-      symAttachmentInfo.stream().forEach(attachmentInfo -> checker.removeAttachmentAndDirectory(attachmentInfo));
+      symAttachmentInfo.stream().forEach(attachmentInfo -> checker.afterSendApprovedMessage(attachmentInfo));
     }
   }
 
