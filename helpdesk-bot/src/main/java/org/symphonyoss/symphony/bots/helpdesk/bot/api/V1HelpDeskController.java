@@ -86,7 +86,7 @@ public class V1HelpDeskController extends V1ApiController {
   @Override
   public MakerCheckerResponse approveMakerCheckerMessage(MakerCheckerMessageDetail detail) {
     validateRequiredParameter("streamId", detail.getStreamId(), "body");
-    symphonyValidationUtil.validateStream(detail.getStreamId());
+    symphonyValidationUtil.validateStream(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
     validateRequiredParameter("groupId", detail.getGroupId(), "body");
     validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");
     validateRequiredParameter("timestamp", detail.getTimeStamp(), "body");
