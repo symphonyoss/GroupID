@@ -7,11 +7,13 @@ import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.Checker;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
+import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
@@ -74,11 +76,11 @@ public class MakerCheckerService {
       stream.setStreamId(makerCheckerMessage.getStreamId());
 
       SymMessage symMessage = getApprovedMessage(makerCheckerMessage, stream);
-      Set<SymMessage> symApprovedMessages = null;
+      Set<SymMessage> symApprovedMessages = new HashSet<>();
 
       for(Checker checker: checkerSet) {
         if(checker.isCheckerType(makerCheckerMessage)) {
-          symApprovedMessages = checker.makeApprovedMessages(makerCheckerMessage, symMessage);
+          symApprovedMessages.addAll(checker.makeApprovedMessages(makerCheckerMessage, symMessage));
         }
       }
 
@@ -93,10 +95,12 @@ public class MakerCheckerService {
     List<SymMessage> symMessageList = symphonyClient.getMessagesClient()
         .getMessagesFromStream(stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
 
-    for(SymMessage symMessages : symMessageList) {
-      if(symMessages.getId().equals(makerCheckerMessage.getMessageId())) {
-        return symMessages;
-      }
+    Optional<SymMessage> symMessage = symMessageList.stream()
+        .filter(message -> message.getId().equals(makerCheckerMessage.getMessageId()))
+        .findFirst();
+
+    if (symMessage.isPresent()) {
+      return symMessage.get();
     }
 
     throw new BadRequestException(String.format(MESSAGE_NOT_FOUND, makerCheckerMessage.getMessageId()));

@@ -43,7 +43,7 @@ public class MessageProducer {
 
     Long userId = symphonyAiMessage.getFromUserId();
 
-    if (symphonyAiMessage.getFromUserId() != null) {
+    if (userId != null) {
       Membership membership = membershipClient.getMembership(userId);
 
       if ((membership != null) && (MembershipClient.MembershipType.CLIENT.getType()

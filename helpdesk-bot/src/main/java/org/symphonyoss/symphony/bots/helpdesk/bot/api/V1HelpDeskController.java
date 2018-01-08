@@ -147,6 +147,8 @@ public class V1HelpDeskController extends V1ApiController {
     checkerMessage.setTimeStamp(detail.getTimeStamp());
     checkerMessage.setType(detail.getType());
 
+    AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(detail.getUserId(), detail.getStreamId());
+
     Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
 
     for (SymMessage symMessage : symMessages) {
@@ -154,8 +156,6 @@ public class V1HelpDeskController extends V1ApiController {
 
       Set<AiResponseIdentifier> identifiers = new HashSet<>();
       identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
-
-      AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(detail.getUserId(), detail.getStreamId());
 
       helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
 

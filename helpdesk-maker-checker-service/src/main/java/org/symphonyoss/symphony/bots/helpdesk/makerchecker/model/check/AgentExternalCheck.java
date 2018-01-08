@@ -127,7 +127,6 @@ public class AgentExternalCheck implements Checker {
     return symCheckerMessages;
   }
 
-  @Override
   public Optional<SymAttachmentInfo> getApprovedAttachment(MakerCheckerMessage makerCheckerMessage,
       SymMessage symMessage) {
     AttachmentMakerCheckerMessage checkerMessage = (AttachmentMakerCheckerMessage) makerCheckerMessage;
@@ -182,8 +181,9 @@ public class AgentExternalCheck implements Checker {
   private File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
     File tempFile;
     try {
-      String prefix = symAttachmentInfo.getName().split("\\.")[0];
-      String suffix = "." + symAttachmentInfo.getName().split("\\.")[1];
+      String splitFileName[] = symAttachmentInfo.getName().split("\\.");
+      String prefix = splitFileName[0];
+      String suffix = "." + splitFileName[1];
       tempFile = File.createTempFile(prefix, suffix);
     } catch (IOException e) {
       throw new BadRequestException(MESSAGE_COULD_NOT_CREATE_TEMP_FILE);

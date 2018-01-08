@@ -27,8 +27,6 @@ public interface Checker {
    */
   Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage, Object opaque);
 
-  Optional<SymAttachmentInfo> getApprovedAttachment(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
-
   boolean isCheckerType(MakerCheckerMessage makerCheckerMessage);
 
   Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
