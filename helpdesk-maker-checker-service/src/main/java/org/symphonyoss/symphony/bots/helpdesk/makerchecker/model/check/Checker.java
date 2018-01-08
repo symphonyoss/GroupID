@@ -31,6 +31,6 @@ public interface Checker {
 
   Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
 
-  void afterSendApprovedMessage(SymAttachmentInfo symAttachmentInfo);
+  void afterSendApprovedMessage(SymMessage symMessage);
 
 }

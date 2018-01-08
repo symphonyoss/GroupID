@@ -179,14 +179,17 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public void afterSendApprovedMessage(SymAttachmentInfo symAttachmentInfo) {
+  public void afterSendApprovedMessage(SymMessage symMessage) {
     String tmpDir = System.getProperty("java.io.tmpdir");
-    File directory = new File(tmpDir + File.separator + symAttachmentInfo.getId());
 
-    File[] files = directory.listFiles();
-    Arrays.stream(files).forEach(file -> file.delete());
+    for (SymAttachmentInfo symAttachmentInfo : symMessage.getAttachments()) {
+      File directory = new File(tmpDir + File.separator + symAttachmentInfo.getId());
 
-    directory.delete();
+      File[] files = directory.listFiles();
+      Arrays.stream(files).forEach(file -> file.delete());
+
+      directory.delete();
+    }
   }
 
   private File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {

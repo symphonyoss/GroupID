@@ -143,9 +143,9 @@ public class MakerCheckerService {
         symMessage.getStreamId(), attachmentId);
   }
 
-  public void afterSendApprovedMessage(List<SymAttachmentInfo> symAttachmentInfo) {
+  public void afterSendApprovedMessage(SymMessage symMessage) {
     for (Checker checker : checkerSet) {
-      symAttachmentInfo.stream().forEach(attachmentInfo -> checker.afterSendApprovedMessage(attachmentInfo));
+      checker.afterSendApprovedMessage(symMessage);
     }
   }
 
