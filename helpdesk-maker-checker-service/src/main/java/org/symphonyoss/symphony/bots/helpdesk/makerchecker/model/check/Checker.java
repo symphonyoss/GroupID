@@ -31,4 +31,6 @@ public interface Checker {
 
   Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage);
 
+  void afterSendApprovedMessage(SymMessage symMessage);
+
 }

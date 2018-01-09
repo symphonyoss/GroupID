@@ -160,7 +160,7 @@ public class V1HelpDeskController extends V1ApiController {
       helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
 
       if (symphonyAiMessage.getAttachment() != null) {
-        symphonyAiMessage.getAttachment().delete();
+        agentMakerCheckerService.afterSendApprovedMessage(symMessage);
       }
     }
   }
