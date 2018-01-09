@@ -430,6 +430,10 @@ definitions:
           type: string
         attachmentId:
           type: string
+        messageId:
+          type: string
+        timeStamp:
+          type: string
         state:
           type: string
           description: |
