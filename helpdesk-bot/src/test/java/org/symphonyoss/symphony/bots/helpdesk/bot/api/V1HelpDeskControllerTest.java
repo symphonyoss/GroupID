@@ -132,10 +132,8 @@ public class V1HelpDeskControllerTest {
     Makerchecker makerchecker = mockMakerchecker();
     doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
 
-    MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
-
     try {
-      v1HelpDeskController.approveMakerCheckerMessage(detail);
+      v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID);
       fail();
     } catch (BadRequestException e) {
       assertEquals(OWN_ATTACHMENT_EXCPETION, e.getMessage());
@@ -147,12 +145,9 @@ public class V1HelpDeskControllerTest {
     Makerchecker makerchecker = mockMakerchecker();
     doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
 
-    MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
-    detail.setUserId(MOCK_AGENT_ID);
-
     doThrow(SymException.class).when(validateMembershipService).updateMembership(MOCK_AGENT_ID);
 
-    v1HelpDeskController.approveMakerCheckerMessage(detail);
+    v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
   }
 
   @Test()
@@ -163,7 +158,7 @@ public class V1HelpDeskControllerTest {
     MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
 
     try {
-      v1HelpDeskController.denyMakerCheckerMessage(detail);
+      v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID);
       fail();
     } catch (BadRequestException e) {
       assertEquals(OWN_ATTACHMENT_EXCPETION, e.getMessage());
@@ -176,11 +171,8 @@ public class V1HelpDeskControllerTest {
     makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
     doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
 
-    MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
-    detail.setUserId(MOCK_AGENT_ID);
-
     try {
-      v1HelpDeskController.denyMakerCheckerMessage(detail);
+      v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
       fail();
     } catch (BadRequestException e) {
       assertEquals(OPEN_MAKERCHECKER_NOT_FOUND, e.getMessage());
@@ -193,11 +185,8 @@ public class V1HelpDeskControllerTest {
     makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
     doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
 
-    MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
-    detail.setUserId(MOCK_AGENT_ID);
-
     try {
-      v1HelpDeskController.approveMakerCheckerMessage(detail);
+      v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
       fail();
     } catch (BadRequestException e) {
       assertEquals(OPEN_MAKERCHECKER_NOT_FOUND, e.getMessage());
@@ -206,8 +195,6 @@ public class V1HelpDeskControllerTest {
 
   @Test()
   public void ApproveAttachment() throws SymException {
-    AttachmentMakerCheckerMessage attachmentMakerCheckerMessage =
-        mockAttachmentMakerCheckerMessage();
     Makerchecker makerchecker = mockMakerchecker();
     doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
 
@@ -218,10 +205,7 @@ public class V1HelpDeskControllerTest {
     doReturn(symMessages).when(agentMakerCheckerService)
         .getApprovedMakercheckerMessage(any(AttachmentMakerCheckerMessage.class));
 
-    MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
-    detail.setUserId(MOCK_AGENT_ID);
-
-    MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(detail);
+    MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_ACCEPTED, response.getMessage());
 
     verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
@@ -236,10 +220,7 @@ public class V1HelpDeskControllerTest {
     SymUser agent = mockActiveSymUser();
     doReturn(agent).when(symphonyValidationUtil).validateUserId(MOCK_AGENT_ID);
 
-    MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
-    detail.setUserId(MOCK_AGENT_ID);
-
-    MakerCheckerResponse response = v1HelpDeskController.denyMakerCheckerMessage(detail);
+    MakerCheckerResponse response = v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_DENIED, response.getMessage());
 
     verify(makercheckerClient, times(1)).updateMakerchecker(makerchecker);
