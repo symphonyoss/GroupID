@@ -11,7 +11,6 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -27,9 +26,7 @@ import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.BadRequestException;

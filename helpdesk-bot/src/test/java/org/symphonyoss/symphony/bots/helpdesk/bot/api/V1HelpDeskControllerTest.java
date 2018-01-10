@@ -17,7 +17,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.AcceptTicketService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.JoinConversationService;
@@ -155,8 +154,6 @@ public class V1HelpDeskControllerTest {
     Makerchecker makerchecker = mockMakerchecker();
     doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
 
-    MakerCheckerMessageDetail detail = mockMakerCheckerMessageDetail();
-
     try {
       v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID);
       fail();
@@ -250,21 +247,6 @@ public class V1HelpDeskControllerTest {
     makerchecker.checker(null);
 
     return makerchecker;
-  }
-
-  private MakerCheckerMessageDetail mockMakerCheckerMessageDetail() {
-    MakerCheckerMessageDetail detail = new MakerCheckerMessageDetail();
-    detail.setUserId(MOCK_MAKER_ID);
-    detail.setGroupId(MOCK_GROUP_ID);
-    detail.setMessageId(MOCK_MESSAGE_ID);
-    detail.setProxyToStreamIds(null);
-    detail.setStreamId(MOCK_SERVICE_STREAM_ID);
-    detail.setTimeStamp(MOCK_TIMESTAMP);
-    detail.setType(null);
-    detail.setAttachmentId(MOCK_ATTACHMENT_ID);
-    detail.setMakerCheckerId(MOCK_MAKERCHECKER_ID);
-
-    return detail;
   }
 
   private SymUser mockActiveSymUser() {
