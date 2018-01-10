@@ -89,16 +89,10 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse approveMakerCheckerMessage(String makerCheckerId, Long userId) {
-//    validateRequiredParameter("streamId", detail.getStreamId(), "body");
-//    symphonyValidationUtil.validateStream(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
-//    validateRequiredParameter("groupId", detail.getGroupId(), "body");
-//    validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");
-//    validateRequiredParameter("timestamp", detail.getTimeStamp(), "body");
-//    validateRequiredParameter("messageId", detail.getMessageId(), "body");
-//    validateRequiredParameter("userId", detail.getUserId(), "body");
-
     validateRequiredParameter("makerCheckerId", makerCheckerId, "body");
     validateRequiredParameter("userId", userId, "body");
+
+    SymUser agentUser = symphonyValidationUtil.validateUserId(userId);
 
     Makerchecker makerchecker = makercheckerClient.getMakerchecker(makerCheckerId);
     if (makerchecker == null) {
@@ -116,7 +110,6 @@ public class V1HelpDeskController extends V1ApiController {
     }
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
-      SymUser agentUser = symphonyValidationUtil.validateUserId(userId);
       sendApprovedMakerChekerMessage(makerchecker, userId);
       UserInfo checker = getChecker(agentUser);
       makerchecker.setChecker(checker);
@@ -140,6 +133,7 @@ public class V1HelpDeskController extends V1ApiController {
   public MakerCheckerResponse denyMakerCheckerMessage(String makerCheckerId, Long userId) {
     validateRequiredParameter("makerCheckerId", makerCheckerId, "body");
     validateRequiredParameter("userId", userId, "body");
+
     SymUser agentUser = symphonyValidationUtil.validateUserId(userId);
 
     Makerchecker makerchecker = makercheckerClient.getMakerchecker(makerCheckerId);
