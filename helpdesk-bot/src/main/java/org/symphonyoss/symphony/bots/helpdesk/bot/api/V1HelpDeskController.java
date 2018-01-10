@@ -116,54 +116,12 @@ public class V1HelpDeskController extends V1ApiController {
       makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
       makercheckerClient.updateMakerchecker(makerchecker);
 
-      return buildMakerCheckerResponse(agentUser, detail);
+      return buildMakerCheckerResponse(agentUser, detail, MakercheckerClient.AttachmentStateType.APPROVED);
     } else {
       throw new BadRequestException(OPEN_MAKERCHECKER_NOT_FOUND);
     }
-
   }
 
-  private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser,
-      MakerCheckerMessageDetail detail) {
-    MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
-    makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
-    makerCheckerResponse.setMakerCheckerMessageDetail(detail);
-
-    User user = getUser(detail, agentUser);
-
-    makerCheckerResponse.setUser(user);
-    makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
-
-    return makerCheckerResponse;
-  }
-
-  private void sendApprovedMakerChekerMessage(MakerCheckerMessageDetail detail) {
-    AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
-    checkerMessage.setAttachmentId(detail.getAttachmentId());
-    checkerMessage.setGroupId(detail.getGroupId());
-    checkerMessage.setMessageId(detail.getMessageId());
-    checkerMessage.setStreamId(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
-    checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
-    checkerMessage.setTimeStamp(detail.getTimeStamp());
-    checkerMessage.setType(detail.getType());
-
-    AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(detail.getUserId(), detail.getStreamId());
-
-    Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
-
-    for (SymMessage symMessage : symMessages) {
-      SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
-
-      Set<AiResponseIdentifier> identifiers = new HashSet<>();
-      identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
-
-      helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
-
-      if (symphonyAiMessage.getAttachment() != null) {
-        agentMakerCheckerService.afterSendApprovedMessage(symMessage);
-      }
-    }
-  }
 
   /**
    * Deny a maker checker message.
@@ -197,19 +155,85 @@ public class V1HelpDeskController extends V1ApiController {
       makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
       makercheckerClient.updateMakerchecker(makerchecker);
 
-      MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
-      makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
-      makerCheckerResponse.setMakerCheckerMessageDetail(detail);
-
-      User user = getUser(detail, agentUser);
-
-      makerCheckerResponse.setUser(user);
-      makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
-
-      return makerCheckerResponse;
+      return buildMakerCheckerResponse(agentUser, detail, MakercheckerClient.AttachmentStateType.DENIED);
     } else {
       throw new BadRequestException(OPEN_MAKERCHECKER_NOT_FOUND);
     }
+  }
+
+  private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser,
+      MakerCheckerMessageDetail detail, MakercheckerClient.AttachmentStateType state) {
+    MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
+    makerCheckerResponse.setMakerCheckerMessageDetail(detail);
+
+    User user = getUser(detail, agentUser);
+
+    makerCheckerResponse.setUser(user);
+
+    if (MakercheckerClient.AttachmentStateType.APPROVED.equals(state)) {
+      makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
+      makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
+    } else {
+      makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
+      makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
+    }
+
+    return makerCheckerResponse;
+  }
+
+  private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser,
+      Makerchecker makerchecker) {
+    MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
+//    makerCheckerResponse.setMakerCheckerMessageDetail(detail);
+
+    User user = getUser(makerchecker, agentUser);
+
+    makerCheckerResponse.setUser(user);
+
+    if (MakercheckerClient.AttachmentStateType.APPROVED.equals(makerchecker.getState())) {
+      makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
+      makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
+    } else {
+      makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
+      makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
+    }
+
+    return makerCheckerResponse;
+  }
+
+  private void sendApprovedMakerChekerMessage(MakerCheckerMessageDetail detail) {
+    AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
+    checkerMessage.setAttachmentId(detail.getAttachmentId());
+    checkerMessage.setGroupId(detail.getGroupId());
+    checkerMessage.setMessageId(detail.getMessageId());
+    checkerMessage.setStreamId(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
+    checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
+    checkerMessage.setTimeStamp(detail.getTimeStamp());
+    checkerMessage.setType(detail.getType());
+
+    AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(detail.getUserId(), detail.getStreamId());
+
+    Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
+
+    for (SymMessage symMessage : symMessages) {
+      SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
+
+      Set<AiResponseIdentifier> identifiers = new HashSet<>();
+      identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+
+      helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
+
+      if (symphonyAiMessage.getAttachment() != null) {
+        agentMakerCheckerService.afterSendApprovedMessage(symMessage);
+      }
+    }
+  }
+
+  private User getUser(Makerchecker makerchecker, SymUser agentUser) {
+    User user = new User();
+    user.setDisplayName(agentUser.getDisplayName());
+    user.setUserId(makerchecker.getMakerId());
+    return user;
   }
 
   private User getUser(MakerCheckerMessageDetail detail, SymUser agentUser) {
