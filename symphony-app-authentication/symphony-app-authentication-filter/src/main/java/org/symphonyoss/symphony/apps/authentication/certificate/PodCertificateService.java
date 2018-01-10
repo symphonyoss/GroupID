@@ -1,6 +1,6 @@
 package org.symphonyoss.symphony.apps.authentication.certificate;
 
-import org.glassfish.jersey.internal.util.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.symphonyoss.symphony.apps.authentication.certificate.exception.PodCertificateException;
 import org.symphonyoss.symphony.apps.authentication.certificate.model.PodCertificate;
 import sun.security.provider.X509Factory;
@@ -18,7 +18,7 @@ import java.security.cert.X509Certificate;
  */
 public class PodCertificateService {
 
-  private final PodCertificateClientFactory factory = PodCertificateClientFactory.getInstance();
+  private PodCertificateClientFactory factory = PodCertificateClientFactory.getInstance();
 
   /**
    * Gets a public key from a POD public certificate.
@@ -42,7 +42,7 @@ public class PodCertificateService {
           .replace(X509Factory.BEGIN_CERT, "")
           .replace(X509Factory.END_CERT, "");
 
-      byte[] decoded = Base64.decode(encoded.getBytes());
+      byte[] decoded = Base64.decodeBase64(encoded);
 
       CertificateFactory cf = CertificateFactory.getInstance("X.509");
       X509Certificate x509Certificate =

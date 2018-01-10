@@ -33,7 +33,11 @@ public class PodCertificateJerseyClient implements PodCertificateClient {
 
   private final Integer readTimeout;
 
-  private final ServicesInfoProviderFactory factory = ServicesInfoProviderFactory.getInstance();
+  private ServicesInfoProviderFactory providerFactory = ServicesInfoProviderFactory.getInstance();
+
+  private JsonParserFactory jsonParserFactory = JsonParserFactory.getInstance();
+
+  private ClientBuilder clientBuilder = ClientBuilder.newBuilder();
 
   public PodCertificateJerseyClient(Integer connectTimeout, Integer readTimeout) {
     this.connectTimeout = connectTimeout;
@@ -48,7 +52,7 @@ public class PodCertificateJerseyClient implements PodCertificateClient {
     clientConfig.property(ClientProperties.CONNECT_TIMEOUT, connectTimeout);
     clientConfig.property(ClientProperties.READ_TIMEOUT, readTimeout);
 
-    return ClientBuilder.newBuilder().withConfig(clientConfig).build();
+    return clientBuilder.withConfig(clientConfig).build();
   }
 
   @Override
@@ -56,7 +60,7 @@ public class PodCertificateJerseyClient implements PodCertificateClient {
     Client client = initHttpClient();
 
     try {
-      ServicesInfoProvider provider = factory.getComponent();
+      ServicesInfoProvider provider = providerFactory.getComponent();
 
       WebTarget target = client.target(provider.getPodBaseUrl()).path(POD_CERT_PATH);
       Response response = target.request().accept(WILDCARD).get();
@@ -64,7 +68,7 @@ public class PodCertificateJerseyClient implements PodCertificateClient {
       if (Response.Status.OK.getStatusCode() == response.getStatus()) {
         String json = response.readEntity(String.class);
 
-        JsonParser parser = JsonParserFactory.getInstance().getComponent();
+        JsonParser parser = jsonParserFactory.getComponent();
         return parser.writeToObject(json, PodCertificate.class);
       } else {
         LOGGER.error("Fail to retrieve POD certificate. HTTP Status: " + response.toString());

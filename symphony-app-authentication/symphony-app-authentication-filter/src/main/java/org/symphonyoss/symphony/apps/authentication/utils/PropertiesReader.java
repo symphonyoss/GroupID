@@ -28,6 +28,10 @@ public class PropertiesReader {
       value = System.getProperty(property.toLowerCase(), defaultValue);
     }
 
+    if (value.isEmpty()) {
+      return defaultValue;
+    }
+
     return value;
   }
 

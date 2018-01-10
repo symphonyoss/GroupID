@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import org.symphonyoss.symphony.apps.authentication.certificate.PodCertificateService;
 import org.symphonyoss.symphony.apps.authentication.certificate.exception.PodCertificateException;
@@ -36,14 +37,15 @@ public class JwtService {
 
   private final Integer maxCacheSize;
 
-  private final PodCertificateService certificateService;
+  private PodCertificateService certificateService = new PodCertificateService();
 
-  private final JsonParserFactory factory = JsonParserFactory.getInstance();
+  private JsonParserFactory factory = JsonParserFactory.getInstance();
+
+  private JwtParser parser = Jwts.parser();
 
   public JwtService(Integer cacheTimeoutInMinutes, Integer maxCacheSize) {
     this.cacheTimeoutInMinutes = cacheTimeoutInMinutes;
     this.maxCacheSize = maxCacheSize;
-    this.certificateService = new PodCertificateService();
 
     initializePodCertificateCache();
     initializeJwtPayloadCache();
@@ -128,7 +130,7 @@ public class JwtService {
    */
   private Jws<Claims> getClaims(String jwt, PublicKey rsaVerifier) throws JwtProcessingException {
     try {
-      return Jwts.parser().setSigningKey(rsaVerifier).parseClaimsJws(jwt);
+      return parser.setSigningKey(rsaVerifier).parseClaimsJws(jwt);
     } catch (JwtException e) {
       throw new JwtProcessingException(e.getMessage(), e);
     }
