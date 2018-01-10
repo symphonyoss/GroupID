@@ -170,7 +170,7 @@ public class V1HelpDeskController extends V1ApiController {
 
     makerCheckerResponse.setUser(user);
 
-    if (MakercheckerClient.AttachmentStateType.APPROVED.getState().equals(state)) {
+    if (MakercheckerClient.AttachmentStateType.APPROVED.equals(state)) {
       makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
       makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
     } else {
@@ -190,7 +190,7 @@ public class V1HelpDeskController extends V1ApiController {
 
     makerCheckerResponse.setUser(user);
 
-    if (MakercheckerClient.AttachmentStateType.APPROVED.getState().equals(makerchecker.getState())) {
+    if (MakercheckerClient.AttachmentStateType.APPROVED.equals(makerchecker.getState())) {
       makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
       makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
     } else {

@@ -11,6 +11,7 @@ import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -126,21 +127,25 @@ public class MakerCheckerService {
     return makerCheckerMessages;
   }
 
-  public void sendMakerCheckerMesssage(SymMessage message) {
+  public void sendMakerCheckerMesssage(SymMessage message, String messageId, Set<String> proxyToStreamId) {
     try {
-      createMakerchecker(message);
+      createMakerchecker(message, messageId, proxyToStreamId);
       symphonyClient.getMessagesClient().sendMessage(message.getStream(), message);
     } catch (MessagesException e) {
       LOG.error("Error sending an attachment to the room", e);
     }
   }
 
-  private void createMakerchecker(SymMessage symMessage) {
+  private void createMakerchecker(SymMessage symMessage, String messageId, Set<String> proxyToStreamId) {
     String makerCheckerId = symMessage.getId();
+    Long makerId = symMessage.getFromUserId();
     String attachmentId = symMessage.getAttachments().get(0).getId();
+    Long timeStamp = Long.valueOf(symMessage.getTimestamp());
 
-    this.makercheckerClient.createMakerchecker(makerCheckerId, symMessage.getFromUserId(),
-        symMessage.getStreamId(), attachmentId);
+    List<String> proxyToStreamIdsList = new ArrayList<String>(proxyToStreamId);
+
+    this.makercheckerClient.createMakerchecker(makerCheckerId, makerId,
+        symMessage.getStreamId(), attachmentId, messageId, timeStamp, proxyToStreamIdsList);
   }
 
   public void afterSendApprovedMessage(SymMessage symMessage) {

@@ -433,7 +433,14 @@ definitions:
         messageId:
           type: string
         timeStamp:
+          type: integer
+          format: int64
+        groupId:
           type: string
+        proxyToStreamIds:
+          type: array
+          items:
+            type: string
         state:
           type: string
           description: |

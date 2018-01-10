@@ -68,7 +68,7 @@ public class ProxyConversation extends AiConversation {
         makerCheckerService.getMakerCheckerMessages(symphonyAiMessage.toSymMessage(), proxyToIds);
 
     for(SymMessage symMessage: symMessages) {
-     makerCheckerService.sendMakerCheckerMesssage(symMessage);
+     makerCheckerService.sendMakerCheckerMesssage(symMessage, symphonyAiMessage.getMessageId(), proxyToIds);
     }
   }
 
