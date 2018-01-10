@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.apps.authentication;
+package org.symphonyoss.symphony.apps.authentication.endpoints;
 
 /**
  * Interface to retrieve the POD and session auth base URL's

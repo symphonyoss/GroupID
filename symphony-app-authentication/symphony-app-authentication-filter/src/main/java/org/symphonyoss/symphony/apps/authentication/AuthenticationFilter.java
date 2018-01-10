@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.apps.authentication.filter;
+package org.symphonyoss.symphony.apps.authentication;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 
@@ -6,9 +6,16 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.symphony.apps.authentication.certificate.PodCertificateClientFactory;
+import org.symphonyoss.symphony.apps.authentication.certificate.PodCertificateJerseyClient;
+import org.symphonyoss.symphony.apps.authentication.endpoints.ServicesInfoProviderFactory;
+import org.symphonyoss.symphony.apps.authentication.endpoints.EnvPropertiesServicesInfoProvider;
+import org.symphonyoss.symphony.apps.authentication.json.JacksonParser;
+import org.symphonyoss.symphony.apps.authentication.json.JsonParserFactory;
 import org.symphonyoss.symphony.apps.authentication.jwt.exception.JwtProcessingException;
 import org.symphonyoss.symphony.apps.authentication.jwt.JwtService;
 import org.symphonyoss.symphony.apps.authentication.jwt.model.JwtPayload;
+import org.symphonyoss.symphony.apps.authentication.utils.PropertiesReader;
 
 import java.io.IOException;
 
@@ -30,13 +37,13 @@ public class AuthenticationFilter implements Filter {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationFilter.class);
 
-  private static final String CACHE_TIMEOUT_PARAM = "cache-timeout";
+  private static final String CACHE_TIMEOUT_PARAM = "cache_timeout";
 
-  private static final String CACHE_SIZE_PARAM = "cache-size";
+  private static final String CACHE_SIZE_PARAM = "cache_size";
 
-  private static final String CONNECT_TIMEOUT_PARAM = "connect-timeout";
+  private static final String CONNECT_TIMEOUT_PARAM = "connect_timeout";
 
-  private static final String READ_TIMEOUT_PARAM = "read-timeout";
+  private static final String READ_TIMEOUT_PARAM = "read_timeout";
 
   private static final Integer DEFAULT_CACHE_TIMEOUT = 60;
 
@@ -60,26 +67,31 @@ public class AuthenticationFilter implements Filter {
 
   public static final String USER_INFO_ATTRIBUTE = "user_info";
 
+  private final JsonParserFactory parserFactory = JsonParserFactory.getInstance();
+
+  private final PodCertificateClientFactory certificateClientFactory = PodCertificateClientFactory.getInstance();
+
+  private final ServicesInfoProviderFactory providerFactory = ServicesInfoProviderFactory.getInstance();
+
   private JwtService service;
 
   @Override
   public void init(FilterConfig config) throws ServletException {
-    Integer cacheTimeout = readParameter(config, CACHE_TIMEOUT_PARAM, DEFAULT_CACHE_TIMEOUT);
-    Integer cacheSize = readParameter(config, CACHE_SIZE_PARAM, DEFAULT_CACHE_SIZE);
-    Integer connectTimeout = readParameter(config, CONNECT_TIMEOUT_PARAM, DEFAULT_CONNECT_TIMEOUT);
-    Integer readTimeout = readParameter(config, READ_TIMEOUT_PARAM, DEFAULT_READ_TIMEOUT);
+    Integer cacheTimeout =  readParameter(CACHE_TIMEOUT_PARAM, DEFAULT_CACHE_TIMEOUT);
+    Integer cacheSize = readParameter(CACHE_SIZE_PARAM, DEFAULT_CACHE_SIZE);
+    Integer connectTimeout = readParameter(CONNECT_TIMEOUT_PARAM, DEFAULT_CONNECT_TIMEOUT);
+    Integer readTimeout = readParameter(READ_TIMEOUT_PARAM, DEFAULT_READ_TIMEOUT);
 
-    this.service = new JwtService(cacheTimeout, cacheSize, connectTimeout, readTimeout);
+    parserFactory.setComponent(new JacksonParser());
+    certificateClientFactory.setComponent(new PodCertificateJerseyClient(connectTimeout, readTimeout));
+    providerFactory.setComponent(new EnvPropertiesServicesInfoProvider());
+
+    this.service = new JwtService(cacheTimeout, cacheSize);
   }
 
-  private Integer readParameter(FilterConfig config, String paramName, int defaultValue) {
+  private Integer readParameter(String paramName, Integer defaultValue) {
     try {
-      String param = config.getInitParameter(paramName);
-
-      if (param == null) {
-        LOGGER.info("Missing value for parameter " + paramName + ". Using default value " + defaultValue);
-        return defaultValue;
-      }
+      String param = PropertiesReader.readProperty(paramName, defaultValue.toString());
 
       Integer value = Integer.valueOf(param);
 

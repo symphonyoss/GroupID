@@ -1,6 +1,4 @@
-package org.symphonyoss.symphony.apps.authentication.factories;
-
-import org.symphonyoss.symphony.apps.authentication.ServicesInfoProvider;
+package org.symphonyoss.symphony.apps.authentication.endpoints;
 
 /**
  * Factory to build {@link ServicesInfoProvider} component

@@ -7,10 +7,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import org.symphonyoss.symphony.apps.authentication.certificate.PodCertificateClient;
+import org.symphonyoss.symphony.apps.authentication.certificate.PodCertificateService;
 import org.symphonyoss.symphony.apps.authentication.certificate.exception.PodCertificateException;
-import org.symphonyoss.symphony.apps.authentication.jwt.exception.JwtProcessingException;
 import org.symphonyoss.symphony.apps.authentication.json.JsonParser;
+import org.symphonyoss.symphony.apps.authentication.json.JsonParserFactory;
+import org.symphonyoss.symphony.apps.authentication.jwt.exception.JwtProcessingException;
 import org.symphonyoss.symphony.apps.authentication.jwt.model.JwtPayload;
 
 import java.io.IOException;
@@ -35,13 +36,14 @@ public class JwtService {
 
   private final Integer maxCacheSize;
 
-  private final PodCertificateClient certificateClient;
+  private final PodCertificateService certificateService;
 
-  public JwtService(Integer cacheTimeoutInMinutes, Integer maxCacheSize, Integer connectTimeout,
-      Integer readTimeout) {
+  private final JsonParserFactory factory = JsonParserFactory.getInstance();
+
+  public JwtService(Integer cacheTimeoutInMinutes, Integer maxCacheSize) {
     this.cacheTimeoutInMinutes = cacheTimeoutInMinutes;
     this.maxCacheSize = maxCacheSize;
-    this.certificateClient = new PodCertificateClient(connectTimeout, readTimeout);
+    this.certificateService = new PodCertificateService();
 
     initializePodCertificateCache();
     initializeJwtPayloadCache();
@@ -56,7 +58,7 @@ public class JwtService {
         .build(new CacheLoader<String, PublicKey>() {
           @Override
           public PublicKey load(String key) throws PodCertificateException {
-            return certificateClient.getPodPublicKey();
+            return certificateService.getPodPublicKey();
           }
         });
   }
@@ -140,8 +142,10 @@ public class JwtService {
    */
   private JwtPayload getPayload(Jws<Claims> jwt) throws JwtProcessingException {
     try {
-      String json = JsonParser.writeToString(jwt.getBody());
-      return JsonParser.writeToObject(json, JwtPayload.class);
+      JsonParser parser = factory.getComponent();
+
+      String json = parser.writeToString(jwt.getBody());
+      return parser.writeToObject(json, JwtPayload.class);
     } catch (IOException e) {
       throw new JwtProcessingException("Invalid JWT", e);
     }

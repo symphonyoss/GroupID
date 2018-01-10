@@ -1,11 +1,11 @@
-package org.symphonyoss.symphony.apps.authentication.filter;
+package org.symphonyoss.symphony.apps.authentication;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.symphonyoss.symphony.apps.authentication.filter.AuthenticationFilter
+import static org.symphonyoss.symphony.apps.authentication.AuthenticationFilter
     .USER_INFO_ATTRIBUTE;
 
 import org.junit.Before;
@@ -14,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.symphony.apps.authentication.AuthenticationFilter;
 import org.symphonyoss.symphony.apps.authentication.jwt.exception.JwtProcessingException;
 import org.symphonyoss.symphony.apps.authentication.jwt.JwtService;
 import org.symphonyoss.symphony.apps.authentication.jwt.model.JwtPayload;

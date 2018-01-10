@@ -1,25 +1,16 @@
 package org.symphonyoss.symphony.apps.authentication.json;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 
 /**
- * JSON parser utility.
+ * Interface to parse JSON documents.
  *
- * Created by rsanchez on 09/01/18.
+ * Created by rsanchez on 10/01/18.
  */
-public class JsonParser {
+public interface JsonParser {
 
-  private static final ObjectMapper MAPPER = new ObjectMapper();
+  String writeToString(Object obj) throws IOException;
 
-  public static String writeToString(Object obj) throws JsonProcessingException {
-    return MAPPER.writeValueAsString(obj);
-  }
-
-  public static <T> T writeToObject(String json, Class<T> clazz) throws IOException {
-    return MAPPER.readValue(json, clazz);
-  }
+  <T> T writeToObject(String json, Class<T> clazz) throws IOException;
 
 }
