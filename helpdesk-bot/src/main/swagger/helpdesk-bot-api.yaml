@@ -123,7 +123,7 @@ paths:
       operationId: denyMakerCheckerMessage
       parameters:
         - name: makerCheckerId
-          in: query
+          in: path
           required: true
           type: string
         - name: userId
@@ -180,48 +180,12 @@ definitions:
     properties:
       message:
         type: string
-      makerCheckerMessageDetail:
-        $ref: '#/definitions/MakerCheckerMessageDetail'
       user:
         $ref: '#/definitions/User'
       state:
         type: string
         description: |
           Accepted states - APPROVED, DENIED, OPENED
-  MakerCheckerMessageDetail:
-    type: object
-    properties:
-      type:
-        type: string
-        required: true
-      streamId:
-        type: string
-        required: true
-      proxyToStreamIds:
-        type: array
-        items:
-          type: string
-        required: true
-      timeStamp:
-        type: integer
-        format: int64
-        required: true
-      messageId:
-        type: string
-        required: true
-      groupId:
-        type: string
-        required: true
-      userId:
-        type: integer
-        format: int64
-        description: The userId of the user who accepted the maker checker message.
-      makerCheckerId:
-        type: string
-        required: true
-      attachmentId:
-        type: string
-        required: true
   User:
     type: object
     properties:
