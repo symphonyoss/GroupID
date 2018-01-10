@@ -1,5 +1,5 @@
 server:
   ssl:
     enabled: true
-    key-store: /opt/workspace/HelpDeskBot/helpdesk-bot/src/test/sample/server.keystore
+    key-store: ${CERTS_DIR}/server.keystore
     key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
