@@ -172,7 +172,7 @@ public class V1HelpDeskController extends V1ApiController {
    */
   @Override
   public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-    symphonyValidationUtil.validateStream(detail.getStreamId());
+    symphonyValidationUtil.validateStream(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
 
     Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getMakerCheckerId());
     if (makerchecker == null) {
