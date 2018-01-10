@@ -1,20 +1,20 @@
 authentication:
-  keystore-file: ${CERTS_DIR}/helpdesk.p12
+  keystore-file: /opt/certificate/cassiano.p12
   keystore-password: changeit
 
 agent:
-  host: nexus2-dev.symphony.com
+  host: nexus1-dev.symphony.com
 
 session_auth:
-  host: sym-nexus2-dev-chat-glb-2-guse1-all.symphony.com
+  host: sym-nexus1-dev-chat-glb-2-guse1-all.symphony.com
   port: 8444
 
 key_auth:
-  host: sym-nexus2-dev-chat-glb-2-guse1-all.symphony.com
+  host: sym-nexus1-dev-chat-glb-2-guse1-all.symphony.com
   port: 8444
 
 pod:
-  host: nexus2-dev.symphony.com
+  host: nexus1-dev.symphony.com
 
 helpdesk-bot:
   host: localhost.symphony.com
@@ -27,9 +27,8 @@ helpdesk-service:
 server:
   ssl:
     enabled: true
-    key-store: ${CERTS_DIR}/server.keystore
+    key-store: /opt/workspace/HelpDeskBot/helpdesk-bot/src/test/sample/server.keystore
     key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6
 
-groupId: testgroup
-agentStreamId: 16Uit8rhM2BpllEjIxYlXX___qAlMAjidA
-defaultAgentEmail: helpdesk@symphony.com
+groupId: cassiano
+agentStreamId: GdjwfA0H5UeZ9PLffBtINX___p9nVVKgdA

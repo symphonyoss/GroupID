@@ -11,7 +11,7 @@ export default class AttachmentService {
   approve(message) {
     const errorMessageService = SYMPHONY.services.subscribe('error-banner');
     let errorCode;
-    
+
     return approveAttachment(message.entity.approveUrl, message.userId)
     .catch((error) => {
       errorCode = parseInt(error.message, 10);

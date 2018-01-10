@@ -2,9 +2,9 @@
   "applications": [
     {
       "type": "sandbox",
-      "id": "helpdesk",
-      "name": "Help Desk",
-      "blurb": "Help Desk Bot in Development Mode",
+      "id": "helpdeskCassiano",
+      "name": "Help Desk Cassiano",
+      "blurb": "Help Desk Bot in Development Mode Cassiano",
       "publisher": "Symphony",
       "url": "https://localhost.symphony.com:8100/helpdesk-renderer/controller.html",
       "icon": "https://localhost.symphony.com:8100/helpdesk-renderer/img/appstore-logo.png",
