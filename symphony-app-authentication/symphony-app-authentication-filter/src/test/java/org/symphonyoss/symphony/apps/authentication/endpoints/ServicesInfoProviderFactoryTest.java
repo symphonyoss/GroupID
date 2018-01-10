@@ -30,7 +30,7 @@ public class ServicesInfoProviderFactoryTest {
       factory.setComponent(null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertEquals("Invalid provider implementation. It mustn't be null", e.getMessage());
+      assertEquals("Invalid component implementation. It mustn't be null", e.getMessage());
     }
   }
 

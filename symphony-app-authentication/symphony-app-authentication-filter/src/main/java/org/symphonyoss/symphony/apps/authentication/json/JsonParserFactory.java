@@ -1,36 +1,20 @@
 package org.symphonyoss.symphony.apps.authentication.json;
 
+import org.symphonyoss.symphony.apps.authentication.AbstractFactory;
+
 /**
  * Factory to build {@link JsonParser} component
  *
  * Created by rsanchez on 10/01/18.
  */
-public class JsonParserFactory {
+public class JsonParserFactory extends AbstractFactory<JsonParser> {
 
   private static final JsonParserFactory INSTANCE = new JsonParserFactory();
-
-  private JsonParser parser;
 
   private JsonParserFactory() {}
 
   public static JsonParserFactory getInstance() {
     return INSTANCE;
-  }
-
-  public void setComponent(JsonParser parser) {
-    if (parser == null) {
-      throw new IllegalArgumentException("Invalid parser implementation. It mustn't be null");
-    }
-
-    this.parser = parser;
-  }
-
-  public JsonParser getComponent() {
-    if (parser == null) {
-      throw new IllegalStateException("There is no implementation defined for this component");
-    }
-
-    return parser;
   }
 
 }

@@ -26,7 +26,7 @@ public class PodCertificateClientFactoryTest {
       factory.setComponent(null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertEquals("Invalid client implementation. It mustn't be null", e.getMessage());
+      assertEquals("Invalid component implementation. It mustn't be null", e.getMessage());
     }
   }
 

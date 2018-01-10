@@ -22,7 +22,7 @@ public class JsonParserFactoryTest {
       factory.setComponent(null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertEquals("Invalid parser implementation. It mustn't be null", e.getMessage());
+      assertEquals("Invalid component implementation. It mustn't be null", e.getMessage());
     }
   }
 

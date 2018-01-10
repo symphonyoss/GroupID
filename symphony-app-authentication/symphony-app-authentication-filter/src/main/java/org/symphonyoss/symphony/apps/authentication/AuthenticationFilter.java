@@ -82,9 +82,17 @@ public class AuthenticationFilter implements Filter {
     Integer connectTimeout = readParameter(CONNECT_TIMEOUT_PARAM, DEFAULT_CONNECT_TIMEOUT);
     Integer readTimeout = readParameter(READ_TIMEOUT_PARAM, DEFAULT_READ_TIMEOUT);
 
-    parserFactory.setComponent(new JacksonParser());
-    certificateClientFactory.setComponent(new PodCertificateJerseyClient(connectTimeout, readTimeout));
-    providerFactory.setComponent(new EnvPropertiesServicesInfoProvider());
+    if (!parserFactory.hasComponent()) {
+      parserFactory.setComponent(new JacksonParser());
+    }
+
+    if (!certificateClientFactory.hasComponent()) {
+      certificateClientFactory.setComponent(new PodCertificateJerseyClient(connectTimeout, readTimeout));
+    }
+
+    if (!providerFactory.hasComponent()) {
+      providerFactory.setComponent(new EnvPropertiesServicesInfoProvider());
+    }
 
     this.service = new JwtService(cacheTimeout, cacheSize);
   }
