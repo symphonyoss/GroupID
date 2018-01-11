@@ -18,10 +18,17 @@ public class IdleMessageBuilder extends TicketMessageBuilder {
 
   private static String template;
 
+  private String ticketState;
+
   private String message;
 
   public IdleMessageBuilder message(String message) {
     this.message = message;
+    return this;
+  }
+
+  public IdleMessageBuilder ticketState(String ticketState) {
+    this.ticketState = ticketState;
     return this;
   }
 
@@ -38,6 +45,9 @@ public class IdleMessageBuilder extends TicketMessageBuilder {
   protected EntityBuilder getBodyBuilder() {
     EntityBuilder bodyBuilder = EntityBuilder.createEntity(TICKET_EVENT, VERSION);
 
+    String claimUrl = String.format("%s/v1/ticket/%s/accept", botHost, ticketId);
+    bodyBuilder.addField("claimUrl", claimUrl);
+
     String joinUrl = String.format("%s/v1/ticket/%s/join", botHost, ticketId);
     bodyBuilder.addField("joinUrl", joinUrl);
 
@@ -45,6 +55,7 @@ public class IdleMessageBuilder extends TicketMessageBuilder {
     bodyBuilder.addField("ticketUrl", ticketUrl);
 
     bodyBuilder.addField("ticketId", ticketId);
+    bodyBuilder.addField("state", ticketState);
     bodyBuilder.addField("streamId", streamId);
     bodyBuilder.addField("message", message);
 
