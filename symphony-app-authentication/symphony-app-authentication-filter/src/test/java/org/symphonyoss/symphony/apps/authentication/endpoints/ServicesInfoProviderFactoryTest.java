@@ -1,11 +1,12 @@
-package org.symphonyoss.symphony.apps.authentication.factories;
+package org.symphonyoss.symphony.apps.authentication.endpoints;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
-import org.symphonyoss.symphony.apps.authentication.MockServicesInfoProvider;
-import org.symphonyoss.symphony.apps.authentication.ServicesInfoProvider;
+import org.symphonyoss.symphony.apps.authentication.endpoints.MockServicesInfoProvider;
+import org.symphonyoss.symphony.apps.authentication.endpoints.ServicesInfoProvider;
+import org.symphonyoss.symphony.apps.authentication.endpoints.ServicesInfoProviderFactory;
 
 /**
  * Unit tests for {@link ServicesInfoProviderFactory}
@@ -29,7 +30,7 @@ public class ServicesInfoProviderFactoryTest {
       factory.setComponent(null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertEquals("Invalid provider implementation. It mustn't be null", e.getMessage());
+      assertEquals("Invalid component implementation. It mustn't be null", e.getMessage());
     }
   }
 

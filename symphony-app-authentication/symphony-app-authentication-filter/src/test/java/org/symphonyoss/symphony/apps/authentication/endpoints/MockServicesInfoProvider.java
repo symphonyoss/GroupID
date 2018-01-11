@@ -1,4 +1,6 @@
-package org.symphonyoss.symphony.apps.authentication;
+package org.symphonyoss.symphony.apps.authentication.endpoints;
+
+import org.symphonyoss.symphony.apps.authentication.endpoints.ServicesInfoProvider;
 
 /**
  * Mock class for {@link ServicesInfoProvider}
