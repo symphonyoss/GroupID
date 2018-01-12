@@ -21,7 +21,8 @@ public class IdleMessageBuilderTest {
   private static final String TEST_MESSAGE = "test message";
 
   private static final String EXPECTED_ENTITY = "{\"helpdesk\":{\"type\":\"com.symphony.bots"
-      + ".helpdesk.event.ticket\",\"version\":\"1.0\",\"joinUrl\":\"https://test.symphony"
+      + ".helpdesk.event.ticket\",\"version\":\"1.0\",\"claimUrl\":\"https://test.symphony"
+      + ".com/helpdesk-bot/v1/ticket/ABCDEFG/accept\",\"joinUrl\":\"https://test.symphony"
       + ".com/helpdesk-bot/v1/ticket/ABCDEFG/join\",\"ticketUrl\":\"https://test.symphony"
       + ".com/helpdesk/v1/ticket/ABCDEFG\",\"ticketId\":\"ABCDEFG\","
       + "\"streamId\":\"Zs+nx3pQh3+XyKlT5B15m3///p/zHfetdA==\",\"message\":\"test message\"}}";
