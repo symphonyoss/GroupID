@@ -183,6 +183,7 @@ public class MessageProxyService {
 
     SymMessage message = new IdleMessageBuilder()
         .message(idleTicketConfig.getMessage())
+        .ticketState(ticket.getState())
         .botHost(helpDeskBotInfo.getUrl())
         .serviceHost(helpDeskServiceInfo.getUrl())
         .ticketId(ticket.getId())
