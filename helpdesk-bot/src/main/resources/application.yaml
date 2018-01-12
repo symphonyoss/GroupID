@@ -30,3 +30,15 @@ closeTicketSuccessResponse: "Thank you for contacting us, this session is now ov
 addMemberAgentSuccessResponse: "New member has been added to the help desk."
 addMemberClientSuccessResponse: "Your membership to the help desk has been updated by an agent."
 welcomeMessage: "Thanks for contacting the Equity Team at JPM. All messages sent in this chat will be delivered to the JPM Equity Team."
+
+app-authentication:
+  enabled: false
+  pod:
+    host: ${pod.host}
+    port: ${pod.port}
+  session_auth:
+    host: ${session_auth.host}
+    port: ${session_auth.port}
+  filter:
+    url-patterns:
+      - "/v1/*"
