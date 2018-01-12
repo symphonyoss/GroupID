@@ -140,14 +140,9 @@ public class MakerCheckerMessageBuilder {
       String denyUrl = String.format("%s/v1/makerchecker/%s/deny", botHost, makerCheckerId);
       bodyBuilder.addField("denyUrl", denyUrl);
 
-      bodyBuilder.addField("makerId", makerId);
-      bodyBuilder.addField("streamId", streamId);
-      bodyBuilder.addField("proxyToStreamIds", proxyToStreamIds);
-      bodyBuilder.addField("timestamp", timestamp);
-      bodyBuilder.addField("messageId", messageId);
-      bodyBuilder.addField("groupId", groupId);
       bodyBuilder.addField("makerCheckerId", makerCheckerId);
-      bodyBuilder.addField("attachmentId", attachmentId);
+      bodyBuilder.addField("streamId", streamId);
+      bodyBuilder.addField("makerId", makerId);
 
       EntityBuilder builder = EntityBuilder.createEntity();
       builder.addField("makerchecker", bodyBuilder.toObject());
