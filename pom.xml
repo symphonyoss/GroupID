@@ -305,5 +305,18 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>symphony-app-auth</id>
+            <activation>
+                <property>
+                    <name>build.auth</name>
+                    <value>true</value>
+                </property>
+            </activation>
+
+            <modules>
+                <module>symphony-app-authentication</module>
+            </modules>
+        </profile>
     </profiles>
 </project>
