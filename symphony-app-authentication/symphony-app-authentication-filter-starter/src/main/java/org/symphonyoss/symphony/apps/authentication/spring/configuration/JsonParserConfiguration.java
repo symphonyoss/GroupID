@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.apps.authentication.configuration;
+package org.symphonyoss.symphony.apps.authentication.spring.configuration;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;

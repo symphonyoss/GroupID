@@ -1,5 +1,5 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-org.symphonyoss.symphony.apps.authentication.configuration.JsonParserConfiguration,\
-org.symphonyoss.symphony.apps.authentication.configuration.PodCertificateClientConfiguration,\
-org.symphonyoss.symphony.apps.authentication.configuration.ServicesInfoProviderConfiguration,\
-org.symphonyoss.symphony.apps.authentication.configuration.AuthenticationFilterConfiguration
+org.symphonyoss.symphony.apps.authentication.spring.configuration.JsonParserConfiguration,\
+org.symphonyoss.symphony.apps.authentication.spring.configuration.PodCertificateClientConfiguration,\
+org.symphonyoss.symphony.apps.authentication.spring.configuration.ServicesInfoProviderConfiguration,\
+org.symphonyoss.symphony.apps.authentication.spring.configuration.AuthenticationFilterConfiguration

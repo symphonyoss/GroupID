@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.apps.authentication.configuration;
+package org.symphonyoss.symphony.apps.authentication.spring.configuration;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.symphonyoss.symphony.apps.authentication.certificate.PodCertificateClient;
 import org.symphonyoss.symphony.apps.authentication.certificate.PodCertificateJerseyClient;
-import org.symphonyoss.symphony.apps.authentication.properties.AuthenticationProperties;
-import org.symphonyoss.symphony.apps.authentication.properties.HttpClientProperties;
+import org.symphonyoss.symphony.apps.authentication.spring.properties.AuthenticationProperties;
+import org.symphonyoss.symphony.apps.authentication.spring.properties.HttpClientProperties;
 
 /**
  * Spring Configuration to create pod certificate client

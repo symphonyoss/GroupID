@@ -1,10 +1,7 @@
-package org.symphonyoss.symphony.apps.authentication.properties;
+package org.symphonyoss.symphony.apps.authentication.spring.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Properties for the web filter.

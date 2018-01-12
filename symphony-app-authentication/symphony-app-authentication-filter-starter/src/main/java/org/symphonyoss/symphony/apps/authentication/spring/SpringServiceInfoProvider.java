@@ -1,8 +1,8 @@
-package org.symphonyoss.symphony.apps.authentication;
+package org.symphonyoss.symphony.apps.authentication.spring;
 
 import org.symphonyoss.symphony.apps.authentication.endpoints.ServicesInfoProvider;
-import org.symphonyoss.symphony.apps.authentication.properties.AuthenticationProperties;
-import org.symphonyoss.symphony.apps.authentication.properties.ServiceAddress;
+import org.symphonyoss.symphony.apps.authentication.spring.properties.AuthenticationProperties;
+import org.symphonyoss.symphony.apps.authentication.spring.properties.ServiceAddress;
 
 /**
  * Provider to read information from YAML config file.

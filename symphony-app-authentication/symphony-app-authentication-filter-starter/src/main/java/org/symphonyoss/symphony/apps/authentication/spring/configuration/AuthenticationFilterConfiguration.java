@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.apps.authentication.configuration;
+package org.symphonyoss.symphony.apps.authentication.spring.configuration;
 
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -14,8 +14,8 @@ import org.symphonyoss.symphony.apps.authentication.endpoints.ServicesInfoProvid
 import org.symphonyoss.symphony.apps.authentication.endpoints.ServicesInfoProviderFactory;
 import org.symphonyoss.symphony.apps.authentication.json.JsonParser;
 import org.symphonyoss.symphony.apps.authentication.json.JsonParserFactory;
-import org.symphonyoss.symphony.apps.authentication.properties.AuthenticationProperties;
-import org.symphonyoss.symphony.apps.authentication.properties.CacheProperties;
+import org.symphonyoss.symphony.apps.authentication.spring.properties.AuthenticationProperties;
+import org.symphonyoss.symphony.apps.authentication.spring.properties.CacheProperties;
 
 import java.util.List;
 

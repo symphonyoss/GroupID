@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.apps.authentication.properties;
+package org.symphonyoss.symphony.apps.authentication.spring.properties;
 
 /**
  * HTTP client properties.

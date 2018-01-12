@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.apps.authentication.properties;
+package org.symphonyoss.symphony.apps.authentication.spring.properties;
 
 import java.util.ArrayList;
 import java.util.List;
