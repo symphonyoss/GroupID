@@ -81,18 +81,20 @@ paths:
             $ref: '#/definitions/Error'
       tags:
         - Ticket
-  /v1/makerchecker/approve:
+  /v1/makerchecker/{makerCheckerId}/approve:
     post:
       summary: Notify the help desk bot that a message has been accepted for sending by another agent.
       operationId: approveMakerCheckerMessage
       parameters:
-        - name: message
-          in: body
+        - name: makerCheckerId
+          in: path
           required: true
-          schema:
-            $ref: '#/definitions/MakerCheckerMessageDetail'
-      consumes:
-        - application/json
+          type: string
+        - name: userId
+          in: query
+          required: true
+          type: integer
+          format: int64
       produces:
         - application/json
       responses:
@@ -115,18 +117,20 @@ paths:
             $ref: '#/definitions/Error'
       tags:
         - MakerChecker
-  /v1/makerchecker/deny:
+  /v1/makerchecker/{makerCheckerId}/deny:
     post:
       summary: Notify the help desk bot that a message has been denied for sending by another agent.
       operationId: denyMakerCheckerMessage
       parameters:
-        - name: message
-          in: body
+        - name: makerCheckerId
+          in: path
           required: true
-          schema:
-            $ref: '#/definitions/MakerCheckerMessageDetail'
-      consumes:
-        - application/json
+          type: string
+        - name: userId
+          in: query
+          required: true
+          type: integer
+          format: int64
       produces:
         - application/json
       responses:
@@ -176,48 +180,12 @@ definitions:
     properties:
       message:
         type: string
-      makerCheckerMessageDetail:
-        $ref: '#/definitions/MakerCheckerMessageDetail'
       user:
         $ref: '#/definitions/User'
       state:
         type: string
         description: |
           Accepted states - APPROVED, DENIED, OPENED
-  MakerCheckerMessageDetail:
-    type: object
-    properties:
-      type:
-        type: string
-        required: true
-      streamId:
-        type: string
-        required: true
-      proxyToStreamIds:
-        type: array
-        items:
-          type: string
-        required: true
-      timeStamp:
-        type: integer
-        format: int64
-        required: true
-      messageId:
-        type: string
-        required: true
-      groupId:
-        type: string
-        required: true
-      userId:
-        type: integer
-        format: int64
-        description: The userId of the user who accepted the maker checker message.
-      makerCheckerId:
-        type: string
-        required: true
-      attachmentId:
-        type: string
-        required: true
   User:
     type: object
     properties:

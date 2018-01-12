@@ -34,13 +34,11 @@ public class MakerCheckerMessageBuilderTest {
   private static final String EXPECTED_ENTITY_DATA = "{\"makerchecker\":{\"type\":\"com.symphony"
       + ".bots.helpdesk.event.makerchecker\",\"version\":\"1.0\","
       + "\"attachmentUrl\":\"https://nexus2.symphony.com/helpdesk-service/v1/makerchecker/6JFEVDBXP54\","
-      + "\"approveUrl\":\"https://nexus2.symphony.com/helpdesk-bot/v1/makerchecker/approve\","
-      + "\"denyUrl\":\"https://nexus2.symphony.com/helpdesk-bot/v1/makerchecker/deny\",\"makerId\":9826885203304,"
-      + "\"streamId\":\"pT4nMlbsOgqfgPuQTQO9yn___p9c7xwsdA\","
-      + "\"proxyToStreamIds\":[\"pT4nMlbsOgqfgPuQTQO9yn___p9c7xwsdA\"],"
-      + "\"timestamp\":545465456465,\"messageId\":\"1322154564545\",\"groupId\":\"test\","
+      + "\"approveUrl\":\"https://nexus2.symphony.com/helpdesk-bot/v1/makerchecker/6JFEVDBXP54/approve\","
+      + "\"denyUrl\":\"https://nexus2.symphony.com/helpdesk-bot/v1/makerchecker/6JFEVDBXP54/deny\","
       + "\"makerCheckerId\":\"6JFEVDBXP54\","
-      + "\"attachmentId\":\"internal_9826885173254%2FxtpDCplNtIJluaYgvQkfGg%3D%3D\"}}";
+      + "\"streamId\":\"pT4nMlbsOgqfgPuQTQO9yn___p9c7xwsdA\","
+      + "\"makerId\":9826885203304}}";
 
   private static final String EXPECTED_MESSAGE = "<messageML>    <div class=\"entity\" "
       + "data-entity-id=\"makerchecker\">        <card class=\"barStyle\">            <header>   "

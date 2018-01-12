@@ -11,7 +11,6 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
-import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerMessageDetail;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -45,6 +44,7 @@ public class V1HelpDeskController extends V1ApiController {
       "This action can not be perfomed because this attachment was approved/denied before.";
   private static final String OWN_ATTACHMENT_EXCPETION =
       "You can not perform this action in your own attachment.";
+  private static final String ATTACHMENT_TYPE = "ATTACHMENT";
 
   @Autowired
   private SymphonyValidationUtil symphonyValidationUtil;
@@ -80,74 +80,117 @@ public class V1HelpDeskController extends V1ApiController {
 
   /**
    * Accept a maker checker message.
-   * @param detail the maker checker message detail
+   * @param makerCheckerId the identify of maker checker
+   * @param userId the userId of approve maker checker
    * @return a maker checker message response
    */
   @Override
-  public MakerCheckerResponse approveMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-    validateRequiredParameter("streamId", detail.getStreamId(), "body");
-    symphonyValidationUtil.validateStream(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
-    validateRequiredParameter("groupId", detail.getGroupId(), "body");
-    validateRequiredParameter("attachmentId", detail.getAttachmentId(), "body");
-    validateRequiredParameter("timestamp", detail.getTimeStamp(), "body");
-    validateRequiredParameter("messageId", detail.getMessageId(), "body");
-    validateRequiredParameter("userId", detail.getUserId(), "body");
+  public MakerCheckerResponse approveMakerCheckerMessage(String makerCheckerId, Long userId) {
+    validateRequiredParameter("makerCheckerId", makerCheckerId, "body");
+    validateRequiredParameter("userId", userId, "body");
 
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getMakerCheckerId());
+    SymUser agentUser = symphonyValidationUtil.validateUserId(userId);
+
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(makerCheckerId);
     if (makerchecker == null) {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
     }
 
-    if (makerchecker.getMakerId().equals(detail.getUserId())) {
+    if (makerchecker.getMakerId().equals(userId)) {
       throw new BadRequestException(OWN_ATTACHMENT_EXCPETION);
     }
 
     try {
-      validateMembershipService.updateMembership(detail.getUserId());
+      validateMembershipService.updateMembership(userId);
     } catch (SymException e) {
       throw new BadRequestException("User is not an agent");
     }
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
-      SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
-      sendApprovedMakerChekerMessage(detail);
+      sendApprovedMakerChekerMessage(makerchecker, userId);
       UserInfo checker = getChecker(agentUser);
       makerchecker.setChecker(checker);
       makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
       makercheckerClient.updateMakerchecker(makerchecker);
 
-      return buildMakerCheckerResponse(agentUser, detail);
+      return buildMakerCheckerResponse(agentUser, makerchecker);
     } else {
       throw new BadRequestException(OPEN_MAKERCHECKER_NOT_FOUND);
     }
+  }
 
+
+  /**
+   * Deny a maker checker message.
+   * @param makerCheckerId the identify of maker checker
+   * @param userId the userId of deny maker checker
+   * @return a maker checker message response
+   */
+  @Override
+  public MakerCheckerResponse denyMakerCheckerMessage(String makerCheckerId, Long userId) {
+    validateRequiredParameter("makerCheckerId", makerCheckerId, "body");
+    validateRequiredParameter("userId", userId, "body");
+
+    SymUser agentUser = symphonyValidationUtil.validateUserId(userId);
+
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(makerCheckerId);
+    if (makerchecker == null) {
+      throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
+    }
+
+    if (makerchecker.getMakerId().equals(userId)) {
+      throw new BadRequestException(OWN_ATTACHMENT_EXCPETION);
+    }
+
+    try {
+      validateMembershipService.updateMembership(userId);
+    } catch (SymException e) {
+      throw new BadRequestException("User is not an agent");
+    }
+
+    if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
+      UserInfo checker = getChecker(agentUser);
+
+      makerchecker.setChecker(checker);
+      makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
+      makercheckerClient.updateMakerchecker(makerchecker);
+
+      return buildMakerCheckerResponse(agentUser, makerchecker);
+    } else {
+      throw new BadRequestException(OPEN_MAKERCHECKER_NOT_FOUND);
+    }
   }
 
   private MakerCheckerResponse buildMakerCheckerResponse(SymUser agentUser,
-      MakerCheckerMessageDetail detail) {
+      Makerchecker makerchecker) {
     MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
-    makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
-    makerCheckerResponse.setMakerCheckerMessageDetail(detail);
 
-    User user = getUser(detail, agentUser);
+    User user = getUser(makerchecker, agentUser);
 
     makerCheckerResponse.setUser(user);
-    makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
+
+    if (MakercheckerClient.AttachmentStateType.APPROVED.getState().equals(makerchecker.getState())) {
+      makerCheckerResponse.setMessage(MAKER_CHECKER_SUCCESS_RESPONSE);
+      makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
+    } else {
+      makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
+      makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
+    }
 
     return makerCheckerResponse;
   }
 
-  private void sendApprovedMakerChekerMessage(MakerCheckerMessageDetail detail) {
+  private void sendApprovedMakerChekerMessage(Makerchecker makerchecker, Long checkerId) {
     AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
-    checkerMessage.setAttachmentId(detail.getAttachmentId());
-    checkerMessage.setGroupId(detail.getGroupId());
-    checkerMessage.setMessageId(detail.getMessageId());
-    checkerMessage.setStreamId(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
-    checkerMessage.setProxyToStreamIds(detail.getProxyToStreamIds());
-    checkerMessage.setTimeStamp(detail.getTimeStamp());
-    checkerMessage.setType(detail.getType());
+    checkerMessage.setAttachmentId(makerchecker.getAttachmentId());
+    checkerMessage.setGroupId(makerchecker.getGroupId());
+    checkerMessage.setMessageId(makerchecker.getMessageId());
+    checkerMessage.setStreamId(Base64.encodeBase64URLSafeString(Base64.decodeBase64(makerchecker.getStreamId())));
+    checkerMessage.setProxyToStreamIds(makerchecker.getProxyToStreamIds());
+    checkerMessage.setTimeStamp(makerchecker.getTimeStamp());
+    checkerMessage.setType(ATTACHMENT_TYPE);
 
-    AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(detail.getUserId(), detail.getStreamId());
+    AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(checkerId, makerchecker.getStreamId());
 
     Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
 
@@ -165,57 +208,10 @@ public class V1HelpDeskController extends V1ApiController {
     }
   }
 
-  /**
-   * Deny a maker checker message.
-   * @param detail the maker checker message detail
-   * @return a maker checker message response
-   */
-  @Override
-  public MakerCheckerResponse denyMakerCheckerMessage(MakerCheckerMessageDetail detail) {
-    symphonyValidationUtil.validateStream(Base64.encodeBase64URLSafeString(Base64.decodeBase64(detail.getStreamId())));
-
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(detail.getMakerCheckerId());
-    if (makerchecker == null) {
-      throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
-    }
-
-    if (makerchecker.getMakerId().equals(detail.getUserId())) {
-      throw new BadRequestException(OWN_ATTACHMENT_EXCPETION);
-    }
-
-    try {
-      validateMembershipService.updateMembership(detail.getUserId());
-    } catch (SymException e) {
-      throw new BadRequestException("User is not an agent");
-    }
-
-    if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
-      SymUser agentUser = symphonyValidationUtil.validateUserId(detail.getUserId());
-      UserInfo checker = getChecker(agentUser);
-
-      makerchecker.setChecker(checker);
-      makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
-      makercheckerClient.updateMakerchecker(makerchecker);
-
-      MakerCheckerResponse makerCheckerResponse = new MakerCheckerResponse();
-      makerCheckerResponse.setMessage(MAKER_CHECKER_DENY_RESPONSE);
-      makerCheckerResponse.setMakerCheckerMessageDetail(detail);
-
-      User user = getUser(detail, agentUser);
-
-      makerCheckerResponse.setUser(user);
-      makerCheckerResponse.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
-
-      return makerCheckerResponse;
-    } else {
-      throw new BadRequestException(OPEN_MAKERCHECKER_NOT_FOUND);
-    }
-  }
-
-  private User getUser(MakerCheckerMessageDetail detail, SymUser agentUser) {
+  private User getUser(Makerchecker makerchecker, SymUser agentUser) {
     User user = new User();
     user.setDisplayName(agentUser.getDisplayName());
-    user.setUserId(detail.getUserId());
+    user.setUserId(makerchecker.getMakerId());
     return user;
   }
 

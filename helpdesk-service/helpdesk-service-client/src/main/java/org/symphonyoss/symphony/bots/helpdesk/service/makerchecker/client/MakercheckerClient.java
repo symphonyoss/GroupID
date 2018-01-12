@@ -7,6 +7,8 @@ import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiException;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.Configuration;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 
+import java.util.List;
+
 /**
  * Created by alexandre-silva-daitan on 04/12/17.
  */
@@ -48,12 +50,17 @@ public class MakercheckerClient {
     }
   }
 
-  public Makerchecker createMakerchecker(String id, Long makerId, String streamId, String attachmentId) {
+  public Makerchecker createMakerchecker(String id, Long makerId, String streamId, String attachmentId,
+      String messageId, Long timeStamp, List<String> proxyToStreamId) {
     Makerchecker makerchecker = new Makerchecker();
     makerchecker.setId(id);
     makerchecker.setMakerId(makerId);
+    makerchecker.setGroupId(groupId);
     makerchecker.setStreamId(streamId);
+    makerchecker.setTimeStamp(timeStamp);
+    makerchecker.setMessageId(messageId);
     makerchecker.setAttachmentId(attachmentId);
+    makerchecker.setProxyToStreamIds(proxyToStreamId);
     makerchecker.setState(AttachmentStateType.OPENED.getState());
 
     try {
