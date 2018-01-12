@@ -14,3 +14,9 @@ helpdesk:
     waitTimeout: 10000
     readPreference: nearest
     writeConcern: majority
+
+app-authentication:
+  enabled: false
+  filter:
+    url-patterns:
+      - "/v1/*"

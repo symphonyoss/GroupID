@@ -68,10 +68,19 @@ sed -i "s|{{ java_path }}|$JAVA_PATH|g" /data/symphony/helpdesk-renderer/bin/sta
 yamlfile=/data/symphony/helpdesk-bot/application.yaml
 if [ -f "$yamlfile" ]
 then
-    echo "YAML descriptor already exists."
+    echo "Helpdesk BOT: YAML descriptor already exists."
 else
-    echo "Copy YAML descriptor"
+    echo "Helpdesk BOT: Copy YAML descriptor"
     cp -f helpdesk-bot/application.yaml /data/symphony/helpdesk-bot
+fi
+
+apiyamlfile=/data/symphony/helpdesk/application.yaml
+if [ -f "$apiyamlfile" ]
+then
+    echo "Helpdesk API: YAML descriptor already exists."
+else
+    echo "Helpdesk API: Copy YAML descriptor"
+    cp -f helpdesk-api/application.yaml /data/symphony/helpdesk
 fi
 
 echo "Copy service files"

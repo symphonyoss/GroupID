@@ -19,3 +19,4 @@ node_modules/
 
 # YAML
 helpdesk-bot/application.yaml
+helpdesk-service/helpdesk-service-server/application.yaml
