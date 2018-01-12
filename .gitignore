@@ -16,3 +16,6 @@ target/
 #NPM
 node_modules/
 *-lock.json
+
+# YAML
+helpdesk-service/helpdesk-service-server/application.yaml

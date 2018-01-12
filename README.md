@@ -39,6 +39,8 @@ To start from scratch, do the following:
 
 - Download helpdesk-${version}-${build-number}.tar.gz from Artifactory and extract it into the host machine.
 
+- Edit helpdesk-api/application.yaml to specify the the service endpoint URLs.
+
 - Edit helpdesk-bot/application.yaml to specify the cert path for the HelpDesk bot user, the service endpoint URLs, and the streamId of the agent room in which to display the tickets.
 
 - Run the install.sh script providing the mongo host and java home directory as parameters: ```./install.sh sym-nexus2-dev-chat-glb-2-guse1-all.symphony.com /usr/lib/jvm/java-8-oracle```

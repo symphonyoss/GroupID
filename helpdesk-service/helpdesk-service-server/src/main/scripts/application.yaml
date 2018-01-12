@@ -1,0 +1,6 @@
+app-authentication:
+  pod:
+    host: nexus1-dev.symphony.com
+  session_auth:
+    host: sym-nexus1-dev-chat-glb-2-guse1-all.symphony.com
+    port: 8444
