@@ -18,4 +18,5 @@ node_modules/
 *-lock.json
 
 # YAML
+helpdesk-bot/application.yaml
 helpdesk-service/helpdesk-service-server/application.yaml
