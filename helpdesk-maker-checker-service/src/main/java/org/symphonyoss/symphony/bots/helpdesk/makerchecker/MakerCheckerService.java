@@ -7,6 +7,7 @@ import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.Checker;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -90,6 +91,15 @@ public class MakerCheckerService {
       LOG.warn("Error accepting maker checker message: ", e);
       throw new BadRequestException(String.format(MESSAGE_STREAM_NOT_FOUND, makerCheckerMessage.getStreamId()));
     }
+  }
+
+  public SymMessage getActionMessage(Makerchecker makerchecker) {
+    SymMessage symMessage = null;
+    for (Checker checker : checkerSet) {
+      symMessage = checker.getActionMessage(makerchecker);
+    }
+
+    return symMessage;
   }
 
   private SymMessage getApprovedMessage(MakerCheckerMessage makerCheckerMessage, SymStream stream) throws MessagesException {

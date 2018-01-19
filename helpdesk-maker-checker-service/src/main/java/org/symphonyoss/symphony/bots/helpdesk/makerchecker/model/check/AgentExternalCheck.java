@@ -9,9 +9,11 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.AttachmentsException;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.ActionMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.MakerCheckerMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
@@ -29,7 +31,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.swing.text.html.Option;
 import javax.ws.rs.BadRequestException;
 
 /**
@@ -136,6 +137,26 @@ public class AgentExternalCheck implements Checker {
         .stream()
         .filter(attachmentInfo -> attachmentInfo.getId().equals(checkerMessage.getAttachmentId()))
         .findFirst();
+  }
+
+  @Override
+  public SymMessage getActionMessage(Makerchecker makerchecker) {
+    ActionMessageBuilder actionMessageBuilder = new ActionMessageBuilder();
+    actionMessageBuilder.makerCheckerId(makerchecker.getId());
+    actionMessageBuilder.state(makerchecker.getState());
+    actionMessageBuilder.userId(makerchecker.getMakerId());
+
+    SymMessage actionMessage = actionMessageBuilder.build();
+    actionMessage.setId(makerchecker.getId());
+    actionMessage.setStreamId(makerchecker.getStreamId());
+    actionMessage.setFromUserId(makerchecker.getMakerId());
+    actionMessage.setStreamId(makerchecker.getStreamId());
+    SymStream symStream = new SymStream();
+    symStream.setStreamId(makerchecker.getStreamId());
+    actionMessage.setStream(symStream);
+    actionMessage.setTimestamp(String.valueOf(makerchecker.getTimeStamp()));
+
+    return actionMessage;
   }
 
   @Override
