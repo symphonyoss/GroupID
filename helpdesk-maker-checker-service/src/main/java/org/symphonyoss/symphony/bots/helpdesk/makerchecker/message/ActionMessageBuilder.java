@@ -80,6 +80,16 @@ public class ActionMessageBuilder {
     return message.toString();
   }
 
+  private UserInfo getUser() {
+    UserInfo user = new UserInfo();
+
+    SymUser symUser = symphonyValidationUtil.validateUserId(userId);
+    user.setDisplayName(symUser.getDisplayName());
+    user.setUserId(symUser.getId());
+
+    return user;
+  }
+
   public SymMessage build() {
     if (messageBuilder == null) {
       return null;
@@ -103,16 +113,6 @@ public class ActionMessageBuilder {
       LOGGER.error("Fail to create entity data");
       return null;
     }
-  }
-
-  private UserInfo getUser() {
-    UserInfo user = new UserInfo();
-
-    SymUser symUser = symphonyValidationUtil.validateUserId(userId);
-    user.setDisplayName(symUser.getDisplayName());
-    user.setUserId(symUser.getId());
-
-    return user;
   }
 
 }

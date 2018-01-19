@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
@@ -24,10 +23,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
-import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -50,26 +46,15 @@ public class V1HelpDeskControllerTest {
 
   private static final String MOCK_SERVICE_STREAM_ID = "RU0dsa0XfcE5SNoJKsXSKX___p-qTQ3XdA";
 
-  private static final String MOCK_GROUP_ID = "HelpDesk";
-
-  private static final String MOCK_CLIENT_STREAM_ID = "m3TYBJ-g-k9VDZLn5YaOuH___qA1PJWtdA";
-
   private static final String MOCK_MAKERCHECKER_ID = "XJW9H3XPCU";
+
+  private static final String MOCK_ACTION_MESSAGE_ID = "HDW9H9XPWQ";
 
   private static final String MOCK_ATTACHMENT_ID = "internal_9826885173254";
 
   private static final Long MOCK_MAKER_ID = 10651518946916l;
 
   private static final Long MOCK_AGENT_ID = 10651518946915l;
-
-  private static final Long MOCK_TIMESTAMP = 1513770327231l;
-
-  private static final String MOCK_MESSAGE_ID = "BH9ZlIfUaV0ucEUPG8Xrfn___p-MQeNGdA";
-
-  private static final String MOCK_PROXY_TO_STREAM_IDS = "XVc763EIcaSjFmTq0-zK4X___qBZkhQvdA";
-
-  private static final String INACTIVE_OR_EXTERNAL_USER_EXCEPTION = "This action can not be "
-      + "performed because agent is inactive or is external.";
 
   private static final String OPEN_MAKERCHECKER_NOT_FOUND =
       "This action can not be perfomed because this attachment was approved/denied before.";
@@ -79,7 +64,6 @@ public class V1HelpDeskControllerTest {
 
   private static final String MOCKED_GUY = "MOCKED_GUY";
   private static final String SYM_MESSAGE = "SYM_MESSAGE";
-  private static final String SYM_MESSAGE_ID = "SYM_MESSAGE_ID";
   private static final String MESSAGE_ACCEPTED = "Maker checker message accepted.";
   private static final String MESSAGE_DENIED = "Maker checker message denied.";
 
@@ -95,12 +79,6 @@ public class V1HelpDeskControllerTest {
 
   @Mock
   private SymphonyValidationUtil symphonyValidationUtil;
-
-  @Mock
-  private MembershipClient membershipClient;
-
-  @Mock
-  private SymphonyClient symphonyClient;
 
   @Mock
   private ValidateMembershipService validateMembershipService;
@@ -202,11 +180,14 @@ public class V1HelpDeskControllerTest {
     doReturn(symMessages).when(agentMakerCheckerService)
         .getApprovedMakercheckerMessage(any(AttachmentMakerCheckerMessage.class));
 
+    SymMessage actionMessage = mockActionMessage();
+    doReturn(actionMessage).when(agentMakerCheckerService)
+        .getActionMessage(any(Makerchecker.class));
+
     MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_ACCEPTED, response.getMessage());
 
-    verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
-
+    verify(helpDeskAi, times(2)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
   }
 
   @Test()
@@ -217,24 +198,16 @@ public class V1HelpDeskControllerTest {
     SymUser agent = mockActiveSymUser();
     doReturn(agent).when(symphonyValidationUtil).validateUserId(MOCK_AGENT_ID);
 
+    SymMessage actionMessage = mockActionMessage();
+    doReturn(actionMessage).when(agentMakerCheckerService)
+        .getActionMessage(any(Makerchecker.class));
+
     MakerCheckerResponse response = v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_DENIED, response.getMessage());
 
     verify(makercheckerClient, times(1)).updateMakerchecker(makerchecker);
-    verify(helpDeskAi, never()).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
+    verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
 
-  }
-
-  private Ticket mockTicketUnresolved() {
-    Ticket ticket = new Ticket();
-    ticket.setId(MOCK_TICKET_ID);
-    ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
-    ticket.setGroupId(MOCK_GROUP_ID);
-    ticket.setClientStreamId(MOCK_CLIENT_STREAM_ID);
-    ticket.setQuestionTimestamp(1513266273011l);
-    ticket.setServiceStreamId(MOCK_SERVICE_STREAM_ID);
-
-    return ticket;
   }
 
   private Makerchecker mockMakerchecker() {
@@ -269,16 +242,11 @@ public class V1HelpDeskControllerTest {
     return symMessages;
   }
 
-  private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {
-    AttachmentMakerCheckerMessage makerCheckerMessage = new AttachmentMakerCheckerMessage();
-    makerCheckerMessage.setAttachmentId(MOCK_MAKERCHECKER_ID);
-    makerCheckerMessage.setGroupId(MOCK_GROUP_ID);
-    makerCheckerMessage.setMessageId(MOCK_MESSAGE_ID);
-    makerCheckerMessage.setProxyToStreamIds(null);
-    makerCheckerMessage.setStreamId(MOCK_SERVICE_STREAM_ID);
-    makerCheckerMessage.setTimeStamp(MOCK_TIMESTAMP);
-    makerCheckerMessage.setType(null);
+  private SymMessage mockActionMessage() {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setId(MOCK_ACTION_MESSAGE_ID);
+    symMessage.setMessage(SYM_MESSAGE);
 
-    return makerCheckerMessage;
+    return symMessage;
   }
 }
