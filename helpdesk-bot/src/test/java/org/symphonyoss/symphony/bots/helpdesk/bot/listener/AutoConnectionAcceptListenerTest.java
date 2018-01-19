@@ -16,7 +16,6 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.events.SymConnectionRequested;
 import org.symphonyoss.client.exceptions.ConnectionsException;
 import org.symphonyoss.client.services.MessageService;
-import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.clients.ConnectionsClient;
 import org.symphonyoss.symphony.clients.model.SymUserConnection;
 
@@ -50,14 +49,14 @@ public class AutoConnectionAcceptListenerTest {
 
   @Test
   public void testFailRetrievePendingConnections() throws ConnectionsException {
-    doThrow(ConnectionsException.class).when(connectionsClient).getPendingRequests();
+    doThrow(ConnectionsException.class).when(connectionsClient).getIncomingRequests();
     listener.onSymConnectionRequested(new SymConnectionRequested());
     verify(connectionsClient, never()).acceptConnectionRequest(any(SymUserConnection.class));
   }
 
   @Test
   public void testNoPendingConnections() throws ConnectionsException {
-    doReturn(Collections.EMPTY_LIST).when(connectionsClient).getPendingRequests();
+    doReturn(Collections.EMPTY_LIST).when(connectionsClient).getIncomingRequests();
     listener.onSymConnectionRequested(new SymConnectionRequested());
     verify(connectionsClient, never()).acceptConnectionRequest(any(SymUserConnection.class));
   }
@@ -65,7 +64,7 @@ public class AutoConnectionAcceptListenerTest {
   @Test
   public void testPendingConnections() throws ConnectionsException {
     SymUserConnection userConnection = new SymUserConnection();
-    doReturn(Arrays.asList(userConnection)).when(connectionsClient).getPendingRequests();
+    doReturn(Arrays.asList(userConnection)).when(connectionsClient).getIncomingRequests();
 
     listener.onSymConnectionRequested(new SymConnectionRequested());
     verify(connectionsClient, times(1)).acceptConnectionRequest(userConnection);
