@@ -2,7 +2,7 @@
     <div class="entity" data-entity-id="makerchecker">
         <card class="barStyle">
             <header>
-                Ticket ${entity['makerchecker'].makerCheckerId} was claimed by ${entity['makerchecker'].user.displayName}.
+                ${entity['makerchecker'].checker.displayName} ${entity['makerchecker'].state} this message. It has been delivered to the client(s).
             </header>
         </card>
     </div>

@@ -29,7 +29,7 @@ public class ActionMessageBuilder {
 
   private static final String VERSION = "1.0";
 
-  private static final String MAKER_CHECKER_ACTION_PERFORMED_MESSAGE_TEMPLATE = "ActionMessage.xml";
+  private static final String ACTION_PERFORMED_MESSAGE_TEMPLATE = "ActionMessage.xml";
 
   private static String message;
 
@@ -66,7 +66,7 @@ public class ActionMessageBuilder {
 
   private String parseTemplate() {
     StringBuilder message = new StringBuilder();
-    InputStream resource = getClass().getClassLoader().getResourceAsStream(MAKER_CHECKER_ACTION_PERFORMED_MESSAGE_TEMPLATE);
+    InputStream resource = getClass().getClassLoader().getResourceAsStream(ACTION_PERFORMED_MESSAGE_TEMPLATE);
 
     try (BufferedReader buffer = new BufferedReader(new InputStreamReader(resource))) {
       buffer.lines().forEach(message::append);
