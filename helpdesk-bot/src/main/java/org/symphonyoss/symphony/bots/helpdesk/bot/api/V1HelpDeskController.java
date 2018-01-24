@@ -108,7 +108,7 @@ public class V1HelpDeskController extends V1ApiController {
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
       sendApprovedMakerChekerMessage(makerchecker, userId);
-      sendActionMessage(makerchecker, userId);
+      sendActionMessage(makerchecker, userId, MakercheckerClient.AttachmentStateType.APPROVED);
       UserInfo checker = getChecker(agentUser);
       makerchecker.setChecker(checker);
       makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
@@ -150,7 +150,7 @@ public class V1HelpDeskController extends V1ApiController {
     }
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
-      sendActionMessage(makerchecker, userId);
+      sendActionMessage(makerchecker, userId, MakercheckerClient.AttachmentStateType.DENIED);
 
       UserInfo checker = getChecker(agentUser);
 
@@ -211,10 +211,10 @@ public class V1HelpDeskController extends V1ApiController {
     }
   }
 
-  private void sendActionMessage(Makerchecker makerchecker, Long checkerId) {
+  private void sendActionMessage(Makerchecker makerchecker, Long checkerId, MakercheckerClient.AttachmentStateType attachmentState) {
     AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(checkerId, makerchecker.getStreamId());
 
-    SymMessage symMessage = agentMakerCheckerService.getActionMessage(makerchecker);
+    SymMessage symMessage = agentMakerCheckerService.getActionMessage(makerchecker, attachmentState);
     SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
 
     Set<AiResponseIdentifier> identifiers = new HashSet<>();

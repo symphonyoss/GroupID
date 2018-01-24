@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check;
 
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -34,6 +35,6 @@ public interface Checker {
 
   void afterSendApprovedMessage(SymMessage symMessage);
 
-  SymMessage getActionMessage(Makerchecker makerchecker);
+  SymMessage getActionMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState);
 
 }

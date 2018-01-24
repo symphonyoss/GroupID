@@ -39,10 +39,7 @@ public class ActionMessageBuilder {
 
   private String state;
 
-  private Long userId;
-
-  @Autowired
-  private SymphonyValidationUtil symphonyValidationUtil;
+  private UserInfo checker;
 
   public ActionMessageBuilder() {
     if (StringUtils.isEmpty(message)) {
@@ -62,8 +59,8 @@ public class ActionMessageBuilder {
     return this;
   }
 
-  public ActionMessageBuilder userId(Long userId) {
-    this.userId = userId;
+  public ActionMessageBuilder checker(UserInfo checker) {
+    this.checker = checker;
     return this;
   }
 
@@ -80,16 +77,6 @@ public class ActionMessageBuilder {
     return message.toString();
   }
 
-  private UserInfo getUser() {
-    UserInfo user = new UserInfo();
-
-    SymUser symUser = symphonyValidationUtil.validateUserId(userId);
-    user.setDisplayName(symUser.getDisplayName());
-    user.setUserId(symUser.getId());
-
-    return user;
-  }
-
   public SymMessage build() {
     if (messageBuilder == null) {
       return null;
@@ -98,8 +85,7 @@ public class ActionMessageBuilder {
     try {
       EntityBuilder bodyBuilder = EntityBuilder.createEntity(BASE_EVENT, VERSION);
 
-      UserInfo user = getUser();
-      bodyBuilder.addField("user", user);
+      bodyBuilder.addField("checker", checker);
       bodyBuilder.addField("makerCheckerId", makerCheckerId);
       bodyBuilder.addField("state", state);
 

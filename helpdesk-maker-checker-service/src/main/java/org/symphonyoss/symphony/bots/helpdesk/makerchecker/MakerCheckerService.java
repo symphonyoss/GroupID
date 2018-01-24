@@ -93,10 +93,10 @@ public class MakerCheckerService {
     }
   }
 
-  public SymMessage getActionMessage(Makerchecker makerchecker) {
+  public SymMessage getActionMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
     SymMessage symMessage = null;
     for (Checker checker : checkerSet) {
-      symMessage = checker.getActionMessage(makerchecker);
+      symMessage = checker.getActionMessage(makerchecker, attachmentState);
     }
 
     return symMessage;

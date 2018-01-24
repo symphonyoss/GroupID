@@ -18,6 +18,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -61,6 +62,9 @@ public class MakerCheckerServiceTest {
   @Mock
   private TicketClient ticketClient;
 
+  @Mock
+  private SymphonyValidationUtil symphonyValidationUtil;
+
   @Before
   public void init() {
     doReturn(messagesClient).when(symphonyClient).getMessagesClient();
@@ -68,7 +72,7 @@ public class MakerCheckerServiceTest {
     makerCheckerService = new MakerCheckerService(mockMakercheckerClient(), symphonyClient);
 
     AgentExternalCheck agentExternalCheck =
-        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient);
+        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient, symphonyValidationUtil);
 
     makerCheckerService.addCheck(agentExternalCheck);
   }

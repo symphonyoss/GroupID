@@ -10,6 +10,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
@@ -43,6 +44,9 @@ public class AgentExternalCheckTest {
   @Mock
   private SymphonyClient symphonyClient;
 
+  @Mock
+  private SymphonyValidationUtil symphonyValidationUtil;
+
   @Test
   public void testGetApprovedAttachment() {
     mockAgentExternalCheckUnresolved();
@@ -71,7 +75,7 @@ public class AgentExternalCheckTest {
   private void mockAgentExternalCheckUnresolved() {
     TicketClient ticketClient = new TicketClient(GROUP_ID, TICKET_SERVICE_URL);
 
-    agentExternalCheck = new AgentExternalCheck(BOT_HOST, SERVICE_HOST, GROUP_ID, ticketClient, symphonyClient);
+    agentExternalCheck = new AgentExternalCheck(BOT_HOST, SERVICE_HOST, GROUP_ID, ticketClient, symphonyClient, symphonyValidationUtil);
   }
 
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {

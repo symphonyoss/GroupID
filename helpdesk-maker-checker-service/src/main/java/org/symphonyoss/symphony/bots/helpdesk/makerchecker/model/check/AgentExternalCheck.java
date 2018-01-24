@@ -13,12 +13,16 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.ActionMessage
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.MakerCheckerMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -55,13 +59,16 @@ public class AgentExternalCheck implements Checker {
 
   private final SymphonyClient symphonyClient;
 
+  private final SymphonyValidationUtil symphonyValidationUtil;
+
   public AgentExternalCheck(String botHost, String serviceHost, String groupId,
-      TicketClient ticketClient, SymphonyClient symphonyClient) {
+      TicketClient ticketClient, SymphonyClient symphonyClient, SymphonyValidationUtil symphonyValidationUtil) {
     this.botHost = botHost;
     this.serviceHost = serviceHost;
     this.groupId = groupId;
     this.ticketClient = ticketClient;
     this.symphonyClient = symphonyClient;
+    this.symphonyValidationUtil = symphonyValidationUtil;
   }
 
   @Override
@@ -140,23 +147,32 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public SymMessage getActionMessage(Makerchecker makerchecker) {
+  public SymMessage getActionMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
     ActionMessageBuilder actionMessageBuilder = new ActionMessageBuilder();
     actionMessageBuilder.makerCheckerId(makerchecker.getId());
-    actionMessageBuilder.state(makerchecker.getState());
-    actionMessageBuilder.userId(makerchecker.getMakerId());
+    actionMessageBuilder.state(attachmentState.getState());
+    actionMessageBuilder.checker(getUser(makerchecker.getMakerId()));
 
     SymMessage actionMessage = actionMessageBuilder.build();
     actionMessage.setId(makerchecker.getId());
     actionMessage.setStreamId(makerchecker.getStreamId());
     actionMessage.setFromUserId(makerchecker.getMakerId());
-    actionMessage.setStreamId(makerchecker.getStreamId());
     SymStream symStream = new SymStream();
     symStream.setStreamId(makerchecker.getStreamId());
     actionMessage.setStream(symStream);
     actionMessage.setTimestamp(String.valueOf(makerchecker.getTimeStamp()));
 
     return actionMessage;
+  }
+
+  private UserInfo getUser(Long userId) {
+    UserInfo user = new UserInfo();
+
+    SymUser symUser = symphonyValidationUtil.validateUserId(userId);
+    user.setDisplayName(symUser.getDisplayName());
+    user.setUserId(symUser.getId());
+
+    return user;
   }
 
   @Override
