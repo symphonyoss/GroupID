@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-if [[ $# -lt 1 ]]
-  then
-    echo "Usage: build.sh <MONGO_HOST>"
-    exit
-fi
-
-MONGO_HOST=$1
-WORKSPACE="$(pwd)"
-  
 echo "Building group-id + helpdesk"
 mvn clean install
   
