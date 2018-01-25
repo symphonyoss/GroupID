@@ -8,7 +8,6 @@ import org.symphonyoss.client.impl.SymphonyBasicClient;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.client.services.MessageService;
 import org.symphonyoss.client.services.RoomService;
-import org.symphonyoss.symphony.pod.invoker.JSON;
 
 /**
  * Created by rsanchez on 05/12/17.
@@ -29,8 +28,6 @@ public class HelpDeskSymphonyClient extends SymphonyBasicClient {
     SymphonyClientConfig config = buildConfig(email, agentUrl, podUrl);
 
     super.init(symAuth, config);
-    getAgentHttpClient().register(new JSON());
-    getPodHttpClient().register(new JSON());
 
     buildRoomService(symAuth, config);
     buildMessageService();
