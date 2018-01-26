@@ -72,13 +72,13 @@ public class HelpDeskServiceConfiguration {
   @Bean(name = "agentMakerCheckerService")
   public MakerCheckerService getAgentMakerCheckerService(HelpDeskBotConfig configuration,
       SymphonyClient symphonyClient, TicketClient ticketClient,
-      MakercheckerClient makercheckerClient) {
+      MakercheckerClient makercheckerClient, SymphonyValidationUtil symphonyValidationUtil) {
     MakerCheckerService agentMakerCheckerService =
         new MakerCheckerService(makercheckerClient, symphonyClient);
 
     AgentExternalCheck agentExternalCheck =
         new AgentExternalCheck(configuration.getHelpDeskBotUrl(),
-            configuration.getHelpDeskServiceUrl(), configuration.getGroupId(), ticketClient, symphonyClient);
+            configuration.getHelpDeskServiceUrl(), configuration.getGroupId(), ticketClient, symphonyClient, symphonyValidationUtil);
 
     agentMakerCheckerService.addCheck(agentExternalCheck);
 
