@@ -1,8 +1,8 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -17,6 +17,7 @@ import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.MessagesClient;
@@ -51,6 +52,12 @@ public class MakerCheckerServiceTest {
 
   private static final String SERVICE_URL = "https://localhost/helpdesk-service";
 
+  private static final String MOCK_SERVICE_STREAM_ID = "RU0dsa0XfcE5SNoJKsXSKX___p-qTQ3XdA";
+
+  private static final String MOCK_MAKERCHECKER_ID = "XJW9H3XPCU";
+
+  private static final Long MOCK_MAKER_ID = 10651518946916l;
+
   private MakerCheckerService makerCheckerService;
 
   @Mock
@@ -65,20 +72,23 @@ public class MakerCheckerServiceTest {
   @Mock
   private SymphonyValidationUtil symphonyValidationUtil;
 
+  @Mock
+  private AgentExternalCheck agentExternalCheck;
+
   @Before
   public void init() {
     doReturn(messagesClient).when(symphonyClient).getMessagesClient();
 
     makerCheckerService = new MakerCheckerService(mockMakercheckerClient(), symphonyClient);
-
-    AgentExternalCheck agentExternalCheck =
-        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient, symphonyValidationUtil);
-
-    makerCheckerService.addCheck(agentExternalCheck);
   }
 
   @Test
   public void testGetApprovedMessage() {
+    agentExternalCheck =
+        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient, symphonyValidationUtil);
+
+    makerCheckerService.addCheck(agentExternalCheck);
+
     SymStream symStream = new SymStream();
     symStream.setStreamId(STREAM_ID);
     try {
@@ -96,6 +106,19 @@ public class MakerCheckerServiceTest {
       assertEquals(STREAM_ID, symMessage.getStreamId());
       assertEquals(TIMESTAMP.toString(), symMessage.getTimestamp());
     }
+  }
+
+  @Test
+  public void testGetActionMessage() {
+    makerCheckerService.addCheck(agentExternalCheck);
+
+    Makerchecker makerchecker = mockMakerchecker();
+    doReturn(mockActionMessage()).when(agentExternalCheck).getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
+
+    SymMessage symMessage = makerCheckerService.getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
+
+    assertEquals(STREAM_ID, symMessage.getStreamId());
+    assertEquals(TIMESTAMP.toString(), symMessage.getTimestamp());
   }
 
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {
@@ -133,6 +156,30 @@ public class MakerCheckerServiceTest {
     symMessageList.add(symMessage);
 
     return symMessageList;
+  }
+
+  private SymMessage mockActionMessage() {
+    SymStream symStream = new SymStream();
+    symStream.setStreamId(STREAM_ID);
+
+    SymMessage symMessage = new SymMessage();
+    symMessage.setId(MESSAGE_ID);
+    symMessage.setStreamId(STREAM_ID);
+    symMessage.setTimestamp(TIMESTAMP.toString());
+    symMessage.setStream(symStream);
+
+    return symMessage;
+  }
+
+  private Makerchecker mockMakerchecker() {
+    Makerchecker makerchecker = new Makerchecker();
+    makerchecker.setState(MakercheckerClient.AttachmentStateType.OPENED.getState());
+    makerchecker.setStreamId(MOCK_SERVICE_STREAM_ID);
+    makerchecker.setId(MOCK_MAKERCHECKER_ID);
+    makerchecker.setMakerId(MOCK_MAKER_ID);
+    makerchecker.checker(null);
+
+    return makerchecker;
   }
 
 }
