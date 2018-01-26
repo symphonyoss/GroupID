@@ -1,0 +1,13 @@
+<messageML>
+    <div class="entity" data-entity-id="helpdesk">
+        <card class="barStyle">
+            <header>
+                <span>${entity['helpdesk'].message.header}</span>
+            </header>
+            <body>
+                <span>Ticket <b>${entity['helpdesk'].message.ticket.id}</b> has been claimed
+                    by <b>${entity['helpdesk'].message.agent}</b></span>
+            </body>
+        </card>
+    </div>
+</messageML>

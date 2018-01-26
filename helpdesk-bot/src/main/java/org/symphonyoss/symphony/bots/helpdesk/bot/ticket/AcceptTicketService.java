@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
@@ -13,11 +14,13 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
-import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.AcceptMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
+import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.util.HashSet;
@@ -65,9 +68,11 @@ public class AcceptTicketService extends TicketService {
 
         addAgentToServiceStream(ticket, agent.getId());
 
-        sendAcceptMessage(ticket, agent.getId());
+        sendAcceptMessageToClient(ticket, agent.getId());
 
         updateTicketState(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
+
+        //sendAcceptMessageToAgents(ticket, agent);
 
         return buildResponse(ticket, agent, TICKET_SUCCESS_RESPONSE);
       } catch (SymException e) {
@@ -85,7 +90,7 @@ public class AcceptTicketService extends TicketService {
    * @param ticket Ticket info
    * @param agentId Agent user id
    */
-  private void sendAcceptMessage(Ticket ticket, Long agentId) {
+  private void sendAcceptMessageToClient(Ticket ticket, Long agentId) {
     AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
     SymphonyAiMessage symphonyAiMessage =
         new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
@@ -112,4 +117,21 @@ public class AcceptTicketService extends TicketService {
     ticketClient.updateTicket(ticket);
   }
 
+  private void sendAcceptMessageToAgents(Ticket ticket, SymUser agent) {
+    SymStream stream = new SymStream();
+    stream.setStreamId(helpDeskBotConfig.getAgentStreamId());
+
+    SymMessage acceptMessage = new AcceptMessageBuilder()
+        .agent(agent.getDisplayName())
+        .streamId(stream.getStreamId())
+        .ticketId(ticket.getId())
+        .build();
+
+    try {
+      symphonyClient.getMessageService().sendMessage(stream, acceptMessage);
+    } catch (MessagesException e) {
+      LOG.error("Fail to send accepted ticket (claimed) message", e);
+      throw new InternalServerErrorException(e);
+    }
+  }
 }
