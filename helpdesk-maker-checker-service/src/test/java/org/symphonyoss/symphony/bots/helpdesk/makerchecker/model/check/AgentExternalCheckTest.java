@@ -61,9 +61,12 @@ public class AgentExternalCheckTest {
 
   private static final String ACTION_MESSAGE = "<messageML>    <div class=\"entity\" "
       + "data-entity-id=\"makerchecker\">        <card class=\"barStyle\">            <header>   "
-      + "             ${entity['makerchecker'].checker.displayName} ${entity['makerchecker']"
-      + ".state} this message. It has been delivered to the client(s).            </header>      "
-      + "  </card>    </div></messageML>";
+      + "             <#if (entity['makerchecker'].state == \"APPROVED\")>                    "
+      + "${entity['makerchecker'].checker.displayName} approved this message. It has been "
+      + "delivered to the client(s).                <#elseif (entity['makerchecker'].state == "
+      + "\"DENIED\")>                    ${entity['makerchecker'].checker.displayName} denied "
+      + "this message. It has not been delivered to the client(s).                </#if>         "
+      + "   </header>        </card>    </div></messageML>";
 
   private AgentExternalCheck agentExternalCheck;
 
