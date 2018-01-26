@@ -31,8 +31,8 @@ These applications are compatible with Apache Maven 3.0.5 or above. If you donâ€
 
 To start from scratch, do the following:
 
-1. Clone the source repository using Git: `git clone git@github.com:SymphonyOSF/HelpDeskBot.git`
-2. cd into _HelpDeskBot_
+1. Clone the source repository using Git: `git clone git@github.com:symphonyoss/GroupId.git`
+2. cd into _GroupId_
 3. Build using maven: `mvn clean install`
 
 ### Deploy manually on dev environment
