@@ -2,8 +2,10 @@ package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.doReturn;
+import static org.junit.Assert.assertEquals;
 
-import javassist.bytecode.stackmap.BasicBlock;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,6 +19,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +51,19 @@ public class AgentExternalCheckTest {
   private static final String MOCK_MAKERCHECKER_ID = "XJW9H3XPCU";
 
   private static final Long MOCK_MAKER_ID = 10651518946916l;
+
+  private static final String MOCK_DISPLAY_NAME = "Financial Agent";
+
+  private static final String ACTION_MESSAGE_ENTITY_DATA = "{\"makerchecker\":{\"type\":\"com"
+      + ".symphony.bots.helpdesk.event.makerchecker.action.performed\",\"version\":\"1.0\","
+      + "\"checker\":{\"userId\":10651518946916,\"displayName\":\"Financial Agent\"},"
+      + "\"makerCheckerId\":\"XJW9H3XPCU\",\"state\":\"APPROVED\"}}";
+
+  private static final String ACTION_MESSAGE = "<messageML>    <div class=\"entity\" "
+      + "data-entity-id=\"makerchecker\">        <card class=\"barStyle\">            <header>   "
+      + "             ${entity['makerchecker'].checker.displayName} ${entity['makerchecker']"
+      + ".state} this message. It has been delivered to the client(s).            </header>      "
+      + "  </card>    </div></messageML>";
 
   private AgentExternalCheck agentExternalCheck;
 
@@ -90,8 +106,12 @@ public class AgentExternalCheckTest {
   public void testGetActionMessage() {
     Makerchecker makerchecker = mockMakercheckerApproved();
 
+    doReturn(mockSymUser()).when(symphonyValidationUtil).validateUserId(MOCK_MAKER_ID);
+
     SymMessage symMessage = agentExternalCheck.getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
 
+    Assert.assertEquals(ACTION_MESSAGE, symMessage.getMessage());
+    Assert.assertEquals(ACTION_MESSAGE_ENTITY_DATA, symMessage.getEntityData());
   }
 
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {
@@ -134,6 +154,14 @@ public class AgentExternalCheckTest {
     makerchecker.checker(null);
 
     return makerchecker;
+  }
+
+  private SymUser mockSymUser() {
+    SymUser symUser = new SymUser();
+    symUser.setId(MOCK_MAKER_ID);
+    symUser.setDisplayName(MOCK_DISPLAY_NAME);
+
+    return symUser;
   }
 
 }
