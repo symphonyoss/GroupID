@@ -72,7 +72,7 @@ public class AcceptTicketService extends TicketService {
 
         updateTicketState(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
 
-        sendAcceptMessageToAgents(ticket, agent);
+        sendAcceptMessageToAgents(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
 
         return buildResponse(ticket, agent, TICKET_SUCCESS_RESPONSE);
       } catch (SymException e) {
@@ -117,7 +117,7 @@ public class AcceptTicketService extends TicketService {
     ticketClient.updateTicket(ticket);
   }
 
-  private void sendAcceptMessageToAgents(Ticket ticket, SymUser agent) {
+  private void sendAcceptMessageToAgents(Ticket ticket, SymUser agent, TicketClient.TicketStateType ticketState) {
     SymStream stream = new SymStream();
     stream.setStreamId(helpDeskBotConfig.getAgentStreamId());
 
@@ -127,7 +127,7 @@ public class AcceptTicketService extends TicketService {
 
     SymMessage acceptMessage = new AcceptMessageBuilder()
         .agent(userInfo)
-        .ticketState(ticket.getState())
+        .ticketState(ticketState.getState())
         .ticketId(ticket.getId())
         .build();
 
