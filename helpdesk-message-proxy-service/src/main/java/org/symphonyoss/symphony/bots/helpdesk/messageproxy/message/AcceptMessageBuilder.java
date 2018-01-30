@@ -52,6 +52,7 @@ public class AcceptMessageBuilder extends TicketMessageBuilder {
     bodyBuilder.addField("state", ticketState);
 
     EntityBuilder userBuilder = EntityBuilder.createEntity(USER_TICKET_EVENT, VERSION);
+    userBuilder.addField("displayName", agent.getDisplayName());
     bodyBuilder.addField("agent", userBuilder.toObject());
 
     return bodyBuilder;
