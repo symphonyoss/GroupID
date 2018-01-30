@@ -11,29 +11,19 @@ const messageEvents = [
 export default class ActionAttachmentEnricher extends MessageEnricherBase {
   constructor() {
     super(enricherServiceName, messageEvents);
-
-    const actionAttachmentService = new ActionAttachmentService(enricherServiceName);
-
-    this.services = {
-      actionAttachmentService,
-    };
   }
 
   enrich(type, entity) {
     const actionPerformed = entity.state === 'APPROVED' || entity.state === 'DENIED';
-        
+
     if (actionPerformed) {
       const data = actionFactory([], enricherServiceName, entity);
       const entityRegistry = SYMPHONY.services.subscribe('entity');
-      const displayName = entity.checker !== null ? rsp.checker.displayName : '';
-      const result = {
-        template: actions({ showActions: false,
+      const displayName = entity.checker !== null ? entity.checker.displayName : '';
+      const template = actions({ showActions: false,
         isApproved: entity.state === 'APPROVED',
-        userName: displayName }),
-        data,
-        enricherInstanceId: entity.makerCheckerId,
-      };
-    
+        userName: displayName });
+
       entityRegistry.updateEnricher(data.enricherInstanceId, template, data);
     }
   }
