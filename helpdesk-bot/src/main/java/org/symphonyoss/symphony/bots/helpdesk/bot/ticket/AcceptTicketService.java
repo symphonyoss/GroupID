@@ -62,24 +62,18 @@ public class AcceptTicketService extends TicketService {
   @Override
   protected TicketResponse execute(Ticket ticket, SymUser agent) {
     if (TicketClient.TicketStateType.UNSERVICED.getState().equals(ticket.getState())) {
-
       try {
         updateMembership(agent.getId());
-
         addAgentToServiceStream(ticket, agent.getId());
-
         sendAcceptMessageToClient(ticket, agent.getId());
-
-        updateTicketState(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
-
         sendAcceptMessageToAgents(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
+        updateTicketState(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
 
         return buildResponse(ticket, agent, TICKET_SUCCESS_RESPONSE);
       } catch (SymException e) {
         LOG.error("Could not accept ticket: ", e);
         throw new InternalServerErrorException();
       }
-
     } else {
       throw new BadRequestException(TICKET_WAS_CLAIMED);
     }
