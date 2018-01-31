@@ -54,19 +54,23 @@ public class AgentExternalCheckTest {
 
   private static final String MOCK_DISPLAY_NAME = "Financial Agent";
 
-  private static final String ACTION_MESSAGE_ENTITY_DATA = "{\"makerchecker\":{\"type\":\"com"
+  private static final String ACTION_MESSAGE_APPROVED_ENTITY_DATA = "{\"makerchecker\":{\"type\":\"com"
       + ".symphony.bots.helpdesk.event.makerchecker.action.performed\",\"version\":\"1.0\","
       + "\"checker\":{\"userId\":10651518946916,\"displayName\":\"Financial Agent\"},"
-      + "\"makerCheckerId\":\"XJW9H3XPCU\",\"state\":\"APPROVED\"}}";
+      + "\"makerCheckerId\":\"XJW9H3XPCU\",\"state\":\"APPROVED\",\"messageToAgents\":\"Financial"
+      + " Agent approved this message. It has been delivered to the client(s).\"}}";
+
+  private static final String ACTION_MESSAGE_DENIED_ENTITY_DATA = "{\"makerchecker\":{\"type"
+      + "\":\"com.symphony.bots.helpdesk.event.makerchecker.action.performed\","
+      + "\"version\":\"1.0\",\"checker\":{\"userId\":10651518946916,\"displayName\":\"Financial "
+      + "Agent\"},\"makerCheckerId\":\"XJW9H3XPCU\",\"state\":\"DENIED\","
+      + "\"messageToAgents\":\"Financial Agent denied this message. It has not been delivered to "
+      + "the client(s).\"}}";
 
   private static final String ACTION_MESSAGE = "<messageML>    <div class=\"entity\" "
       + "data-entity-id=\"makerchecker\">        <card class=\"barStyle\">            <header>   "
-      + "             <#if (entity['makerchecker'].state == \"APPROVED\")>                    "
-      + "${entity['makerchecker'].checker.displayName} approved this message. It has been "
-      + "delivered to the client(s).                <#elseif (entity['makerchecker'].state == "
-      + "\"DENIED\")>                    ${entity['makerchecker'].checker.displayName} denied "
-      + "this message. It has not been delivered to the client(s).                </#if>         "
-      + "   </header>        </card>    </div></messageML>";
+      + "             ${entity['makerchecker'].messageToAgents}            </header>        "
+      + "</card>    </div></messageML>";
 
   private AgentExternalCheck agentExternalCheck;
 
@@ -106,7 +110,7 @@ public class AgentExternalCheckTest {
   }
 
   @Test
-  public void testGetActionMessage() {
+  public void testGetActionMessageApproved() {
     Makerchecker makerchecker = mockMakercheckerApproved();
 
     doReturn(mockSymUser()).when(symphonyValidationUtil).validateUserId(MOCK_MAKER_ID);
@@ -114,7 +118,18 @@ public class AgentExternalCheckTest {
     SymMessage symMessage = agentExternalCheck.getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
 
     Assert.assertEquals(ACTION_MESSAGE, symMessage.getMessage());
-    Assert.assertEquals(ACTION_MESSAGE_ENTITY_DATA, symMessage.getEntityData());
+    Assert.assertEquals(ACTION_MESSAGE_APPROVED_ENTITY_DATA, symMessage.getEntityData());
+  }
+
+  @Test
+  public void testGetActionMessageDenied() {
+    Makerchecker makerchecker = mockMakercheckerApproved();
+
+    doReturn(mockSymUser()).when(symphonyValidationUtil).validateUserId(MOCK_MAKER_ID);
+
+    SymMessage symMessage = agentExternalCheck.getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.DENIED);
+
+    Assert.assertEquals(ACTION_MESSAGE_DENIED_ENTITY_DATA, symMessage.getEntityData());
   }
 
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {
