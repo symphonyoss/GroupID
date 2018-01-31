@@ -8,6 +8,7 @@ import org.symphonyoss.client.impl.SymphonyBasicClient;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.client.services.MessageService;
 import org.symphonyoss.client.services.RoomService;
+import org.symphonyoss.symphony.agent.invoker.Configuration;
 import org.symphonyoss.symphony.pod.invoker.JSON;
 
 /**
@@ -25,6 +26,8 @@ public class HelpDeskSymphonyClient extends SymphonyBasicClient {
     validateAgentUrl(agentUrl);
     validatePodUrl(podUrl);
     validateAuthentication(symAuth);
+
+    Configuration.setDefaultApiClient(new HelpDeskAgentApiClient());
 
     SymphonyClientConfig config = buildConfig(email, agentUrl, podUrl);
 
