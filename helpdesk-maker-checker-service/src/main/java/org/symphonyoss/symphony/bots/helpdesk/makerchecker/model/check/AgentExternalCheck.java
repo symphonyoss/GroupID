@@ -46,6 +46,10 @@ public class AgentExternalCheck implements Checker {
   private static final String MESSAGE_COULD_NOT_CREATE_FILE = "Couldn't create a file.";
   private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
   private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
+  private static final String MESSAGE_TO_APPROVE_MAKER_CHECKER =
+      " approved this message. It has been delivered to the client(s).";
+  private static final String MESSAGE_TO_DENY_MAKER_CHECKER =
+      " denied this message. It has not been delivered to the client(s).";
 
   private final String ATTACHMENT = "ATTACHMENT";
 
@@ -151,7 +155,14 @@ public class AgentExternalCheck implements Checker {
     ActionMessageBuilder actionMessageBuilder = new ActionMessageBuilder();
     actionMessageBuilder.makerCheckerId(makerchecker.getId());
     actionMessageBuilder.state(attachmentState.getState());
-    actionMessageBuilder.checker(getUser(makerchecker.getMakerId()));
+
+    UserInfo checker = getUser(makerchecker.getMakerId());
+    actionMessageBuilder.checker(checker);
+    if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
+      actionMessageBuilder.messageToAgents(getMessageApproved(checker.getDisplayName()));
+    } else if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.DENIED.getState())) {
+      actionMessageBuilder.messageToAgents(getMessageDenied(checker.getDisplayName()));
+    }
 
     SymMessage actionMessage = actionMessageBuilder.build();
     actionMessage.setId(makerchecker.getId());
@@ -163,6 +174,14 @@ public class AgentExternalCheck implements Checker {
     actionMessage.setTimestamp(String.valueOf(makerchecker.getTimeStamp()));
 
     return actionMessage;
+  }
+
+  private String getMessageApproved(String displayName) {
+    return displayName + MESSAGE_TO_APPROVE_MAKER_CHECKER;
+  }
+
+  private String getMessageDenied(String displayName) {
+    return displayName + MESSAGE_TO_DENY_MAKER_CHECKER;
   }
 
   private UserInfo getUser(Long userId) {

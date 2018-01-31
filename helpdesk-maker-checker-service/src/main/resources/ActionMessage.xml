@@ -2,11 +2,7 @@
     <div class="entity" data-entity-id="makerchecker">
         <card class="barStyle">
             <header>
-                <#if (entity['makerchecker'].state == "APPROVED")>
-                    ${entity['makerchecker'].checker.displayName} approved this message. It has been delivered to the client(s).
-                <#elseif (entity['makerchecker'].state == "DENIED")>
-                    ${entity['makerchecker'].checker.displayName} denied this message. It has not been delivered to the client(s).
-                </#if>
+                ${entity['makerchecker'].messageToAgents}
             </header>
         </card>
     </div>
