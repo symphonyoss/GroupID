@@ -160,7 +160,7 @@ public class AgentExternalCheck implements Checker {
     actionMessageBuilder.checker(checker);
     if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
       actionMessageBuilder.messageToAgents(getMessageApproved(checker.getDisplayName()));
-    } else if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
+    } else if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.DENIED.getState())) {
       actionMessageBuilder.messageToAgents(getMessageDenied(checker.getDisplayName()));
     }
 

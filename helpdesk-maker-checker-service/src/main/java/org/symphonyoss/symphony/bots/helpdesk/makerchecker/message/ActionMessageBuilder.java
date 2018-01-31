@@ -95,6 +95,7 @@ public class ActionMessageBuilder {
       bodyBuilder.addField("checker", checker);
       bodyBuilder.addField("makerCheckerId", makerCheckerId);
       bodyBuilder.addField("state", state);
+      bodyBuilder.addField("messageToAgents", messageToAgents);
 
       EntityBuilder builder = EntityBuilder.createEntity();
       builder.addField("makerchecker", bodyBuilder.toObject());
