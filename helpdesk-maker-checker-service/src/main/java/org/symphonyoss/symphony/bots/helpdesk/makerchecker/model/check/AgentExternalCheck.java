@@ -156,7 +156,7 @@ public class AgentExternalCheck implements Checker {
     actionMessageBuilder.makerCheckerId(makerchecker.getId());
     actionMessageBuilder.state(attachmentState.getState());
 
-    UserInfo checker = getUser(makerchecker.getMakerId());
+    UserInfo checker = getUser(makerchecker.getChecker().getUserId());
     actionMessageBuilder.checker(checker);
     if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
       actionMessageBuilder.messageToAgents(getMessageApproved(checker.getDisplayName()));
