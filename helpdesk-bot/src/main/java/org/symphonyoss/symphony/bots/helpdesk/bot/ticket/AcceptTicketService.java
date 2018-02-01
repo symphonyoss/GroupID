@@ -101,32 +101,31 @@ public class AcceptTicketService extends TicketService {
    * @param agentId Agent user id
    */
   private void sendAcceptMessageToClient(Ticket ticket, Long agentId) {
+    AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
     SymphonyAiMessage symphonyAiMessage =
-        new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
+            new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
 
-    sendMessage(ticket, agentId, symphonyAiMessage);
+    Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
+    responseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
+
+    helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
   }
 
   private void sendAcceptMessageToAgents(Ticket ticket, SymUser agent, TicketClient.TicketStateType ticketState) {
-    SymMessage symMessage = getAcceptMessage(ticket, agent, ticketState);
-    SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
-
-    sendMessage(ticket, agent.getId(), symphonyAiMessage);
-  }
-
-  private void sendMessage(Ticket ticket, Long agentId, SymphonyAiMessage symphonyAiMessage) {
-    AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
-
-    Set<AiResponseIdentifier> identifiers = new HashSet<>();
-    identifiers.add(new AiResponseIdentifierImpl(symphonyAiMessage.getStreamId()));
-
-    helpDeskAi.sendMessage(symphonyAiMessage, identifiers, sessionKey);
-  }
-
-  private SymMessage getAcceptMessage(Ticket ticket, SymUser agent, TicketClient.TicketStateType ticketState) {
     SymStream stream = new SymStream();
     stream.setStreamId(helpDeskBotConfig.getAgentStreamId());
 
+    SymMessage acceptMessage = getAcceptMessage(ticket, agent, ticketState);
+
+    try {
+      symphonyClient.getMessageService().sendMessage(stream, acceptMessage);
+    } catch (MessagesException e) {
+      LOG.error("Fail to send accepted ticket (claimed) message", e);
+      throw new InternalServerErrorException(e);
+    }
+  }
+
+  private SymMessage getAcceptMessage(Ticket ticket, SymUser agent, TicketClient.TicketStateType ticketState) {
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId(agent.getId());
     userInfo.setDisplayName(agent.getDisplayName());
