@@ -187,7 +187,7 @@ public class V1HelpDeskControllerTest {
     MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_ACCEPTED, response.getMessage());
 
-    verify(helpDeskAi, times(2)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
+    verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
   }
 
   @Test()
@@ -206,7 +206,7 @@ public class V1HelpDeskControllerTest {
     assertEquals(MESSAGE_DENIED, response.getMessage());
 
     verify(makercheckerClient, times(1)).updateMakerchecker(makerchecker);
-    verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
+    verify(helpDeskAi, times(0)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
 
   }
 

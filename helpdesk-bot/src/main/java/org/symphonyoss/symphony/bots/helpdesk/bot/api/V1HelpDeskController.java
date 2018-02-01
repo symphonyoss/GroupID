@@ -108,7 +108,7 @@ public class V1HelpDeskController extends V1ApiController {
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
       sendApprovedMakerChekerMessage(makerchecker, userId);
-      sendActionMessage(makerchecker, userId, MakercheckerClient.AttachmentStateType.APPROVED);
+//      sendActionMessage(makerchecker, userId, MakercheckerClient.AttachmentStateType.APPROVED);
       UserInfo checker = getChecker(agentUser);
       makerchecker.setChecker(checker);
       makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
@@ -150,8 +150,7 @@ public class V1HelpDeskController extends V1ApiController {
     }
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
-      sendActionMessage(makerchecker, userId, MakercheckerClient.AttachmentStateType.DENIED);
-
+//      sendActionMessage(makerchecker, userId, MakercheckerClient.AttachmentStateType.DENIED);
       UserInfo checker = getChecker(agentUser);
 
       makerchecker.setChecker(checker);
