@@ -93,15 +93,6 @@ public class MakerCheckerService {
     }
   }
 
-  public SymMessage getActionMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
-    SymMessage symMessage = null;
-    for (Checker checker : checkerSet) {
-      symMessage = checker.getActionMessage(makerchecker, attachmentState);
-    }
-
-    return symMessage;
-  }
-
   private SymMessage getApprovedMessage(MakerCheckerMessage makerCheckerMessage, SymStream stream) throws MessagesException {
     List<SymMessage> symMessageList = symphonyClient.getMessagesClient()
         .getMessagesFromStream(stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
@@ -144,6 +135,21 @@ public class MakerCheckerService {
     } catch (MessagesException e) {
       LOG.error("Error sending an attachment to the room", e);
     }
+  }
+
+  public SymMessage sendActionMakerCheckerMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
+    SymMessage symMessage = null;
+    for (Checker checker : checkerSet) {
+      symMessage = checker.getActionMessage(makerchecker, attachmentState);
+    }
+
+    try {
+      symphonyClient.getMessagesClient().sendMessage(symMessage.getStream(), symMessage);
+    } catch (MessagesException e) {
+      LOG.error("Error sending an action message service room", e);
+    }
+
+    return symMessage;
   }
 
   private void createMakerchecker(SymMessage symMessage, String messageId, Set<String> proxyToStreamId) {

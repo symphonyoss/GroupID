@@ -115,7 +115,7 @@ public class MakerCheckerServiceTest {
     Makerchecker makerchecker = mockMakerchecker();
     doReturn(mockActionMessage()).when(agentExternalCheck).getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
 
-    SymMessage symMessage = makerCheckerService.getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
+    SymMessage symMessage = makerCheckerService.sendActionMakerCheckerMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
 
     assertEquals(STREAM_ID, symMessage.getStreamId());
     assertEquals(TIMESTAMP.toString(), symMessage.getTimestamp());

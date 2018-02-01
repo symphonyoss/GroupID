@@ -182,7 +182,7 @@ public class V1HelpDeskControllerTest {
 
     SymMessage actionMessage = mockActionMessage();
     doReturn(actionMessage).when(agentMakerCheckerService)
-        .getActionMessage(any(Makerchecker.class), any(MakercheckerClient.AttachmentStateType.class));
+        .sendActionMakerCheckerMessage(any(Makerchecker.class), any(MakercheckerClient.AttachmentStateType.class));
 
     MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_ACCEPTED, response.getMessage());
@@ -200,7 +200,7 @@ public class V1HelpDeskControllerTest {
 
     SymMessage actionMessage = mockActionMessage();
     doReturn(actionMessage).when(agentMakerCheckerService)
-        .getActionMessage(any(Makerchecker.class), any(MakercheckerClient.AttachmentStateType.class));
+        .sendActionMakerCheckerMessage(any(Makerchecker.class), any(MakercheckerClient.AttachmentStateType.class));
 
     MakerCheckerResponse response = v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_DENIED, response.getMessage());
