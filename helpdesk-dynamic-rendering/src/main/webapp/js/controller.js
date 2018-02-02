@@ -4,7 +4,7 @@ import AttachmentEnricher from '../enrichers/attachmentEnricher';
 
 const claimTicketEnricher = new ClaimTicketEnricher();
 const attachmentEnricher = new AttachmentEnricher();
-const appId = 'helpdesk';
+const appId = 'helpdesk-campidelli';
 const controllerName = 'helpdesk:controller';
 
 const registerApp = () => {

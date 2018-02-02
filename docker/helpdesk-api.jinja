@@ -1,0 +1,27 @@
+server:
+  address: 0.0.0.0
+  port : 8081
+  display-name: Help Desk Service
+  context-path: /helpdesk
+  connection-timeout: 20000
+  ssl:
+    enabled: false
+
+helpdesk:
+  mongo:
+    {%- if _data.get("agent/url.pod") is not none -%}
+    host: {{ _data.get("agent/url.pod") }}
+    {% endif %}
+    port: 27017
+    database: helpdesk
+    socketTimeout: 10000
+    connectTimeout: 5000
+    waitTimeout: 10000
+    readPreference: nearest
+    writeConcern: majority
+
+app-authentication:
+  enabled: false
+  filter:
+    url-patterns:
+      - "/v1/*"

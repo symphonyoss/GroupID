@@ -1,0 +1,67 @@
+server:
+  address: 0.0.0.0
+  port : 8090
+  display-name: Help Desk Bot
+  context-path: /helpdesk-bot
+  connection-timeout: 20000
+  ssl:
+    enabled: false
+
+agent:
+  host: nexus1-dev.symphony.com
+
+session_auth:
+  host: sym-nexus1-dev-chat-glb-2-guse1-all.symphony.com
+  port: 8444
+
+key_auth:
+  host: sym-nexus1-dev-chat-glb-2-guse1-all.symphony.com
+  port: 8444
+
+pod:
+  host: nexus1-dev.symphony.com
+
+helpdesk-bot:
+  host: localhost.symphony.com
+  port: 8090
+
+helpdesk-service:
+  host: localhost.symphony.com
+  port: 8081
+
+app-authentication:
+  enabled: false
+  pod:
+    host: ${pod.host}
+    port: ${pod.port:443}
+  session_auth:
+    host: ${session_auth.host}
+    port: ${session_auth.port:443}
+  filter:
+    url-patterns:
+      - "/v1/*"
+
+email: helpdesk@symphony.com
+
+claimEntityHeader: "<b>Equities Desk Bot</b>"
+
+idle-ticket:
+  message: "has been idle for 60 minutes."
+  timeout: 1
+  unit: "HOURS"
+
+instructional-ticket:
+  message: " to close the ticket upon ticket resolution."
+  command: "<mention uid=\"%s\"/> Close"
+
+aiServicePrefix: "@"
+aiDefaultPrefix: "/"
+closeTicketCommand: "Close"
+acceptTicketCommand: "Accept Ticket {Ticket_Id}"
+addMemberCommand: "Add Member @{Mention} {Membership_Type}"
+createTicketMessage: "Ticket created successfully"
+acceptTicketClientSuccessResponse: "You have been connected to an agent."
+closeTicketSuccessResponse: "Thank you for contacting us, this session is now over. Any new messages in this chat will be delivered to the JPM Equity Team as a new session."
+addMemberAgentSuccessResponse: "New member has been added to the help desk."
+addMemberClientSuccessResponse: "Your membership to the help desk has been updated by an agent."
+welcomeMessage: "Thanks for contacting the Equity Team at JPM. All messages sent in this chat will be delivered to the JPM Equity Team."
