@@ -47,9 +47,9 @@ public class AgentExternalCheck implements Checker {
   private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
   private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
   private static final String MESSAGE_TO_APPROVE_MAKER_CHECKER =
-      " approved this message. It has been delivered to the client(s).";
+      "%s approved %s attachment. It has been delivered to the client(s).";
   private static final String MESSAGE_TO_DENY_MAKER_CHECKER =
-      " denied this message. It has not been delivered to the client(s).";
+      "%s denied %s attachment. It has not been delivered to the client(s).";
 
   private final String ATTACHMENT = "ATTACHMENT";
 
@@ -159,9 +159,9 @@ public class AgentExternalCheck implements Checker {
     UserInfo checker = getUser(makerchecker.getChecker().getUserId());
     actionMessageBuilder.checker(checker);
     if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
-      actionMessageBuilder.messageToAgents(getMessageApproved(checker.getDisplayName()));
+      actionMessageBuilder.messageToAgents(getMessageApproved(checker.getDisplayName(), makerchecker.getAttachmentName()));
     } else if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.DENIED.getState())) {
-      actionMessageBuilder.messageToAgents(getMessageDenied(checker.getDisplayName()));
+      actionMessageBuilder.messageToAgents(getMessageDenied(checker.getDisplayName(), makerchecker.getAttachmentName()));
     }
 
     SymMessage actionMessage = actionMessageBuilder.build();
@@ -176,12 +176,12 @@ public class AgentExternalCheck implements Checker {
     return actionMessage;
   }
 
-  private String getMessageApproved(String displayName) {
-    return displayName + MESSAGE_TO_APPROVE_MAKER_CHECKER;
+  private String getMessageApproved(String displayName, String attachmentName) {
+    return String.format(MESSAGE_TO_APPROVE_MAKER_CHECKER, displayName, attachmentName);
   }
 
-  private String getMessageDenied(String displayName) {
-    return displayName + MESSAGE_TO_DENY_MAKER_CHECKER;
+  private String getMessageDenied(String displayName, String attachmentName) {
+    return String.format(MESSAGE_TO_DENY_MAKER_CHECKER, displayName, attachmentName);
   }
 
   private UserInfo getUser(Long userId) {

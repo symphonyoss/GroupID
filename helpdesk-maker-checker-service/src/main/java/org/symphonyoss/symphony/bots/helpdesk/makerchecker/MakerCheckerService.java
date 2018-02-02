@@ -153,13 +153,16 @@ public class MakerCheckerService {
   private void createMakerchecker(SymMessage symMessage, String messageId, Set<String> proxyToStreamId) {
     String makerCheckerId = symMessage.getId();
     Long makerId = symMessage.getFromUserId();
-    String attachmentId = symMessage.getAttachments().get(0).getId();
+    SymAttachmentInfo symAttachmentInfo = symMessage.getAttachments().get(0);
+    String attachmentId = symAttachmentInfo.getId();
+    String attachmentName = symAttachmentInfo.getName();
     Long timeStamp = Long.valueOf(symMessage.getTimestamp());
 
     List<String> proxyToStreamIdsList = new ArrayList<String>(proxyToStreamId);
 
     this.makercheckerClient.createMakerchecker(makerCheckerId, makerId,
-        symMessage.getStreamId(), attachmentId, messageId, timeStamp, proxyToStreamIdsList);
+        symMessage.getStreamId(), attachmentId, attachmentName, messageId, timeStamp,
+        proxyToStreamIdsList);
   }
 
   public void afterSendApprovedMessage(SymMessage symMessage) {

@@ -50,8 +50,9 @@ public class MakercheckerClient {
     }
   }
 
-  public Makerchecker createMakerchecker(String id, Long makerId, String streamId, String attachmentId,
-      String messageId, Long timeStamp, List<String> proxyToStreamId) {
+  public Makerchecker createMakerchecker(String id, Long makerId, String streamId,
+      String attachmentId, String attachmentName, String messageId, Long timeStamp,
+      List<String> proxyToStreamId) {
     Makerchecker makerchecker = new Makerchecker();
     makerchecker.setId(id);
     makerchecker.setMakerId(makerId);
@@ -60,6 +61,7 @@ public class MakercheckerClient {
     makerchecker.setTimeStamp(timeStamp);
     makerchecker.setMessageId(messageId);
     makerchecker.setAttachmentId(attachmentId);
+    makerchecker.setAttachmentName(attachmentName);
     makerchecker.setProxyToStreamIds(proxyToStreamId);
     makerchecker.setState(AttachmentStateType.OPENED.getState());
 

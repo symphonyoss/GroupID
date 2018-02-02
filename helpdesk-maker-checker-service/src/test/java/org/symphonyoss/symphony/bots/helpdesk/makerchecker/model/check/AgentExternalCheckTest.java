@@ -61,17 +61,19 @@ public class AgentExternalCheckTest {
 
   private static final String CHECKER_DISPLAY_NAME = "Financial Agent";
 
+  private static final String MOCK_ATTACHMENT_NAME = "Symphony.png";
+
   private static final String ACTION_MESSAGE_APPROVED_ENTITY_DATA = "{\"makerchecker\":{\"type\":\"com"
       + ".symphony.bots.helpdesk.event.makerchecker.action.performed\",\"version\":\"1.0\","
       + "\"checker\":{\"userId\":10651518946916,\"displayName\":\"Financial Agent\"},"
       + "\"makerCheckerId\":\"XJW9H3XPCU\",\"state\":\"APPROVED\",\"messageToAgents\":\"Financial"
-      + " Agent approved this message. It has been delivered to the client(s).\"}}";
+      + " Agent approved Symphony.png attachment. It has been delivered to the client(s).\"}}";
 
   private static final String ACTION_MESSAGE_DENIED_ENTITY_DATA = "{\"makerchecker\":{\"type"
       + "\":\"com.symphony.bots.helpdesk.event.makerchecker.action.performed\","
       + "\"version\":\"1.0\",\"checker\":{\"userId\":10651518946916,\"displayName\":\"Financial "
       + "Agent\"},\"makerCheckerId\":\"XJW9H3XPCU\",\"state\":\"DENIED\","
-      + "\"messageToAgents\":\"Financial Agent denied this message. It has not been delivered to "
+      + "\"messageToAgents\":\"Financial Agent denied Symphony.png attachment. It has not been delivered to "
       + "the client(s).\"}}";
 
   private static final String ACTION_MESSAGE = "<messageML>    <div class=\"entity\" "
@@ -176,6 +178,7 @@ public class AgentExternalCheckTest {
     makerchecker.setStreamId(MOCK_SERVICE_STREAM_ID);
     makerchecker.setId(MOCK_MAKERCHECKER_ID);
     makerchecker.setMakerId(MOCK_MAKER_ID);
+    makerchecker.setAttachmentName(MOCK_ATTACHMENT_NAME);
 
     UserInfo checker = new UserInfo();
     checker.setUserId(CHECKER_ID);
