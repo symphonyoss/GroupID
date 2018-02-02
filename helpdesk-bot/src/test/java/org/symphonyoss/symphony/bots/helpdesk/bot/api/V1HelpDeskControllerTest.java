@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -180,14 +179,12 @@ public class V1HelpDeskControllerTest {
     doReturn(symMessages).when(agentMakerCheckerService)
         .getApprovedMakercheckerMessage(any(AttachmentMakerCheckerMessage.class));
 
-    SymMessage actionMessage = mockActionMessage();
-    doReturn(actionMessage).when(agentMakerCheckerService)
-        .getActionMessage(any(Makerchecker.class), any(MakercheckerClient.AttachmentStateType.class));
-
     MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_ACCEPTED, response.getMessage());
 
     verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
+    verify(agentMakerCheckerService, times(1)).sendActionMakerCheckerMessage(makerchecker,
+        MakercheckerClient.AttachmentStateType.APPROVED);
   }
 
   @Test()
@@ -198,16 +195,13 @@ public class V1HelpDeskControllerTest {
     SymUser agent = mockActiveSymUser();
     doReturn(agent).when(symphonyValidationUtil).validateUserId(MOCK_AGENT_ID);
 
-    SymMessage actionMessage = mockActionMessage();
-    doReturn(actionMessage).when(agentMakerCheckerService)
-        .getActionMessage(any(Makerchecker.class), any(MakercheckerClient.AttachmentStateType.class));
-
     MakerCheckerResponse response = v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_DENIED, response.getMessage());
 
     verify(makercheckerClient, times(1)).updateMakerchecker(makerchecker);
     verify(helpDeskAi, times(0)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
-
+    verify(agentMakerCheckerService, times(1)).sendActionMakerCheckerMessage(makerchecker,
+        MakercheckerClient.AttachmentStateType.DENIED);
   }
 
   private Makerchecker mockMakerchecker() {
