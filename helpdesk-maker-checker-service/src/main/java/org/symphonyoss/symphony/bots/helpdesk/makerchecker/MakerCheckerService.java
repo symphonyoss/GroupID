@@ -137,7 +137,7 @@ public class MakerCheckerService {
     }
   }
 
-  public SymMessage sendActionMakerCheckerMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
+  public void sendActionMakerCheckerMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
     SymMessage symMessage = null;
     for (Checker checker : checkerSet) {
       symMessage = checker.getActionMessage(makerchecker, attachmentState);
@@ -148,8 +148,6 @@ public class MakerCheckerService {
     } catch (MessagesException e) {
       LOG.error("Error sending an action message service room", e);
     }
-
-    return symMessage;
   }
 
   private void createMakerchecker(SymMessage symMessage, String messageId, Set<String> proxyToStreamId) {

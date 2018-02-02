@@ -6,6 +6,9 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -109,16 +112,15 @@ public class MakerCheckerServiceTest {
   }
 
   @Test
-  public void testGetActionMessage() {
+  public void testSendActionMakerCheckerMessage() throws MessagesException {
     makerCheckerService.addCheck(agentExternalCheck);
 
     Makerchecker makerchecker = mockMakerchecker();
     doReturn(mockActionMessage()).when(agentExternalCheck).getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
 
-    SymMessage symMessage = makerCheckerService.sendActionMakerCheckerMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
+    makerCheckerService.sendActionMakerCheckerMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
 
-    assertEquals(STREAM_ID, symMessage.getStreamId());
-    assertEquals(TIMESTAMP.toString(), symMessage.getTimestamp());
+    verify(messagesClient, times(1)).sendMessage(any(SymStream.class), any(SymMessage.class));
   }
 
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {
