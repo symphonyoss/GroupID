@@ -9,14 +9,20 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.AttachmentsException;
+import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.ActionMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.MakerCheckerMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -29,7 +35,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.swing.text.html.Option;
 import javax.ws.rs.BadRequestException;
 
 /**
@@ -41,6 +46,10 @@ public class AgentExternalCheck implements Checker {
   private static final String MESSAGE_COULD_NOT_CREATE_FILE = "Couldn't create a file.";
   private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
   private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
+  private static final String MESSAGE_TO_APPROVE_MAKER_CHECKER =
+      " approved this message. It has been delivered to the client(s).";
+  private static final String MESSAGE_TO_DENY_MAKER_CHECKER =
+      " denied this message. It has not been delivered to the client(s).";
 
   private final String ATTACHMENT = "ATTACHMENT";
 
@@ -54,13 +63,16 @@ public class AgentExternalCheck implements Checker {
 
   private final SymphonyClient symphonyClient;
 
+  private final SymphonyValidationUtil symphonyValidationUtil;
+
   public AgentExternalCheck(String botHost, String serviceHost, String groupId,
-      TicketClient ticketClient, SymphonyClient symphonyClient) {
+      TicketClient ticketClient, SymphonyClient symphonyClient, SymphonyValidationUtil symphonyValidationUtil) {
     this.botHost = botHost;
     this.serviceHost = serviceHost;
     this.groupId = groupId;
     this.ticketClient = ticketClient;
     this.symphonyClient = symphonyClient;
+    this.symphonyValidationUtil = symphonyValidationUtil;
   }
 
   @Override
@@ -96,21 +108,21 @@ public class AgentExternalCheck implements Checker {
 
 
     for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
-      MakerCheckerMessageBuilder messageBuilder = new MakerCheckerMessageBuilder();
+      MakerCheckerMessageBuilder makerCheckerMessageBuilder = new MakerCheckerMessageBuilder();
       String makerCheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
-      messageBuilder.makerCheckerId(makerCheckerId);
-      messageBuilder.botHost(botHost);
-      messageBuilder.serviceHost(serviceHost);
-      messageBuilder.makerId(makerId);
-      messageBuilder.streamId(streamId);
-      messageBuilder.timestamp(timestamp);
-      messageBuilder.messageId(messageId);
-      messageBuilder.groupId(groupId);
-      messageBuilder.attachmentId(attachmentInfo.getId());
+      makerCheckerMessageBuilder.makerCheckerId(makerCheckerId);
+      makerCheckerMessageBuilder.botHost(botHost);
+      makerCheckerMessageBuilder.serviceHost(serviceHost);
+      makerCheckerMessageBuilder.makerId(makerId);
+      makerCheckerMessageBuilder.streamId(streamId);
+      makerCheckerMessageBuilder.timestamp(timestamp);
+      makerCheckerMessageBuilder.messageId(messageId);
+      makerCheckerMessageBuilder.groupId(groupId);
+      makerCheckerMessageBuilder.attachmentId(attachmentInfo.getId());
 
-      proxyToIds.stream().forEach(id -> messageBuilder.addProxyToStreamId(id));
+      proxyToIds.stream().forEach(id -> makerCheckerMessageBuilder.addProxyToStreamId(id));
 
-      SymMessage checkerMessage = messageBuilder.build();
+      SymMessage checkerMessage = makerCheckerMessageBuilder.build();
       checkerMessage.setId(makerCheckerId);
       checkerMessage.setStreamId(symMessage.getStreamId());
       checkerMessage.setFromUserId(makerId);
@@ -136,6 +148,50 @@ public class AgentExternalCheck implements Checker {
         .stream()
         .filter(attachmentInfo -> attachmentInfo.getId().equals(checkerMessage.getAttachmentId()))
         .findFirst();
+  }
+
+  @Override
+  public SymMessage getActionMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
+    ActionMessageBuilder actionMessageBuilder = new ActionMessageBuilder();
+    actionMessageBuilder.makerCheckerId(makerchecker.getId());
+    actionMessageBuilder.state(attachmentState.getState());
+
+    UserInfo checker = getUser(makerchecker.getChecker().getUserId());
+    actionMessageBuilder.checker(checker);
+    if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
+      actionMessageBuilder.messageToAgents(getMessageApproved(checker.getDisplayName()));
+    } else if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.DENIED.getState())) {
+      actionMessageBuilder.messageToAgents(getMessageDenied(checker.getDisplayName()));
+    }
+
+    SymMessage actionMessage = actionMessageBuilder.build();
+    actionMessage.setId(makerchecker.getId());
+    actionMessage.setStreamId(makerchecker.getStreamId());
+    actionMessage.setFromUserId(makerchecker.getMakerId());
+    SymStream symStream = new SymStream();
+    symStream.setStreamId(makerchecker.getStreamId());
+    actionMessage.setStream(symStream);
+    actionMessage.setTimestamp(String.valueOf(makerchecker.getTimeStamp()));
+
+    return actionMessage;
+  }
+
+  private String getMessageApproved(String displayName) {
+    return displayName + MESSAGE_TO_APPROVE_MAKER_CHECKER;
+  }
+
+  private String getMessageDenied(String displayName) {
+    return displayName + MESSAGE_TO_DENY_MAKER_CHECKER;
+  }
+
+  private UserInfo getUser(Long userId) {
+    UserInfo user = new UserInfo();
+
+    SymUser symUser = symphonyValidationUtil.validateUserId(userId);
+    user.setDisplayName(symUser.getDisplayName());
+    user.setUserId(symUser.getId());
+
+    return user;
   }
 
   @Override

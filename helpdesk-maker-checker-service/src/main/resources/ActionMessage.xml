@@ -1,0 +1,9 @@
+<messageML>
+    <div class="entity" data-entity-id="makerchecker">
+        <card class="barStyle">
+            <header>
+                ${entity['makerchecker'].messageToAgents}
+            </header>
+        </card>
+    </div>
+</messageML>
