@@ -5,7 +5,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -25,9 +24,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMaker
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
-import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
-import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.util.HashSet;
@@ -90,9 +87,6 @@ public class V1HelpDeskControllerTest {
 
   @Mock
   private HelpDeskAi helpDeskAi;
-
-  @Mock
-  private MessagesClient messagesClient;
 
   @InjectMocks
   private V1HelpDeskController v1HelpDeskController;
