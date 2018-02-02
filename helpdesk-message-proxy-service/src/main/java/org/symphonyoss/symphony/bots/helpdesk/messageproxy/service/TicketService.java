@@ -99,7 +99,7 @@ public class TicketService {
     return ticketClient.getTicketByServiceStreamId(streamId);
   }
 
-  private void sendTicketMessageToAgentStreamId(Ticket ticket, SymMessage message) {
+  public void sendTicketMessageToAgentStreamId(Ticket ticket, SymMessage message) {
     SymStream stream = new SymStream();
     stream.setStreamId(agentStreamId);
 
@@ -133,7 +133,7 @@ public class TicketService {
     }
   }
 
-  private void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
+  public void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
     SymStream stream = new SymStream();
     stream.setStreamId(streamId);
 

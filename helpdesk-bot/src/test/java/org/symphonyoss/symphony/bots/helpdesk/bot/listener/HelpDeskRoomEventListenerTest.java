@@ -18,6 +18,9 @@ import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.services.MessageService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.HelpDeskRoomEventListener;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.InstructionalMessageConfig;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -38,11 +41,22 @@ public class HelpDeskRoomEventListenerTest {
 
   private static final String WELCOME_MESSAGE = "Thanks for contacting the helpdesk bot";
 
+  private String runawayAgentMessage = "Message";
+
   @Mock
   private HelpDeskBotConfig config;
 
   @Mock
+  private InstructionalMessageConfig messageConfig;
+
+  @Mock
   private SymphonyClient symphonyClient;
+
+  @Mock
+  private TicketClient ticketClient;
+
+  @Mock
+  private TicketService ticketService;
 
   @Mock
   private MessageService messageService;
@@ -61,7 +75,7 @@ public class HelpDeskRoomEventListenerTest {
 
     doReturn(symUser).when(symphonyClient).getLocalUser();
 
-    this.listener = new HelpDeskRoomEventListener(symphonyClient, config);
+    this.listener = new HelpDeskRoomEventListener(runawayAgentMessage, symphonyClient, ticketClient, config, messageConfig, ticketService);
   }
 
   @Test
