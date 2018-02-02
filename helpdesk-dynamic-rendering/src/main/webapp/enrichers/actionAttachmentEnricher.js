@@ -24,7 +24,10 @@ export default class ActionAttachmentEnricher extends MessageEnricherBase {
         isApproved: entity.state === 'APPROVED',
         userName: displayName });
 
-      entityRegistry.updateEnricher(data.enricherInstanceId, template, data);
+      entityRegistry.updateEnricher(entity.makerCheckerId, template, data);
     }
+  }
+
+  action() {
   }
 }
