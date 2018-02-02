@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration>
+
+    <Properties>
+        <Property name="LOG4J2_BASE_DIR">/data/symphony/helpdesk-bot</Property>
+        <Property name="LOG4J2_LEVEL">INFO</Property>
+        <Property name="LOG4J2_FILE_LEVEL">INFO</Property>
+        <Property name="LOG4J2_FILE_ERROR_LEVEL">WARN</Property>
+        <Property name="LOG4J2_OUTPUT_CONSOLE">false</Property>
+    </Properties>
+
+    <Appenders>
+
+        <Console name="console" target="SYSTEM_OUT">
+            <ThresholdFilter level="${env:LOG4J2_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{ISO8601} %-5p [%t] %20c{1} %M - %m%n"/>
+        </Console>
+
+        <RollingFile name="error-rolling-file"
+                     fileName="${env:LOG4J2_BASE_DIR}/logs/helpdesk-bot-error.log"
+                     filePattern="${env:LOG4J2_BASE_DIR}/logs/helpdesk-bot-error-%i.log.gz"
+                     immediateFlush="false">
+            <PatternLayout pattern="%d %-5p [%c] (%t) %m%n"/>
+            <ThresholdFilter level="${env:LOG4J2_FILE_ERROR_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+            <DefaultRolloverStrategy max="10"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+        </RollingFile>
+
+        <RollingFile name="rolling-file"
+                     fileName="${env:LOG4J2_BASE_DIR}/logs/helpdesk-bot.log"
+                     filePattern="${env:LOG4J2_BASE_DIR}/logs/helpdesk-bot-%i.log.gz"
+                     immediateFlush="false">
+            <PatternLayout pattern="%d %-5p [%c] (%t) %m%n"/>
+            <ThresholdFilter level="${env:LOG4J2_FILE_LEVEL}" onMatch="ACCEPT" onMismatch="DENY"/>
+            <DefaultRolloverStrategy max="10"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+        </RollingFile>
+
+    </Appenders>
+
+    <Loggers>
+
+        <AsyncLogger name="org.symphonyoss" level="${env:LOG4J2_LEVEL}" additivity="${env:LOG4J2_OUTPUT_CONSOLE}">
+            <AppenderRef ref="rolling-file"/>
+            <AppenderRef ref="error-rolling-file"/>
+        </AsyncLogger>
+
+        <AsyncRoot level="${env:LOG4J2_LEVEL}">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="error-rolling-file"/>
+        </AsyncRoot>
+
+    </Loggers>
+
+</Configuration>
