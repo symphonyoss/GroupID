@@ -12,6 +12,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
+import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskHttpClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
@@ -32,6 +33,11 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
   @Override
   public void onApplicationEvent(ApplicationReadyEvent event) {
     ApplicationContext applicationContext = event.getApplicationContext();
+
+    FunctionExecutor<ApplicationContext, HelpDeskHttpClient> functionHttpClient = new FunctionExecutor<>();
+    functionHttpClient
+        .function(context -> setupHttpClient(context))
+        .onError(e -> LOGGER.error("Fail to create HTTP client", e));
 
     FunctionExecutor<ApplicationContext, SymAuth> functionAuth = new FunctionExecutor<>();
     functionAuth
@@ -54,6 +60,7 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
         .onError(e -> LOGGER.error("Fail to initilize Helpdesk Ai", e));
 
     try {
+      functionHttpClient.executeBackoffExponential(applicationContext);
       SymAuth symAuth = functionAuth.executeBackoffExponential(applicationContext);
       functionClient.executeBackoffExponential(symAuth);
       functionRegisterBot.executeBackoffExponential(applicationContext);
@@ -63,6 +70,20 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
     } catch (InterruptedException e) {
       LOGGER.error("Fail to start helpdesk bot", e);
     }
+  }
+
+  /**
+   * Create HTTP client.
+   * @param applicationContext Spring application context
+   * @return Symphony HTTP client
+   */
+  private HelpDeskHttpClient setupHttpClient(ApplicationContext applicationContext) {
+    HelpDeskHttpClient httpClient = applicationContext.getBean(HelpDeskHttpClient.class);
+    HelpDeskBotConfig config = applicationContext.getBean(HelpDeskBotConfig.class);
+
+    httpClient.setupClient(config);
+
+    return httpClient;
   }
 
   /**

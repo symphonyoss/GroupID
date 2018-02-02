@@ -21,6 +21,12 @@ public class HelpDeskSymphonyClient extends SymphonyBasicClient {
 
   private HelpDeskMessageService messageService;
 
+  private final HelpDeskHttpClient httpClient;
+
+  public HelpDeskSymphonyClient(HelpDeskHttpClient client) {
+    this.httpClient = client;
+  }
+
   @Override
   public void init(SymAuth symAuth, String email, String agentUrl, String podUrl) throws InitException {
     validateAgentUrl(agentUrl);
@@ -31,7 +37,10 @@ public class HelpDeskSymphonyClient extends SymphonyBasicClient {
 
     SymphonyClientConfig config = buildConfig(email, agentUrl, podUrl);
 
+    setDefaultHttpClient(httpClient.getClient());
+
     super.init(symAuth, config);
+
     getAgentHttpClient().register(new JSON());
     getPodHttpClient().register(new JSON());
 

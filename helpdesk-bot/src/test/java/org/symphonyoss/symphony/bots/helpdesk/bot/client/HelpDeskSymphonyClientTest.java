@@ -27,7 +27,7 @@ public class HelpDeskSymphonyClientTest {
   @Mock
   private SymAuth symAuth;
 
-  private HelpDeskSymphonyClient client = new HelpDeskSymphonyClient();
+  private HelpDeskSymphonyClient client = new HelpDeskSymphonyClient(new HelpDeskHttpClient());
 
   @Test
   public void testNullAgentUrl() {
