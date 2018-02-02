@@ -2,5 +2,4 @@
 
 {{ java_path }} -jar /opt/symphony/helpdesk/helpdesk-api.jar \
     --helpdesk.mongo.host={{ mongo_host }} \
-    --spring.config.location=/data/symphony/helpdesk/application.yaml \
-    --logging.file=/data/symphony/helpdesk/logs/helpdesk-api.log
+    --spring.config.location=/data/symphony/helpdesk/application.yaml
