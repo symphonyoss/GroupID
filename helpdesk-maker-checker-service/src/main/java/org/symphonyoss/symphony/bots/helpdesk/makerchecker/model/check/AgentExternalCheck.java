@@ -131,6 +131,7 @@ public class AgentExternalCheck implements Checker {
 
       SymAttachmentInfo attachment = new SymAttachmentInfo();
       attachment.setId(attachmentInfo.getId());
+      attachment.setName(attachmentInfo.getName());
 
       checkerMessage.setAttachments(Arrays.asList(attachment));
 
