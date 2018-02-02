@@ -112,7 +112,7 @@ public class V1HelpDeskController extends V1ApiController {
       makerchecker.setChecker(checker);
       makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
 
-      agentMakerCheckerService.sendActionMakerCheckerMessage(makerchecker, MakercheckerClient.AttachmentStateType.DENIED);
+      agentMakerCheckerService.sendActionMakerCheckerMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
 
       makercheckerClient.updateMakerchecker(makerchecker);
 
