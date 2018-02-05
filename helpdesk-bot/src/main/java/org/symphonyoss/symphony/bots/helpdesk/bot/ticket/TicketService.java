@@ -22,7 +22,7 @@ public abstract class TicketService {
 
   private final SymphonyValidationUtil symphonyValidationUtil;
 
-  private final SymphonyClient symphonyClient;
+  protected final SymphonyClient symphonyClient;
 
   protected final HelpDeskBotConfig helpDeskBotConfig;
 
