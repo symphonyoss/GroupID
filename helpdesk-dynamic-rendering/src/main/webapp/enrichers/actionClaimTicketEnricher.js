@@ -5,7 +5,7 @@ const actions = require('../templates/claimTicketActions.hbs');
 
 const enricherServiceName = 'helpdesk-action-claim-enricher';
 const messageEvents = [
-  'com.symphony.bots.helpdesk.event.ticket.claimed',
+  'com.symphony.bots.helpdesk.event.ticket.accept',
 ];
 
 export default class ActionClaimTicketEnricher extends MessageEnricherBase {

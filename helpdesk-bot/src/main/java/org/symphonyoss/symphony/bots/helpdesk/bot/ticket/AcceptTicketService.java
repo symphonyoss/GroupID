@@ -118,7 +118,7 @@ public class AcceptTicketService extends TicketService {
     SymMessage acceptMessage = getAcceptMessage(ticket, agent, ticketState);
 
     try {
-      symphonyClient.getMessageService().sendMessage(stream, acceptMessage);
+      symphonyClient.getMessagesClient().sendMessage(stream, acceptMessage);
     } catch (MessagesException e) {
       LOG.error("Fail to send accepted ticket (claimed) message", e);
       throw new InternalServerErrorException(e);

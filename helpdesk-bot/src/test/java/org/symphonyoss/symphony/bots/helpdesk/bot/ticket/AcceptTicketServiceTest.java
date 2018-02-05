@@ -26,6 +26,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.Membersh
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
+import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.RoomMembershipClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -68,6 +69,9 @@ public class AcceptTicketServiceTest {
   private MessageService messageService;
 
   @Mock
+  private MessagesClient messagesClient;
+
+  @Mock
   private HelpDeskAi helpDeskAi;
 
   @Mock
@@ -78,7 +82,7 @@ public class AcceptTicketServiceTest {
   @Before
   public void init() {
     doReturn(roomMembershipClient).when(symphonyClient).getRoomMembershipClient();
-    doReturn(messageService).when(symphonyClient).getMessageService();
+    doReturn(messagesClient).when(symphonyClient).getMessagesClient();
 
     this.acceptTicketService =
         new AcceptTicketService(symphonyValidationUtil, symphonyClient,
@@ -138,7 +142,7 @@ public class AcceptTicketServiceTest {
 
     verify(ticketClient, times(1)).updateTicket(ticket);
     verify(helpDeskAi, times(1)).sendMessage(any(), any(), any());
-    verify(messageService, times(1)).sendMessage(any(SymStream.class), any(SymMessage.class));
+    verify(messagesClient, times(1)).sendMessage(any(SymStream.class), any(SymMessage.class));
   }
 
 }

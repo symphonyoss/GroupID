@@ -9,7 +9,7 @@ import org.symphonyoss.symphony.bots.utility.message.EntityBuilder;
  */
 public class AcceptMessageBuilder extends TicketMessageBuilder {
 
-    private static final String BASE_TICKET_EVENT = "com.symphony.bots.helpdesk.event.ticket.claimed";
+    private static final String BASE_TICKET_EVENT = "com.symphony.bots.helpdesk.event.ticket";
 
   private static final String USER_TICKET_EVENT = BASE_TICKET_EVENT + ".user";
 

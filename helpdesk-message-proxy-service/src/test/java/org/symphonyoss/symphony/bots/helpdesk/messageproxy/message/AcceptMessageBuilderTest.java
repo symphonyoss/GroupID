@@ -19,9 +19,9 @@ public class AcceptMessageBuilderTest {
   private static final String MOCK_TICKET = "ABCDEFG";
 
   private static final String EXPECTED_ENTITY = "{\"helpdesk\":{\"type\":\"com.symphony.bots"
-      + ".helpdesk.event.ticket.claimed.accept\",\"version\":\"1.0\",\"ticketId\":\"ABCDEFG\","
+      + ".helpdesk.event.ticket.accept\",\"version\":\"1.0\",\"ticketId\":\"ABCDEFG\","
       + "\"state\":\"UNRESOLVED\",\"agent\":{\"type\":\"com.symphony.bots.helpdesk.event.ticket"
-      + ".claimed.user\",\"version\":\"1.0\",\"displayName\":\"Agent User\"}}}";
+      + ".user\",\"version\":\"1.0\",\"displayName\":\"Agent User\"}}}";
 
   @Test
   public void testMessage() {
