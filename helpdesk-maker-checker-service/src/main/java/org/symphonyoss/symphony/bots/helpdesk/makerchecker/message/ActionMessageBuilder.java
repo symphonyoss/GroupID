@@ -41,6 +41,8 @@ public class ActionMessageBuilder {
 
   private UserInfo checker;
 
+  private String messageToAgents;
+
   public ActionMessageBuilder() {
     if (StringUtils.isEmpty(message)) {
       message = parseTemplate();
@@ -61,6 +63,11 @@ public class ActionMessageBuilder {
 
   public ActionMessageBuilder checker(UserInfo checker) {
     this.checker = checker;
+    return this;
+  }
+
+  public ActionMessageBuilder messageToAgents(String messageToAgents) {
+    this.messageToAgents = messageToAgents;
     return this;
   }
 
@@ -88,6 +95,7 @@ public class ActionMessageBuilder {
       bodyBuilder.addField("checker", checker);
       bodyBuilder.addField("makerCheckerId", makerCheckerId);
       bodyBuilder.addField("state", state);
+      bodyBuilder.addField("messageToAgents", messageToAgents);
 
       EntityBuilder builder = EntityBuilder.createEntity();
       builder.addField("makerchecker", bodyBuilder.toObject());

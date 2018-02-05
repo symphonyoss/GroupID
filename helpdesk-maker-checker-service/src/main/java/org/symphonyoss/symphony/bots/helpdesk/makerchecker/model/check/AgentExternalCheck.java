@@ -46,6 +46,10 @@ public class AgentExternalCheck implements Checker {
   private static final String MESSAGE_COULD_NOT_CREATE_FILE = "Couldn't create a file.";
   private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
   private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
+  private static final String MESSAGE_TO_APPROVE_MAKER_CHECKER =
+      "%s approved %s attachment. It has been delivered to the client(s).";
+  private static final String MESSAGE_TO_DENY_MAKER_CHECKER =
+      "%s denied %s attachment. It has not been delivered to the client(s).";
 
   private final String ATTACHMENT = "ATTACHMENT";
 
@@ -127,6 +131,7 @@ public class AgentExternalCheck implements Checker {
 
       SymAttachmentInfo attachment = new SymAttachmentInfo();
       attachment.setId(attachmentInfo.getId());
+      attachment.setName(attachmentInfo.getName());
 
       checkerMessage.setAttachments(Arrays.asList(attachment));
 
@@ -151,7 +156,14 @@ public class AgentExternalCheck implements Checker {
     ActionMessageBuilder actionMessageBuilder = new ActionMessageBuilder();
     actionMessageBuilder.makerCheckerId(makerchecker.getId());
     actionMessageBuilder.state(attachmentState.getState());
-    actionMessageBuilder.checker(getUser(makerchecker.getMakerId()));
+
+    UserInfo checker = getUser(makerchecker.getChecker().getUserId());
+    actionMessageBuilder.checker(checker);
+    if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
+      actionMessageBuilder.messageToAgents(getMessageApproved(checker.getDisplayName(), makerchecker.getAttachmentName()));
+    } else if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.DENIED.getState())) {
+      actionMessageBuilder.messageToAgents(getMessageDenied(checker.getDisplayName(), makerchecker.getAttachmentName()));
+    }
 
     SymMessage actionMessage = actionMessageBuilder.build();
     actionMessage.setId(makerchecker.getId());
@@ -163,6 +175,14 @@ public class AgentExternalCheck implements Checker {
     actionMessage.setTimestamp(String.valueOf(makerchecker.getTimeStamp()));
 
     return actionMessage;
+  }
+
+  private String getMessageApproved(String displayName, String attachmentName) {
+    return String.format(MESSAGE_TO_APPROVE_MAKER_CHECKER, displayName, attachmentName);
+  }
+
+  private String getMessageDenied(String displayName, String attachmentName) {
+    return String.format(MESSAGE_TO_DENY_MAKER_CHECKER, displayName, attachmentName);
   }
 
   private UserInfo getUser(Long userId) {
