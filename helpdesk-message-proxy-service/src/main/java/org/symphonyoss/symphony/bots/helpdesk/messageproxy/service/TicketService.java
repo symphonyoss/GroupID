@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
+import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.InstructionalMessageConfig;
@@ -61,7 +62,7 @@ public class TicketService {
     this.instructionalMessageConfig = instructionalMessageConfig;
   }
 
-  public Ticket createTicket(String ticketId, SymMessage message, String serviceStreamId) {
+  public Ticket createTicket(String ticketId, SymMessage message, Room serviceRoom) {
     UserInfo client = null;
 
     try {
@@ -74,8 +75,8 @@ public class TicketService {
       LOGGER.error("Could not get symphony user when creating ticket: ", e);
     }
 
-    Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStreamId,
-        Long.valueOf(message.getTimestamp()), client);
+    Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceRoom.getId(),
+        Long.valueOf(message.getTimestamp()), client, serviceRoom.getRoomDetail().getRoomAttributes().getViewHistory());
     sendTicketMessageToAgentStreamId(ticket, message);
 
     SymMessage symMessage = new SymMessage();

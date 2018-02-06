@@ -370,6 +370,11 @@ definitions:
         type: string
       serviceStreamId:
         type: string
+      showHistory:
+        type: boolean
+      conversationID:
+        type: integer
+        format: int64
       clientStreamId:
         type: string
       state:

@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -12,6 +13,7 @@ import org.mockito.MockitoAnnotations;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
+import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.InstructionalMessageConfig;
@@ -23,6 +25,8 @@ import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
+import org.symphonyoss.symphony.clients.model.SymRoomDetail;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
@@ -112,7 +116,7 @@ public class TicketServiceTest {
 
     Ticket mockTicket = mock(Ticket.class);
     when(ticketClient.createTicket(TEST_TICKET_ID, TEST_CLIENT_STREAM_ID, TEST_SERVICE_STREAM_ID,
-        TEST_TIMESTAMP, getTestClient())).thenReturn(mockTicket);
+        TEST_TIMESTAMP, getTestClient(), Boolean.TRUE)).thenReturn(mockTicket);
 
     SymMessage symMessage = new SymMessage();
     symMessage.setMessageText(TEST_CREATE_TICKET_MESSAGE);
@@ -126,8 +130,25 @@ public class TicketServiceTest {
     when(messagesClient.sendMessage(stream, getTestInstructionalMessage()))
         .thenReturn(getTestInstructionalMessage());
 
-    Ticket ticket = mockService.createTicket(TEST_TICKET_ID, testSym, TEST_SERVICE_STREAM_ID);
+    Room serviceRoom = mockRoom();
+
+    Ticket ticket = mockService.createTicket(TEST_TICKET_ID, testSym, serviceRoom);
 
     assertEquals("Ticket return", mockTicket, ticket);
+  }
+
+  private Room mockRoom() {
+    Room room = new Room();
+    room.setId(TEST_SERVICE_STREAM_ID);
+
+    SymRoomAttributes symRoomAttributes = new SymRoomAttributes();
+    symRoomAttributes.setViewHistory(Boolean.TRUE);
+
+    SymRoomDetail symRoomDetail = new SymRoomDetail();
+    symRoomDetail.setRoomAttributes(symRoomAttributes);
+
+    room.setRoomDetail(symRoomDetail);
+
+    return room;
   }
 }

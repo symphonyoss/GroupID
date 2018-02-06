@@ -31,7 +31,7 @@ public class HelpDeskStreamsClient extends StreamsClientImpl {
     this.apiClient.setBasePath(config.get(SymphonyClientConfigID.POD_URL));
   }
 
-  public SymRoomDetail createChatRoom(SymRoomAttributes roomAttributes, boolean roomHistory) throws StreamsException {
+  public SymRoomDetail createChatRoom(SymRoomAttributes roomAttributes) throws StreamsException {
     if(roomAttributes == null) {
       throw new NullPointerException("Room Attributes were not provided..");
     } else {
@@ -39,7 +39,7 @@ public class HelpDeskStreamsClient extends StreamsClientImpl {
 
       try {
         return toSymRoomDetail(
-            streamsApi.v3RoomCreatePost(toV3RoomAttributes(roomAttributes, roomHistory),
+            streamsApi.v3RoomCreatePost(toV3RoomAttributes(roomAttributes),
                 this.symAuth.getSessionToken().getToken()));
       } catch (ApiException e) {
         throw new StreamsException(
@@ -49,7 +49,7 @@ public class HelpDeskStreamsClient extends StreamsClientImpl {
     }
   }
 
-  private V3RoomAttributes toV3RoomAttributes(SymRoomAttributes roomAttributes, boolean roomHistory) {
+  private V3RoomAttributes toV3RoomAttributes(SymRoomAttributes roomAttributes) {
     V3RoomAttributes v3RoomAttributes = new V3RoomAttributes();
     v3RoomAttributes.setPublic(roomAttributes.getPublic());
     v3RoomAttributes.setCopyProtected(roomAttributes.getCopyProtected());
@@ -59,7 +59,8 @@ public class HelpDeskStreamsClient extends StreamsClientImpl {
     v3RoomAttributes.setMembersCanInvite(roomAttributes.getMembersCanInvite());
     v3RoomAttributes.setName(roomAttributes.getName());
     v3RoomAttributes.setReadOnly(roomAttributes.getReadOnly());
-    v3RoomAttributes.setViewHistory(roomHistory);
+    v3RoomAttributes.setViewHistory(roomAttributes.getViewHistory());
+
     return v3RoomAttributes;
   }
 

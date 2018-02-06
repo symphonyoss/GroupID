@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
@@ -21,6 +22,8 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
+import org.symphonyoss.symphony.clients.model.SymRoomDetail;
 
 /**
  * Created by alexandre-silva-daitan on 19/12/17
@@ -103,6 +106,7 @@ public class TicketManagerServiceTest {
     symMessage.setStreamId(NEW_STREAM_ID);
     Ticket ticket = getTicket();
     Membership membershipClient = getMembershipClient();
+    Room serviceRoom = mockRoom();
 
     doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
 
@@ -116,7 +120,7 @@ public class TicketManagerServiceTest {
     verify(membershipService, times(1)).updateMembership(symMessage,
         MembershipClient.MembershipType.CLIENT);
 
-    verify(ticketService, never()).createTicket(anyString(), eq(symMessage), eq(NEW_STREAM_ID));
+    verify(ticketService, never()).createTicket(anyString(), eq(symMessage), eq(serviceRoom));
 
     verify(messageProxyService, times(1)).onMessage(membershipClient, ticket, symMessage);
   }
@@ -127,6 +131,7 @@ public class TicketManagerServiceTest {
     symMessage.setStreamId(NEW_STREAM_ID);
     Ticket ticket = getTicket();
     Membership membershipClient = getMembershipClient();
+    Room serviceRoom = mockRoom();
 
     doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
 
@@ -135,18 +140,17 @@ public class TicketManagerServiceTest {
 
     doReturn(null).when(ticketService).getUnresolvedTicket(NEW_STREAM_ID);
 
-    doReturn(NEW_SERVICE_STREAM_ID).when(roomService).newServiceStream(anyString(), eq(GROUP_ID));
+    doReturn(serviceRoom).when(roomService).createServiceStream(anyString(), eq(GROUP_ID));
 
     doReturn(ticket).when(ticketService)
-        .createTicket(anyString(), eq(symMessage), eq(NEW_SERVICE_STREAM_ID));
+        .createTicket(anyString(), eq(symMessage), eq(serviceRoom));
 
     ticketManagerService.messageReceived(symMessage);
 
     verify(membershipService, times(1)).updateMembership(symMessage,
         MembershipClient.MembershipType.CLIENT);
 
-    verify(ticketService, times(1)).createTicket(anyString(), eq(symMessage), eq(
-        NEW_SERVICE_STREAM_ID));
+    verify(ticketService, times(1)).createTicket(anyString(), eq(symMessage), eq(serviceRoom));
 
     verify(messageProxyService, times(1)).onMessage(membershipClient, ticket, symMessage);
   }
@@ -199,5 +203,18 @@ public class TicketManagerServiceTest {
     return agent;
   }
 
+  private Room mockRoom() {
+    Room room = new Room();
+    room.setId(NEW_SERVICE_STREAM_ID);
 
+    SymRoomAttributes symRoomAttributes = new SymRoomAttributes();
+    symRoomAttributes.setViewHistory(Boolean.TRUE);
+
+    SymRoomDetail symRoomDetail = new SymRoomDetail();
+    symRoomDetail.setRoomAttributes(symRoomAttributes);
+
+    room.setRoomDetail(symRoomDetail);
+
+    return room;
+  }
 }

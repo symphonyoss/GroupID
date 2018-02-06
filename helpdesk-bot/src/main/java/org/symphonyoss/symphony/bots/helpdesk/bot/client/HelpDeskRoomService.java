@@ -20,13 +20,13 @@ public class HelpDeskRoomService extends RoomService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HelpDeskRoomService.class);
 
-  private final SymphonyClient symClient;
+  private final SymphonyClient symphonyClient;
 
   private final HelpDeskStreamsClient streamsClient;
 
-  public HelpDeskRoomService(SymphonyClient symClient, SymAuth symAuth, SymphonyClientConfig config) {
-    super(symClient);
-    this.symClient = symClient;
+  public HelpDeskRoomService(SymphonyClient symphonyClient, SymAuth symAuth, SymphonyClientConfig config) {
+    super(symphonyClient);
+    this.symphonyClient = symphonyClient;
     this.streamsClient = new HelpDeskStreamsClient(symAuth, config);
   }
 
@@ -35,12 +35,13 @@ public class HelpDeskRoomService extends RoomService {
       throw new NullPointerException("Room attributes were not provided..");
     } else {
       try {
-        SymRoomDetail chatRoom = this.streamsClient.createChatRoom(symRoomAttributes, true);
+        SymRoomDetail symRoomDetail = streamsClient.createChatRoom(symRoomAttributes);
         Room room = new Room();
-        room.setId(chatRoom.getRoomSystemInfo().getId());
-        room.setRoomDetail(chatRoom);
+        room.setId(symRoomDetail.getRoomSystemInfo().getId());
+        room.setRoomDetail(symRoomDetail);
         room.setStreamId(room.getId());
-        room.setMembershipList(this.symClient.getRoomMembershipClient().getRoomMembership(room.getId()));
+        room.setMembershipList(symphonyClient.getRoomMembershipClient().getRoomMembership(room.getId()));
+
         return room;
       } catch (StreamsException e) {
         LOGGER.error("Failed to obtain stream for room...", e);

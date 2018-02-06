@@ -63,7 +63,7 @@ public class TicketClient {
    * @return the ticket
    */
   public Ticket createTicket(String ticketId, String clientStreamId, String newServiceStream,
-      Long timestamp, UserInfo client) {
+      Long timestamp, UserInfo client, Boolean showHistory) {
     Ticket ticket = new Ticket();
     ticket.setId(ticketId);
     ticket.setGroupId(groupId);
@@ -72,6 +72,7 @@ public class TicketClient {
     ticket.setState(TicketStateType.UNSERVICED.getState());
     ticket.setClient(client);
     ticket.setQuestionTimestamp(timestamp);
+    ticket.setShowHistory(showHistory);
 
     try {
       return ticketApi.createTicket(ticket);
