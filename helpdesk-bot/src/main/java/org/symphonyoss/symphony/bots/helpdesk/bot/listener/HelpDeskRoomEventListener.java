@@ -17,7 +17,6 @@ import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.services.RoomServiceEventListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.InstructionalMessageConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -39,18 +38,15 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
   private final SymphonyClient symphonyClient;
   private final TicketClient ticketClient;
   private final HelpDeskBotConfig config;
-  private final InstructionalMessageConfig instructionalMessageConfig;
   private final TicketService ticketService;
 
   public HelpDeskRoomEventListener(@Value("${noAgentsMessage}") String runawayAgentMessage,
-      SymphonyClient symphonyClient, TicketClient ticketClient,
-      HelpDeskBotConfig config, InstructionalMessageConfig instructionalMessageConfig,
+      SymphonyClient symphonyClient, TicketClient ticketClient, HelpDeskBotConfig config,
       TicketService ticketService) {
     this.runawayAgentMessage = runawayAgentMessage;
     this.symphonyClient = symphonyClient;
     this.ticketClient = ticketClient;
     this.config = config;
-    this.instructionalMessageConfig = instructionalMessageConfig;
     this.ticketService = ticketService;
   }
 
@@ -132,29 +128,30 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
     SymUser symUser = symUserLeftRoom.getAffectedUser();
     SymStream symStream = symUserLeftRoom.getStream();
 
-    if (isAgentStreamId(symStream)) {
-      if (isBotUser(symUser)) {
-        LOGGER.warn("Bot user was removed from the agent room");
-      }
-    } else {
-      if (symStream.getMembers().size() <= 1) {
+    if (!isAgentStreamId(symStream) && (symStream.getMembers().size() <= 1)) {
+      Ticket ticket = ticketClient.getTicketByServiceStreamId(symStream.getStreamId());
 
+      if (ticket != null) {
         LOGGER.info("Only the bot was left in the ticket room. Reopening ticket in the Agent room");
-        // Update ticket first
-        Ticket ticket = ticketClient.getTicketByServiceStreamId(symStream.getStreamId());
+
+        // Update ticket to a state that it can be claimed again by another agent
         ticket.setAgent(null);
         ticket.setState(TicketClient.TicketStateType.UNSERVICED.toString());
         ticketClient.updateTicket(ticket);
 
+        SymUser localUser = symphonyClient.getLocalUser();
+
         // Resend ticket message to the agent room
-        SymMessage symMessage = SymMessageBuilder.message("").build();
-        symMessage.setFromUserId(symUser.getId());
+        SymMessage symMessage = SymMessageBuilder.message("<messageML></messageML>").build();
+        symMessage.setFromUserId(localUser.getId());
         ticketService.sendTicketMessageToAgentStreamId(ticket, symMessage);
 
         // Warn the client that no agents are connected to the ticket
         symMessage = new SymMessage();
         symMessage.setMessageText(runawayAgentMessage);
+        symMessage.setFromUserId(localUser.getId());
         ticketService.sendClientMessageToServiceStreamId(ticket.getClientStreamId(), symMessage);
+
       }
     }
   }

@@ -58,9 +58,6 @@ public class HelpDeskRoomEventListenerTest {
   private HelpDeskBotConfig config;
 
   @Mock
-  private InstructionalMessageConfig messageConfig;
-
-  @Mock
   private SymphonyClient symphonyClient;
 
   @Mock
@@ -88,7 +85,7 @@ public class HelpDeskRoomEventListenerTest {
 
     this.listener =
         new HelpDeskRoomEventListener(runawayAgentMessage, symphonyClient, ticketClient, config,
-            messageConfig, ticketService);
+            ticketService);
   }
 
   @Test
@@ -140,22 +137,6 @@ public class HelpDeskRoomEventListenerTest {
         any(SymMessage.class));
     verify(ticketService, times(1)).sendClientMessageToServiceStreamId(anyString(),
         any(SymMessage.class));
-  }
-
-  @Test
-  public void testBotLeftRoom() {
-    SymUser symUser = new SymUser();
-    symUser.setId(MOCK_BOT_USER);
-    symUser.setDisplayName(StringUtils.EMPTY);
-
-    SymUserLeftRoom symUserLeftRoom = mockLeaveEvent(MOCK_BOT_USER, MOCK_STREAM);
-
-    doReturn(MOCK_STREAM).when(config).getAgentStreamId();
-    doReturn(symUser).when(symphonyClient).getLocalUser();
-
-    listener.onSymUserLeftRoom(symUserLeftRoom);
-
-    verify(symphonyClient, times(1)).getLocalUser();
   }
 
   private SymUserJoinedRoom mockJoinEvent(Long userId, String stream) {
