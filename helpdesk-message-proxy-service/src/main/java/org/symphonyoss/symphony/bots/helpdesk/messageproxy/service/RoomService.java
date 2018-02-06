@@ -45,6 +45,7 @@ public class RoomService {
 
     try {
       room = symphonyClient.getRoomService().createRoom(roomAttributes);
+      room.getRoomDetail().getRoomAttributes().setViewHistory(viewHistory);
       LOGGER.info("Created new room: " + roomAttributes.getName());
 
       return room;
