@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.listener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.bots.utility.message.SymMessageBuilder;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -32,13 +34,14 @@ import org.symphonyoss.symphony.clients.model.SymUser;
 public class HelpDeskRoomEventListener implements RoomServiceEventListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HelpDeskRoomEventListener.class);
-  private static final String WELCOME_MESSAGE_TEMPLATE = "<messageML>%s</messageML>";
+  private static final String MESSAGEML_TEMPLATE = "<messageML>%s</messageML>";
 
   private final String runawayAgentMessage;
   private final SymphonyClient symphonyClient;
   private final TicketClient ticketClient;
   private final HelpDeskBotConfig config;
   private final TicketService ticketService;
+  private final SymphonyClientUtil symphonyClientUtil;
 
   public HelpDeskRoomEventListener(@Value("${noAgentsMessage}") String runawayAgentMessage,
       SymphonyClient symphonyClient, TicketClient ticketClient, HelpDeskBotConfig config,
@@ -48,6 +51,7 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
     this.ticketClient = ticketClient;
     this.config = config;
     this.ticketService = ticketService;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
   @Override
@@ -100,7 +104,7 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
 
   private void sendWelcomeMessage(SymStream symStream, SymUser symUser) {
     if (isBotUser(symUser) && !isAgentStreamId(symStream)) {
-      String messageML = String.format(WELCOME_MESSAGE_TEMPLATE, config.getWelcomeMessage());
+      String messageML = String.format(MESSAGEML_TEMPLATE, config.getWelcomeMessage());
 
       SymMessage symMessage = new SymMessage();
       symMessage.setMessage(messageML);
@@ -141,8 +145,20 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
 
         SymUser localUser = symphonyClient.getLocalUser();
 
+        // Retrieve the client question
+        String question = StringUtils.EMPTY;
+        try {
+          // FIXME Get the timestamp from the ticket
+          SymMessage clientMessage =
+              symphonyClientUtil.getSymMessageByStreamAndTimestamp(ticket.getClientStreamId(), 0L);
+          question = clientMessage.getMessageText();
+        } catch (MessagesException e) {
+          LOGGER.warn("The client question could not be retrieved.");
+        }
+
+
         // Resend ticket message to the agent room
-        SymMessage symMessage = SymMessageBuilder.message("<messageML></messageML>").build();
+        SymMessage symMessage = SymMessageBuilder.message(String.format(MESSAGEML_TEMPLATE, question)).build();
         symMessage.setFromUserId(localUser.getId());
         ticketService.sendTicketMessageToAgentStreamId(ticket, symMessage);
 
