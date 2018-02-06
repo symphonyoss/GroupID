@@ -106,7 +106,7 @@ public class TicketManagerServiceTest {
     symMessage.setStreamId(NEW_STREAM_ID);
     Ticket ticket = getTicket();
     Membership membershipClient = getMembershipClient();
-    Room serviceRoom = mockRoom();
+    Room serviceStream = mockRoom();
 
     doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
 
@@ -120,7 +120,7 @@ public class TicketManagerServiceTest {
     verify(membershipService, times(1)).updateMembership(symMessage,
         MembershipClient.MembershipType.CLIENT);
 
-    verify(ticketService, never()).createTicket(anyString(), eq(symMessage), eq(serviceRoom));
+    verify(ticketService, never()).createTicket(anyString(), eq(symMessage), eq(serviceStream));
 
     verify(messageProxyService, times(1)).onMessage(membershipClient, ticket, symMessage);
   }
@@ -131,7 +131,7 @@ public class TicketManagerServiceTest {
     symMessage.setStreamId(NEW_STREAM_ID);
     Ticket ticket = getTicket();
     Membership membershipClient = getMembershipClient();
-    Room serviceRoom = mockRoom();
+    Room serviceStream = mockRoom();
 
     doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
 
@@ -140,17 +140,17 @@ public class TicketManagerServiceTest {
 
     doReturn(null).when(ticketService).getUnresolvedTicket(NEW_STREAM_ID);
 
-    doReturn(serviceRoom).when(roomService).createServiceStream(anyString(), eq(GROUP_ID));
+    doReturn(serviceStream).when(roomService).createServiceStream(anyString(), eq(GROUP_ID));
 
     doReturn(ticket).when(ticketService)
-        .createTicket(anyString(), eq(symMessage), eq(serviceRoom));
+        .createTicket(anyString(), eq(symMessage), eq(serviceStream));
 
     ticketManagerService.messageReceived(symMessage);
 
     verify(membershipService, times(1)).updateMembership(symMessage,
         MembershipClient.MembershipType.CLIENT);
 
-    verify(ticketService, times(1)).createTicket(anyString(), eq(symMessage), eq(serviceRoom));
+    verify(ticketService, times(1)).createTicket(anyString(), eq(symMessage), eq(serviceStream));
 
     verify(messageProxyService, times(1)).onMessage(membershipClient, ticket, symMessage);
   }

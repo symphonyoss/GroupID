@@ -62,13 +62,13 @@ public class TicketClient {
    * @param clientStreamId the stream id of the client room
    * @return the ticket
    */
-  public Ticket createTicket(String ticketId, String clientStreamId, String newServiceStream,
+  public Ticket createTicket(String ticketId, String clientStreamId, String serviceStream,
       Long timestamp, UserInfo client, Boolean showHistory) {
     Ticket ticket = new Ticket();
     ticket.setId(ticketId);
     ticket.setGroupId(groupId);
     ticket.setClientStreamId(clientStreamId);
-    ticket.setServiceStreamId(newServiceStream);
+    ticket.setServiceStreamId(serviceStream);
     ticket.setState(TicketStateType.UNSERVICED.getState());
     ticket.setClient(client);
     ticket.setQuestionTimestamp(timestamp);

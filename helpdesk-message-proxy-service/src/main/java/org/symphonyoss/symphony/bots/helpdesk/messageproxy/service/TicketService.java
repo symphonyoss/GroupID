@@ -62,7 +62,7 @@ public class TicketService {
     this.instructionalMessageConfig = instructionalMessageConfig;
   }
 
-  public Ticket createTicket(String ticketId, SymMessage message, Room serviceRoom) {
+  public Ticket createTicket(String ticketId, SymMessage message, Room serviceStream) {
     UserInfo client = null;
 
     try {
@@ -75,8 +75,8 @@ public class TicketService {
       LOGGER.error("Could not get symphony user when creating ticket: ", e);
     }
 
-    Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceRoom.getId(),
-        Long.valueOf(message.getTimestamp()), client, serviceRoom.getRoomDetail().getRoomAttributes().getViewHistory());
+    Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStream.getId(),
+        Long.valueOf(message.getTimestamp()), client, serviceStream.getRoomDetail().getRoomAttributes().getViewHistory());
     sendTicketMessageToAgentStreamId(ticket, message);
 
     SymMessage symMessage = new SymMessage();

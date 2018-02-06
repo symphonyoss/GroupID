@@ -76,9 +76,9 @@ public class TicketManagerService {
 
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        Room serviceRoom = roomService.createServiceStream(ticketId, groupId);
+        Room serviceStream = roomService.createServiceStream(ticketId, groupId);
 
-        ticket = ticketService.createTicket(ticketId, message, serviceRoom);
+        ticket = ticketService.createTicket(ticketId, message, serviceStream);
       } else {
         LOGGER.info("Ticket already exists");
       }
