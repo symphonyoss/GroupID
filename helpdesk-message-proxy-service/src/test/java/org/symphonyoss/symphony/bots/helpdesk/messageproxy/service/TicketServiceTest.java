@@ -130,9 +130,9 @@ public class TicketServiceTest {
     when(messagesClient.sendMessage(stream, getTestInstructionalMessage()))
         .thenReturn(getTestInstructionalMessage());
 
-    Room serviceRoom = mockRoom();
+    Room serviceStream = mockRoom();
 
-    Ticket ticket = mockService.createTicket(TEST_TICKET_ID, testSym, serviceRoom);
+    Ticket ticket = mockService.createTicket(TEST_TICKET_ID, testSym, serviceStream);
 
     assertEquals("Ticket return", mockTicket, ticket);
   }
