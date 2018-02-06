@@ -76,7 +76,8 @@ public class TicketService {
     }
 
     Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStream.getId(),
-        Long.valueOf(message.getTimestamp()), client, serviceStream.getRoomDetail().getRoomAttributes().getViewHistory());
+        Long.valueOf(message.getTimestamp()), client, serviceStream.getRoomDetail().getRoomAttributes().getViewHistory(),
+        message.getId(), Long.valueOf(message.getTimestamp()));
     sendTicketMessageToAgentStreamId(ticket, message);
 
     SymMessage symMessage = new SymMessage();

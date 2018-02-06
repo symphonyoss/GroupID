@@ -373,8 +373,10 @@ definitions:
       showHistory:
         type: boolean
       conversationID:
-        type: integer
-        format: int64
+        type: string
+      timeStamp:
+          type: integer
+          format: int64
       clientStreamId:
         type: string
       state:
