@@ -17,7 +17,7 @@ import org.symphonyoss.symphony.pod.invoker.JSON;
 @Service
 public class HelpDeskSymphonyClient extends SymphonyBasicClient {
 
-  private HelpDeskRoomService roomService;
+  private RoomService roomService;
 
   private HelpDeskMessageService messageService;
 
@@ -78,7 +78,7 @@ public class HelpDeskSymphonyClient extends SymphonyBasicClient {
   }
 
   private void buildRoomService(SymAuth symAuth, SymphonyClientConfig config) {
-    this.roomService = new HelpDeskRoomService(this, symAuth, config);
+    this.roomService = new RoomService(this);
   }
 
   private void buildMessageService() {
