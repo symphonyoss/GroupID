@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.listener;
 
-import org.apache.commons.lang3.StringUtils;
+import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient.TicketStateType.UNRESOLVED;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -138,7 +139,7 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
     if (!isAgentStreamId(symStream) && (symStream.getMembers().size() <= 1)) {
       Ticket ticket = ticketClient.getTicketByServiceStreamId(symStream.getStreamId());
 
-      if (ticket != null) {
+      if (ticket != null && UNRESOLVED.getState().equals(ticket.getState())) {
         LOGGER.info("Only the bot was left in the ticket room. Reopening ticket in the Agent room");
 
         // Update ticket to a state that it can be claimed again by another agent

@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.command;
 
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiAction;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
@@ -15,6 +16,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskApiException;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.pod.model.MemberInfo;
@@ -40,28 +42,40 @@ public class CloseTicketCommand extends AiCommand {
       HelpDeskAiSessionContext aiSessionContext = (HelpDeskAiSessionContext) sessionContext;
       HelpDeskAiSession helpDeskAiSession = aiSessionContext.getHelpDeskAiSession();
       HelpDeskAiConfig helpDeskAiConfig = helpDeskAiSession.getHelpDeskAiConfig();
+      TicketClient ticketClient = helpDeskAiSession.getTicketClient();
+      SymphonyClient symphonyClient = helpDeskAiSession.getSymphonyClient();
 
       try {
-        MembershipList membershipList = helpDeskAiSession.getSymphonyClient()
-            .getRoomMembershipClient()
-            .getRoomMembership(aiSessionKey.getStreamId());
-        for (MemberInfo membership : membershipList) {
-          if (!membership.getId()
-              .equals(helpDeskAiSession.getSymphonyClient().getLocalUser().getId())) {
-            helpDeskAiSession.getSymphonyClient()
-                .getRoomMembershipClient()
-                .removeMemberFromRoom(aiSessionKey.getStreamId(), membership.getId());
-          }
-        }
+        Ticket ticket = ticketClient.getTicketByServiceStreamId(aiSessionKey.getStreamId());
+        String currentState = ticket.getState();
 
-        Ticket ticket = helpDeskAiSession.getTicketClient()
-            .getTicketByServiceStreamId(aiSessionKey.getStreamId());
-        ticket.setState(TicketClient.TicketStateType.RESOLVED.getState());
-        helpDeskAiSession.getTicketClient().updateTicket(ticket);
-        responder.addResponse(sessionContext, successResponse(helpDeskAiConfig, ticket));
-      } catch (SymException e) {
+        updateTicket(ticketClient, ticket, TicketClient.TicketStateType.RESOLVED.getState());
+
+        try {
+          MembershipList membershipList = symphonyClient.getRoomMembershipClient()
+              .getRoomMembership(aiSessionKey.getStreamId());
+
+          for (MemberInfo membership : membershipList) {
+            if (!membership.getId().equals(symphonyClient.getLocalUser().getId())) {
+              symphonyClient
+                  .getRoomMembershipClient()
+                  .removeMemberFromRoom(aiSessionKey.getStreamId(), membership.getId());
+            }
+          }
+
+          responder.addResponse(sessionContext, successResponse(helpDeskAiConfig, ticket));
+        } catch (SymException e) {
+          responder.addResponse(sessionContext, internalErrorResponse(aiSessionKey));
+          updateTicket(ticketClient, ticket, currentState);
+        }
+      } catch (HelpDeskApiException e) {
         responder.addResponse(sessionContext, internalErrorResponse(aiSessionKey));
       }
+    }
+
+    private Ticket updateTicket(TicketClient client, Ticket ticket, String state) {
+      ticket.setState(state);
+      return client.updateTicket(ticket);
     }
 
     private AiResponse successResponse(HelpDeskAiConfig helpDeskAiConfig, Ticket ticket) {
