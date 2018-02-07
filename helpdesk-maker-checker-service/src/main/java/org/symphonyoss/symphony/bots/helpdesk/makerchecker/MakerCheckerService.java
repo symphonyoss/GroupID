@@ -8,6 +8,7 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMes
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.Checker;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -37,9 +38,12 @@ public class MakerCheckerService {
 
   private final SymphonyClient symphonyClient;
 
+  private final SymphonyClientUtil symphonyClientUtil;
+
   public MakerCheckerService(MakercheckerClient client, SymphonyClient symphonyClient) {
     this.makercheckerClient = client;
     this.symphonyClient = symphonyClient;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
   /**
@@ -56,7 +60,7 @@ public class MakerCheckerService {
    * @return if all the checks passed.
    */
   public boolean allChecksPass(SymMessage symMessage) {
-    for(Checker checker: checkerSet) {
+    for (Checker checker : checkerSet) {
       Set<Object> flagged = checker.check(symMessage);
       if (flagged != null && !flagged.isEmpty()) {
         return false;
@@ -80,8 +84,8 @@ public class MakerCheckerService {
       SymMessage symMessage = getApprovedMessage(makerCheckerMessage, stream);
       Set<SymMessage> symApprovedMessages = new HashSet<>();
 
-      for(Checker checker: checkerSet) {
-        if(checker.isCheckerType(makerCheckerMessage)) {
+      for (Checker checker : checkerSet) {
+        if (checker.isCheckerType(makerCheckerMessage)) {
           symApprovedMessages.addAll(checker.makeApprovedMessages(makerCheckerMessage, symMessage));
         }
       }
@@ -89,23 +93,22 @@ public class MakerCheckerService {
       return symApprovedMessages;
     } catch (MessagesException e) {
       LOG.warn("Error accepting maker checker message: ", e);
-      throw new BadRequestException(String.format(MESSAGE_STREAM_NOT_FOUND, makerCheckerMessage.getStreamId()));
+      throw new BadRequestException(
+          String.format(MESSAGE_STREAM_NOT_FOUND, makerCheckerMessage.getStreamId()));
     }
   }
 
-  private SymMessage getApprovedMessage(MakerCheckerMessage makerCheckerMessage, SymStream stream) throws MessagesException {
-    List<SymMessage> symMessageList = symphonyClient.getMessagesClient()
-        .getMessagesFromStream(stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
+  private SymMessage getApprovedMessage(MakerCheckerMessage makerCheckerMessage, SymStream stream)
+      throws MessagesException {
+    Optional<SymMessage> symMessage =
+        symphonyClientUtil.getSymMessageByStreamAndId(stream.getStreamId(),
+            makerCheckerMessage.getTimeStamp(),
+            makerCheckerMessage.getMessageId());
 
-    Optional<SymMessage> symMessage = symMessageList.stream()
-        .filter(message -> message.getId().equals(makerCheckerMessage.getMessageId()))
-        .findFirst();
-
-    if (symMessage.isPresent()) {
-      return symMessage.get();
-    }
-
-    throw new BadRequestException(String.format(MESSAGE_NOT_FOUND, makerCheckerMessage.getMessageId()));
+    return symMessage.orElseThrow(() ->
+        new BadRequestException(
+            String.format(MESSAGE_NOT_FOUND, makerCheckerMessage.getMessageId()))
+    );
   }
 
   /**
@@ -117,7 +120,7 @@ public class MakerCheckerService {
   public Set<SymMessage> getMakerCheckerMessages(SymMessage symMessage, Set<String> proxyToIds) {
     Set<SymMessage> makerCheckerMessages = new HashSet<>();
 
-    for(Checker checker: checkerSet) {
+    for (Checker checker : checkerSet) {
       Set<Object> checkFlagged = checker.check(symMessage);
 
       if (checkFlagged != null && !checkFlagged.isEmpty()) {
@@ -128,7 +131,8 @@ public class MakerCheckerService {
     return makerCheckerMessages;
   }
 
-  public void sendMakerCheckerMesssage(SymMessage message, String messageId, Set<String> proxyToStreamId) {
+  public void sendMakerCheckerMesssage(SymMessage message, String messageId,
+      Set<String> proxyToStreamId) {
     try {
       createMakerchecker(message, messageId, proxyToStreamId);
       symphonyClient.getMessagesClient().sendMessage(message.getStream(), message);
@@ -137,7 +141,8 @@ public class MakerCheckerService {
     }
   }
 
-  public void sendActionMakerCheckerMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
+  public void sendActionMakerCheckerMessage(Makerchecker makerchecker,
+      MakercheckerClient.AttachmentStateType attachmentState) {
     SymMessage symMessage = null;
     for (Checker checker : checkerSet) {
       symMessage = checker.getActionMessage(makerchecker, attachmentState);
@@ -150,7 +155,8 @@ public class MakerCheckerService {
     }
   }
 
-  private void createMakerchecker(SymMessage symMessage, String messageId, Set<String> proxyToStreamId) {
+  private void createMakerchecker(SymMessage symMessage, String messageId,
+      Set<String> proxyToStreamId) {
     String makerCheckerId = symMessage.getId();
     Long makerId = symMessage.getFromUserId();
     SymAttachmentInfo symAttachmentInfo = symMessage.getAttachments().get(0);

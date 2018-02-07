@@ -19,7 +19,7 @@ public class IntructionalMessageBuilderTest {
         .message(TEST_MESSAGE).command(TEST_COMMAND).mentionUserId(TEST_USER_ID);
 
     SymMessage expected = new SymMessage();
-    expected.setMessage("<messageML>Use <b><mention=\"1\"/> Test Command</b> Test Message</messageML>");
+    expected.setMessage("<messageML>Use <mention=\"1\"/> Test Command Test Message</messageML>");
     assertEquals(expected.getMessage(), builder.build().getMessage());
   }
 }
