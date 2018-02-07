@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 {{ java_path }} -jar /opt/symphony/helpdesk/helpdesk-api.jar \
-    --helpdesk.mongo.host={{ mongo_host }} \
+    --mongo.host={{ mongo_host }} \
     --spring.config.location=/data/symphony/helpdesk/application.yaml
