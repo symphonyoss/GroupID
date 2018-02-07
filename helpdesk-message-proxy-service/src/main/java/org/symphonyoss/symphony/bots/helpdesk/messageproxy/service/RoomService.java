@@ -29,7 +29,8 @@ public class RoomService {
    * @param groupId group Id
    * @return the stream ID for the new service stream
    */
-  private Room newServiceStream(String ticketId, String groupId, Boolean viewHistory) {
+  private Room newServiceStream(String ticketId, String groupId, Boolean viewHistory)
+      throws RoomException {
     SymRoomAttributes roomAttributes = new SymRoomAttributes();
     roomAttributes.setCreatorUser(symphonyClient.getLocalUser());
 
@@ -41,28 +42,24 @@ public class RoomService {
     roomAttributes.setPublic(false);
     roomAttributes.setViewHistory(viewHistory);
 
-    Room room;
+    Room room = symphonyClient.getRoomService().createRoom(roomAttributes);
+    room.getRoomDetail().getRoomAttributes().setViewHistory(viewHistory);
+    LOGGER.info("Created new room: " + roomAttributes.getName());
 
-    try {
-      room = symphonyClient.getRoomService().createRoom(roomAttributes);
-      room.getRoomDetail().getRoomAttributes().setViewHistory(viewHistory);
-      LOGGER.info("Created new room: " + roomAttributes.getName());
-
-      return room;
-    } catch (RoomException e) {
-      LOGGER.error("Create room failed: ", e);
-      return null;
-    }
+    return room;
   }
 
   public Room createServiceStream(String ticketId, String groupId) {
-    Room serviceStream = newServiceStream(ticketId, groupId, Boolean.TRUE);
-
-    if (serviceStream != null) {
-      return serviceStream;
+    try {
+      return newServiceStream(ticketId, groupId, Boolean.TRUE);
+    } catch (RoomException e) {
+      try {
+        return newServiceStream(ticketId, groupId, Boolean.FALSE);
+      } catch (RoomException e1) {
+        LOGGER.error("Create room failed: ", e1);
+        return null;
+      }
     }
-
-    return newServiceStream(ticketId, groupId, Boolean.FALSE);
   }
 
 }

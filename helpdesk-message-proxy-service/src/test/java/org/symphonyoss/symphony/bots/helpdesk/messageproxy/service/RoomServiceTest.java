@@ -7,7 +7,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import javassist.bytecode.annotation.BooleanMemberValue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,27 +35,27 @@ public class RoomServiceTest {
 
   private static final String ROOM_ID = "2541793";
 
-  private RoomService roomService;
+  private RoomService service;
 
   @Mock
   private SymphonyClient symphonyClient;
 
   @Mock
-  private org.symphonyoss.client.services.RoomService roomServiceSymphonyOSS;
+  private org.symphonyoss.client.services.RoomService roomService;
 
   @Before
   public void initMocks() {
-    roomService = new RoomService(symphonyClient);
+    service = new RoomService(symphonyClient);
 
-    doReturn(roomServiceSymphonyOSS).when(symphonyClient).getRoomService();
+    doReturn(roomService).when(symphonyClient).getRoomService();
     mockGetLocalUser();
   }
 
   @Test
   public void createRoomWithShowHistoryTrue() throws RoomException {
-    doReturn(mockRoom()).when(roomServiceSymphonyOSS).createRoom(any(SymRoomAttributes.class));
+    doReturn(mockRoom()).when(roomService).createRoom(any(SymRoomAttributes.class));
 
-    Room room = roomService.createServiceStream(TICKET_ID, GROUP_ID);
+    Room room = service.createServiceStream(TICKET_ID, GROUP_ID);
 
     assertEquals(ROOM_ID, room.getId());
     assertEquals(Boolean.TRUE, room.getRoomDetail().getRoomAttributes().getViewHistory());
@@ -64,9 +63,9 @@ public class RoomServiceTest {
 
   @Test
   public void createRoomWithShowHistoryFalse() throws RoomException {
-    when(roomServiceSymphonyOSS.createRoom(any(SymRoomAttributes.class))).thenThrow(RoomException.class).thenReturn(mockRoom());
+    when(roomService.createRoom(any(SymRoomAttributes.class))).thenThrow(RoomException.class).thenReturn(mockRoom());
 
-    Room room = roomService.createServiceStream(TICKET_ID, GROUP_ID);
+    Room room = service.createServiceStream(TICKET_ID, GROUP_ID);
 
     assertEquals(ROOM_ID, room.getId());
     assertEquals(Boolean.FALSE, room.getRoomDetail().getRoomAttributes().getViewHistory());
