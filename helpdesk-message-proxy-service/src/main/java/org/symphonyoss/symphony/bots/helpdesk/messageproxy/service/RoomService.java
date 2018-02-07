@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,8 @@ public class RoomService {
    * @param groupId group Id
    * @return the stream ID for the new service stream
    */
-  public String newServiceStream(String ticketId, String groupId) {
+  private Room newServiceStream(String ticketId, String groupId, Boolean viewHistory)
+      throws RoomException {
     SymRoomAttributes roomAttributes = new SymRoomAttributes();
     roomAttributes.setCreatorUser(symphonyClient.getLocalUser());
 
@@ -38,17 +40,25 @@ public class RoomService {
     roomAttributes.setName("[" + groupId + "] Ticket Room #" + ticketId);
     roomAttributes.setReadOnly(false);
     roomAttributes.setPublic(false);
+    roomAttributes.setViewHistory(viewHistory);
 
-    Room room;
+    Room room = symphonyClient.getRoomService().createRoom(roomAttributes);
+    room.getRoomDetail().getRoomAttributes().setViewHistory(viewHistory);
+    LOGGER.info("Created new room: " + roomAttributes.getName());
 
+    return room;
+  }
+
+  public Room createServiceStream(String ticketId, String groupId) {
     try {
-      room = symphonyClient.getRoomService().createRoom(roomAttributes);
-      LOGGER.info("Created new room: " + roomAttributes.getName());
-
-      return room.getStreamId();
+      return newServiceStream(ticketId, groupId, Boolean.TRUE);
     } catch (RoomException e) {
-      LOGGER.error("Create room failed: ", e);
-      return null;
+      try {
+        return newServiceStream(ticketId, groupId, Boolean.FALSE);
+      } catch (RoomException e1) {
+        LOGGER.error("Create room failed: ", e1);
+        return null;
+      }
     }
   }
 

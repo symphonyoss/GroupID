@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
@@ -75,9 +76,9 @@ public class TicketManagerService {
 
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        String serviceStreamId = roomService.newServiceStream(ticketId, groupId);
+        Room serviceStream = roomService.createServiceStream(ticketId, groupId);
 
-        ticket = ticketService.createTicket(ticketId, message, serviceStreamId);
+        ticket = ticketService.createTicket(ticketId, message, serviceStream);
       } else {
         LOGGER.info("Ticket already exists");
       }
