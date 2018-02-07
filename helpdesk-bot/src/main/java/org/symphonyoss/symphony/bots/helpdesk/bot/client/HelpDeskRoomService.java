@@ -35,10 +35,10 @@ public class HelpDeskRoomService extends RoomService {
       throw new NullPointerException("Room attributes were not provided..");
     } else {
       try {
-        SymRoomDetail symRoomDetail = streamsClient.createChatRoom(symRoomAttributes);
+        SymRoomDetail chatRoom = streamsClient.createChatRoom(symRoomAttributes);
         Room room = new Room();
-        room.setId(symRoomDetail.getRoomSystemInfo().getId());
-        room.setRoomDetail(symRoomDetail);
+        room.setId(chatRoom.getRoomSystemInfo().getId());
+        room.setRoomDetail(chatRoom);
         room.setStreamId(room.getId());
         room.setMembershipList(symphonyClient.getRoomMembershipClient().getRoomMembership(room.getId()));
 
