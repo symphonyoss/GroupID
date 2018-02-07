@@ -6,7 +6,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -88,7 +87,8 @@ public class MakerCheckerServiceTest {
   @Test
   public void testGetApprovedMessage() {
     agentExternalCheck =
-        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient, symphonyValidationUtil);
+        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient,
+            symphonyValidationUtil);
 
     makerCheckerService.addCheck(agentExternalCheck);
 
@@ -96,7 +96,7 @@ public class MakerCheckerServiceTest {
     symStream.setStreamId(STREAM_ID);
     try {
       doReturn(mockSymMessageList()).when(messagesClient)
-          .getMessagesFromStream(any(SymStream.class), eq(TIMESTAMP - 1), eq(0), eq(10));
+          .getMessagesFromStream(any(SymStream.class), eq(TIMESTAMP), eq(0), eq(10));
     } catch (MessagesException e) {
       fail();
     }
@@ -116,9 +116,11 @@ public class MakerCheckerServiceTest {
     makerCheckerService.addCheck(agentExternalCheck);
 
     Makerchecker makerchecker = mockMakerchecker();
-    doReturn(mockActionMessage()).when(agentExternalCheck).getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
+    doReturn(mockActionMessage()).when(agentExternalCheck)
+        .getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
 
-    makerCheckerService.sendActionMakerCheckerMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
+    makerCheckerService.sendActionMakerCheckerMessage(makerchecker,
+        MakercheckerClient.AttachmentStateType.APPROVED);
 
     verify(messagesClient, times(1)).sendMessage(any(SymStream.class), any(SymMessage.class));
   }
