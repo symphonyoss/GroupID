@@ -17,7 +17,7 @@ idle-ticket:
 
 instructional-ticket:
   message: " to close the ticket upon ticket resolution."
-  command: "<mention uid=\"%s\"/> Close"
+  command: "<mention uid=\"%s\"/> <b>Close</b>"
 
 aiServicePrefix: "@"
 aiDefaultPrefix: "/"
