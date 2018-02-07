@@ -28,14 +28,18 @@ public class RoomService {
    * @param groupId group Id
    * @return the stream ID for the new service stream
    */
-  public String newServiceStream(String ticketId, String groupId) {
+  public String newServiceStream(String ticketId, String groupId, String podName) {
     SymRoomAttributes roomAttributes = new SymRoomAttributes();
     roomAttributes.setCreatorUser(symphonyClient.getLocalUser());
 
     roomAttributes.setDescription("Service room for ticket " + ticketId + ".");
     roomAttributes.setDiscoverable(false);
     roomAttributes.setMembersCanInvite(true);
-    roomAttributes.setName("[" + groupId + "] Ticket Room #" + ticketId);
+    if(podName!=null) {
+      roomAttributes.setName("[" + podName + "] [" + groupId + "] Ticket Room #" + ticketId);
+    } else {
+      roomAttributes.setName("[" + groupId + "] Ticket Room #" + ticketId);
+    }
     roomAttributes.setReadOnly(false);
     roomAttributes.setPublic(false);
 

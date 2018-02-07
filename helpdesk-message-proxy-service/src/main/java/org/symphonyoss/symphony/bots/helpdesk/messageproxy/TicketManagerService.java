@@ -10,12 +10,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.RestException;
+import org.symphonyoss.client.exceptions.UsersClientException;
+import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.pod.api.UsersApi;
+import org.symphonyoss.symphony.pod.invoker.ApiClient;
+import org.symphonyoss.symphony.pod.invoker.ApiException;
+import org.symphonyoss.symphony.pod.invoker.Configuration;
+import org.symphonyoss.symphony.pod.model.UserV2;
+
+import javax.ws.rs.BadRequestException;
 
 /**
  * Created by rsanchez on 01/12/17.
@@ -39,16 +50,21 @@ public class TicketManagerService {
 
   private final String agentStreamId;
 
+  private final SymphonyClient symphonyClient;
+
+
   public TicketManagerService(@Value("${agentStreamId}") String agentStreamId,
       @Value("${groupId}") String groupId,
       MembershipService membershipService, TicketService ticketService, RoomService roomService,
-      MessageProxyService messageProxyService) {
+      MessageProxyService messageProxyService,
+      SymphonyClient symphonyClient) {
     this.groupId = groupId;
     this.membershipService = membershipService;
     this.ticketService = ticketService;
     this.roomService = roomService;
     this.messageProxyService = messageProxyService;
     this.agentStreamId = agentStreamId;
+    this.symphonyClient = symphonyClient;
   }
 
   /**
@@ -62,7 +78,10 @@ public class TicketManagerService {
    */
   public void messageReceived(SymMessage message) {
     Membership membership;
+    String podName = null;
+
     Ticket ticket = ticketService.getTicketByServiceStreamId(message.getStreamId());
+    boolean external = false;
 
     if (message.getStreamId().equals(agentStreamId) || ticket != null) {
       membership = membershipService.updateMembership(message, AGENT);
@@ -75,7 +94,14 @@ public class TicketManagerService {
 
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        String serviceStreamId = roomService.newServiceStream(ticketId, groupId);
+
+        boolean user = isExternal(message);
+
+        if (user != true) {
+          podName = getPodNameFromExternalUser(message);
+        }
+
+        String serviceStreamId = roomService.newServiceStream(ticketId, groupId, podName);
 
         ticket = ticketService.createTicket(ticketId, message, serviceStreamId);
       } else {
@@ -85,6 +111,45 @@ public class TicketManagerService {
     } else {
       messageProxyService.onMessage(membership, ticket, message);
     }
+  }
+
+  private String getPodNameFromExternalUser(SymMessage message) {
+    SymAuth symAuth = symphonyClient.getSymAuth();
+    ApiClient apiClient = Configuration.getDefaultApiClient();
+    UsersApi usersApi = new UsersApi(apiClient);
+    UserV2 user = null;
+    try {
+      user =
+          usersApi.v2UserGet(symAuth.getSessionToken().getToken(), message.getSymUser().getId(),
+              null, null, false);
+    } catch (ApiException e) {
+      e.printStackTrace();
+    }
+    if (user == null) {
+      return null;
+    } else {
+      return user.getCompany();
+    }
+  }
+
+  public boolean isExternal(SymMessage message) {
+    SymAuth symAuth = symphonyClient.getSymAuth();
+    ApiClient apiClient = Configuration.getDefaultApiClient();
+    UsersApi usersApi = new UsersApi(apiClient);
+    UserV2 user = null;
+    try {
+      user =
+          usersApi.v2UserGet(symAuth.getSessionToken().getToken(), message.getSymUser().getId(),
+              null, null, true);
+    } catch (ApiException e) {
+      try {
+        throw new UsersClientException("API Error communicating with POD, while retrieving user details for " + message.getSymUser().getId(),
+            new RestException(usersApi.getApiClient().getBasePath(), e.getCode(), e));
+      } catch (UsersClientException e1) {
+        throw new BadRequestException("User " + message.getSymUser().getId() + " not found");
+      }
+    }
+    return user != null;
   }
 
 }
