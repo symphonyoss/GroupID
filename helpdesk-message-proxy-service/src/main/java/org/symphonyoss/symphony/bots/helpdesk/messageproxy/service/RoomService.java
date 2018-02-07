@@ -58,11 +58,11 @@ public class RoomService {
   public Room createServiceStream(String ticketId, String groupId) {
     Room serviceStream = newServiceStream(ticketId, groupId, Boolean.TRUE);
 
-    if (serviceStream == null) {
-      serviceStream = newServiceStream(ticketId, groupId, Boolean.FALSE);
+    if (serviceStream != null) {
+      return serviceStream;
     }
 
-    return serviceStream;
+    return newServiceStream(ticketId, groupId, Boolean.FALSE);
   }
 
 }
