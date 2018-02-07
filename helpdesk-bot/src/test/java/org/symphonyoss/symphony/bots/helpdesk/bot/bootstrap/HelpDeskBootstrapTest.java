@@ -20,6 +20,7 @@ import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
+import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskHttpClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
@@ -72,6 +73,9 @@ public class HelpDeskBootstrapTest {
   @Mock
   private MessageService messageService;
 
+  @Mock
+  private HelpDeskHttpClient httpClient;
+
   @Before
   public void init() {
     doReturn(applicationContext).when(event).getApplicationContext();
@@ -84,6 +88,7 @@ public class HelpDeskBootstrapTest {
     doReturn(chatListener).when(applicationContext).getBean(ChatListener.class);
     doReturn(helpDeskBot).when(applicationContext).getBean(HelpDeskBot.class);
     doReturn(helpDeskAi).when(applicationContext).getBean(HelpDeskAi.class);
+    doReturn(httpClient).when(applicationContext).getBean(HelpDeskHttpClient.class);
 
     doReturn(messageService).when(symphonyClient).getMessageService();
   }

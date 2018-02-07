@@ -9,9 +9,13 @@ public class AuthenticationConfig {
 
   private String truststorePassword;
 
+  private String truststoreData;
+
   private String keystoreFile;
 
   private String keystorePassword;
+
+  private String keystoreData;
 
   public String getTruststoreFile() {
     return truststoreFile;
@@ -29,6 +33,14 @@ public class AuthenticationConfig {
     this.truststorePassword = truststorePassword;
   }
 
+  public String getTruststoreData() {
+    return truststoreData;
+  }
+
+  public void setTruststoreData(String truststoreData) {
+    this.truststoreData = truststoreData;
+  }
+
   public String getKeystoreFile() {
     return keystoreFile;
   }
@@ -43,5 +55,13 @@ public class AuthenticationConfig {
 
   public void setKeystorePassword(String keystorePassword) {
     this.keystorePassword = keystorePassword;
+  }
+
+  public String getKeystoreData() {
+    return keystoreData;
+  }
+
+  public void setKeystoreData(String keystoreData) {
+    this.keystoreData = keystoreData;
   }
 }

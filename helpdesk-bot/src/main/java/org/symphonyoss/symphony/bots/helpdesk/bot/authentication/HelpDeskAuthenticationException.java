@@ -7,6 +7,10 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.authentication;
  */
 public class HelpDeskAuthenticationException extends RuntimeException {
 
+  public HelpDeskAuthenticationException(String message, Throwable e) {
+    super(message, e);
+  }
+
   public HelpDeskAuthenticationException(Throwable e) {
     super("Authentication failed for bot", e);
   }

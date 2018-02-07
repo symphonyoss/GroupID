@@ -28,6 +28,8 @@ public class HelpDeskBotConfig {
 
   private AuthenticationConfig authentication;
 
+  private HttpClientConfig httpClient;
+
   private String groupId;
 
   private String agentStreamId;
@@ -166,6 +168,14 @@ public class HelpDeskBotConfig {
     this.authentication = authentication;
   }
 
+  public String getTruststoreData() {
+    if (this.authentication == null) {
+      throw new IllegalStateException("Unknown authentication config");
+    }
+
+    return this.authentication.getTruststoreData();
+  }
+
   public String getTrustStoreFile() {
     if (this.authentication == null) {
       throw new IllegalStateException("Unknown authentication config");
@@ -182,6 +192,14 @@ public class HelpDeskBotConfig {
     return this.authentication.getTruststorePassword();
   }
 
+  public String getKeyStoreData() {
+    if (this.authentication == null) {
+      throw new IllegalStateException("Unknown authentication config");
+    }
+
+    return this.authentication.getKeystoreData();
+  }
+
   public String getKeyStoreFile() {
     if (this.authentication == null) {
       throw new IllegalStateException("Unknown authentication config");
@@ -196,6 +214,14 @@ public class HelpDeskBotConfig {
     }
 
     return this.authentication.getKeystorePassword();
+  }
+
+  public HttpClientConfig getHttpClient() {
+    return httpClient;
+  }
+
+  public void setHttpClient(HttpClientConfig httpClient) {
+    this.httpClient = httpClient;
   }
 
   public String getGroupId() {

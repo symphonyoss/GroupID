@@ -93,15 +93,6 @@ public class MakerCheckerService {
     }
   }
 
-  public SymMessage getActionMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
-    SymMessage symMessage = null;
-    for (Checker checker : checkerSet) {
-      symMessage = checker.getActionMessage(makerchecker, attachmentState);
-    }
-
-    return symMessage;
-  }
-
   private SymMessage getApprovedMessage(MakerCheckerMessage makerCheckerMessage, SymStream stream) throws MessagesException {
     List<SymMessage> symMessageList = symphonyClient.getMessagesClient()
         .getMessagesFromStream(stream, makerCheckerMessage.getTimeStamp() - 1, 0, 10);
@@ -146,16 +137,32 @@ public class MakerCheckerService {
     }
   }
 
+  public void sendActionMakerCheckerMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
+    SymMessage symMessage = null;
+    for (Checker checker : checkerSet) {
+      symMessage = checker.getActionMessage(makerchecker, attachmentState);
+    }
+
+    try {
+      symphonyClient.getMessagesClient().sendMessage(symMessage.getStream(), symMessage);
+    } catch (MessagesException e) {
+      LOG.error("Error sending an action message service room", e);
+    }
+  }
+
   private void createMakerchecker(SymMessage symMessage, String messageId, Set<String> proxyToStreamId) {
     String makerCheckerId = symMessage.getId();
     Long makerId = symMessage.getFromUserId();
-    String attachmentId = symMessage.getAttachments().get(0).getId();
+    SymAttachmentInfo symAttachmentInfo = symMessage.getAttachments().get(0);
+    String attachmentId = symAttachmentInfo.getId();
+    String attachmentName = symAttachmentInfo.getName();
     Long timeStamp = Long.valueOf(symMessage.getTimestamp());
 
     List<String> proxyToStreamIdsList = new ArrayList<String>(proxyToStreamId);
 
     this.makercheckerClient.createMakerchecker(makerCheckerId, makerId,
-        symMessage.getStreamId(), attachmentId, messageId, timeStamp, proxyToStreamIdsList);
+        symMessage.getStreamId(), attachmentId, attachmentName, messageId, timeStamp,
+        proxyToStreamIdsList);
   }
 
   public void afterSendApprovedMessage(SymMessage symMessage) {

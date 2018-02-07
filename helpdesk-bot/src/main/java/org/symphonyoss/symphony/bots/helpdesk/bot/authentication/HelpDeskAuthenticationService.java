@@ -5,8 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.client.exceptions.AuthenticationException;
 import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskHttpClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
+
+import javax.ws.rs.client.Client;
 
 /**
  * Service component responsible for bot authentication.
@@ -20,8 +23,11 @@ public class HelpDeskAuthenticationService {
 
   private final HelpDeskBotConfig configuration;
 
-  public HelpDeskAuthenticationService(HelpDeskBotConfig configuration) {
+  private final HelpDeskHttpClient httpClient;
+
+  public HelpDeskAuthenticationService(HelpDeskBotConfig configuration, HelpDeskHttpClient client) {
     this.configuration = configuration;
+    this.httpClient = client;
   }
 
   /**
@@ -30,24 +36,10 @@ public class HelpDeskAuthenticationService {
    * @return Symphony Auth object
    */
   public SymAuth authenticate() {
+    Client client = httpClient.getClient();
+
     AuthenticationClient authClient = new AuthenticationClient(configuration.getSessionAuthUrl(),
-        configuration.getKeyAuthUrl());
-
-    LOGGER.info("Setting up auth http client for help desk bot with group id: " + configuration.getGroupId());
-
-    System.setProperty("javax.net.ssl.keyStore", configuration.getKeyStoreFile());
-    System.setProperty("javax.net.ssl.keyStorePassword", configuration.getKeyStorePassword());
-    System.setProperty("javax.net.ssl.keyStoreType", "pkcs12");
-
-    String trustStoreFile = configuration.getTrustStoreFile();
-    if (trustStoreFile != null) {
-      System.setProperty("javax.net.ssl.trustStore", trustStoreFile);
-    }
-
-    String trustStorePassword = configuration.getTrustStorePassword();
-    if (trustStorePassword != null) {
-      System.setProperty("javax.net.ssl.trustStorePassword", trustStorePassword);
-    }
+        configuration.getKeyAuthUrl(), client, client);
 
     LOGGER.info("Attempting bot auth for help desk bot with group id: " + configuration.getGroupId());
 
