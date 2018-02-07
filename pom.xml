@@ -117,6 +117,7 @@
         <jackson.version>2.7.3</jackson.version>
         <jersey.version>2.25.1</jersey.version>
         <spring.boot.version>1.5.8.RELEASE</spring.boot.version>
+        <spring.cloud.version>Edgware.SR1</spring.cloud.version>
         <jacoco.version>0.7.9</jacoco.version>
         <disruptor.version>3.3.6</disruptor.version>
 
@@ -130,6 +131,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>${spring.boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring.cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
