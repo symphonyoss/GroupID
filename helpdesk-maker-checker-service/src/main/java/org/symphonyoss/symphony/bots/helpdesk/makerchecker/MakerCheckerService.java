@@ -100,16 +100,15 @@ public class MakerCheckerService {
 
   private SymMessage getApprovedMessage(MakerCheckerMessage makerCheckerMessage, SymStream stream)
       throws MessagesException {
-    SymMessage symMessage =
-        symphonyClientUtil.getSymMessageByStreamAndId(stream, makerCheckerMessage.getTimeStamp(),
+    Optional<SymMessage> symMessage =
+        symphonyClientUtil.getSymMessageByStreamAndId(stream.getStreamId(),
+            makerCheckerMessage.getTimeStamp(),
             makerCheckerMessage.getMessageId());
 
-    if (symMessage == null) {
-      throw new BadRequestException(
-          String.format(MESSAGE_NOT_FOUND, makerCheckerMessage.getMessageId()));
-    }
-
-    return symMessage;
+    return symMessage.orElseThrow(() ->
+        new BadRequestException(
+            String.format(MESSAGE_NOT_FOUND, makerCheckerMessage.getMessageId()))
+    );
   }
 
   /**

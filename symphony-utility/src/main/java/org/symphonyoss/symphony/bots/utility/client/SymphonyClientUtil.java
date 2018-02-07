@@ -4,10 +4,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
+import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,7 +17,6 @@ import java.util.Optional;
  * Helper class for retrieving Symphony data.
  */
 public class SymphonyClientUtil {
-  private static final Logger LOG = LoggerFactory.getLogger(SymphonyClientUtil.class);
   private static final int DEFAULT_MAX_MESSAGES = 10;
 
   private SymphonyClient symphonyClient;
@@ -36,51 +35,28 @@ public class SymphonyClientUtil {
    */
   public List<SymMessage> getSymMessages(SymStream stream, Long since, int maxMessages)
       throws MessagesException {
-    return symphonyClient.getMessagesClient()
-        .getMessagesFromStream(stream, since, 0, maxMessages);
-  }
-
-  /**
-   * Get a message in a stream, by it's timestamp.
-   * @param streamId the stream of the message
-   * @param timestamp the timestamp of the message
-   * @return the sym message
-   */
-  public SymMessage getSymMessageByStreamAndTimestamp(String streamId, Long timestamp) throws MessagesException {
-    SymStream stream = new SymStream();
-    stream.setStreamId(streamId);
-
-    List<SymMessage> symMessageList = getSymMessages(stream, timestamp, DEFAULT_MAX_MESSAGES);
-
-    for (SymMessage symMessage : symMessageList) {
-      if (symMessage.getTimestamp().equals(timestamp.toString())) {
-        return symMessage;
-      }
-    }
-
-    return null;
+    MessagesClient messagesClient = symphonyClient.getMessagesClient();
+    return messagesClient.getMessagesFromStream(stream, since, 0, maxMessages);
   }
 
   /**
    * Get the first sent message (timestamp) from the given stream messages
-   * @param stream Stream to retrieve messages from
+   * @param streamId Stream to retrieve messages from
    * @param since Date (long) from point in time
    * @param id Message identificator
    * @return First message for the given parameters
    * @throws MessagesException
    */
-  public SymMessage getSymMessageByStreamAndId(SymStream stream, Long since, String id)
+  public Optional<SymMessage> getSymMessageByStreamAndId(String streamId, Long since, String id)
       throws MessagesException {
+    SymStream stream = new SymStream();
+    stream.setStreamId(streamId);
     List<SymMessage> symMessageList = getSymMessages(stream, since, DEFAULT_MAX_MESSAGES);
 
     Optional<SymMessage> symMessage = symMessageList.stream()
         .filter(message -> message.getId().equals(id))
         .findFirst();
 
-    if (symMessage.isPresent()) {
-      return symMessage.get();
-    }
-
-    return null;
+    return symMessage;
   }
 }

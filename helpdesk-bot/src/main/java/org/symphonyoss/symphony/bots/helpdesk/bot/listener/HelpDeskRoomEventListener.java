@@ -27,6 +27,8 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
+import java.util.Optional;
+
 /**
  * Created by rsanchez on 13/12/17.
  */
@@ -35,6 +37,7 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HelpDeskRoomEventListener.class);
   private static final String MESSAGEML_TEMPLATE = "<messageML>%s</messageML>";
+  public static final String DEFAULT_QUESTION_VALUE = "N/A";
 
   private final String runawayAgentMessage;
   private final SymphonyClient symphonyClient;
@@ -146,14 +149,16 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
         SymUser localUser = symphonyClient.getLocalUser();
 
         // Retrieve the client question
-        String question = StringUtils.EMPTY;
+        String question = DEFAULT_QUESTION_VALUE;
         try {
-          // FIXME Get the timestamp from the ticket
-          SymMessage clientMessage =
-              symphonyClientUtil.getSymMessageByStreamAndTimestamp(ticket.getClientStreamId(), 0L);
-          question = clientMessage.getMessageText();
+          // FIXME Get the message id from the ticket
+          Optional<SymMessage> clientMessage =
+              symphonyClientUtil.getSymMessageByStreamAndId(ticket.getClientStreamId(), 1L, "");
+          if(clientMessage.isPresent()) {
+            question = clientMessage.get().getMessageText();
+          }
         } catch (MessagesException e) {
-          LOGGER.warn("The client question could not be retrieved.");
+          LOGGER.error("The client question could not be retrieved.", e);
         }
 
 

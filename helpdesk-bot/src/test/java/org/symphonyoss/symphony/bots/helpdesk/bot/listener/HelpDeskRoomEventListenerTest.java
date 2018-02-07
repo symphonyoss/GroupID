@@ -2,6 +2,8 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.listener;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -21,11 +23,11 @@ import org.symphonyoss.client.events.SymUserLeftRoom;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.services.MessageService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.InstructionalMessageConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -51,6 +53,7 @@ public class HelpDeskRoomEventListenerTest {
   private static final String MOCK_BOT_STREAM = "Zs-nx3pQh3-XyKlT5B15m3___p_zHfetdA";
 
   private static final String WELCOME_MESSAGE = "Thanks for contacting the helpdesk bot";
+  public static final String MESSAGE_ID = "";
 
   private String runawayAgentMessage = "Message";
 
@@ -59,6 +62,9 @@ public class HelpDeskRoomEventListenerTest {
 
   @Mock
   private SymphonyClient symphonyClient;
+
+  @Mock
+  private MessagesClient messagesClient;
 
   @Mock
   private TicketClient ticketClient;
@@ -116,15 +122,21 @@ public class HelpDeskRoomEventListenerTest {
   }
 
   @Test
-  public void testUserLeftRoomOnlyTheBotRemains() {
+  public void testUserLeftRoomOnlyTheBotRemains() throws MessagesException {
     SymUserLeftRoom symUserLeftRoom = mockLeaveEvent(MOCK_ANY_USER, MOCK_STREAM);
 
     Ticket mockTicket = new Ticket();
     mockTicket.setAgent(new UserInfo());
     mockTicket.setState(TicketClient.TicketStateType.UNRESOLVED.toString());
 
+    SymMessage symMessage = new SymMessage();
+    symMessage.setId(MESSAGE_ID);
+
     doReturn(MOCK_STREAM2).when(config).getAgentStreamId();
     doReturn(mockTicket).when(ticketClient).getTicketByServiceStreamId(eq(MOCK_STREAM));
+    doReturn(messagesClient).when(symphonyClient).getMessagesClient();
+    doReturn(Arrays.asList(symMessage)).when(messagesClient)
+        .getMessagesFromStream(any(SymStream.class), anyLong(), anyInt(), anyInt());
 
     listener.onSymUserLeftRoom(symUserLeftRoom);
 
