@@ -116,8 +116,7 @@ public class TicketServiceTest {
 
     Ticket mockTicket = mock(Ticket.class);
     when(ticketClient.createTicket(TEST_TICKET_ID, TEST_CLIENT_STREAM_ID, TEST_SERVICE_STREAM_ID,
-        TEST_TIMESTAMP, getTestClient(), Boolean.TRUE, testSym.getId(),
-        Long.valueOf(testSym.getTimestamp()))).thenReturn(mockTicket);
+        TEST_TIMESTAMP, getTestClient(), Boolean.TRUE, testSym.getId())).thenReturn(mockTicket);
 
     SymMessage symMessage = new SymMessage();
     symMessage.setMessageText(TEST_CREATE_TICKET_MESSAGE);

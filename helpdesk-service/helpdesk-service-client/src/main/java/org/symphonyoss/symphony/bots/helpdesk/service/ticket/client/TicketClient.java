@@ -63,7 +63,7 @@ public class TicketClient {
    * @return the ticket
    */
   public Ticket createTicket(String ticketId, String clientStreamId, String serviceStream,
-      Long timestamp, UserInfo client, Boolean showHistory, String conversationId, Long timeStamp) {
+      Long timestamp, UserInfo client, Boolean showHistory, String conversationId) {
     Ticket ticket = new Ticket();
     ticket.setId(ticketId);
     ticket.setGroupId(groupId);
@@ -74,7 +74,6 @@ public class TicketClient {
     ticket.setQuestionTimestamp(timestamp);
     ticket.setShowHistory(showHistory);
     ticket.setConversationID(conversationId);
-    ticket.setTimeStamp(timeStamp);
 
     try {
       return ticketApi.createTicket(ticket);

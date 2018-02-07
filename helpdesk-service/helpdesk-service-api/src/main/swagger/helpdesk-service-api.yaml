@@ -374,9 +374,6 @@ definitions:
         type: boolean
       conversationID:
         type: string
-      timeStamp:
-          type: integer
-          format: int64
       clientStreamId:
         type: string
       state:

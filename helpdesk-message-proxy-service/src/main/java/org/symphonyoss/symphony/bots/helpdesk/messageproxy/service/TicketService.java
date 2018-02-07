@@ -75,9 +75,10 @@ public class TicketService {
       LOGGER.error("Could not get symphony user when creating ticket: ", e);
     }
 
-    Ticket ticket = ticketClient.createTicket(ticketId, message.getStreamId(), serviceStream.getId(),
-        Long.valueOf(message.getTimestamp()), client, serviceStream.getRoomDetail().getRoomAttributes().getViewHistory(),
-        message.getId(), Long.valueOf(message.getTimestamp()));
+    Boolean viewHistory = serviceStream.getRoomDetail().getRoomAttributes().getViewHistory();
+    Ticket ticket =
+        ticketClient.createTicket(ticketId, message.getStreamId(), serviceStream.getId(),
+            Long.valueOf(message.getTimestamp()), client, viewHistory, message.getId());
     sendTicketMessageToAgentStreamId(ticket, message);
 
     SymMessage symMessage = new SymMessage();
