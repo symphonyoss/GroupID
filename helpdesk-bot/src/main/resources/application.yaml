@@ -43,3 +43,7 @@ app-authentication:
   filter:
     url-patterns:
       - "/v1/*"
+
+http-client:
+  connect-timeout: 45000
+  read-timeout: 45000
