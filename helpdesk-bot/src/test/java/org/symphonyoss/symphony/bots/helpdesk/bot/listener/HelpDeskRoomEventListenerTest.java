@@ -122,6 +122,22 @@ public class HelpDeskRoomEventListenerTest {
   }
 
   @Test
+  public void testUserLeftWhenTicketIsResolved() throws MessagesException {
+    SymUserLeftRoom symUserLeftRoom = mockLeaveEvent(MOCK_ANY_USER, MOCK_STREAM);
+
+    Ticket mockTicket = new Ticket();
+    mockTicket.setAgent(new UserInfo());
+    mockTicket.setState(TicketClient.TicketStateType.RESOLVED.toString());
+
+    doReturn(mockTicket).when(ticketClient).getTicketByServiceStreamId(eq(MOCK_STREAM));
+
+    listener.onSymUserLeftRoom(symUserLeftRoom);
+
+    verify(ticketClient, times(1)).getTicketByServiceStreamId(MOCK_STREAM);
+    verify(ticketClient, never()).updateTicket(eq(mockTicket));
+  }
+
+  @Test
   public void testUserLeftRoomOnlyTheBotRemains() throws MessagesException {
     SymUserLeftRoom symUserLeftRoom = mockLeaveEvent(MOCK_ANY_USER, MOCK_STREAM);
 
