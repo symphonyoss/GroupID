@@ -5,11 +5,13 @@ import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.M
 import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
     .MembershipType.CLIENT;
 
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.symphonyoss.client.exceptions.RoomException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
@@ -17,6 +19,8 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+
+import javax.ws.rs.InternalServerErrorException;
 
 /**
  * Created by rsanchez on 01/12/17.
@@ -27,6 +31,8 @@ public class TicketManagerService {
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketManagerService.class);
 
   private static final int TICKET_ID_LENGTH = 10;
+
+  private static final String SERVICE_ROOM_NOT_CREATED = "There was a problem trying to create the service room. Please try again.";
 
   private final String groupId;
 
@@ -76,7 +82,12 @@ public class TicketManagerService {
 
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        Room serviceStream = roomService.createServiceStream(ticketId, groupId);
+        Room serviceStream = null;
+        try {
+          serviceStream = roomService.createServiceStream(ticketId, groupId);
+        } catch (RoomException e) {
+          throw new InternalServerErrorException(SERVICE_ROOM_NOT_CREATED);
+        }
 
         ticket = ticketService.createTicket(ticketId, message, serviceStream);
       } else {

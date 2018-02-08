@@ -49,16 +49,11 @@ public class RoomService {
     return room;
   }
 
-  public Room createServiceStream(String ticketId, String groupId) {
+  public Room createServiceStream(String ticketId, String groupId) throws RoomException {
     try {
       return newServiceStream(ticketId, groupId, Boolean.TRUE);
     } catch (RoomException e) {
-      try {
-        return newServiceStream(ticketId, groupId, Boolean.FALSE);
-      } catch (RoomException e1) {
-        LOGGER.error("Create room failed: ", e1);
-        return null;
-      }
+      return newServiceStream(ticketId, groupId, Boolean.FALSE);
     }
   }
 

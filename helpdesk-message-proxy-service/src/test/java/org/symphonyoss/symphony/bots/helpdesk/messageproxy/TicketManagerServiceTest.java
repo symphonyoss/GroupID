@@ -3,15 +3,19 @@ package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.junit.Assert.assertEquals;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.client.exceptions.RoomException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
@@ -25,6 +29,8 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
 import org.symphonyoss.symphony.clients.model.SymRoomDetail;
 
+import javax.ws.rs.InternalServerErrorException;
+
 /**
  * Created by alexandre-silva-daitan on 19/12/17
  */
@@ -32,6 +38,8 @@ import org.symphonyoss.symphony.clients.model.SymRoomDetail;
 @RunWith(MockitoJUnitRunner.class)
 public class TicketManagerServiceTest {
 
+  private static final String INTERNAL_SERVER_ERROR_EXCEPTION_EXPECTED =
+      "There was a problem trying to create the service room. Please try again.";
   @Mock
   private MembershipService membershipService;
 
@@ -126,7 +134,7 @@ public class TicketManagerServiceTest {
   }
 
   @Test
-  public void updateMembershipClientAndCreateATicket() {
+  public void updateMembershipClientAndCreateATicket() throws RoomException {
     SymMessage symMessage = new SymMessage();
     symMessage.setStreamId(NEW_STREAM_ID);
     Ticket ticket = getTicket();
@@ -153,6 +161,29 @@ public class TicketManagerServiceTest {
     verify(ticketService, times(1)).createTicket(anyString(), eq(symMessage), eq(serviceStream));
 
     verify(messageProxyService, times(1)).onMessage(membershipClient, ticket, symMessage);
+  }
+
+  @Test
+  public void tryToCreateTicketAndReceiveInternalServerException() throws RoomException {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setStreamId(NEW_STREAM_ID);
+    Membership membershipClient = getMembershipClient();
+    Room serviceStream = mockRoom();
+
+    doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
+
+    doReturn(membershipClient).when(membershipService).updateMembership(symMessage,
+        MembershipClient.MembershipType.CLIENT);
+
+    doReturn(null).when(ticketService).getUnresolvedTicket(NEW_STREAM_ID);
+
+    doThrow(RoomException.class).when(roomService).createServiceStream(anyString(), eq(GROUP_ID));
+
+    try {
+      ticketManagerService.messageReceived(symMessage);
+    } catch (InternalServerErrorException e) {
+      assertEquals(INTERNAL_SERVER_ERROR_EXCEPTION_EXPECTED, e.getMessage());
+    }
   }
 
   private Membership getMembershipAgent() {
@@ -185,14 +216,6 @@ public class TicketManagerServiceTest {
     ticket.setState(TicketClient.TicketStateType.UNSERVICED.getState());
 
     return ticket;
-  }
-
-  private UserInfo getClientInfo() {
-    UserInfo client = new UserInfo();
-    client.setUserId(CLIENT_ID);
-    client.setDisplayName(CLIENT_NAME);
-
-    return client;
   }
 
   private UserInfo getAgentInfo() {
