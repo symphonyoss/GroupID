@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -7,9 +8,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.junit.Assert.assertEquals;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,14 +77,11 @@ public class TicketManagerServiceTest {
 
   private static final String NEW_SERVICE_STREAM_ID = "NEW_SERVICE_STRAM_ID";
 
-  private static final int TICKET_ID_LENGTH = 10;
-
   @Before
   public void initMocks() {
     ticketManagerService =
         new TicketManagerService(STREAM_ID, GROUP_ID, membershipService, ticketService, roomService,
             messageProxyService);
-
   }
 
   @Test
@@ -168,7 +164,6 @@ public class TicketManagerServiceTest {
     SymMessage symMessage = new SymMessage();
     symMessage.setStreamId(NEW_STREAM_ID);
     Membership membershipClient = getMembershipClient();
-    Room serviceStream = mockRoom();
 
     doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
 
