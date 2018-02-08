@@ -15,6 +15,7 @@
         <module>helpdesk-maker-checker-service</module>
         <module>helpdesk-message-proxy-service</module>
         <module>helpdesk-distribution</module>
+        <module>helpdesk-integration-test</module>
     </modules>
 
     <parent>
