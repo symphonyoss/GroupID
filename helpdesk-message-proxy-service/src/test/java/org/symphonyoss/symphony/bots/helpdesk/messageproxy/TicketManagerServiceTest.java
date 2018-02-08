@@ -8,7 +8,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,9 +26,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 import org.symphonyoss.symphony.pod.api.UsersApi;
-import org.symphonyoss.symphony.pod.invoker.ApiClient;
 import org.symphonyoss.symphony.pod.invoker.ApiException;
-import org.symphonyoss.symphony.pod.invoker.Configuration;
 
 /**
  * Created by alexandre-silva-daitan on 19/12/17
@@ -52,6 +49,9 @@ public class TicketManagerServiceTest {
 
   @Mock
   private  SymphonyClient symphonyClient;
+
+  @Mock
+  private UsersApi usersApi;
 
   private TicketManagerService ticketManagerService;
 
@@ -137,11 +137,8 @@ public class TicketManagerServiceTest {
     verify(messageProxyService, times(1)).onMessage(membershipClient, ticket, symMessage);
   }
 
-  @Ignore @Test
-  //this test needs a real token to pass
-  public void updateMembershipClientAndCreateATicket() throws ApiException {
-    ApiClient apiClient = Configuration.getDefaultApiClient();
-    UsersApi usersApi = new UsersApi(apiClient);
+  @Test
+    public void updateMembershipClientAndCreateATicket() throws ApiException {
 
     SymUser symUser = new SymUser();
     symUser.setId(SYMUSER);
@@ -174,6 +171,8 @@ public class TicketManagerServiceTest {
         .createTicket(anyString(), eq(symMessage), eq(NEW_SERVICE_STREAM_ID));
 
     doReturn(symAuth).when(symphonyClient).getSymAuth();
+
+    doReturn(null).when(usersApi).v2UserGet(symAuth.getSessionToken().getToken(), symMessage.getSymUser().getId(), null, null, true);
 
     ticketManagerService.messageReceived(symMessage);
 
