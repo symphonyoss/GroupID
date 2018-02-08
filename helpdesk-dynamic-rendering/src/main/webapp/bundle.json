@@ -2,8 +2,8 @@
   "applications": [
     {
       "type": "sandbox",
-      "id": "helpdesk",
-      "name": "Help Desk",
+      "id": "helpdesk-dev",
+      "name": "Help Desk local app",
       "blurb": "Help Desk Bot in Development Mode",
       "publisher": "Symphony",
       "url": "https://localhost.symphony.com:8100/helpdesk-renderer/controller.html",
