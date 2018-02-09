@@ -87,15 +87,18 @@ After that, you must run the **create_agent_room.sh** script providing the envir
 
 ### Scripts
 
-- Go to 'local-run/service' directory. Executes the **startup.sh** script to run the helpdesk service application
-- Go to 'local-run/bot' directory. Executes the **startup.sh** script to run the helpdesk bot application
-- Go to 'local-run/app' directory. Executes the **startup.sh** script to run the helpdesk renderer application
+- Build project using maven: `mvn clean install`
+- Go to 'scripts/local-run/service' directory. Executes the **startup.sh** script to run the helpdesk service application
+- Go to 'scripts/local-run/bot' directory. Executes the **startup.sh** script to run the helpdesk bot application
+- Go to 'scripts/local-run/app' directory. Executes the **startup.sh** script to run the helpdesk renderer application
 
 **Important:** All applications have their own shutdown scripts.
 
 ### Intellij
 
-TODO
+- Copy run configurations from 'scripts/local-run/idea' directory to '.idea/runConfigurations'
+- Execute HelpDeskService configuration
+- Execute HelpDeskBot configuration
 
 ### Validate applications
 
