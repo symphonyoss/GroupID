@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,31 +29,41 @@ public class RoomService {
    * @param groupId group Id
    * @return the stream ID for the new service stream
    */
-  public String newServiceStream(String ticketId, String groupId, String podName) {
+  private Room newServiceStream(String ticketId, String groupId, String podName,
+      Boolean viewHistory)
+      throws RoomException {
     SymRoomAttributes roomAttributes = new SymRoomAttributes();
     roomAttributes.setCreatorUser(symphonyClient.getLocalUser());
 
     roomAttributes.setDescription("Service room for ticket " + ticketId + ".");
     roomAttributes.setDiscoverable(false);
     roomAttributes.setMembersCanInvite(true);
-    if(podName!=null) {
+    if (podName != null) {
       roomAttributes.setName("[" + podName + "] [" + groupId + "] Ticket Room #" + ticketId);
     } else {
       roomAttributes.setName("[" + groupId + "] Ticket Room #" + ticketId);
     }
     roomAttributes.setReadOnly(false);
     roomAttributes.setPublic(false);
+    roomAttributes.setViewHistory(viewHistory);
 
-    Room room;
+    Room room = symphonyClient.getRoomService().createRoom(roomAttributes);
+    room.getRoomDetail().getRoomAttributes().setViewHistory(viewHistory);
+    LOGGER.info("Created new room: " + roomAttributes.getName());
 
+    return room;
+  }
+
+  public Room createServiceStream(String ticketId, String groupId, String podName) {
     try {
-      room = symphonyClient.getRoomService().createRoom(roomAttributes);
-      LOGGER.info("Created new room: " + roomAttributes.getName());
-
-      return room.getStreamId();
+      return newServiceStream(ticketId, groupId, podName, Boolean.TRUE);
     } catch (RoomException e) {
-      LOGGER.error("Create room failed: ", e);
-      return null;
+      try {
+        return newServiceStream(ticketId, groupId, podName, Boolean.FALSE);
+      } catch (RoomException e1) {
+        LOGGER.error("Create room failed: ", e1);
+        return null;
+      }
     }
   }
 

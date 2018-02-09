@@ -4,7 +4,7 @@ import org.symphonyoss.symphony.bots.utility.message.SymMessageBuilder;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 public class InstructionalMessageBuilder {
-  private static final String TEMPLATE = "<messageML>Use <b>%s</b> %s</messageML>";
+  private static final String TEMPLATE = "<messageML>Use %s %s</messageML>";
 
   private Long mentionUserId;
 

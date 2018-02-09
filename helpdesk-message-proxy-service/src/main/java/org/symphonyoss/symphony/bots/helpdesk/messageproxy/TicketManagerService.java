@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.RestException;
 import org.symphonyoss.client.exceptions.UsersClientException;
+import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
@@ -107,9 +108,9 @@ public class TicketManagerService {
           podName = getPodNameFromExternalUser(message);
         }
 
-        String serviceStreamId = roomService.newServiceStream(ticketId, groupId, podName);
+        Room serviceStream = roomService.createServiceStream(ticketId, groupId, podName);
 
-        ticket = ticketService.createTicket(ticketId, message, serviceStreamId);
+        ticket = ticketService.createTicket(ticketId, message, serviceStream);
       } else {
         LOGGER.info("Ticket already exists");
       }
