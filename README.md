@@ -49,3 +49,16 @@ To start from scratch, do the following:
 1. ```service helpdesk-api status```
 2. ```service helpdesk-bot status```
 3. ```service helpdesk-renderer status```
+
+### Getting Started
+
+#### Prepare environment
+
+This process should be executed only once in the developer machine.
+
+- Go to the 'scripts/local-run' directory
+- Run **prepare_environment.sh** script to generate a self-signed keystore to run applications using SSL
+
+You'll be asked to provide the root password. It's required because we need to import the generated certificate into
+the JDK keystore.
+

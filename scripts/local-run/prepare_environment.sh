@@ -25,16 +25,29 @@ function createSelfSignedCertificate {
 
     if [ ! -e ${KEYSTORE_FILE} ]
     then
-        keytool -genkey -keyalg RSA -alias groupid -keystore ${KEYSTORE_FILE} \
+        echo "Generating self-signed keystore"
+
+        ${JAVA_HOME}/bin/keytool -genkey -keyalg RSA -alias groupid -keystore ${KEYSTORE_FILE} \
             -keypass ${KEYSTORE_PASSWORD} -storepass ${KEYSTORE_PASSWORD} -validity 360 -keysize 2048 \
             -dname CN=localhost.symphony.com -storetype pkcs12 -noprompt
-        keytool -exportcert -keystore ${KEYSTORE_FILE} -storetype pkcs12 -storepass ${KEYSTORE_PASSWORD} -alias groupid -file ${CERT_FILE}
-
-        sudo keytool -delete -noprompt -alias groupid -keystore ${JAVA_HOME}/jre/lib/security/cacerts -storepass ${KEYSTORE_PASSWORD}
-        sudo keytool -import -alias groupid -keystore ${JAVA_HOME}/jre/lib/security/cacerts -file ${CERT_FILE} -storepass ${KEYSTORE_PASSWORD} -noprompt
-    else
-        echo "Keystore already exists"
     fi
+
+    if [ ! -e ${CERT_FILE} ]
+    then
+        echo "Extracting certificate from keystore"
+        ${JAVA_HOME}/bin/keytool -exportcert -keystore ${KEYSTORE_FILE} -storetype pkcs12 -storepass \
+            ${KEYSTORE_PASSWORD} -alias groupid -file ${CERT_FILE}
+    else
+        echo "Certificate already exists"
+    fi
+
+    echo "Deleting existing 'groupid' alias from the JDK keystore"
+    sudo ${JAVA_HOME}/bin/keytool -delete -noprompt -alias groupid -keystore \
+        ${JAVA_HOME}/jre/lib/security/cacerts -storepass ${KEYSTORE_PASSWORD}
+
+    echo "Importing certificate into the JDK keystore. Alias 'groupid'"
+    sudo ${JAVA_HOME}/bin/keytool -import -alias groupid -keystore \
+        ${JAVA_HOME}/jre/lib/security/cacerts -file ${CERT_FILE} -storepass ${KEYSTORE_PASSWORD} -noprompt
 }
 
 SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)
