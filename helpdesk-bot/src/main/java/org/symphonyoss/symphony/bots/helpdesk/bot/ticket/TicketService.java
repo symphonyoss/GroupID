@@ -1,5 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
@@ -26,11 +28,14 @@ import java.util.List;
 import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
 
 /**
  * Created by rsanchez on 19/12/17.
  */
 public abstract class TicketService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(TicketService.class);
 
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
 
@@ -149,7 +154,8 @@ public abstract class TicketService {
               sendMessage(symMessage, agentId);
             });
       } catch (MessagesException e) {
-        // do nothing
+        LOG.error("Could not send message to service room: ", e);
+        throw new InternalServerErrorException();
       }
     }
   }
