@@ -128,9 +128,8 @@ public abstract class TicketService {
       SymStream serviceStream = new SymStream();
       serviceStream.setStreamId(ticket.getServiceStreamId());
 
-      List<SymMessage> messages = null;
       try {
-        messages = symphonyClientUtil.getSymMessages(clientStream,
+        List<SymMessage> messages = symphonyClientUtil.getSymMessages(clientStream,
             ticket.getQuestionTimestamp(), 100);
 
         messages.stream()
