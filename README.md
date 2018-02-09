@@ -73,10 +73,10 @@ If you're an admin user in the POD, please follow these steps:
 ```
 ./generate_bot_keystore.sh --env nexus1 --user helpdesk
 ```
- * Import 'certs/<env>/helpdesk-root.pem' file into the POD. You can make it in the AC Portal -> Manage Certificates
+ * Import 'certs/${env}/helpdesk-root.pem' file into the POD. You can make it in the AC Portal -> Manage Certificates
 
 Otherwise, you need to ask the administrator to create new service account and give you the certificate for this
-account. Then, you should copy this file to 'certs/<env>' directory.
+account. Then, you should copy this file to 'certs/${env}' directory.
 
 After that, you must run the **create_agent_room.sh** script providing the environment, room name, room description and  your user id. This script will create the agent queue room and configure the stream ID in the YAML config file
 ```
@@ -94,7 +94,7 @@ After that, you must run the **create_agent_room.sh** script providing the envir
 
 **Important:** All applications have their own shutdown scripts.
 
-### Intellij
+### IntelliJ IDEA
 
 - Copy run configurations from 'scripts/local-run/idea' directory to '.idea/runConfigurations'
 - Execute HelpDeskService configuration
