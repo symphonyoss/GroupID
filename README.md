@@ -35,7 +35,7 @@ To start from scratch, do the following:
 2. cd into _GroupId_
 3. Build using maven: `mvn clean install`
 
-### Deploy manually on dev environment
+### On-premise deployment
 
 - Download helpdesk-${version}-${build-number}.tar.gz from Artifactory and extract it into the host machine.
 
