@@ -3,7 +3,7 @@ mongo:
 
 groupId: testgroup
 authentication:
-  keystore-file: ${CERTS_DIR}/helpdesk-nexus3.p12
+  keystore-file: ${CERTS_DIR}/nexus3/helpdesk.p12
   keystore-password: changeit
 
 helpdesk-bot:

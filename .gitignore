@@ -28,3 +28,4 @@ helpdesk-service/helpdesk-service-server/application.yaml
 *.pem
 *.log
 *.pid
+application-custom.yaml

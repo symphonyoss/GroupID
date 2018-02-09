@@ -50,7 +50,7 @@ function configureSSL {
 }
 
 function validateCertsDirectory {
-    CERTS_PATH=${CERTS_DIR}/helpdesk-${ENV}.p12
+    CERTS_PATH=${CERTS_DIR}/${ENV}/helpdesk.p12
     if [ ! -e ${CERTS_PATH} ]
     then
         echo "[ERROR] Missing helpdesk certificate file."

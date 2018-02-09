@@ -114,11 +114,11 @@ function help {
 #
 function authenticate {
     CERTS_DIR=${SCRIPT_DIRECTORY}/certs
-    CERTS_FILE=${SCRIPT_DIRECTORY}/certs/helpdesk-${ENV}.pem
+    CERTS_FILE=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.pem
 
     if [ ! -e ${CERTS_FILE} ]
     then
-        CERTS_PKCS12=${SCRIPT_DIRECTORY}/certs/helpdesk-${ENV}.p12
+        CERTS_PKCS12=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.p12
 
         if [ ! -e ${CERTS_PKCS12} ]
         then
@@ -130,6 +130,13 @@ function authenticate {
     fi
 
     SESSION_TOKEN=$(curl -X POST -k --cert $CERTS_FILE --cert-type PEM -s $AUTH_ENDPOINT | jq -r '.token')
+
+    if [ -z $SESSION_TOKEN ]
+    then
+        echo "[ERROR] Fail to authenticate bot user."
+        exit 1
+    fi
+
     echo "Bot user authenticated."
     echo
 }
