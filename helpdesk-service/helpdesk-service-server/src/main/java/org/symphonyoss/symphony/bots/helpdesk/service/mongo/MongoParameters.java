@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /**
  * Created by rsanchez on 22/11/17.
  */
-@ConfigurationProperties(prefix = "helpdesk.mongo")
+@ConfigurationProperties(prefix = "mongo")
 public class MongoParameters {
 
   private String host;

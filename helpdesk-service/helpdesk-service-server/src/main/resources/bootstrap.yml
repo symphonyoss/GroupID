@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: helpdesk_service
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      config:
+        enabled: ${CONSUL_ENABLED:false}
+        prefix: ${POD_ENV}/infra/${INFRA_NAME}/group-id

@@ -1,6 +1,8 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.listener;
 
-import org.apache.commons.lang3.StringUtils;
+import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
+    .TicketStateType.UNRESOLVED;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -132,13 +134,12 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
 
   @Override
   public void onSymUserLeftRoom(SymUserLeftRoom symUserLeftRoom) {
-    SymUser symUser = symUserLeftRoom.getAffectedUser();
     SymStream symStream = symUserLeftRoom.getStream();
 
     if (!isAgentStreamId(symStream) && (symStream.getMembers().size() <= 1)) {
       Ticket ticket = ticketClient.getTicketByServiceStreamId(symStream.getStreamId());
 
-      if (ticket != null) {
+      if (ticket != null && UNRESOLVED.getState().equals(ticket.getState())) {
         LOGGER.info("Only the bot was left in the ticket room. Reopening ticket in the Agent room");
 
         // Update ticket to a state that it can be claimed again by another agent
@@ -151,10 +152,10 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
         // Retrieve the client question
         String question = DEFAULT_QUESTION_VALUE;
         try {
-          // FIXME Get the message id from the ticket
           Optional<SymMessage> clientMessage =
-              symphonyClientUtil.getSymMessageByStreamAndId(ticket.getClientStreamId(), 1L, "");
-          if(clientMessage.isPresent()) {
+              symphonyClientUtil.getSymMessageByStreamAndId(ticket.getClientStreamId(),
+                  ticket.getQuestionTimestamp(), ticket.getConversationID());
+          if (clientMessage.isPresent()) {
             question = clientMessage.get().getMessageText();
           }
         } catch (MessagesException e) {
@@ -163,7 +164,8 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
 
 
         // Resend ticket message to the agent room
-        SymMessage symMessage = SymMessageBuilder.message(String.format(MESSAGEML_TEMPLATE, question)).build();
+        SymMessage symMessage =
+            SymMessageBuilder.message(String.format(MESSAGEML_TEMPLATE, question)).build();
         symMessage.setFromUserId(localUser.getId());
         ticketService.sendTicketMessageToAgentStreamId(ticket, symMessage);
 
