@@ -65,7 +65,7 @@ public class AcceptTicketService extends TicketService {
       try {
         updateMembership(agent.getId());
         addAgentToServiceStream(ticket, agent.getId());
-        sendMessageWithShowHistoryFalse(ticket);
+        sendMessageWithShowHistoryFalse(ticket, agent.getId());
         sendAcceptMessageToClient(ticket, agent.getId());
         sendAcceptMessageToAgents(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
         updateTicketState(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);

@@ -3,7 +3,11 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -17,7 +21,9 @@ import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
 
@@ -120,7 +126,7 @@ public abstract class TicketService {
 
   protected abstract TicketResponse execute(Ticket ticket, SymUser agentUser);
 
-  protected void sendMessageWithShowHistoryFalse(Ticket ticket) {
+  protected void sendMessageWithShowHistoryFalse(Ticket ticket, Long agentId) {
     if (Boolean.FALSE.equals(ticket.getShowHistory())) {
       SymStream clientStream = new SymStream();
       clientStream.setStreamId(ticket.getClientStreamId());
@@ -140,11 +146,21 @@ public abstract class TicketService {
             .forEach(symMessage -> {
               symMessage.setStream(serviceStream);
               symMessage.setStreamId(serviceStream.getStreamId());
-              helpDeskAi.onMessage(symMessage);
+              sendMessage(symMessage, agentId);
             });
       } catch (MessagesException e) {
         // do nothing
       }
     }
+  }
+
+  private void sendMessage(SymMessage symMessage, Long agentId) {
+    AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, symMessage.getStreamId());
+    SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
+
+    Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
+    responseIdentifierSet.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+
+    helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
   }
 }
