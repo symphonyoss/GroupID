@@ -42,10 +42,6 @@ import org.symphonyoss.symphony.clients.model.SymRoomDetail;
 @RunWith(MockitoJUnitRunner.class)
 public class TicketManagerServiceTest {
 
-  private static final String COMPANY = "COMPANY";
-  private static final String FIRST_NAME = "FISRT_NAME";
-  public static final String V2_USER = "/v2/user";
-
   @Mock
   private MembershipService membershipService;
 
@@ -98,6 +94,10 @@ public class TicketManagerServiceTest {
   private static final String TOKEN = "TOKEN";
 
   private static final Long SYMUSER = 123456L;
+
+  private static final String COMPANY = "COMPANY";
+
+  private static final String FIRST_NAME = "FISRT_NAME";
 
   @Before
   public void initMocks() {
