@@ -1,15 +1,23 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
+import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
+
+import java.util.Comparator;
+import java.util.List;
 
 import javax.ws.rs.BadRequestException;
 
@@ -28,16 +36,22 @@ public abstract class TicketService {
 
   protected final TicketClient ticketClient;
 
+  protected final SymphonyClientUtil symphonyClientUtil;
+
+  protected final HelpDeskAi helpDeskAi;
+
   private final ValidateMembershipService validateMembershipService;
 
   public TicketService(SymphonyValidationUtil symphonyValidationUtil, SymphonyClient symphonyClient,
       HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
-      ValidateMembershipService validateMembershipService) {
+      ValidateMembershipService validateMembershipService, HelpDeskAi helpDeskAi) {
     this.symphonyValidationUtil = symphonyValidationUtil;
     this.symphonyClient = symphonyClient;
     this.helpDeskBotConfig = helpDeskBotConfig;
     this.ticketClient = ticketClient;
     this.validateMembershipService = validateMembershipService;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
+    this.helpDeskAi = helpDeskAi;
   }
 
   /**
@@ -106,4 +120,32 @@ public abstract class TicketService {
 
   protected abstract TicketResponse execute(Ticket ticket, SymUser agentUser);
 
+  protected void sendMessageWithShowHistoryFalse(Ticket ticket) {
+    if (Boolean.FALSE.equals(ticket.getShowHistory())) {
+      SymStream clientStream = new SymStream();
+      clientStream.setStreamId(ticket.getClientStreamId());
+
+      SymStream serviceStream = new SymStream();
+      serviceStream.setStreamId(ticket.getServiceStreamId());
+
+      List<SymMessage> messages = null;
+      try {
+        messages = symphonyClientUtil.getSymMessages(clientStream,
+            ticket.getQuestionTimestamp(), 100);
+
+        messages.stream()
+            .filter(symMessage -> ticket.getClient()
+                .getUserId()
+                .equals(symMessage.getSymUser().getId()))
+            .sorted(Comparator.comparing(SymMessage::getTimestamp))
+            .forEach(symMessage -> {
+              symMessage.setStream(serviceStream);
+              symMessage.setStreamId(serviceStream.getStreamId());
+              helpDeskAi.onMessage(symMessage);
+            });
+      } catch (MessagesException e) {
+        // do nothing
+      }
+    }
+  }
 }

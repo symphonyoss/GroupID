@@ -47,7 +47,7 @@ public class AcceptTicketService extends TicketService {
       SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
       HelpDeskAi helpDeskAi, ValidateMembershipService validateMembershipService) {
     super(symphonyValidationUtil, symphonyClient, helpDeskBotConfig, ticketClient,
-        validateMembershipService);
+        validateMembershipService, helpDeskAi);
     this.helpDeskAi = helpDeskAi;
   }
 
@@ -65,6 +65,7 @@ public class AcceptTicketService extends TicketService {
       try {
         updateMembership(agent.getId());
         addAgentToServiceStream(ticket, agent.getId());
+        sendMessageWithShowHistoryFalse(ticket);
         sendAcceptMessageToClient(ticket, agent.getId());
         sendAcceptMessageToAgents(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
         updateTicketState(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
