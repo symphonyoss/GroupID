@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -26,7 +27,10 @@ import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 import org.symphonyoss.symphony.pod.api.UsersApi;
+import org.symphonyoss.symphony.pod.invoker.ApiClient;
 import org.symphonyoss.symphony.pod.invoker.ApiException;
+import org.symphonyoss.symphony.pod.invoker.Configuration;
+import org.symphonyoss.symphony.pod.model.UserV2;
 
 /**
  * Created by alexandre-silva-daitan on 19/12/17
@@ -34,6 +38,10 @@ import org.symphonyoss.symphony.pod.invoker.ApiException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TicketManagerServiceTest {
+
+  private static final String COMPANY = "COMPANY";
+  private static final String FIRST_NAME = "FISRT_NAME";
+  public static final String V2_USER = "/v2/user";
 
   @Mock
   private MembershipService membershipService;
@@ -52,6 +60,9 @@ public class TicketManagerServiceTest {
 
   @Mock
   private UsersApi usersApi;
+
+  @Mock
+  private ApiClient apiClient;
 
   private TicketManagerService ticketManagerService;
 
@@ -87,6 +98,7 @@ public class TicketManagerServiceTest {
 
   @Before
   public void initMocks() {
+    Configuration.setDefaultApiClient(apiClient);
     ticketManagerService =
         new TicketManagerService(STREAM_ID, GROUP_ID, membershipService, ticketService, roomService,
             messageProxyService, symphonyClient);
@@ -139,6 +151,7 @@ public class TicketManagerServiceTest {
 
   @Test
     public void updateMembershipClientAndCreateATicket() throws ApiException {
+    UserV2 userV2 = getUserV2();
 
     SymUser symUser = new SymUser();
     symUser.setId(SYMUSER);
@@ -155,7 +168,6 @@ public class TicketManagerServiceTest {
 
 
     Ticket ticket = getTicket();
-    String podName = "pod182";
     Membership membershipClient = getMembershipClient();
 
     doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
@@ -165,14 +177,14 @@ public class TicketManagerServiceTest {
 
     doReturn(null).when(ticketService).getUnresolvedTicket(NEW_STREAM_ID);
 
-    doReturn(NEW_SERVICE_STREAM_ID).when(roomService).newServiceStream(anyString(), eq(GROUP_ID), eq(podName));
+    doReturn(NEW_SERVICE_STREAM_ID).when(roomService).newServiceStream(anyString(), eq(GROUP_ID), eq(COMPANY));
 
     doReturn(ticket).when(ticketService)
         .createTicket(anyString(), eq(symMessage), eq(NEW_SERVICE_STREAM_ID));
 
     doReturn(symAuth).when(symphonyClient).getSymAuth();
 
-    doReturn(null).when(usersApi).v2UserGet(symAuth.getSessionToken().getToken(), symMessage.getSymUser().getId(), null, null, true);
+    doReturn(null).doReturn(userV2).when(apiClient).invokeAPI(any(), eq("GET"), any(),  any(), any(), any(), any(), any(), any(), any());
 
     ticketManagerService.messageReceived(symMessage);
 
@@ -232,6 +244,13 @@ public class TicketManagerServiceTest {
 
     return agent;
   }
+  
+  private UserV2 getUserV2() {
+    UserV2 userV2 = new UserV2();
+    userV2.setFirstName(FIRST_NAME);
+    userV2.setCompany(COMPANY);
 
+    return userV2;
+  }
 
 }

@@ -52,6 +52,10 @@ public class TicketManagerService {
 
   private final SymphonyClient symphonyClient;
 
+  private final ApiClient apiClient;
+
+  private final UsersApi usersApi;
+
 
   public TicketManagerService(@Value("${agentStreamId}") String agentStreamId,
       @Value("${groupId}") String groupId,
@@ -65,6 +69,8 @@ public class TicketManagerService {
     this.messageProxyService = messageProxyService;
     this.agentStreamId = agentStreamId;
     this.symphonyClient = symphonyClient;
+    this.apiClient = Configuration.getDefaultApiClient();
+    this.usersApi = new UsersApi(apiClient);
   }
 
   /**
@@ -97,7 +103,7 @@ public class TicketManagerService {
 
         boolean user = isExternal(message);
 
-        if (user != true) {
+        if (user == true) {
           podName = getPodNameFromExternalUser(message);
         }
 
@@ -115,28 +121,25 @@ public class TicketManagerService {
 
   private String getPodNameFromExternalUser(SymMessage message) {
     SymAuth symAuth = symphonyClient.getSymAuth();
-    ApiClient apiClient = Configuration.getDefaultApiClient();
-    UsersApi usersApi = new UsersApi(apiClient);
-    UserV2 user = null;
+    UserV2 user;
     try {
       user =
           usersApi.v2UserGet(symAuth.getSessionToken().getToken(), message.getSymUser().getId(),
               null, null, false);
     } catch (ApiException e) {
-      e.printStackTrace();
+      try {
+        throw new UsersClientException("API Error communicating with POD, while retrieving user details for " + message.getSymUser().getId(),
+            new RestException(usersApi.getApiClient().getBasePath(), e.getCode(), e));
+      } catch (UsersClientException e1) {
+        throw new BadRequestException("User " + message.getSymUser().getId() + " not found");
+      }
     }
-    if (user == null) {
-      return null;
-    } else {
-      return user.getCompany();
-    }
+      return user != null ? user.getCompany() : null;
   }
 
   public boolean isExternal(SymMessage message) {
     SymAuth symAuth = symphonyClient.getSymAuth();
-    ApiClient apiClient = Configuration.getDefaultApiClient();
-    UsersApi usersApi = new UsersApi(apiClient);
-    UserV2 user = null;
+    UserV2 user;
     try {
       user =
           usersApi.v2UserGet(symAuth.getSessionToken().getToken(), message.getSymUser().getId(),
@@ -149,7 +152,7 @@ public class TicketManagerService {
         throw new BadRequestException("User " + message.getSymUser().getId() + " not found");
       }
     }
-    return user != null;
+    return user == null;
   }
 
 }
