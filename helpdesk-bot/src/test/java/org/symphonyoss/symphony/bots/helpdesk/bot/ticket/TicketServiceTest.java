@@ -45,9 +45,13 @@ public class TicketServiceTest {
 
   private static final String MOCK_TICKET_ID = "ABCDEFG";
 
-  private static final Long MOCK_USER_ID = 123456L;
+  private static final Long MOCK_CLIENT_ID = 123456L;
 
-  private static final String MOCK_USER_DISPLAY_NAME = "mock user";
+  private static final String MOCK_CLIENT_DISPLAY_NAME = "mock client";
+
+  private static final Long MOCK_AGENT_ID = 654321L;
+
+  private static final String MOCK_AGENT_DISPLAY_NAME = "mock agent";
 
   private static final String MOCK_AGENT_STREAM_ID = "Zs-nx3pQh3-XyKlT5B15m3___p_zHfetdA";
 
@@ -106,7 +110,7 @@ public class TicketServiceTest {
   @Test
   public void testTicketNotFound() {
     try {
-      ticketService.execute(MOCK_TICKET_ID, MOCK_USER_ID);
+      ticketService.execute(MOCK_TICKET_ID, MOCK_CLIENT_ID);
       fail();
     } catch (BadRequestException e) {
       assertEquals("Ticket not found.", e.getMessage());
@@ -119,9 +123,9 @@ public class TicketServiceTest {
     SymUser agentUser = mockAgent();
 
     doReturn(ticket).when(ticketClient).getTicket(MOCK_TICKET_ID);
-    doReturn(agentUser).when(symphonyValidationUtil).validateUserId(MOCK_USER_ID);
+    doReturn(agentUser).when(symphonyValidationUtil).validateUserId(MOCK_CLIENT_ID);
 
-    TicketResponse response = ticketService.execute(MOCK_TICKET_ID, MOCK_USER_ID);
+    TicketResponse response = ticketService.execute(MOCK_TICKET_ID, MOCK_CLIENT_ID);
 
     verify(symphonyValidationUtil, times(1)).validateStream(MOCK_SERVICE_STREAM_ID);
     verify(symphonyValidationUtil, times(1)).validateStream(MOCK_CLIENT_STREAM_ID);
@@ -133,8 +137,8 @@ public class TicketServiceTest {
 
     User user = response.getUser();
     assertNotNull(user);
-    assertEquals(MOCK_USER_DISPLAY_NAME, user.getDisplayName());
-    assertEquals(MOCK_USER_ID, user.getUserId());
+    assertEquals(MOCK_AGENT_DISPLAY_NAME, user.getDisplayName());
+    assertEquals(MOCK_AGENT_ID, user.getUserId());
   }
 
   @Test
@@ -142,9 +146,9 @@ public class TicketServiceTest {
     Ticket ticket = new Ticket();
     ticket.setServiceStreamId(MOCK_SERVICE_STREAM_ID);
 
-    ticketService.addAgentToServiceStream(ticket, MOCK_USER_ID);
+    ticketService.addAgentToServiceStream(ticket, MOCK_CLIENT_ID);
 
-    verify(roomMembershipClient, times(1)).addMemberToRoom(MOCK_SERVICE_STREAM_ID, MOCK_USER_ID);
+    verify(roomMembershipClient, times(1)).addMemberToRoom(MOCK_SERVICE_STREAM_ID, MOCK_CLIENT_ID);
   }
 
   @Test
@@ -158,7 +162,7 @@ public class TicketServiceTest {
     doReturn(mockMessages()).when(messagesClient)
         .getMessagesFromStream(any(SymStream.class), eq(ticket.getQuestionTimestamp()), eq(0), eq(100));
 
-    ticketService.sendMessageWithShowHistoryFalse(ticket, MOCK_USER_ID);
+    ticketService.sendMessageWithShowHistoryFalse(ticket, MOCK_CLIENT_ID);
 
     verify(helpDeskAi, times(2)).sendMessage(any(), any(), any());
   }
@@ -179,16 +183,16 @@ public class TicketServiceTest {
 
   private UserInfo mockClient() {
     UserInfo userInfo = new UserInfo();
-    userInfo.setUserId(MOCK_USER_ID);
-    userInfo.setDisplayName(MOCK_USER_DISPLAY_NAME);
+    userInfo.setUserId(MOCK_CLIENT_ID);
+    userInfo.setDisplayName(MOCK_CLIENT_DISPLAY_NAME);
 
     return userInfo;
   }
 
   private SymUser mockAgent() {
     SymUser agentUser = new SymUser();
-    agentUser.setId(MOCK_USER_ID);
-    agentUser.setDisplayName(MOCK_USER_DISPLAY_NAME);
+    agentUser.setId(MOCK_AGENT_ID);
+    agentUser.setDisplayName(MOCK_AGENT_DISPLAY_NAME);
 
     return agentUser;
   }
@@ -222,8 +226,8 @@ public class TicketServiceTest {
 
   private SymUser mockUser() {
     SymUser symUser = new SymUser();
-    symUser.setId(MOCK_USER_ID);
-    symUser.setDisplayName(MOCK_USER_DISPLAY_NAME);
+    symUser.setId(MOCK_CLIENT_ID);
+    symUser.setDisplayName(MOCK_CLIENT_DISPLAY_NAME);
 
     return symUser;
   }
