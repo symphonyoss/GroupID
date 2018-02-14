@@ -3,6 +3,10 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -13,6 +17,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
@@ -20,10 +25,18 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
+import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.RoomMembershipClient;
+import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.BadRequestException;
 
@@ -45,6 +58,18 @@ public class TicketServiceTest {
 
   private static final String MOCK_CLIENT_STREAM_ID = "D65k1bCxsLXX-gvTis8pRX___p_zH5nJdA";
 
+  private static final String STREAM_NAME = "Test Room";
+
+  private static final String MOCK_MESSAGE_ID_1 = "2301";
+
+  private static final String MOCK_MESSAGE_ID_2 = "2401";
+
+  private static final String MOCK_MESSAGE_1 = "1 - Messages";
+
+  private static final String MOCK_MESSAGE_2 = "2 - Messages";
+
+  private static final long QUESTION_TIMESTAMP = 230111987l;
+
   @Mock
   private SymphonyValidationUtil symphonyValidationUtil;
 
@@ -65,6 +90,9 @@ public class TicketServiceTest {
 
   @Mock
   private HelpDeskAi helpDeskAi;
+
+  @Mock
+  private MessagesClient messagesClient;
 
   private TicketService ticketService;
 
@@ -90,17 +118,8 @@ public class TicketServiceTest {
 
   @Test
   public void testTicketFound() {
-    String state = TicketClient.TicketStateType.UNRESOLVED.getState();
-
-    Ticket ticket = new Ticket();
-    ticket.setId(MOCK_TICKET_ID);
-    ticket.setServiceStreamId(MOCK_SERVICE_STREAM_ID);
-    ticket.setClientStreamId(MOCK_CLIENT_STREAM_ID);
-    ticket.setState(state);
-
-    SymUser agentUser = new SymUser();
-    agentUser.setId(MOCK_USER_ID);
-    agentUser.setDisplayName(MOCK_USER_DISPLAY_NAME);
+    Ticket ticket = mockTicket();
+    SymUser agentUser = mockAgent();
 
     doReturn(ticket).when(ticketClient).getTicket(MOCK_TICKET_ID);
     doReturn(agentUser).when(symphonyValidationUtil).validateUserId(MOCK_USER_ID);
@@ -112,7 +131,7 @@ public class TicketServiceTest {
 
     assertNotNull(response);
     assertEquals("Success", response.getMessage());
-    assertEquals(state, response.getState());
+    assertEquals(TicketClient.TicketStateType.UNRESOLVED.getState(), response.getState());
     assertEquals(MOCK_TICKET_ID, response.getTicketId());
 
     User user = response.getUser();
@@ -129,5 +148,94 @@ public class TicketServiceTest {
     ticketService.addAgentToServiceStream(ticket, MOCK_USER_ID);
 
     verify(roomMembershipClient, times(1)).addMemberToRoom(MOCK_SERVICE_STREAM_ID, MOCK_USER_ID);
+  }
+
+  @Test
+  public void testSendMessageWithShowHistoryFalse() throws MessagesException {
+    Ticket ticket = mockTicket();
+
+    SymStream serviceStream = new SymStream();
+    serviceStream.setStreamId(ticket.getServiceStreamId());
+
+    doReturn(messagesClient).when(symphonyClient).getMessagesClient();
+    doReturn(mockMessages()).when(messagesClient)
+        .getMessagesFromStream(any(SymStream.class), eq(ticket.getQuestionTimestamp()), eq(0), eq(100));
+
+    ticketService.sendMessageWithShowHistoryFalse(ticket, MOCK_USER_ID);
+
+    verify(helpDeskAi, times(2)).sendMessage(any(), any(), any());
+  }
+
+  private Ticket mockTicket() {
+    Ticket ticket = new Ticket();
+
+    ticket.setId(MOCK_TICKET_ID);
+    ticket.setServiceStreamId(MOCK_SERVICE_STREAM_ID);
+    ticket.setClientStreamId(MOCK_CLIENT_STREAM_ID);
+    ticket.setState(TicketClient.TicketStateType.UNRESOLVED.getState());
+    ticket.setShowHistory(Boolean.FALSE);
+    ticket.setQuestionTimestamp(QUESTION_TIMESTAMP);
+    ticket.setClient(mockClient());
+
+    return ticket;
+  }
+
+  private UserInfo mockClient() {
+    UserInfo userInfo = new UserInfo();
+    userInfo.setUserId(MOCK_USER_ID);
+    userInfo.setDisplayName(MOCK_USER_DISPLAY_NAME);
+
+    return userInfo;
+  }
+
+  private SymUser mockAgent() {
+    SymUser agentUser = new SymUser();
+    agentUser.setId(MOCK_USER_ID);
+    agentUser.setDisplayName(MOCK_USER_DISPLAY_NAME);
+
+    return agentUser;
+  }
+
+  private List<SymMessage> mockMessages() {
+    List<SymMessage> messages = new ArrayList<>();
+
+    SymMessage symMessage = mockMessage(MOCK_MESSAGE_ID_1, MOCK_MESSAGE_1);
+    messages.add(symMessage);
+
+    symMessage = mockMessage(MOCK_MESSAGE_ID_2, MOCK_MESSAGE_2);
+    messages.add(symMessage);
+
+    return messages;
+  }
+
+  private SymMessage mockMessage(String id, String message) {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setId(id);
+    symMessage.setMessage(message);
+
+    SymStream serviceStream = mockStream();
+    symMessage.setStream(serviceStream);
+    symMessage.setStreamId(serviceStream.getStreamId());
+    symMessage.setTimestamp(id);
+
+    symMessage.setSymUser(mockUser());
+
+    return symMessage;
+  }
+
+  private SymUser mockUser() {
+    SymUser symUser = new SymUser();
+    symUser.setId(MOCK_USER_ID);
+    symUser.setDisplayName(MOCK_USER_DISPLAY_NAME);
+
+    return symUser;
+  }
+
+  private SymStream mockStream() {
+    SymStream symStream = new SymStream();
+    symStream.setStreamId(MOCK_SERVICE_STREAM_ID);
+    symStream.setRoomName(STREAM_NAME);
+
+    return symStream;
   }
 }
