@@ -161,7 +161,7 @@ public class TicketService {
     }
   }
 
-  public void sendServiceRoomWasNotCreatedMessage(SymMessage symMessage) {
+  public void sendMessageWhenRoomCreationFails(SymMessage symMessage) {
     symMessage.setMessage(SERVICE_ROOM_WAS_NOT_CREATED);
 
     try {
