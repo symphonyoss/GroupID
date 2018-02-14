@@ -14,9 +14,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.authenticator.model.Token;
-import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
@@ -26,14 +26,13 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
+import org.symphonyoss.symphony.clients.model.SymRoomDetail;
 import org.symphonyoss.symphony.clients.model.SymUser;
-import org.symphonyoss.symphony.pod.api.UsersApi;
 import org.symphonyoss.symphony.pod.invoker.ApiClient;
 import org.symphonyoss.symphony.pod.invoker.ApiException;
 import org.symphonyoss.symphony.pod.invoker.Configuration;
 import org.symphonyoss.symphony.pod.model.UserV2;
-import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
-import org.symphonyoss.symphony.clients.model.SymRoomDetail;
 
 /**
  * Created by alexandre-silva-daitan on 19/12/17
@@ -58,9 +57,6 @@ public class TicketManagerServiceTest {
   private  SymphonyClient symphonyClient;
 
   @Mock
-  private UsersApi usersApi;
-
-  @Mock
   private ApiClient apiClient;
 
   private TicketManagerService ticketManagerService;
@@ -79,8 +75,6 @@ public class TicketManagerServiceTest {
 
   private static final String TICKET_ID = "TICKET_ID";
 
-  private static final String CLIENT_NAME = "CLIENT_NAME";
-
   private static final Long QUESTION_TIMESTAMP = 111111L;
 
   private static final String SERVICE_STREAM_ID = "SERVICE_STREAM_ID";
@@ -88,8 +82,6 @@ public class TicketManagerServiceTest {
   private static final String NEW_STREAM_ID = "NEW_STREAM_ID";
 
   private static final String NEW_SERVICE_STREAM_ID = "NEW_SERVICE_STRAM_ID";
-
-  private static final int TICKET_ID_LENGTH = 10;
 
   private static final String TOKEN = "TOKEN";
 
@@ -154,7 +146,7 @@ public class TicketManagerServiceTest {
   }
 
   @Test
-    public void updateMembershipClientAndCreateATicket() throws ApiException {
+  public void updateMembershipClientAndCreateATicket() throws ApiException {
     UserV2 userV2 = getUserV2();
 
     SymUser symUser = new SymUser();
@@ -170,17 +162,12 @@ public class TicketManagerServiceTest {
     SymAuth symAuth = new SymAuth();
     symAuth.setSessionToken(token);
 
-
     Ticket ticket = getTicket();
     Membership membershipClient = getMembershipClient();
     Room serviceStream = mockRoom();
 
-    doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
-
     doReturn(membershipClient).when(membershipService).updateMembership(symMessage,
         MembershipClient.MembershipType.CLIENT);
-
-    doReturn(null).when(ticketService).getUnresolvedTicket(NEW_STREAM_ID);
 
     doReturn(mockRoom()).when(roomService).createServiceStream(anyString(), eq(GROUP_ID), eq(COMPANY));
 
@@ -189,7 +176,9 @@ public class TicketManagerServiceTest {
 
     doReturn(symAuth).when(symphonyClient).getSymAuth();
 
-    doReturn(null).doReturn(userV2).when(apiClient).invokeAPI(any(), eq("GET"), any(),  any(), any(), any(), any(), any(), any(), any());
+    doReturn(null).doReturn(userV2)
+        .when(apiClient)
+        .invokeAPI(any(), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
 
     ticketManagerService.messageReceived(symMessage);
 
@@ -231,14 +220,6 @@ public class TicketManagerServiceTest {
     ticket.setState(TicketClient.TicketStateType.UNSERVICED.getState());
 
     return ticket;
-  }
-
-  private UserInfo getClientInfo() {
-    UserInfo client = new UserInfo();
-    client.setUserId(CLIENT_ID);
-    client.setDisplayName(CLIENT_NAME);
-
-    return client;
   }
 
   private UserInfo getAgentInfo() {
