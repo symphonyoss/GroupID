@@ -6,7 +6,7 @@
       "name": "Help Desk local app",
       "blurb": "Help Desk Bot in Development Mode",
       "publisher": "Symphony",
-      "url": "https://localhost.symphony.com:8100/helpdesk-renderer/controller.html",
+      "url": "https://localhost.symphony.com:8100/helpdesk-renderer/controller.html?id=helpdesk-dev",
       "icon": "https://localhost.symphony.com:8100/helpdesk-renderer/img/appstore-logo.png",
       "domain": ".symphony.com"
     }
