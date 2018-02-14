@@ -5,7 +5,6 @@ import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.M
 import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient
     .MembershipType.CLIENT;
 
-
 import org.apache.commons.lang3.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,8 +19,6 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
-import javax.ws.rs.InternalServerErrorException;
-
 /**
  * Created by rsanchez on 01/12/17.
  */
@@ -31,8 +28,6 @@ public class TicketManagerService {
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketManagerService.class);
 
   private static final int TICKET_ID_LENGTH = 10;
-
-  private static final String SERVICE_ROOM_NOT_CREATED = "There was a problem trying to create the service room. Please try again.";
 
   private final String groupId;
 
@@ -85,12 +80,11 @@ public class TicketManagerService {
         Room serviceStream = null;
         try {
           serviceStream = roomService.createServiceStream(ticketId, groupId);
+
+          ticket = ticketService.createTicket(ticketId, message, serviceStream);
         } catch (RoomException e) {
           ticketService.sendMessageWhenRoomCreationFails(message);
-          throw new InternalServerErrorException(SERVICE_ROOM_NOT_CREATED);
         }
-
-        ticket = ticketService.createTicket(ticketId, message, serviceStream);
       } else {
         LOGGER.info("Ticket already exists");
       }

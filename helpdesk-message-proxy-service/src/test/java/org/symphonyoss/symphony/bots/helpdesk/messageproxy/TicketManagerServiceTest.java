@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -176,12 +177,8 @@ public class TicketManagerServiceTest {
 
     doThrow(RoomException.class).when(roomService).createServiceStream(anyString(), eq(GROUP_ID));
 
-    try {
-      ticketManagerService.messageReceived(symMessage);
-    } catch (InternalServerErrorException e) {
-      verify(ticketService, times(1)).sendMessageWhenRoomCreationFails(any(SymMessage.class));
-      assertEquals(INTERNAL_SERVER_ERROR_EXCEPTION_EXPECTED, e.getMessage());
-    }
+    ticketManagerService.messageReceived(symMessage);
+    verify(ticketService, times(1)).sendMessageWhenRoomCreationFails(any(SymMessage.class));
   }
 
   private Membership getMembershipAgent() {
