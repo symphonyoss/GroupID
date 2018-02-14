@@ -30,6 +30,9 @@ public class TicketService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketService.class);
 
+  private static final String SERVICE_ROOM_WAS_NOT_CREATED =
+      "There was a problem trying to create the service room. Please try again.";
+
   private final String agentStreamId;
 
   private final String claimHeader;
@@ -155,6 +158,16 @@ public class TicketService {
       symphonyClient.getMessagesClient().sendMessage(stream, message);
     } catch (MessagesException e) {
       LOGGER.error("Could not send ticket message to agent stream ID: ", e);
+    }
+  }
+
+  public void sendServiceRoomWasNotCreatedMessage(SymMessage symMessage) {
+    symMessage.setMessage(SERVICE_ROOM_WAS_NOT_CREATED);
+
+    try {
+      symphonyClient.getMessagesClient().sendMessage(symMessage.getStream(), symMessage);
+    } catch (MessagesException e) {
+      LOGGER.error("Could not send message to client stream ID: ", e);
     }
   }
 }

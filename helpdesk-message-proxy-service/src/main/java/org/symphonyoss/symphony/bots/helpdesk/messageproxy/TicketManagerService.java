@@ -86,6 +86,7 @@ public class TicketManagerService {
         try {
           serviceStream = roomService.createServiceStream(ticketId, groupId);
         } catch (RoomException e) {
+          ticketService.sendServiceRoomWasNotCreatedMessage(message);
           throw new InternalServerErrorException(SERVICE_ROOM_NOT_CREATED);
         }
 
