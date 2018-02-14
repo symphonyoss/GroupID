@@ -1,4 +1,5 @@
 import 'babel-polyfill';
+import { getParameterByName } from '../utils/urlUtils';
 import ClaimTicketEnricher from '../enrichers/claimTicketEnricher';
 import ActionClaimTicketEnricher from '../enrichers/actionClaimTicketEnricher';
 import AttachmentEnricher from '../enrichers/attachmentEnricher';
@@ -9,8 +10,9 @@ const attachmentEnricher = new AttachmentEnricher();
 const actionClaimTicketEnricher = new ActionClaimTicketEnricher();
 const actionAttachmentEnricher = new ActionAttachmentEnricher();
 
-const appId = 'helpdesk';
-const controllerName = 'helpdesk:controller';
+const appName = getParameterByName('id');
+const appId = appName || 'helpdesk';
+const controllerName = `${appId}:controller`;
 
 const registerApp = () => {
   claimTicketEnricher.init();
