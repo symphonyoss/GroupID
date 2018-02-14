@@ -1,0 +1,20 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="HelpDeskBot" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="org.symphonyoss.symphony.bots.helpdesk.bot.init.SpringHelpDeskBotInit" />
+    <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <module name="helpdesk-bot" />
+    <envs>
+      <env name="LOG4J2_BASE_DIR" value="$PROJECT_DIR$/scripts/local-run/bot" />
+      <env name="LOG4J2_OUTPUT_CONSOLE" value="true" />
+      <env name="CERTS_DIR" value="$PROJECT_DIR$/scripts/local-run/certs" />
+      <env name="SERVER_SSL_ENABLED" value="true" />
+      <env name="SERVER_SSL_KEY_STORE" value="$PROJECT_DIR$/scripts/local-run/server.jks" />
+      <env name="SERVER_SSL_KEY_STORE_PASSWORD" value="changeit" />
+      <env name="SPRING_CONFIG_LOCATION" value="$PROJECT_DIR$/scripts/local-run/configs/nexus4/" />
+      <env name="SPRING_PROFILES_ACTIVE" value="custom" />
+    </envs>
+    <method />
+  </configuration>
+</component>
