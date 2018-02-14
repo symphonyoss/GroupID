@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,11 +24,15 @@ public class RoomService {
 
   /**
    * Creates a new service stream for a ticket.
+   *
    * @param ticketId the ticket ID to create the service stream for
    * @param groupId group Id
-   * @return the stream ID for the new service stream
+   * @param podName Pod Name
+   * @param viewHistory View history flag
+   * @return the created stream
    */
-  private Room newServiceStream(String ticketId, String groupId, Boolean viewHistory)
+  private Room newServiceStream(String ticketId, String groupId, String podName,
+      Boolean viewHistory)
       throws RoomException {
     SymRoomAttributes roomAttributes = new SymRoomAttributes();
     roomAttributes.setCreatorUser(symphonyClient.getLocalUser());
@@ -37,7 +40,13 @@ public class RoomService {
     roomAttributes.setDescription("Service room for ticket " + ticketId + ".");
     roomAttributes.setDiscoverable(false);
     roomAttributes.setMembersCanInvite(true);
-    roomAttributes.setName("[" + groupId + "] Ticket Room #" + ticketId);
+
+    if (podName != null) {
+      roomAttributes.setName("[" + podName + "] [" + groupId + "] Ticket Room #" + ticketId);
+    } else {
+      roomAttributes.setName("[" + groupId + "] Ticket Room #" + ticketId);
+    }
+
     roomAttributes.setReadOnly(false);
     roomAttributes.setPublic(false);
     roomAttributes.setViewHistory(viewHistory);
@@ -49,12 +58,31 @@ public class RoomService {
     return room;
   }
 
+  /**
+   * Creates a new service stream for a ticket. There is a retry behavior to avoid errors when
+   * the POD doesn't support to create private room with the view history flag set to TRUE.
+   * @param ticketId the ticket ID to create the service stream for
+   * @param groupId group Id
+   * @return the created stream
+   */
   public Room createServiceStream(String ticketId, String groupId) {
+    return createServiceStream(ticketId, groupId, null);
+  }
+
+  /**
+   * Creates a new service stream for a ticket. There is a retry behavior to avoid errors when
+   * the POD doesn't support to create private room with the view history flag set to TRUE.
+   * @param ticketId the ticket ID to create the service stream for
+   * @param groupId group Id
+   * @param podName Pod Name
+   * @return the created stream
+   */
+  public Room createServiceStream(String ticketId, String groupId, String podName) {
     try {
-      return newServiceStream(ticketId, groupId, Boolean.TRUE);
+      return newServiceStream(ticketId, groupId, podName, Boolean.TRUE);
     } catch (RoomException e) {
       try {
-        return newServiceStream(ticketId, groupId, Boolean.FALSE);
+        return newServiceStream(ticketId, groupId, podName, Boolean.FALSE);
       } catch (RoomException e1) {
         LOGGER.error("Create room failed: ", e1);
         return null;

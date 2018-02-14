@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -12,7 +13,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.model.Room;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.MembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.RoomService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
@@ -24,6 +28,11 @@ import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
 import org.symphonyoss.symphony.clients.model.SymRoomDetail;
+import org.symphonyoss.symphony.clients.model.SymUser;
+import org.symphonyoss.symphony.pod.invoker.ApiClient;
+import org.symphonyoss.symphony.pod.invoker.ApiException;
+import org.symphonyoss.symphony.pod.invoker.Configuration;
+import org.symphonyoss.symphony.pod.model.UserV2;
 
 /**
  * Created by alexandre-silva-daitan on 19/12/17
@@ -44,6 +53,12 @@ public class TicketManagerServiceTest {
   @Mock
   private MessageProxyService messageProxyService;
 
+  @Mock
+  private  SymphonyClient symphonyClient;
+
+  @Mock
+  private ApiClient apiClient;
+
   private TicketManagerService ticketManagerService;
 
   private static final String STREAM_ID = "STREAM_ID";
@@ -60,8 +75,6 @@ public class TicketManagerServiceTest {
 
   private static final String TICKET_ID = "TICKET_ID";
 
-  private static final String CLIENT_NAME = "CLIENT_NAME";
-
   private static final Long QUESTION_TIMESTAMP = 111111L;
 
   private static final String SERVICE_STREAM_ID = "SERVICE_STREAM_ID";
@@ -70,13 +83,20 @@ public class TicketManagerServiceTest {
 
   private static final String NEW_SERVICE_STREAM_ID = "NEW_SERVICE_STRAM_ID";
 
-  private static final int TICKET_ID_LENGTH = 10;
+  private static final String TOKEN = "TOKEN";
+
+  private static final Long SYMUSER = 123456L;
+
+  private static final String COMPANY = "COMPANY";
+
+  private static final String FIRST_NAME = "FISRT_NAME";
 
   @Before
   public void initMocks() {
+    Configuration.setDefaultApiClient(apiClient);
     ticketManagerService =
         new TicketManagerService(STREAM_ID, GROUP_ID, membershipService, ticketService, roomService,
-            messageProxyService);
+            messageProxyService, symphonyClient);
 
   }
 
@@ -126,24 +146,39 @@ public class TicketManagerServiceTest {
   }
 
   @Test
-  public void updateMembershipClientAndCreateATicket() {
+  public void updateMembershipClientAndCreateATicket() throws ApiException {
+    UserV2 userV2 = getUserV2();
+
+    SymUser symUser = new SymUser();
+    symUser.setId(SYMUSER);
+
     SymMessage symMessage = new SymMessage();
     symMessage.setStreamId(NEW_STREAM_ID);
+    symMessage.setSymUser(symUser);
+
+    Token token = new Token();
+    token.setToken(TOKEN);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(token);
+
     Ticket ticket = getTicket();
     Membership membershipClient = getMembershipClient();
     Room serviceStream = mockRoom();
 
-    doReturn(null).when(ticketService).getTicketByServiceStreamId(NEW_STREAM_ID);
-
     doReturn(membershipClient).when(membershipService).updateMembership(symMessage,
         MembershipClient.MembershipType.CLIENT);
 
-    doReturn(null).when(ticketService).getUnresolvedTicket(NEW_STREAM_ID);
-
-    doReturn(serviceStream).when(roomService).createServiceStream(anyString(), eq(GROUP_ID));
+    doReturn(mockRoom()).when(roomService).createServiceStream(anyString(), eq(GROUP_ID), eq(COMPANY));
 
     doReturn(ticket).when(ticketService)
         .createTicket(anyString(), eq(symMessage), eq(serviceStream));
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
+
+    doReturn(null).doReturn(userV2)
+        .when(apiClient)
+        .invokeAPI(any(), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
 
     ticketManagerService.messageReceived(symMessage);
 
@@ -187,14 +222,6 @@ public class TicketManagerServiceTest {
     return ticket;
   }
 
-  private UserInfo getClientInfo() {
-    UserInfo client = new UserInfo();
-    client.setUserId(CLIENT_ID);
-    client.setDisplayName(CLIENT_NAME);
-
-    return client;
-  }
-
   private UserInfo getAgentInfo() {
     UserInfo agent = new UserInfo();
     agent.setUserId(AGENT_ID);
@@ -202,7 +229,14 @@ public class TicketManagerServiceTest {
 
     return agent;
   }
+  
+  private UserV2 getUserV2() {
+    UserV2 userV2 = new UserV2();
+    userV2.setFirstName(FIRST_NAME);
+    userV2.setCompany(COMPANY);
 
+    return userV2;
+  }
   private Room mockRoom() {
     Room room = new Room();
     room.setId(NEW_SERVICE_STREAM_ID);
