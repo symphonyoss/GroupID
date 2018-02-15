@@ -1,10 +1,8 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
@@ -35,6 +33,8 @@ public class RoomServiceTest {
 
   private static final String ROOM_ID = "2541793";
 
+  private static final String PODNAME = "PODNAME";
+
   private RoomService service;
 
   @Mock
@@ -55,7 +55,7 @@ public class RoomServiceTest {
   public void createRoomWithShowHistoryTrue() throws RoomException {
     doReturn(mockRoom()).when(roomService).createRoom(any(SymRoomAttributes.class));
 
-    Room room = service.createServiceStream(TICKET_ID, GROUP_ID);
+    Room room = service.createServiceStream(TICKET_ID, GROUP_ID, PODNAME);
 
     assertEquals(ROOM_ID, room.getId());
     assertEquals(Boolean.TRUE, room.getRoomDetail().getRoomAttributes().getViewHistory());
@@ -65,7 +65,7 @@ public class RoomServiceTest {
   public void createRoomWithShowHistoryFalse() throws RoomException {
     when(roomService.createRoom(any(SymRoomAttributes.class))).thenThrow(RoomException.class).thenReturn(mockRoom());
 
-    Room room = service.createServiceStream(TICKET_ID, GROUP_ID);
+    Room room = service.createServiceStream(TICKET_ID, GROUP_ID, PODNAME);
 
     assertEquals(ROOM_ID, room.getId());
     assertEquals(Boolean.FALSE, room.getRoomDetail().getRoomAttributes().getViewHistory());

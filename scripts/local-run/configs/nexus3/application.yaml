@@ -1,0 +1,31 @@
+mongo:
+  host: sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com
+
+groupId: testgroup
+authentication:
+  keystore-file: ${CERTS_DIR}/nexus3/helpdesk.p12
+  keystore-password: changeit
+
+helpdesk-bot:
+  host: localhost.symphony.com
+  port: 8090
+
+helpdesk-service:
+  host: localhost.symphony.com
+  port: 8081
+
+agent:
+  host: nexus3-2.symphony.com
+  port: 443
+
+session_auth:
+  host: sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com
+  port: 8444
+
+key_auth:
+  host: sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com
+  port: 8444
+
+pod:
+  host: nexus3-2.symphony.com
+  port: 443

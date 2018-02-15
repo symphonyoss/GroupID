@@ -21,16 +21,17 @@ public class AutoConnectionAcceptListener implements ConnectionsEventListener {
 
   private static final Logger LOG = LoggerFactory.getLogger(AutoConnectionAcceptListener.class);
 
-  private final ConnectionsClient connectionsClient;
+  private final SymphonyClient symphonyClient;
 
   public AutoConnectionAcceptListener(SymphonyClient symphonyClient) {
-    this.connectionsClient = symphonyClient.getConnectionsClient();
+    this.symphonyClient = symphonyClient;
   }
 
   @Override
   public void onSymConnectionRequested(SymConnectionRequested symConnectionRequested) {
+    ConnectionsClient connectionsClient = symphonyClient.getConnectionsClient();
     try {
-      List<SymUserConnection> connectionList = connectionsClient.getPendingRequests();
+      List<SymUserConnection> connectionList = connectionsClient.getIncomingRequests();
       for (SymUserConnection userConnection : connectionList) {
         connectionsClient.acceptConnectionRequest(userConnection);
       }

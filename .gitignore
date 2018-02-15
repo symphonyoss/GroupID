@@ -20,3 +20,12 @@ node_modules/
 # YAML
 helpdesk-bot/application.yaml
 helpdesk-service/helpdesk-service-server/application.yaml
+
+# Generated files
+*.jks
+*.crt
+*.p12
+*.pem
+*.log
+*.pid
+application-custom.yaml
