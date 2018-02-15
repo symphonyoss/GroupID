@@ -97,7 +97,8 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
   }
 
   /**
-   * Authenticates bot user, starts symphony client, and register listeners
+   * Authenticates bot user, starts symphony client, register listeners and accept incoming requests
+   * from external users.
    * @param applicationContext Spring application context
    */
   private HelpDeskSymphonyClient initSymphonyClient(ApplicationContext applicationContext, SymAuth symAuth) {
@@ -108,6 +109,8 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
       symphonyClient.init(symAuth, config.getEmail(), config.getAgentUrl(), config.getPodUrl());
 
       registerListeners(symphonyClient, applicationContext);
+
+      acceptIncomingRequests(applicationContext);
 
       return symphonyClient;
     } catch (HelpDeskAuthenticationException | InitException e) {
@@ -128,6 +131,15 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
     symphonyClient.getMessageService().addRoomServiceEventListener(roomEventListener);
     symphonyClient.getMessageService().addConnectionsEventListener(connectionListener);
     symphonyClient.getMessageService().addMessageListener(chatListener);
+  }
+
+  /**
+   * Accept incoming requests from the external users
+   * @param applicationContext Spring application context
+   */
+  private void acceptIncomingRequests(ApplicationContext applicationContext) {
+    AutoConnectionAcceptListener connectionListener = applicationContext.getBean(AutoConnectionAcceptListener.class);
+    connectionListener.acceptAllIncomingRequests();
   }
 
   /**
