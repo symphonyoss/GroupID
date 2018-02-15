@@ -21,6 +21,11 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 
 /**
  * Created by rsanchez on 01/12/17.
@@ -30,8 +35,7 @@ public class TicketService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketService.class);
 
-  private static final String SERVICE_ROOM_WAS_NOT_CREATED =
-      "There was a problem trying to create the service room. Please try again.";
+  private static final String SERVICE_ROOM_WAS_NOT_CREATED = "roomNotCreated.xml";
 
   private final String agentStreamId;
 
@@ -162,12 +166,25 @@ public class TicketService {
   }
 
   public void sendMessageWhenRoomCreationFails(SymMessage symMessage) {
-    symMessage.setMessage(SERVICE_ROOM_WAS_NOT_CREATED);
+    symMessage.setMessage(parseTemplate(SERVICE_ROOM_WAS_NOT_CREATED));
 
     try {
       symphonyClient.getMessagesClient().sendMessage(symMessage.getStream(), symMessage);
     } catch (MessagesException e) {
       LOGGER.error("Could not send message to client stream ID: ", e);
     }
+  }
+
+  private String parseTemplate(String templateFilename) {
+    StringBuilder message = new StringBuilder();
+    InputStream resource = getClass().getClassLoader().getResourceAsStream(templateFilename);
+
+    try (BufferedReader buffer = new BufferedReader(new InputStreamReader(resource))) {
+      buffer.lines().forEach(message::append);
+    } catch (IOException e) {
+      LOGGER.error("Fail to parse claim message template");
+    }
+
+    return message.toString();
   }
 }
