@@ -182,7 +182,7 @@ public class TicketService {
     try (BufferedReader buffer = new BufferedReader(new InputStreamReader(resource))) {
       buffer.lines().forEach(message::append);
     } catch (IOException e) {
-      LOGGER.error("Fail to parse claim message template");
+      LOGGER.error("Fail to parse room was not created template");
     }
 
     return message.toString();
