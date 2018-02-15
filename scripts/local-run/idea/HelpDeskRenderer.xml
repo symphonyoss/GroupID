@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="HelpDeskRenderer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="org.symphonyoss.symphony.bots.helpdesk.HelpDeskBotApplication" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <module name="helpdesk-application" />
+    <envs>
+      <env name="LOG4J2_BASE_DIR" value="$PROJECT_DIR$/scripts/local-run/app" />
+      <env name="LOG4J2_OUTPUT_CONSOLE" value="true" />
+      <env name="SERVER_SSL_ENABLED" value="true" />
+      <env name="SERVER_SSL_KEY_STORE" value="$PROJECT_DIR$/scripts/local-run/server.jks" />
+      <env name="SERVER_SSL_KEY_STORE_PASSWORD" value="changeit" />
+    </envs>
+    <method />
+  </configuration>
+</component>
