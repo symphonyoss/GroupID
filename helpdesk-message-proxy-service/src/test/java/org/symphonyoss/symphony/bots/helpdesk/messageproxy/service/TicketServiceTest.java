@@ -81,7 +81,7 @@ public class TicketServiceTest {
     HelpDeskServiceInfo helpDeskServiceInfo = mock(HelpDeskServiceInfo.class);
 
     ticketService =
-        new TicketService(TEST_AGENT_STREAM, null, TEST_CREATE_TICKET_MESSAGE, ticketClient,
+        new TicketService(TEST_AGENT_STREAM, null, TEST_CREATE_TICKET_MESSAGE, null, ticketClient,
             symphonyClient, instructionalMessageConfig, helpDeskBotInfo, helpDeskServiceInfo);
   }
 

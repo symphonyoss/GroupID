@@ -43,6 +43,8 @@ public class TicketService {
 
   private final String createTicketMessage;
 
+  private final String serviceRoomWasNotCreated;
+
   private final TicketClient ticketClient;
 
   private final SymphonyClient symphonyClient;
@@ -56,6 +58,7 @@ public class TicketService {
   public TicketService(@Value("${agentStreamId}") String agentStreamId,
       @Value("${claimEntityHeader}") String claimHeader,
       @Value("${createTicketMessage}") String createTicketMessage,
+      @Value("${serviceRoomWasNotCreated}") String serviceRoomWasNotCreated,
       TicketClient ticketClient, SymphonyClient symphonyClient,
       InstructionalMessageConfig instructionalMessageConfig, HelpDeskBotInfo helpDeskBotInfo,
       HelpDeskServiceInfo helpDeskServiceInfo) {
@@ -66,6 +69,7 @@ public class TicketService {
     this.helpDeskBotInfo = helpDeskBotInfo;
     this.helpDeskServiceInfo = helpDeskServiceInfo;
     this.createTicketMessage = createTicketMessage;
+    this.serviceRoomWasNotCreated = serviceRoomWasNotCreated;
     this.instructionalMessageConfig = instructionalMessageConfig;
   }
 
@@ -171,8 +175,7 @@ public class TicketService {
    * @param SymMessage symMessage the message to be send to room.
    */
   public void sendMessageWhenRoomCreationFails(SymMessage symMessage) {
-    symMessage.setMessageText(SERVICE_ROOM_WAS_NOT_CREATED);
-    symMessage.setMessage(null);
+    symMessage.setMessageText(serviceRoomWasNotCreated);
 
     try {
       symphonyClient.getMessagesClient().sendMessage(symMessage.getStream(), symMessage);
