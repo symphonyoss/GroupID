@@ -35,7 +35,7 @@ public class SymMessageBuilder {
   }
 
   /**
-   * Define entity JSON.
+   * Define entity data. It should be a serialized JSON entity
    *
    * @param entityData Entity JSON
    * @return Builder class

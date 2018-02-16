@@ -17,7 +17,8 @@ public class EntityBuilder {
 
   private Map<String, Object> content = new LinkedHashMap<>();
 
-  private EntityBuilder() {}
+  private EntityBuilder() {
+  }
 
   private EntityBuilder(String type, String version) {
     this.content.put("type", type);
@@ -25,7 +26,7 @@ public class EntityBuilder {
   }
 
   /**
-   * Create a new entity without type and version.
+   * Create a new empty entity
    * @return Builder class
    */
   public static EntityBuilder createEntity() {
@@ -34,7 +35,6 @@ public class EntityBuilder {
 
   /**
    * Create a new entity with type and version.
-   *
    * @param type Entity type
    * @param version Entity version
    * @return Builder class
@@ -45,7 +45,6 @@ public class EntityBuilder {
 
   /**
    * Add a new field
-   *
    * @param field Field name
    * @param value Field content
    * @return Builder class
@@ -64,7 +63,6 @@ public class EntityBuilder {
 
   /**
    * Builds entity object as string.
-   *
    * @return Entity object as string
    * @throws JsonProcessingException Failure to serialize JSON content as a string.
    */
