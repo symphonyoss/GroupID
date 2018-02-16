@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jbehave.core.configuration.MostUsefulConfiguration;
 import org.jbehave.core.failures.FailingUponPendingStep;
 import org.jbehave.core.io.CodeLocations;
@@ -13,13 +14,16 @@ import org.jbehave.core.reporters.StoryReporterBuilder;
 import org.jbehave.core.steps.InjectableStepsFactory;
 import org.jbehave.core.steps.SilentStepMonitor;
 import org.jbehave.core.steps.spring.SpringStepsFactory;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.symphonyoss.symphony.bots.helpdesk.bot.bootstrap.HelpDeskBootstrap;
 import org.symphonyoss.symphony.bots.helpdesk.bot.init.SpringHelpDeskBotInit;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,11 +34,18 @@ import java.util.List;
     classes = SpringHelpDeskBotInit.class)
 public class HelpDeskBotStories extends JUnitStories {
 
+  private static final String QUEUE_ROOM_PROPERTY = "QUEUE_ROOM";
+
+  private static final String CERTS_DATA_PROPERTY = "CERTS_DATA";
+
+  private static final String[] SUPPORTED_ENVS = { "nexus1", "nexus2", "nexus3", "nexus4" };
+
   @Autowired
   private ApplicationContext applicationContext;
 
   public HelpDeskBotStories() {
     initJBehaveConfiguration();
+    prepareEnvironment();
   }
 
   private void initJBehaveConfiguration() {
@@ -50,6 +61,40 @@ public class HelpDeskBotStories extends JUnitStories {
             .withCrossReference(new CrossReference())
             .withFailureTrace(true))
         .useStepMonitor(new SilentStepMonitor()));
+  }
+
+  private void prepareEnvironment() {
+    // TODO APP-1629
+
+    String queueRoom = "";
+    String certificate = "";
+
+    setupSystemProperties(queueRoom, certificate);
+  }
+
+  private void setupSystemProperties(String queueRoom, String certificate) {
+    if (StringUtils.isNotBlank(queueRoom)) {
+      System.setProperty(QUEUE_ROOM_PROPERTY, queueRoom);
+    }
+
+    if (StringUtils.isNotBlank(certificate)) {
+      System.setProperty(CERTS_DATA_PROPERTY, certificate);
+    }
+  }
+
+  @Before
+  public void bootstrap() {
+    String[] activeProfiles = applicationContext.getEnvironment().getActiveProfiles();
+
+    long count = Arrays.stream(activeProfiles)
+        .filter(profile -> Arrays.asList(SUPPORTED_ENVS).contains(profile))
+        .count();
+
+    if (count == 0) {
+      throw new IllegalStateException("You must setup environment");
+    }
+
+    new HelpDeskBootstrap().execute(applicationContext);
   }
 
   @Override
