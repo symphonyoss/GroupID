@@ -47,20 +47,17 @@ public abstract class TicketService {
 
   protected final SymphonyClientUtil symphonyClientUtil;
 
-  protected final HelpDeskAi helpDeskAi;
-
   private final ValidateMembershipService validateMembershipService;
 
   public TicketService(SymphonyValidationUtil symphonyValidationUtil, SymphonyClient symphonyClient,
       HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
-      ValidateMembershipService validateMembershipService, HelpDeskAi helpDeskAi) {
+      ValidateMembershipService validateMembershipService) {
     this.symphonyValidationUtil = symphonyValidationUtil;
     this.symphonyClient = symphonyClient;
     this.helpDeskBotConfig = helpDeskBotConfig;
     this.ticketClient = ticketClient;
     this.validateMembershipService = validateMembershipService;
     this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
-    this.helpDeskAi = helpDeskAi;
   }
 
   /**

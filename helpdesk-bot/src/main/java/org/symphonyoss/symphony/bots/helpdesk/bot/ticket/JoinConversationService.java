@@ -34,7 +34,7 @@ public class JoinConversationService extends TicketService {
       SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
       ValidateMembershipService validateMembershipService, HelpDeskAi helpDeskAi) {
     super(symphonyValidationUtil, symphonyClient, helpDeskBotConfig, ticketClient,
-        validateMembershipService, helpDeskAi);
+        validateMembershipService);
   }
 
   /**

@@ -20,9 +20,9 @@ public class MockTicketService extends TicketService {
 
   public MockTicketService(SymphonyValidationUtil symphonyValidationUtil,
       SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
-      ValidateMembershipService validateMembershipService, HelpDeskAi helpDeskAi) {
+      ValidateMembershipService validateMembershipService) {
     super(symphonyValidationUtil, symphonyClient, helpDeskBotConfig, ticketClient,
-        validateMembershipService, helpDeskAi);
+        validateMembershipService);
   }
 
   @Override

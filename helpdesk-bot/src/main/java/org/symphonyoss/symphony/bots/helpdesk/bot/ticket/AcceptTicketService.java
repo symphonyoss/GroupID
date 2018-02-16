@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.AcceptMessageBuilder;
-import org.symphonyoss.symphony.bots.helpdesk.service.client.StringUtil;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -51,7 +49,7 @@ public class AcceptTicketService extends TicketService {
       SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
       HelpDeskAi helpDeskAi, ValidateMembershipService validateMembershipService) {
     super(symphonyValidationUtil, symphonyClient, helpDeskBotConfig, ticketClient,
-        validateMembershipService, helpDeskAi);
+        validateMembershipService);
     this.helpDeskAi = helpDeskAi;
   }
 

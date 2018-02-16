@@ -71,9 +71,6 @@ public class TicketServiceTest {
   @Mock
   private ValidateMembershipService validateMembershipService;
 
-  @Mock
-  private HelpDeskAi helpDeskAi;
-
   private TicketService ticketService;
 
   @Before
@@ -83,7 +80,7 @@ public class TicketServiceTest {
 
     this.ticketService =
         new MockTicketService(symphonyValidationUtil, symphonyClient, helpDeskBotConfig,
-            ticketClient, validateMembershipService, helpDeskAi);
+            ticketClient, validateMembershipService);
   }
 
   @Test

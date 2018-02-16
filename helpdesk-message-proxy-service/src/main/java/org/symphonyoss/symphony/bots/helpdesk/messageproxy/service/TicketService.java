@@ -166,7 +166,8 @@ public class TicketService {
   }
 
   public void sendMessageWhenRoomCreationFails(SymMessage symMessage) {
-    symMessage.setMessage(SERVICE_ROOM_WAS_NOT_CREATED);
+    symMessage.setMessageText(SERVICE_ROOM_WAS_NOT_CREATED);
+    symMessage.setMessage(null);
 
     try {
       symphonyClient.getMessagesClient().sendMessage(symMessage.getStream(), symMessage);
