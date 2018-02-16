@@ -101,6 +101,7 @@ After that, you must run the **create_agent_room.sh** script providing the envir
 - Copy run configurations from 'scripts/local-run/idea' directory to '.idea/runConfigurations'
 - Execute HelpDeskService configuration
 - Execute HelpDeskBot configuration
+- Execute HelpDeskRenderer configuration
 
 ### Validate applications
 
