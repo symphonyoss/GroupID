@@ -5,7 +5,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * Created by rsanchez on 18/12/17.
+ * Helper class to execute a function using backoff exponential algorithm.
+ * <p>
+ * Created by rsanchez on 12/18/17.
  */
 public class FunctionExecutor<T, R> {
 
@@ -15,16 +17,35 @@ public class FunctionExecutor<T, R> {
 
   private Consumer<Exception> errorListener;
 
+  /**
+   * Define function to be executed.
+   *
+   * @param function Function to be executed.
+   * @return Helper class
+   */
   public FunctionExecutor<T, R> function(Function<T, R> function) {
     this.function = function;
     return this;
   }
 
+  /**
+   * Define error listener. It'll be invoked on error during the function execution.
+   *
+   * @param errorListener Listener consumer.
+   * @return Helper class
+   */
   public FunctionExecutor<T, R> onError(Consumer<Exception> errorListener) {
     this.errorListener = errorListener;
     return this;
   }
 
+  /**
+   * Execute function using backoff exponential algorithm.
+   *
+   * @param input Function input
+   * @return Function output
+   * @throws InterruptedException Thread interrupted
+   */
   public R executeBackoffExponential(T input) throws InterruptedException {
     int count = 0;
 
@@ -44,6 +65,11 @@ public class FunctionExecutor<T, R> {
     } while ( true );
   }
 
+  /**
+   * Invokes listener to handle failures.
+   *
+   * @param e Root cause exception
+   */
   private void handleFailure(Exception e) {
     if (errorListener != null) {
       errorListener.accept(e);

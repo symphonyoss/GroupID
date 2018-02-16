@@ -3,7 +3,9 @@ package org.symphonyoss.symphony.bots.utility.config;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created by robson on 20/11/17.
+ * Model class to describe service host and port.
+ * <p>
+ * Created by robson on 11/20/17.
  */
 public class ServiceInfo {
 
@@ -27,6 +29,12 @@ public class ServiceInfo {
     this.port = port;
   }
 
+  /**
+   * Returns the service URL.
+   *
+   * @param context Service context
+   * @return Service URL
+   */
   public String getUrl(String context) {
     if (StringUtils.isEmpty(host)) {
       return StringUtils.EMPTY;
