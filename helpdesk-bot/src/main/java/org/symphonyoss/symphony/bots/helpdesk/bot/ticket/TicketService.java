@@ -35,8 +35,6 @@ import javax.ws.rs.InternalServerErrorException;
  */
 public abstract class TicketService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TicketService.class);
-
   private static final String TICKET_NOT_FOUND = "Ticket not found.";
 
   private final SymphonyValidationUtil symphonyValidationUtil;
@@ -130,43 +128,4 @@ public abstract class TicketService {
   }
 
   protected abstract TicketResponse execute(Ticket ticket, SymUser agentUser);
-
-  protected void sendMessageWithShowHistoryFalse(Ticket ticket, Long agentId) {
-    if (Boolean.FALSE.equals(ticket.getShowHistory())) {
-      SymStream clientStream = new SymStream();
-      clientStream.setStreamId(ticket.getClientStreamId());
-
-      SymStream serviceStream = new SymStream();
-      serviceStream.setStreamId(ticket.getServiceStreamId());
-
-      try {
-        List<SymMessage> messages = symphonyClientUtil.getSymMessages(clientStream,
-            ticket.getQuestionTimestamp(), 100);
-
-        messages.stream()
-            .filter(symMessage -> ticket.getClient()
-                .getUserId()
-                .equals(symMessage.getSymUser().getId()))
-            .sorted(Comparator.comparing(SymMessage::getTimestamp))
-            .forEach(symMessage -> {
-              symMessage.setStream(serviceStream);
-              symMessage.setStreamId(serviceStream.getStreamId());
-              sendMessage(symMessage, agentId);
-            });
-      } catch (MessagesException e) {
-        LOG.error("Could not send message to service room: ", e);
-        throw new InternalServerErrorException();
-      }
-    }
-  }
-
-  private void sendMessage(SymMessage symMessage, Long agentId) {
-    AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, symMessage.getStreamId());
-    SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
-
-    Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
-    responseIdentifierSet.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
-
-    helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
-  }
 }
