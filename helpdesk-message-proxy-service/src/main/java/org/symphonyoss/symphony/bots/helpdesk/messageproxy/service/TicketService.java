@@ -35,7 +35,7 @@ public class TicketService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketService.class);
 
-  private static final String SERVICE_ROOM_WAS_NOT_CREATED = "roomNotCreated.xml";
+  private static final String SERVICE_ROOM_WAS_NOT_CREATED = "There was a problem trying to create the service room. Please try again.";
 
   private final String agentStreamId;
 
@@ -166,25 +166,12 @@ public class TicketService {
   }
 
   public void sendMessageWhenRoomCreationFails(SymMessage symMessage) {
-    symMessage.setMessage(parseTemplate(SERVICE_ROOM_WAS_NOT_CREATED));
+    symMessage.setMessage(SERVICE_ROOM_WAS_NOT_CREATED);
 
     try {
       symphonyClient.getMessagesClient().sendMessage(symMessage.getStream(), symMessage);
     } catch (MessagesException e) {
       LOGGER.error("Could not send message to client stream ID: ", e);
     }
-  }
-
-  private String parseTemplate(String templateFilename) {
-    StringBuilder message = new StringBuilder();
-    InputStream resource = getClass().getClassLoader().getResourceAsStream(templateFilename);
-
-    try (BufferedReader buffer = new BufferedReader(new InputStreamReader(resource))) {
-      buffer.lines().forEach(message::append);
-    } catch (IOException e) {
-      LOGGER.error("Fail to parse room was not created template");
-    }
-
-    return message.toString();
   }
 }
