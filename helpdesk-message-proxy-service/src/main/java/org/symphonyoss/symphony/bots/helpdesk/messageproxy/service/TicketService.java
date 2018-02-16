@@ -165,6 +165,11 @@ public class TicketService {
     }
   }
 
+  /**
+   * This method is responsible to send message to room when the service room was not created.
+   *
+   * @param SymMessage symMessage the message to be send to room.
+   */
   public void sendMessageWhenRoomCreationFails(SymMessage symMessage) {
     symMessage.setMessageText(SERVICE_ROOM_WAS_NOT_CREATED);
     symMessage.setMessage(null);
