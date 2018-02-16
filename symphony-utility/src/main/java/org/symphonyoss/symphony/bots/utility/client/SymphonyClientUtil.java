@@ -1,7 +1,5 @@
 package org.symphonyoss.symphony.bots.utility.client;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.clients.MessagesClient;
@@ -12,11 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Created by nick.tarsillo on 12/6/17.
- *
  * Helper class for retrieving Symphony data.
+ * <p>
+ * Created by nick.tarsillo on 12/6/17.
  */
 public class SymphonyClientUtil {
+
   private static final int DEFAULT_MAX_MESSAGES = 10;
 
   private SymphonyClient symphonyClient;
@@ -26,12 +25,13 @@ public class SymphonyClientUtil {
   }
 
   /**
-   * Get a the list of messages from a stream
+   * Get a list of messages from a stream
+   *
    * @param stream Stream to retrieve messages from
    * @param since Date (long) from point in time
    * @param maxMessages Maximum number of messages to retrieve from the specified time (since)
    * @return List of messages matching the given parameters
-   * @throws MessagesException
+   * @throws MessagesException Failure to retrieve messages
    */
   public List<SymMessage> getSymMessages(SymStream stream, Long since, int maxMessages)
       throws MessagesException {
@@ -40,12 +40,13 @@ public class SymphonyClientUtil {
   }
 
   /**
-   * Get the first sent message (timestamp) from the given stream messages
+   * Get the message from the given stream according to the conversation ID
+   *
    * @param streamId Stream to retrieve messages from
    * @param since Date (long) from point in time
-   * @param id Message identificator
-   * @return First message for the given parameters
-   * @throws MessagesException
+   * @param id Conversation ID
+   * @return Message according to the conversation ID
+   * @throws MessagesException Failure to retrieve messages
    */
   public Optional<SymMessage> getSymMessageByStreamAndId(String streamId, Long since, String id)
       throws MessagesException {
