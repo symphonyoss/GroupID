@@ -4,7 +4,6 @@ import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.Ticke
     .TicketStateType.UNRESOLVED;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.client.SymphonyClient;
@@ -18,6 +17,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -43,9 +43,6 @@ import javax.ws.rs.BadRequestException;
 public class AgentExternalCheck implements Checker {
 
   private static final int MAKERCHECKER_ID_LENGTH = 10;
-  private static final String MESSAGE_COULD_NOT_CREATE_FILE = "Couldn't create a file.";
-  private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
-  private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
   private static final String MESSAGE_TO_APPROVE_MAKER_CHECKER =
       "%s approved %s attachment. It has been delivered to the client(s).";
   private static final String MESSAGE_TO_DENY_MAKER_CHECKER =
@@ -65,6 +62,8 @@ public class AgentExternalCheck implements Checker {
 
   private final SymphonyValidationUtil symphonyValidationUtil;
 
+  private final SymphonyClientUtil symphonyClientUtil;
+
   public AgentExternalCheck(String botHost, String serviceHost, String groupId,
       TicketClient ticketClient, SymphonyClient symphonyClient, SymphonyValidationUtil symphonyValidationUtil) {
     this.botHost = botHost;
@@ -73,6 +72,7 @@ public class AgentExternalCheck implements Checker {
     this.ticketClient = ticketClient;
     this.symphonyClient = symphonyClient;
     this.symphonyValidationUtil = symphonyValidationUtil;
+    this.symphonyClientUtil = new SymphonyClientUtil(this.symphonyClient);
   }
 
   @Override
@@ -226,7 +226,7 @@ public class AgentExternalCheck implements Checker {
         attachmentInfoList.add(symAttachmentInfo);
         approvedMessage.setAttachments(attachmentInfoList);
 
-        File file = getFileAttachment(symAttachmentInfo, symMessage);
+        File file = symphonyClientUtil.getFileAttachment(symAttachmentInfo, symMessage);
         approvedMessage.setAttachment(file);
       }
 
@@ -248,37 +248,6 @@ public class AgentExternalCheck implements Checker {
 
       directory.delete();
     }
-  }
-
-  private File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
-    String tmpDir = System.getProperty("java.io.tmpdir");
-    File directory = new File(tmpDir + File.separator + symAttachmentInfo.getId());
-    if (!directory.exists()) {
-      directory.mkdir();
-    }
-
-    File file = new File(directory + File.separator + symAttachmentInfo.getName());
-    try {
-      file.createNewFile();
-    } catch (IOException e) {
-      throw new BadRequestException(MESSAGE_COULD_NOT_CREATE_FILE);
-    }
-
-    byte[] aByte;
-    try {
-      aByte = symphonyClient.getAttachmentsClient().getAttachmentData(symAttachmentInfo, symMessage);
-    } catch (AttachmentsException e) {
-      throw new BadRequestException(MESSAGE_ATTACHMENT_NOT_FOUND);
-    }
-
-    InputStream inputStream = new ByteArrayInputStream(aByte);
-    try {
-      FileUtils.copyInputStreamToFile(inputStream, file);
-    } catch (IOException e) {
-      throw new BadRequestException(MESSAGE_FAILED_TO_CREATE_FILE);
-    }
-
-    return file;
   }
 
 }

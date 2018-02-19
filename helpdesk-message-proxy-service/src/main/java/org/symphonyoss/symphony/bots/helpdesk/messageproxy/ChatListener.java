@@ -1,6 +1,9 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.services.MessageListener;
@@ -33,7 +36,7 @@ public class ChatListener implements MessageListener {
 
   @Override
   public void onMessage(SymMessage symMessage) {
-    if (hasContent(symMessage) && ready) {
+    if (ready) {
       ticketManagerService.messageReceived(symMessage);
       helpDeskAi.onMessage(symMessage);
     }
@@ -41,15 +44,6 @@ public class ChatListener implements MessageListener {
 
   public void ready() {
     this.ready = true;
-  }
-
-  private boolean hasContent(SymMessage symMessage) {
-    return StringUtils.isNotEmpty(symMessage.getMessageText()) || hasAttachment(symMessage);
-  }
-
-  private boolean hasAttachment(SymMessage symMessage) {
-    List<SymAttachmentInfo> attachments = symMessage.getAttachments();
-    return attachments != null && !attachments.isEmpty();
   }
 
 }

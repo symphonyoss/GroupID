@@ -2,6 +2,7 @@ package org.symphonyoss.symphony.bots.ai;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponder;
@@ -19,9 +20,9 @@ public class HelpDeskAiResponder extends SymphonyAiResponder {
 
   private final MessageProducer messageProducer;
 
-  public HelpDeskAiResponder(MessagesClient messagesClient, MembershipClient membershipClient, UsersClient usersClient) {
+  public HelpDeskAiResponder(MessagesClient messagesClient, MembershipClient membershipClient, UsersClient usersClient, SymphonyClient symphonyClient) {
     super(messagesClient);
-    this.messageProducer = new MessageProducer(messagesClient, membershipClient, usersClient);
+    this.messageProducer = new MessageProducer(messagesClient, membershipClient, usersClient, symphonyClient);
   }
 
   @Override

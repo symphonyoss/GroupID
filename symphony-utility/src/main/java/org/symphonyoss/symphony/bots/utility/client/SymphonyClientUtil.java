@@ -2,12 +2,20 @@ package org.symphonyoss.symphony.bots.utility.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.commons.io.FileUtils;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.AttachmentsException;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.clients.MessagesClient;
+import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 
+import javax.ws.rs.BadRequestException;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,11 +26,45 @@ import java.util.Optional;
  */
 public class SymphonyClientUtil {
   private static final int DEFAULT_MAX_MESSAGES = 10;
+  private static final String MESSAGE_COULD_NOT_CREATE_FILE = "Couldn't create a file.";
+  private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
+  private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
 
   private SymphonyClient symphonyClient;
 
   public SymphonyClientUtil(SymphonyClient symphonyClient) {
     this.symphonyClient = symphonyClient;
+  }
+
+  public File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
+    String tmpDir = System.getProperty("java.io.tmpdir");
+    File directory = new File(tmpDir + File.separator + symAttachmentInfo.getId());
+    if (!directory.exists()) {
+      directory.mkdir();
+    }
+
+    File file = new File(directory + File.separator + symAttachmentInfo.getName());
+    try {
+      file.createNewFile();
+    } catch (IOException e) {
+      throw new BadRequestException(MESSAGE_COULD_NOT_CREATE_FILE);
+    }
+
+    byte[] aByte;
+    try {
+      aByte = symphonyClient.getAttachmentsClient().getAttachmentData(symAttachmentInfo, symMessage);
+    } catch (AttachmentsException e) {
+      throw new BadRequestException(MESSAGE_ATTACHMENT_NOT_FOUND);
+    }
+
+    InputStream inputStream = new ByteArrayInputStream(aByte);
+    try {
+      FileUtils.copyInputStreamToFile(inputStream, file);
+    } catch (IOException e) {
+      throw new BadRequestException(MESSAGE_FAILED_TO_CREATE_FILE);
+    }
+
+    return file;
   }
 
   /**
