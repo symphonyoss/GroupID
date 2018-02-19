@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.bot;
+package org.symphonyoss.symphony.bots.helpdesk.bot.it;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jbehave.core.configuration.MostUsefulConfiguration;
@@ -45,7 +45,6 @@ public class HelpDeskBotStories extends JUnitStories {
 
   public HelpDeskBotStories() {
     initJBehaveConfiguration();
-    prepareEnvironment();
   }
 
   private void initJBehaveConfiguration() {
@@ -61,6 +60,23 @@ public class HelpDeskBotStories extends JUnitStories {
             .withCrossReference(new CrossReference())
             .withFailureTrace(true))
         .useStepMonitor(new SilentStepMonitor()));
+  }
+
+  @Before
+  public void bootstrap() {
+    String[] activeProfiles = applicationContext.getEnvironment().getActiveProfiles();
+
+    long count = Arrays.stream(activeProfiles)
+        .filter(profile -> Arrays.asList(SUPPORTED_ENVS).contains(profile))
+        .count();
+
+    if (count == 0) {
+      throw new IllegalStateException("You must setup environment");
+    }
+
+    prepareEnvironment();
+
+    new HelpDeskBootstrap().execute(applicationContext);
   }
 
   private void prepareEnvironment() {
@@ -80,21 +96,6 @@ public class HelpDeskBotStories extends JUnitStories {
     if (StringUtils.isNotBlank(certificate)) {
       System.setProperty(CERTS_DATA_PROPERTY, certificate);
     }
-  }
-
-  @Before
-  public void bootstrap() {
-    String[] activeProfiles = applicationContext.getEnvironment().getActiveProfiles();
-
-    long count = Arrays.stream(activeProfiles)
-        .filter(profile -> Arrays.asList(SUPPORTED_ENVS).contains(profile))
-        .count();
-
-    if (count == 0) {
-      throw new IllegalStateException("You must setup environment");
-    }
-
-    new HelpDeskBootstrap().execute(applicationContext);
   }
 
   @Override
