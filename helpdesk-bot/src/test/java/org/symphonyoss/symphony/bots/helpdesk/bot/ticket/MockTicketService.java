@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;

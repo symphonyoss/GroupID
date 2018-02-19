@@ -1,8 +1,10 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.apache.commons.codec.binary.Base64;
@@ -35,27 +37,39 @@ import org.symphonyoss.symphony.clients.model.SymUser;
  */
 public class TicketServiceTest {
   private static final String TEST_TICKET_ID = "TEST_TICKET_ID";
+
   private static final String TEST_SERVICE_STREAM_ID = "TEST_SERVICE_STREAM";
+
   private static final String TEST_CLIENT_STREAM_ID = "TEST_CLIENT_STREAM";
+
   private static final String TEST_DISPLAY_NAME = "TEST_DISPLAY_NAME";
+
   private static final String TEST_CREATE_TICKET_MESSAGE = "TEST_CREATE";
+
   private static final String TEST_AGENT_STREAM = "TEST_AGENT_STREAM";
+
   private static final Long TEST_TIMESTAMP = 1L;
+
   private static final Long TEST_FROM_USER_ID = 2L;
 
-  private TicketService mockService;
+  private TicketService ticketService;
+
   @Mock
   private UsersClient usersClient;
+
   @Mock
   private MessagesClient messagesClient;
+
   @Mock
   private TicketClient ticketClient;
+
+  @Mock
+  private SymphonyClient symphonyClient;
 
   @Before
   public void initMocks(){
     MockitoAnnotations.initMocks(this);
 
-    SymphonyClient symphonyClient = mock(SymphonyClient.class);
     when(symphonyClient.getUsersClient()).thenReturn(usersClient);
     when(symphonyClient.getMessagesClient()).thenReturn(messagesClient);
     when(symphonyClient.getLocalUser()).thenReturn(mock(SymUser.class));
@@ -66,8 +80,8 @@ public class TicketServiceTest {
     HelpDeskBotInfo helpDeskBotInfo = mock(HelpDeskBotInfo.class);
     HelpDeskServiceInfo helpDeskServiceInfo = mock(HelpDeskServiceInfo.class);
 
-    mockService =
-        new TicketService(TEST_AGENT_STREAM, null, TEST_CREATE_TICKET_MESSAGE, ticketClient,
+    ticketService =
+        new TicketService(TEST_AGENT_STREAM, null, TEST_CREATE_TICKET_MESSAGE, null, ticketClient,
             symphonyClient, instructionalMessageConfig, helpDeskBotInfo, helpDeskServiceInfo);
   }
 
@@ -132,9 +146,19 @@ public class TicketServiceTest {
 
     Room serviceStream = mockRoom();
 
-    Ticket ticket = mockService.createTicket(TEST_TICKET_ID, testSym, serviceStream);
+    Ticket ticket = ticketService.createTicket(TEST_TICKET_ID, testSym, serviceStream);
 
     assertEquals("Ticket return", mockTicket, ticket);
+  }
+
+  @Test
+  public void testSendMessageWhenRoomCreationFails() throws MessagesException {
+    SymMessage symMessage = new SymMessage();
+    symMessage.setMessageText(TEST_CREATE_TICKET_MESSAGE);
+
+    ticketService.sendMessageWhenRoomCreationFails(symMessage);
+
+    verify(messagesClient, times(1)).sendMessage(any(SymStream.class), any(SymMessage.class));
   }
 
   private Room mockRoom() {

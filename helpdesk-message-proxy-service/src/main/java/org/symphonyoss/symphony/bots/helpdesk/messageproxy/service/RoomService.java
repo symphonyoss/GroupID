@@ -65,7 +65,7 @@ public class RoomService {
    * @param groupId group Id
    * @return the created stream
    */
-  public Room createServiceStream(String ticketId, String groupId) {
+  public Room createServiceStream(String ticketId, String groupId) throws RoomException {
     return createServiceStream(ticketId, groupId, null);
   }
 
@@ -77,17 +77,12 @@ public class RoomService {
    * @param podName Pod Name
    * @return the created stream
    */
-  public Room createServiceStream(String ticketId, String groupId, String podName) {
+  public Room createServiceStream(String ticketId, String groupId, String podName)
+      throws RoomException {
     try {
       return newServiceStream(ticketId, groupId, podName, Boolean.TRUE);
     } catch (RoomException e) {
-      try {
-        return newServiceStream(ticketId, groupId, podName, Boolean.FALSE);
-      } catch (RoomException e1) {
-        LOGGER.error("Create room failed: ", e1);
-        return null;
-      }
+      return newServiceStream(ticketId, groupId, podName, Boolean.FALSE);
     }
   }
-
 }
