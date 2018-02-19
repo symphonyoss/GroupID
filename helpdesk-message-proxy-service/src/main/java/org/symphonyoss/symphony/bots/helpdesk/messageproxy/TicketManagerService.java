@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.symphonyoss.client.exceptions.RoomException;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.model.SymAuth;
@@ -95,17 +96,21 @@ public class TicketManagerService {
 
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
+        Room serviceStream = null;
         Long userId = message.getSymUser().getId();
 
-        Room serviceStream;
-        if (isExternal(userId)) {
-          String podName = getPodNameFromExternalUser(userId);
-          serviceStream = roomService.createServiceStream(ticketId, groupId, podName);
-        } else {
-          serviceStream = roomService.createServiceStream(ticketId, groupId);
-        }
+        try {
+          if (isExternal(userId)) {
+            String podName = getPodNameFromExternalUser(userId);
+            serviceStream = roomService.createServiceStream(ticketId, groupId, podName);
+          } else {
+            serviceStream = roomService.createServiceStream(ticketId, groupId);
+          }
 
-        ticket = ticketService.createTicket(ticketId, message, serviceStream);
+          ticket = ticketService.createTicket(ticketId, message, serviceStream);
+        } catch (RoomException e) {
+          ticketService.sendMessageWhenRoomCreationFails(message);
+        }
       } else {
         LOGGER.info("Ticket already exists");
       }

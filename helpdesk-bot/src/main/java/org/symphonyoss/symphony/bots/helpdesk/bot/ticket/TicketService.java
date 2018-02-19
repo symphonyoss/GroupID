@@ -1,17 +1,34 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
+import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
+import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
 
 /**
  * Created by rsanchez on 19/12/17.
@@ -28,6 +45,8 @@ public abstract class TicketService {
 
   protected final TicketClient ticketClient;
 
+  protected final SymphonyClientUtil symphonyClientUtil;
+
   private final ValidateMembershipService validateMembershipService;
 
   public TicketService(SymphonyValidationUtil symphonyValidationUtil, SymphonyClient symphonyClient,
@@ -38,6 +57,7 @@ public abstract class TicketService {
     this.helpDeskBotConfig = helpDeskBotConfig;
     this.ticketClient = ticketClient;
     this.validateMembershipService = validateMembershipService;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
   /**
@@ -105,5 +125,4 @@ public abstract class TicketService {
   }
 
   protected abstract TicketResponse execute(Ticket ticket, SymUser agentUser);
-
 }

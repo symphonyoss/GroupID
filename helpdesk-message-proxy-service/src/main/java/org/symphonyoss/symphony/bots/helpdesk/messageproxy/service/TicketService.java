@@ -21,6 +21,11 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 
 /**
  * Created by rsanchez on 01/12/17.
@@ -30,11 +35,15 @@ public class TicketService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketService.class);
 
+  private static final String SERVICE_ROOM_WAS_NOT_CREATED = "There was a problem trying to create the service room. Please try again.";
+
   private final String agentStreamId;
 
   private final String claimHeader;
 
   private final String createTicketMessage;
+
+  private final String serviceRoomWasNotCreated;
 
   private final TicketClient ticketClient;
 
@@ -49,6 +58,7 @@ public class TicketService {
   public TicketService(@Value("${agentStreamId}") String agentStreamId,
       @Value("${claimEntityHeader}") String claimHeader,
       @Value("${createTicketMessage}") String createTicketMessage,
+      @Value("${serviceRoomWasNotCreated}") String serviceRoomWasNotCreated,
       TicketClient ticketClient, SymphonyClient symphonyClient,
       InstructionalMessageConfig instructionalMessageConfig, HelpDeskBotInfo helpDeskBotInfo,
       HelpDeskServiceInfo helpDeskServiceInfo) {
@@ -59,6 +69,7 @@ public class TicketService {
     this.helpDeskBotInfo = helpDeskBotInfo;
     this.helpDeskServiceInfo = helpDeskServiceInfo;
     this.createTicketMessage = createTicketMessage;
+    this.serviceRoomWasNotCreated = serviceRoomWasNotCreated;
     this.instructionalMessageConfig = instructionalMessageConfig;
   }
 
@@ -155,6 +166,21 @@ public class TicketService {
       symphonyClient.getMessagesClient().sendMessage(stream, message);
     } catch (MessagesException e) {
       LOGGER.error("Could not send ticket message to agent stream ID: ", e);
+    }
+  }
+
+  /**
+   * This method is responsible to send message to room when the service room was not created.
+   *
+   * @param SymMessage symMessage the message to be send to room.
+   */
+  public void sendMessageWhenRoomCreationFails(SymMessage symMessage) {
+    symMessage.setMessageText(serviceRoomWasNotCreated);
+
+    try {
+      symphonyClient.getMessagesClient().sendMessage(symMessage.getStream(), symMessage);
+    } catch (MessagesException e) {
+      LOGGER.error("Could not send message to client stream ID: ", e);
     }
   }
 }
