@@ -34,7 +34,7 @@ import java.util.List;
     classes = SpringHelpDeskBotInit.class)
 public class HelpDeskBotStories extends JUnitStories {
 
-  private static final String QUEUE_ROOM_PROPERTY = "QUEUE_ROOM";
+  private static final String QUEUE_ROOM_PROPERTY = "AGENT_STREAM_ID";
 
   private static final String CERTS_DATA_PROPERTY = "CERTS_DATA";
 
