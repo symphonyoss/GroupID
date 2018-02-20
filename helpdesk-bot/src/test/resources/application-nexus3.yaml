@@ -1,0 +1,17 @@
+agent:
+  host: sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com
+  port: 8445
+
+session_auth:
+  host: sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com
+  port: 8444
+
+key_auth:
+  host: sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com
+  port: 8444
+
+pod:
+  host: nexus3-2.symphony.com
+
+helpdesk-service:
+  host: nexus3-2.symphony.com

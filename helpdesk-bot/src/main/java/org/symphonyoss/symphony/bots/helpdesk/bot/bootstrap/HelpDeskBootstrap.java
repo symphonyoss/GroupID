@@ -33,7 +33,20 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
   @Override
   public void onApplicationEvent(ApplicationReadyEvent event) {
     ApplicationContext applicationContext = event.getApplicationContext();
+    execute(applicationContext);
+  }
 
+  /**
+   * The bootstrap process include the following steps:
+   * - Create shared HTTP client
+   * - Authenticate bot user
+   * - Create Symphony client
+   * - Register bot as member of the group (if required)
+   * - Initialize AI
+   *
+   * @param applicationContext Spring Application context
+   */
+  public void execute(ApplicationContext applicationContext) {
     FunctionExecutor<ApplicationContext, HelpDeskHttpClient> functionHttpClient = new FunctionExecutor<>();
     functionHttpClient
         .function(context -> setupHttpClient(context))

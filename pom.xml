@@ -120,6 +120,7 @@
         <spring.cloud.version>Edgware.SR1</spring.cloud.version>
         <jacoco.version>0.7.9</jacoco.version>
         <disruptor.version>3.3.6</disruptor.version>
+        <jbehave.version>4.1.1</jbehave.version>
 
         <build.number>0</build.number>
         <coverage.totalLineRate>0</coverage.totalLineRate>
@@ -161,6 +162,25 @@
                 <groupId>com.lmax</groupId>
                 <artifactId>disruptor</artifactId>
                 <version>${disruptor.version}</version>
+            </dependency>
+            <!-- Integration Tests -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-test</artifactId>
+                <version>${spring.boot.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jbehave</groupId>
+                <artifactId>jbehave-core</artifactId>
+                <version>${jbehave.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.jbehave</groupId>
+                <artifactId>jbehave-spring</artifactId>
+                <version>${jbehave.version}</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

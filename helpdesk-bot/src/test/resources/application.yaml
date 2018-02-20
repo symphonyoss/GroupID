@@ -1,0 +1,20 @@
+email: helpdesk@symphony.com
+
+authentication:
+  keystore-data: ${CERTS_DATA}
+  keystore-password: changeit
+
+helpdesk-bot:
+  host: localhost.symphony.com
+  port: 8090
+
+helpdesk-service:
+  host: localhost.symphony.com
+  port: 8081
+
+server:
+  ssl:
+    enabled: false
+
+groupId: integrationtestgroup
+agentStreamId: ${QUEUE_ROOM}
