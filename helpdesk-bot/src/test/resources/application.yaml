@@ -1,7 +1,7 @@
 email: helpdesk@symphony.com
 
 authentication:
-  keystore-data: ${CERTS_DATA}
+  keystore-file: keystore.p12
   keystore-password: changeit
 
 helpdesk-bot:
@@ -17,4 +17,3 @@ server:
     enabled: false
 
 groupId: integrationtestgroup
-agentStreamId: ${QUEUE_ROOM}
