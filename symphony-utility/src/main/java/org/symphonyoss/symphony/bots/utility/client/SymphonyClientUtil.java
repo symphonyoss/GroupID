@@ -9,14 +9,15 @@ import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 
-import javax.ws.rs.BadRequestException;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.InternalServerErrorException;
 
 /**
  * Helper class for retrieving Symphony data.
@@ -36,6 +37,14 @@ public class SymphonyClientUtil {
     this.symphonyClient = symphonyClient;
   }
 
+  /**
+   * Get an attachment for a message
+   * @param symAttachmentInfo SymAttachmentInfo describing the attachment
+   * @param symMessage Message that contains the attachment
+   * @return The attachment File
+   * @throws InternalServerErrorException Failure to create file remotely
+   * @throws BadRequestException Failure to retrieve attachment from message
+   */
   public File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
     String tmpDir = System.getProperty("java.io.tmpdir");
     File directory = new File(tmpDir + File.separator + symAttachmentInfo.getId());
@@ -47,7 +56,7 @@ public class SymphonyClientUtil {
     try {
       file.createNewFile();
     } catch (IOException e) {
-      throw new BadRequestException(MESSAGE_COULD_NOT_CREATE_FILE);
+      throw new InternalServerErrorException(MESSAGE_COULD_NOT_CREATE_FILE);
     }
 
     byte[] aByte;
@@ -62,7 +71,7 @@ public class SymphonyClientUtil {
     try {
       FileUtils.copyInputStreamToFile(inputStream, file);
     } catch (IOException e) {
-      throw new BadRequestException(MESSAGE_FAILED_TO_CREATE_FILE);
+      throw new InternalServerErrorException(MESSAGE_FAILED_TO_CREATE_FILE);
     }
 
     return file;

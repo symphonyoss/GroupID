@@ -30,24 +30,6 @@ public class ChatListenerTest {
   private HelpDeskAi helpDeskAi;
 
   @Test
-  public void testWithoutContent() {
-    SymMessage message = new SymMessage();
-
-    ChatListener listener = new ChatListener(ticketManagerService, helpDeskAi);
-    listener.ready();
-
-    listener.onMessage(message);
-
-    verify(ticketManagerService, never()).messageReceived(message);
-    verify(helpDeskAi, never()).onMessage(message);
-
-    message.setAttachments(Collections.emptyList());
-
-    verify(ticketManagerService, never()).messageReceived(message);
-    verify(helpDeskAi, never()).onMessage(message);
-  }
-
-  @Test
   public void testEmptyMessage() throws IOException {
     SymMessage message = new SymMessage();
     message.setAttachments(Collections.singletonList(new SymAttachmentInfo()));
