@@ -20,9 +20,11 @@ public class HelpDeskAiResponder extends SymphonyAiResponder {
 
   private final MessageProducer messageProducer;
 
-  public HelpDeskAiResponder(MessagesClient messagesClient, MembershipClient membershipClient, UsersClient usersClient, SymphonyClient symphonyClient) {
+  public HelpDeskAiResponder(MessagesClient messagesClient, MembershipClient membershipClient,
+      UsersClient usersClient, SymphonyClient symphonyClient) {
     super(messagesClient);
-    this.messageProducer = new MessageProducer(messagesClient, membershipClient, usersClient, symphonyClient);
+    this.messageProducer =
+        new MessageProducer(messagesClient, membershipClient, usersClient, symphonyClient);
   }
 
   @Override

@@ -10,6 +10,7 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 
 import javax.ws.rs.BadRequestException;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -51,7 +52,8 @@ public class SymphonyClientUtil {
 
     byte[] aByte;
     try {
-      aByte = symphonyClient.getAttachmentsClient().getAttachmentData(symAttachmentInfo, symMessage);
+      aByte =
+          symphonyClient.getAttachmentsClient().getAttachmentData(symAttachmentInfo, symMessage);
     } catch (AttachmentsException e) {
       throw new BadRequestException(MESSAGE_ATTACHMENT_NOT_FOUND);
     }
@@ -68,7 +70,6 @@ public class SymphonyClientUtil {
 
   /**
    * Get a list of messages from a stream
-   *
    * @param stream Stream to retrieve messages from
    * @param since Date (long) from point in time
    * @param maxMessages Maximum number of messages to retrieve from the specified time (since)
@@ -83,7 +84,6 @@ public class SymphonyClientUtil {
 
   /**
    * Get the message from the given stream according to the conversation ID
-   *
    * @param streamId Stream to retrieve messages from
    * @param since Date (long) from point in time
    * @param id Conversation ID

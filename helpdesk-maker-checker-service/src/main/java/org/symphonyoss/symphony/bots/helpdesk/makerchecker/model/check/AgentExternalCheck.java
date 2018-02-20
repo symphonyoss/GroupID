@@ -65,7 +65,8 @@ public class AgentExternalCheck implements Checker {
   private final SymphonyClientUtil symphonyClientUtil;
 
   public AgentExternalCheck(String botHost, String serviceHost, String groupId,
-      TicketClient ticketClient, SymphonyClient symphonyClient, SymphonyValidationUtil symphonyValidationUtil) {
+      TicketClient ticketClient, SymphonyClient symphonyClient,
+      SymphonyValidationUtil symphonyValidationUtil) {
     this.botHost = botHost;
     this.serviceHost = serviceHost;
     this.groupId = groupId;
@@ -107,9 +108,10 @@ public class AgentExternalCheck implements Checker {
     Set<String> proxyToIds = (Set<String>) opaque;
 
 
-    for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
+    for (SymAttachmentInfo attachmentInfo : symMessage.getAttachments()) {
       MakerCheckerMessageBuilder makerCheckerMessageBuilder = new MakerCheckerMessageBuilder();
-      String makerCheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
+      String makerCheckerId =
+          RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
       makerCheckerMessageBuilder.makerCheckerId(makerCheckerId);
       makerCheckerMessageBuilder.botHost(botHost);
       makerCheckerMessageBuilder.serviceHost(serviceHost);
@@ -143,7 +145,8 @@ public class AgentExternalCheck implements Checker {
 
   public Optional<SymAttachmentInfo> getApprovedAttachment(MakerCheckerMessage makerCheckerMessage,
       SymMessage symMessage) {
-    AttachmentMakerCheckerMessage checkerMessage = (AttachmentMakerCheckerMessage) makerCheckerMessage;
+    AttachmentMakerCheckerMessage checkerMessage =
+        (AttachmentMakerCheckerMessage) makerCheckerMessage;
 
     return symMessage.getAttachments()
         .stream()
@@ -152,17 +155,22 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public SymMessage getActionMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
+  public SymMessage getActionMessage(Makerchecker makerchecker,
+      MakercheckerClient.AttachmentStateType attachmentState) {
     ActionMessageBuilder actionMessageBuilder = new ActionMessageBuilder();
     actionMessageBuilder.makerCheckerId(makerchecker.getId());
     actionMessageBuilder.state(attachmentState.getState());
 
     UserInfo checker = getUser(makerchecker.getChecker().getUserId());
     actionMessageBuilder.checker(checker);
-    if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
-      actionMessageBuilder.messageToAgents(getMessageApproved(checker.getDisplayName(), makerchecker.getAttachmentName()));
-    } else if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.DENIED.getState())) {
-      actionMessageBuilder.messageToAgents(getMessageDenied(checker.getDisplayName(), makerchecker.getAttachmentName()));
+    if (attachmentState.getState()
+        .equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
+      actionMessageBuilder.messageToAgents(
+          getMessageApproved(checker.getDisplayName(), makerchecker.getAttachmentName()));
+    } else if (attachmentState.getState()
+        .equals(MakercheckerClient.AttachmentStateType.DENIED.getState())) {
+      actionMessageBuilder.messageToAgents(
+          getMessageDenied(checker.getDisplayName(), makerchecker.getAttachmentName()));
     }
 
     SymMessage actionMessage = actionMessageBuilder.build();
@@ -202,10 +210,11 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage) {
+  public Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage,
+      SymMessage symMessage) {
     Set<SymMessage> symApprovedMessages = new HashSet<>();
 
-    for(String streamId: makerCheckerMessage.getProxyToStreamIds()) {
+    for (String streamId : makerCheckerMessage.getProxyToStreamIds()) {
       SymMessage approvedMessage = new SymMessage();
 
       SymStream stream = new SymStream();
@@ -218,7 +227,8 @@ public class AgentExternalCheck implements Checker {
       approvedMessage.setTimestamp(symMessage.getTimestamp());
       approvedMessage.setFromUserId(symMessage.getFromUserId());
 
-      Optional<SymAttachmentInfo> symApprovedAttachmentInfo = getApprovedAttachment(makerCheckerMessage, symMessage);
+      Optional<SymAttachmentInfo> symApprovedAttachmentInfo =
+          getApprovedAttachment(makerCheckerMessage, symMessage);
       if (symApprovedAttachmentInfo.isPresent()) {
         SymAttachmentInfo symAttachmentInfo = symApprovedAttachmentInfo.get();
 

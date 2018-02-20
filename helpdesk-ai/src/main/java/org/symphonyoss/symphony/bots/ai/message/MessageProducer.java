@@ -41,14 +41,15 @@ public class MessageProducer {
   private final SymphonyClientUtil symphonyClientUtil;
 
   public MessageProducer(MessagesClient messagesClient, MembershipClient membershipClient,
-                         UsersClient usersClient, SymphonyClient symphonyClient) {
+      UsersClient usersClient, SymphonyClient symphonyClient) {
     this.messagesClient = messagesClient;
     this.membershipClient = membershipClient;
     this.usersClient = usersClient;
     this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
-  public void publishMessage(SymphonyAiMessage symphonyAiMessage, String streamId) throws MessagesException {
+  public void publishMessage(SymphonyAiMessage symphonyAiMessage, String streamId)
+      throws MessagesException {
     SymMessage symMessage = buildMessage(symphonyAiMessage);
     sendMessage(symMessage, streamId);
   }
@@ -94,7 +95,8 @@ public class MessageProducer {
 
       List<SymAttachmentInfo> attachmentInfoList = symphonyAiMessage.getAttachments();
 
-      File file = symphonyClientUtil.getFileAttachment(attachmentInfoList.get(0), attachmentMessage);
+      File file =
+          symphonyClientUtil.getFileAttachment(attachmentInfoList.get(0), attachmentMessage);
       symphonyAiMessage.setAttachment(file);
     }
 
@@ -111,21 +113,21 @@ public class MessageProducer {
     return attachments != null && !attachments.isEmpty();
   }
 
-    private boolean isChime(String message) {
-        Element elementMessageML;
-        Document doc = Jsoup.parse(message);
+  private boolean isChime(String message) {
+    Element elementMessageML;
+    Document doc = Jsoup.parse(message);
 
-        elementMessageML = doc.select("messageML").first();
-        if (elementMessageML == null) {
-            elementMessageML = doc.select("div").first();
-        }
-
-        if (elementMessageML != null) {
-            elementMessageML = doc.select("audio").first();
-        }
-
-        return elementMessageML != null;
+    elementMessageML = doc.select("messageML").first();
+    if (elementMessageML == null) {
+      elementMessageML = doc.select("div").first();
     }
+
+    if (elementMessageML != null) {
+      elementMessageML = doc.select("audio").first();
+    }
+
+    return elementMessageML != null;
+  }
 
   private StringBuilder parseMessage(String message) {
     Element elementMessageML;
@@ -143,12 +145,12 @@ public class MessageProducer {
       textDoc = new StringBuilder();
       Iterator var3 = elementMessageML.childNodes().iterator();
 
-      while(var3.hasNext()) {
-        Node node = (Node)var3.next();
-        if(node.toString().equalsIgnoreCase("<br>")) {
-            textDoc.append("<br/>");
+      while (var3.hasNext()) {
+        Node node = (Node) var3.next();
+        if (node.toString().equalsIgnoreCase("<br>")) {
+          textDoc.append("<br/>");
         } else {
-            textDoc.append(node.toString());
+          textDoc.append(node.toString());
         }
       }
     }

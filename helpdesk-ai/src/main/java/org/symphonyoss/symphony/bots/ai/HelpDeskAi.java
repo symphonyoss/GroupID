@@ -27,7 +27,8 @@ public class HelpDeskAi extends SymphonyAi {
   private HelpDeskAiSession helpDeskAiSession;
 
   public HelpDeskAi(HelpDeskAiSession helpDeskAiSession) {
-    super(helpDeskAiSession.getSymphonyClient(), helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands());
+    super(helpDeskAiSession.getSymphonyClient(),
+        helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands());
     this.helpDeskAiSession = helpDeskAiSession;
   }
 
@@ -42,8 +43,10 @@ public class HelpDeskAi extends SymphonyAi {
     UsersClient usersClient = symphonyClient.getUsersClient();
     MembershipClient membershipClient = helpDeskAiSession.getMembershipClient();
 
-    this.aiResponder = new HelpDeskAiResponder(messagesClient, membershipClient, usersClient, symphonyClient);
-    this.aiEventListener = new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
+    this.aiResponder =
+        new HelpDeskAiResponder(messagesClient, membershipClient, usersClient, symphonyClient);
+    this.aiEventListener =
+        new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
   }
 
   @Override
@@ -59,7 +62,8 @@ public class HelpDeskAi extends SymphonyAi {
     Membership membership =
         helpDeskAiSession.getMembershipClient().getMembership(sessionKey.getUid());
 
-    if ((membership != null) && (MembershipClient.MembershipType.AGENT.getType().equals(membership.getType()))) {
+    if ((membership != null) && (MembershipClient.MembershipType.AGENT.getType()
+        .equals(membership.getType()))) {
       Ticket ticket =
           helpDeskAiSession.getTicketClient().getTicketByServiceStreamId(sessionKey.getStreamId());
       if (ticket != null) {
