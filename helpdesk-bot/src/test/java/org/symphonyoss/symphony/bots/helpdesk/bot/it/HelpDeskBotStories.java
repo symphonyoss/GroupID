@@ -36,8 +36,6 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private static final String QUEUE_ROOM_PROPERTY = "AGENT_STREAM_ID";
 
-  private static final String CERTS_DATA_PROPERTY = "CERTS_DATA";
-
   private static final String[] SUPPORTED_ENVS = { "nexus1", "nexus2", "nexus3", "nexus4" };
 
   @Autowired
@@ -83,18 +81,19 @@ public class HelpDeskBotStories extends JUnitStories {
     // TODO APP-1629
 
     String queueRoom = "";
-    String certificate = "";
 
-    setupSystemProperties(queueRoom, certificate);
+    createBotCertificate();
+    setupSystemProperties(queueRoom);
   }
 
-  private void setupSystemProperties(String queueRoom, String certificate) {
+
+  private void createBotCertificate() {
+    // TODO APP-1629
+  }
+
+  private void setupSystemProperties(String queueRoom) {
     if (StringUtils.isNotBlank(queueRoom)) {
       System.setProperty(QUEUE_ROOM_PROPERTY, queueRoom);
-    }
-
-    if (StringUtils.isNotBlank(certificate)) {
-      System.setProperty(CERTS_DATA_PROPERTY, certificate);
     }
   }
 
