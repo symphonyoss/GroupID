@@ -7,7 +7,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**
- * Main entry point for the AI messages. This class works as both session context manager and
+ * Main entry point for the <i>Agent Interface</i> messages. This class works as both session context manager and
  * message listener, managing all messages sent to this AI.
  * <p>
  * Created by nick.tarsillo on 8/20/17.

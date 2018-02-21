@@ -7,7 +7,7 @@ import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import java.util.Set;
 
 /**
- * This class groups the AI Conversation main functionalities
+ * This class groups the <i>Agent Interface</i> Conversation main functionalities
  * <p>
  * Created by nick.tarsillo on 8/30/17.
  */

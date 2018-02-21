@@ -35,8 +35,7 @@ public class AiCommandInterpreterImpl implements AiCommandInterpreter {
 
     ArgumentType[] argumentTypes = aiCommand.getArgumentTypes();
 
-    if ((argumentTypes != null) && (commandAndArgs.length
-        < aiCommand.getArgumentTypes().length + 1)) {
+    if ((argumentTypes != null) && (commandAndArgs.length <= aiCommand.getArgumentTypes().length)) {
       return false;
     }
 
@@ -55,10 +54,13 @@ public class AiCommandInterpreterImpl implements AiCommandInterpreter {
 
   private boolean checkArguments(AiCommand command, String[] potentialCommand) {
     for (int i = 0; i < command.getArgumentTypes().length; i++) {
-      String commandArg = potentialCommand[i + 1];
+      int argumentIndex = i + 1;
+      if (argumentIndex <= potentialCommand.length - 1) {
+        String commandArg = potentialCommand[argumentIndex];
 
-      if (!isValidArgument(command, commandArg, i)) {
-        return false;
+        if (!isValidArgument(command, commandArg, i)) {
+          return false;
+        }
       }
     }
 
