@@ -8,8 +8,6 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponder;
 import org.symphonyoss.symphony.bots.ai.message.MessageProducer;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
-import org.symphonyoss.symphony.clients.MessagesClient;
-import org.symphonyoss.symphony.clients.UsersClient;
 
 /**
  * Created by rsanchez on 30/11/17.
@@ -20,11 +18,9 @@ public class HelpDeskAiResponder extends SymphonyAiResponder {
 
   private final MessageProducer messageProducer;
 
-  public HelpDeskAiResponder(MessagesClient messagesClient, MembershipClient membershipClient,
-      UsersClient usersClient, SymphonyClient symphonyClient) {
-    super(messagesClient);
-    this.messageProducer =
-        new MessageProducer(messagesClient, membershipClient, usersClient, symphonyClient);
+  public HelpDeskAiResponder(MembershipClient membershipClient, SymphonyClient symphonyClient) {
+    super(symphonyClient.getMessagesClient());
+    this.messageProducer = new MessageProducer(membershipClient, symphonyClient);
   }
 
   @Override

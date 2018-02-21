@@ -15,8 +15,6 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.clients.MessagesClient;
-import org.symphonyoss.symphony.clients.UsersClient;
 
 /**
  * Created by nick.tarsillo on 9/28/17.
@@ -39,12 +37,10 @@ public class HelpDeskAi extends SymphonyAi {
     boolean suggestCommands = helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands();
     SymphonyClient symphonyClient = helpDeskAiSession.getSymphonyClient();
 
-    MessagesClient messagesClient = symphonyClient.getMessagesClient();
-    UsersClient usersClient = symphonyClient.getUsersClient();
     MembershipClient membershipClient = helpDeskAiSession.getMembershipClient();
 
     this.aiResponder =
-        new HelpDeskAiResponder(messagesClient, membershipClient, usersClient, symphonyClient);
+        new HelpDeskAiResponder(membershipClient, symphonyClient);
     this.aiEventListener =
         new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
   }
