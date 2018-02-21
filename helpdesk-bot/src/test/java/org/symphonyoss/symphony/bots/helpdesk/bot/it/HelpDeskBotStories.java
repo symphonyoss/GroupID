@@ -158,10 +158,6 @@ public class HelpDeskBotStories extends JUnitStories {
 
     try {
       helpDeskSymphonyClient.init(symAuth, config.getEmail(), config.getAgentUrl(), config.getPodUrl());
-
-      HelpDeskRoomEventListener roomEventListener = applicationContext.getBean(HelpDeskRoomEventListener.class);
-
-      helpDeskSymphonyClient.getMessageService().addRoomServiceEventListener(roomEventListener);
     } catch (InitException e) {
       throw new IllegalStateException("Cannot instantiate symphony client.");
     }
