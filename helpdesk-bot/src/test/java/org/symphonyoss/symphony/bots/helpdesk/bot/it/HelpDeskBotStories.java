@@ -59,6 +59,8 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private Map<String, SymUser> users = Collections.synchronizedMap(new HashMap());
 
+  private Room queueRoom;
+
   @Autowired
   private ApplicationContext applicationContext;
 
@@ -105,7 +107,7 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private void prepareEnvironment() {
     initSymphonyClient();
-    String queueRoom = getQueueRoom().getStreamId();
+    queueRoom = getQueueRoom();
 
     List<String> roles = new ArrayList<>();
     roles.add("INDIVIDUAL");
@@ -123,7 +125,7 @@ public class HelpDeskBotStories extends JUnitStories {
     users.put("AGENT_3", agent3);
 
     createBotCertificate();
-    setupSystemProperties(queueRoom);
+    setupSystemProperties(queueRoom.getStreamId());
   }
 
 
@@ -249,7 +251,7 @@ public class HelpDeskBotStories extends JUnitStories {
    */
   private void addUserOnQueueRoom(Long userId) {
     try {
-      helpDeskSymphonyClient.getRoomMembershipClient().addMemberToRoom("", userId);
+      helpDeskSymphonyClient.getRoomMembershipClient().addMemberToRoom(queueRoom.getStreamId(), userId);
     } catch (SymException e) {
       throw new IllegalStateException("Couldn't add user on this room.", e);
     }
