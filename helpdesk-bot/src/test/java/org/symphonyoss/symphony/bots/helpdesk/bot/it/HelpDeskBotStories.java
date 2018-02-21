@@ -51,10 +51,10 @@ public class HelpDeskBotStories extends JUnitStories {
   @Autowired
   private ApplicationContext applicationContext;
 
-  private HelpDeskSymphonyClient helpDeskSymphonyClient;
-
   @Autowired
   private HelpDeskBotConfig config;
+
+  private HelpDeskSymphonyClient helpDeskSymphonyClient;
 
   public HelpDeskBotStories() {
     initJBehaveConfiguration();
