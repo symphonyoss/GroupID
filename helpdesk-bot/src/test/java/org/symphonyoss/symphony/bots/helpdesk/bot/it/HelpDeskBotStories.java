@@ -20,11 +20,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.symphonyoss.client.exceptions.InitException;
+import org.symphonyoss.client.exceptions.RoomException;
+import org.symphonyoss.client.model.Room;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.bootstrap.HelpDeskBootstrap;
+import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskHttpClient;
+import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
+import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.init.SpringHelpDeskBotInit;
+import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by rsanchez on 15/02/18.
@@ -40,6 +50,11 @@ public class HelpDeskBotStories extends JUnitStories {
 
   @Autowired
   private ApplicationContext applicationContext;
+
+  @Autowired
+  private HelpDeskBotConfig config;
+
+  private HelpDeskSymphonyClient helpDeskSymphonyClient;
 
   public HelpDeskBotStories() {
     initJBehaveConfiguration();
@@ -78,9 +93,8 @@ public class HelpDeskBotStories extends JUnitStories {
   }
 
   private void prepareEnvironment() {
-    // TODO APP-1629
-
-    String queueRoom = "";
+    initSymphonyClient();
+    String queueRoom = getQueueRoom().getStreamId();
 
     createBotCertificate();
     setupSystemProperties(queueRoom);
@@ -106,6 +120,58 @@ public class HelpDeskBotStories extends JUnitStories {
   protected List<String> storyPaths() {
     return new StoryFinder().findPaths(CodeLocations.codeLocationFromClass(this.getClass()),
         "**/*.story", "**/excluded*.story");
+  }
+
+  /**
+   * Get queue room created. There is a retry behavior to avoid errors when
+   * the POD doesn't support to create private room with the view history flag set to TRUE.
+   * @return the created stream
+   */
+  private Room getQueueRoom() {
+    try {
+      return createRoom(Boolean.TRUE);
+    } catch (RoomException e) {
+      try {
+        return createRoom(Boolean.FALSE);
+      } catch (RoomException e1) {
+        throw new IllegalStateException("Couldn't create queue room.", e1);
+      }
+    }
+  }
+
+  /**
+   * Creates a new stream for Queue Room.
+   * @param showHistory Show History
+   * @return the created stream
+   */
+  private Room createRoom(Boolean showHistory) throws RoomException {
+    SymRoomAttributes symRoomAttributes = new SymRoomAttributes();
+    symRoomAttributes.setViewHistory(showHistory);
+
+    String randomId = UUID.randomUUID().toString();
+    symRoomAttributes.setName("Queue Room " + randomId);
+    symRoomAttributes.setDescription("Queue Room " + randomId);
+
+    return helpDeskSymphonyClient.getRoomService().createRoom(symRoomAttributes);
+  }
+
+  /**
+   * Create HTTP client, Authenticates bot user and starts Help desk symphony client
+   */
+  private void initSymphonyClient() {
+    HelpDeskHttpClient httpClient = new HelpDeskHttpClient();
+    httpClient.setupClient(config);
+
+    HelpDeskAuthenticationService authService = new HelpDeskAuthenticationService(config, httpClient);
+    SymAuth symAuth = authService.authenticate();
+
+    helpDeskSymphonyClient = new HelpDeskSymphonyClient(httpClient);
+
+    try {
+      helpDeskSymphonyClient.init(symAuth, config.getEmail(), config.getAgentUrl(), config.getPodUrl());
+    } catch (InitException e) {
+      throw new IllegalStateException("Cannot instantiate symphony client.", e);
+    }
   }
 
 }
