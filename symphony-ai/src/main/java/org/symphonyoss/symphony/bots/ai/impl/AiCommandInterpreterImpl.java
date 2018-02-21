@@ -8,11 +8,9 @@ import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
 
-import java.util.Arrays;
-
-import javax.ws.rs.ProcessingException;
-
 /**
+ * Concrete implementation for a {@link AiCommandInterpreter command interpreter}.
+ * <p>
  * Created by nick.tarsillo on 8/20/17.
  */
 public class AiCommandInterpreterImpl implements AiCommandInterpreter {
@@ -37,7 +35,8 @@ public class AiCommandInterpreterImpl implements AiCommandInterpreter {
 
     ArgumentType[] argumentTypes = aiCommand.getArgumentTypes();
 
-    if ((argumentTypes != null) && (commandAndArgs.length < aiCommand.getArgumentTypes().length + 1)) {
+    if ((argumentTypes != null) && (commandAndArgs.length
+        < aiCommand.getArgumentTypes().length + 1)) {
       return false;
     }
 
@@ -56,7 +55,7 @@ public class AiCommandInterpreterImpl implements AiCommandInterpreter {
 
   private boolean checkArguments(AiCommand command, String[] potentialCommand) {
     for (int i = 0; i < command.getArgumentTypes().length; i++) {
-      String commandArg = potentialCommand[i+1];
+      String commandArg = potentialCommand[i + 1];
 
       if (!isValidArgument(command, commandArg, i)) {
         return false;
@@ -72,11 +71,13 @@ public class AiCommandInterpreterImpl implements AiCommandInterpreter {
 
   @Override
   public boolean hasPrefix(AiMessage command, String commandPrefix) {
-    return StringUtils.isNotBlank(commandPrefix) && command.getAiMessage().startsWith(commandPrefix);
+    return StringUtils.isNotBlank(commandPrefix) && command.getAiMessage()
+        .startsWith(commandPrefix);
   }
 
   @Override
-  public AiArgumentMap readCommandArguments(AiCommand aiCommand, AiMessage command, String commandPrefix) {
+  public AiArgumentMap readCommandArguments(AiCommand aiCommand, AiMessage command,
+      String commandPrefix) {
     AiArgumentMap aiArgumentMap = new AiArgumentMap();
 
     String potentialCommand = command.getAiMessage().substring(commandPrefix.length()).trim();
@@ -107,8 +108,8 @@ public class AiCommandInterpreterImpl implements AiCommandInterpreter {
     String[] actualCommand = aiCommand.getCommand().split(" ");
     String command = aiCommand.getCommand();
 
-    for(String potentialArg : actualCommand) {
-      if(potentialArg.contains(AiConstants.ARGUMENT_START_CHAR) &&
+    for (String potentialArg : actualCommand) {
+      if (potentialArg.contains(AiConstants.ARGUMENT_START_CHAR) &&
           potentialArg.contains(AiConstants.ARGUMENT_END_CHAR)) {
         command = command.replace(potentialArg, "");
       }

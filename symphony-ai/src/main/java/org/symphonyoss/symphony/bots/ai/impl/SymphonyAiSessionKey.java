@@ -3,6 +3,8 @@ package org.symphonyoss.symphony.bots.ai.impl;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 /**
+ * Symphony AI implementation for {@link AiSessionKey}
+ * <p>
  * Created by nick.tarsillo on 11/10/17.
  */
 public class SymphonyAiSessionKey extends AiSessionKey {

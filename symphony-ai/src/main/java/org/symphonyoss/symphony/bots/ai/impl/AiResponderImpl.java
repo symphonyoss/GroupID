@@ -16,9 +16,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Concrete implementation {@link AiResponder}.
+ * <p>
  * Created by nick.tarsillo on 8/21/17.
- *
- * Example implementation of base AI.
  */
 public class AiResponderImpl implements AiResponder {
   protected Map<AiSessionContext, Set<AiResponse>> responseMap = new HashMap<>();
@@ -26,9 +26,10 @@ public class AiResponderImpl implements AiResponder {
   @Override
   public void respond(AiSessionContext sessionContext) {
     Map<AiResponseIdentifier, String> response = new HashMap<>();
-    for(AiResponse aiResponse: responseMap.get(sessionContext)) {
-      for(AiResponseIdentifier responseIdentifier: aiResponse.getRespondTo()) {
-        response.put(responseIdentifier, response.get(responseIdentifier) + aiResponse.getMessage());
+    for (AiResponse aiResponse : responseMap.get(sessionContext)) {
+      for (AiResponseIdentifier responseIdentifier : aiResponse.getRespondTo()) {
+        response.put(responseIdentifier,
+            response.get(responseIdentifier) + aiResponse.getMessage());
       }
     }
 
@@ -41,7 +42,7 @@ public class AiResponderImpl implements AiResponder {
 
   @Override
   public void addResponse(AiSessionContext sessionContext, AiResponse aiResponse) {
-    if(!responseMap.containsKey(sessionContext)) {
+    if (!responseMap.containsKey(sessionContext)) {
       responseMap.put(sessionContext, new HashSet<>());
     }
 
@@ -67,7 +68,8 @@ public class AiResponderImpl implements AiResponder {
   @Override
   public void respondWithSuggestion(AiSessionContext sessionContext,
       AiCommandInterpreter aiCommandInterpreter, AiMessage command) {
-    AiCommand bestOption = getBestCommand(sessionContext, aiCommandInterpreter, command.getAiMessage());
+    AiCommand bestOption =
+        getBestCommand(sessionContext, aiCommandInterpreter, command.getAiMessage());
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
     AiResponseIdentifierImpl aiResponseIdentifier =
@@ -76,16 +78,24 @@ public class AiResponderImpl implements AiResponder {
     responseIdentifiers.add(aiResponseIdentifier);
 
     AiResponse aiResponse = new AiResponse(
-        new AiMessage(AiConstants.SUGGEST + bestOption.getCommand() + "? (Type /last to run menu.)"),
+        new AiMessage(
+            AiConstants.SUGGEST + bestOption.getCommand() + "? (Type /last to run menu.)"),
         responseIdentifiers);
     addResponse(sessionContext, aiResponse);
     respond(sessionContext);
   }
 
+  /**
+   * Retrieve the best command option according to the given command text
+   * @param sessionContext current session context
+   * @param aiCommandInterpreter command interpreter
+   * @param command command text
+   * @return best selected option for the command
+   */
   protected AiCommand getBestCommand(AiSessionContext sessionContext,
       AiCommandInterpreter aiCommandInterpreter, String command) {
     AiCommand bestOption = null;
-    int least = 999999999;
+    int least = Integer.MAX_VALUE;
     for (AiCommand aiCommand : sessionContext.getAiCommandMenu().getCommandSet()) {
       int current = StringUtils.getLevenshteinDistance(
           aiCommandInterpreter.readCommandWithoutArguments(aiCommand), command);

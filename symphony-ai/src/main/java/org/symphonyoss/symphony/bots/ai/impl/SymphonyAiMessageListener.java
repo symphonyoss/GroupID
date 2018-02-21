@@ -1,12 +1,13 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
+import org.symphonyoss.client.services.MessageListener;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
-import org.symphonyoss.client.services.MessageListener;
-
 /**
+ * Concrete implementation of {@link MessageListener Symphony's client message listener} for the
+ * Symphony Ai.
+ * <p>
  * Created by nick.tarsillo on 9/27/17.
- * SJC message listener for the Symphony Ai.
  */
 public abstract class SymphonyAiMessageListener implements MessageListener {
   private AiSessionKey aiSessionKey;

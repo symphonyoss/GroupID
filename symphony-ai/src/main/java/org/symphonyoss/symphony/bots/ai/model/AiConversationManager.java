@@ -6,8 +6,9 @@ import com.google.common.cache.LoadingCache;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
 
 /**
- * Created by nick.tarsillo on 8/27/17.
  * Manages all current Ai conversations.
+ * <p>
+ * Created by nick.tarsillo on 8/27/17.
  */
 public class AiConversationManager {
   private LoadingCache<AiSessionContext, AiConversation> conversationCache;

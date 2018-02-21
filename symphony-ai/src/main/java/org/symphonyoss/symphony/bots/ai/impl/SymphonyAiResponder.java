@@ -37,20 +37,22 @@ public class SymphonyAiResponder extends AiResponderImpl {
   @Override
   public void respond(AiSessionContext sessionContext) {
     Map<AiResponseIdentifier, SymphonyAiMessage> response = new HashMap<>();
-    for(AiResponse aiResponse: responseMap.get(sessionContext)) {
-      for(AiResponseIdentifier responseIdentifier: aiResponse.getRespondTo()) {
-        if(!response.containsKey(responseIdentifier)) {
-          if(aiResponse.getMessage() instanceof SymphonyAiMessage) {
+    for (AiResponse aiResponse : responseMap.get(sessionContext)) {
+      for (AiResponseIdentifier responseIdentifier : aiResponse.getRespondTo()) {
+        if (!response.containsKey(responseIdentifier)) {
+          if (aiResponse.getMessage() instanceof SymphonyAiMessage) {
             response.put(responseIdentifier, (SymphonyAiMessage) aiResponse.getMessage());
           } else {
-            response.put(responseIdentifier, new SymphonyAiMessage(aiResponse.getMessage().getAiMessage()));
+            response.put(responseIdentifier,
+                new SymphonyAiMessage(aiResponse.getMessage().getAiMessage()));
           }
         } else {
           SymphonyAiMessage message = response.get(responseIdentifier);
           message.setAiMessage(message.getAiMessage() + aiResponse.getMessage());
 
-          if(aiResponse.getMessage() instanceof SymphonyAiMessage) {
-            message.setEntityData(message.getEntityData() + ((SymphonyAiMessage) aiResponse.getMessage()).getEntityData());
+          if (aiResponse.getMessage() instanceof SymphonyAiMessage) {
+            message.setEntityData(message.getEntityData()
+                + ((SymphonyAiMessage) aiResponse.getMessage()).getEntityData());
             message.getAttachments()
                 .addAll(((SymphonyAiMessage) aiResponse.getMessage()).getAttachments());
           }
@@ -66,6 +68,11 @@ public class SymphonyAiResponder extends AiResponderImpl {
     responseMap.put(sessionContext, new HashSet<>());
   }
 
+  /**
+   * Send the message over Symphony's message client using MessageML.
+   * @param respond responder object to identify to where the message should be sent
+   * @param symphonyAiMessage message to be sent
+   */
   protected void publishMessage(AiResponseIdentifier respond, SymphonyAiMessage symphonyAiMessage) {
     String message = "<messageML>" + symphonyAiMessage.getAiMessage() + "</messageML>";
     SymMessage symMessage = new SymMessage();
@@ -94,7 +101,8 @@ public class SymphonyAiResponder extends AiResponderImpl {
             "\n", "</li><li>") + "</li></ul></body>";
     response = response.replace("<li></li>", "");
 
-    SymphonyAiSessionKey symphonyAiSessionKey = (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
+    SymphonyAiSessionKey symphonyAiSessionKey =
+        (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
     AiResponseIdentifierImpl aiResponseIdentifier =
@@ -110,15 +118,18 @@ public class SymphonyAiResponder extends AiResponderImpl {
   /**
    * Respond with a suggested command.
    * @param sessionContext the session context to base the response on.
-   * @param aiCommandInterpreter the command interpreter, used to interpret what command should be suggested.
+   * @param aiCommandInterpreter the command interpreter, used to interpret what command should
+   * be suggested.
    * @param command the message containing the command.
    */
   @Override
   public void respondWithSuggestion(AiSessionContext sessionContext,
       AiCommandInterpreter aiCommandInterpreter, AiMessage command) {
-    SymphonyAiSessionKey symphonyAiSessionKey = (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
+    SymphonyAiSessionKey symphonyAiSessionKey =
+        (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
 
-    AiCommand bestOption = getBestCommand(sessionContext, aiCommandInterpreter, command.getAiMessage());
+    AiCommand bestOption =
+        getBestCommand(sessionContext, aiCommandInterpreter, command.getAiMessage());
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
     AiResponseIdentifierImpl aiResponseIdentifier =
@@ -127,7 +138,8 @@ public class SymphonyAiResponder extends AiResponderImpl {
     responseIdentifiers.add(aiResponseIdentifier);
 
     AiResponse aiResponse = new AiResponse(
-        new AiMessage(AiConstants.SUGGEST + bestOption.getCommand() + "? (Type <b>/last</b> to run menu.)"),
+        new AiMessage(
+            AiConstants.SUGGEST + bestOption.getCommand() + "? (Type <b>/last</b> to run menu.)"),
         responseIdentifiers);
     addResponse(sessionContext, aiResponse);
     respond(sessionContext);

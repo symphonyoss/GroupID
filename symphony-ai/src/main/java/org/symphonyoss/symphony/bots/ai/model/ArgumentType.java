@@ -1,7 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
 /**
- * Defines the type of an argument. Used for Ai commands.
+ * Defines the type of an {@link AiCommand} argument
  */
 public enum ArgumentType {
   STRING,

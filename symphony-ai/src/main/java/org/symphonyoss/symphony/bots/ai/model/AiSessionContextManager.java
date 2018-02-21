@@ -3,14 +3,14 @@ package org.symphonyoss.symphony.bots.ai.model;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.symphonyoss.symphony.bots.ai.common.AiConstants;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.symphonyoss.symphony.bots.ai.common.AiConstants;
 
 /**
+ * Manages all sessions in the Ai.
+ * <p>
  * Created by nick.tarsillo on 8/20/17.
- * Manages all sessions with the Ai.
  */
 public class AiSessionContextManager {
   private static final Logger LOG = LoggerFactory.getLogger(AiSessionContextManager.class);
@@ -18,7 +18,7 @@ public class AiSessionContextManager {
   protected LoadingCache<AiSessionKey, AiSessionContext> sessionCache;
 
   public AiSessionContextManager() {
-    sessionCache =  CacheBuilder.newBuilder()
+    sessionCache = CacheBuilder.newBuilder()
         .concurrencyLevel(4)
         .maximumSize(10000)
         .expireAfterWrite(AiConstants.EXPIRE_TIME, AiConstants.EXPIRE_TIME_UNIT)
@@ -30,6 +30,11 @@ public class AiSessionContextManager {
         });
   }
 
+  /**
+   * Adds a session context in the cache
+   * @param aiSessionKey session context key
+   * @param aiSessionContext session context itself
+   */
   public void putSessionContext(AiSessionKey aiSessionKey, AiSessionContext aiSessionContext) {
     sessionCache.put(aiSessionKey, aiSessionContext);
   }

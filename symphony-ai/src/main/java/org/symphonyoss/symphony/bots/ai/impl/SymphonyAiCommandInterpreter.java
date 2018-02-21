@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Command interpreter for Symphony supported commands.
+ * <p>
  * Created by nick.tarsillo on 11/21/17.
  */
 public class SymphonyAiCommandInterpreter extends AiCommandInterpreterImpl {

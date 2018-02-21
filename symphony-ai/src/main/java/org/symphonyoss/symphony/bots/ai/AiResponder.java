@@ -5,6 +5,8 @@ import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 
 /**
+ * The {@link AiResponder} is used as message responder for the given session context
+ * <p>
  * Created by nick.tarsillo on 8/20/17.
  */
 public interface AiResponder {

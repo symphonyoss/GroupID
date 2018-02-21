@@ -3,8 +3,9 @@ package org.symphonyoss.symphony.bots.ai.model;
 import java.util.Objects;
 
 /**
+ * This class represents the object used as the session context key for an AI session.
+ * <p>
  * Created by nick.tarsillo on 8/20/17.
- * A key identifying an Ai session.
  */
 public class AiSessionKey {
   private String sessionKey;
