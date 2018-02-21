@@ -40,7 +40,7 @@ public class HelpDeskAi extends SymphonyAi {
     MembershipClient membershipClient = helpDeskAiSession.getMembershipClient();
 
     this.aiResponder =
-        new HelpDeskAiResponder(membershipClient, symphonyClient);
+        new HelpDeskAiResponder(symphonyClient, membershipClient);
     this.aiEventListener =
         new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
   }

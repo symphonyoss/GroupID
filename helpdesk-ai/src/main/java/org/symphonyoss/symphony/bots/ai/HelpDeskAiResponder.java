@@ -18,7 +18,7 @@ public class HelpDeskAiResponder extends SymphonyAiResponder {
 
   private final MessageProducer messageProducer;
 
-  public HelpDeskAiResponder(MembershipClient membershipClient, SymphonyClient symphonyClient) {
+  public HelpDeskAiResponder(SymphonyClient symphonyClient, MembershipClient membershipClient) {
     super(symphonyClient.getMessagesClient());
     this.messageProducer = new MessageProducer(membershipClient, symphonyClient);
   }
