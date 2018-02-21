@@ -39,7 +39,10 @@ import org.symphonyoss.symphony.pod.model.UserCreate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -53,6 +56,8 @@ public class HelpDeskBotStories extends JUnitStories {
   private static final String QUEUE_ROOM_PROPERTY = "AGENT_STREAM_ID";
 
   private static final String[] SUPPORTED_ENVS = { "nexus1", "nexus2", "nexus3", "nexus4" };
+
+  private Map<String, SymUser> users = Collections.synchronizedMap(new HashMap());
 
   @Autowired
   private ApplicationContext applicationContext;
@@ -107,12 +112,15 @@ public class HelpDeskBotStories extends JUnitStories {
 
     SymUser agent1 = createUser("Agent", UserAttributes.AccountTypeEnum.NORMAL, roles);
     addUserOnQueueRoom(agent1.getId());
+    users.put("AGENT_1", agent1);
 
     SymUser agent2 = createUser("Agent", UserAttributes.AccountTypeEnum.NORMAL, roles);
     addUserOnQueueRoom(agent2.getId());
+    users.put("AGENT_2", agent2);
 
     SymUser agent3 = createUser("Agent", UserAttributes.AccountTypeEnum.NORMAL, roles);
     addUserOnQueueRoom(agent3.getId());
+    users.put("AGENT_3", agent3);
 
     createBotCertificate();
     setupSystemProperties(queueRoom);
