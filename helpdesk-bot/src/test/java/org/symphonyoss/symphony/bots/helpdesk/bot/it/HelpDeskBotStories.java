@@ -22,6 +22,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.exceptions.RoomException;
+import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
@@ -31,7 +33,11 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.init.SpringHelpDeskBotInit;
 import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
+import org.symphonyoss.symphony.clients.model.SymUser;
+import org.symphonyoss.symphony.pod.model.UserAttributes;
+import org.symphonyoss.symphony.pod.model.UserCreate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -95,6 +101,18 @@ public class HelpDeskBotStories extends JUnitStories {
   private void prepareEnvironment() {
     initSymphonyClient();
     String queueRoom = getQueueRoom().getStreamId();
+
+    List<String> roles = new ArrayList<>();
+    roles.add("INDIVIDUAL");
+
+    SymUser agent1 = createUser("Agent", UserAttributes.AccountTypeEnum.NORMAL, roles);
+    addUserOnQueueRoom(agent1);
+
+    SymUser agent2 = createUser("Agent", UserAttributes.AccountTypeEnum.NORMAL, roles);
+    addUserOnQueueRoom(agent2);
+
+    SymUser agent3 = createUser("Agent", UserAttributes.AccountTypeEnum.NORMAL, roles);
+    addUserOnQueueRoom(agent3);
 
     createBotCertificate();
     setupSystemProperties(queueRoom);
@@ -171,6 +189,61 @@ public class HelpDeskBotStories extends JUnitStories {
       helpDeskSymphonyClient.init(symAuth, config.getEmail(), config.getAgentUrl(), config.getPodUrl());
     } catch (InitException e) {
       throw new IllegalStateException("Cannot instantiate symphony client.", e);
+    }
+  }
+
+  /**
+   * Creates a new user on POD
+   * @param user user
+   * @param userType type of account
+   * @param roles list of permissions
+   * @return the SymUser
+   */
+  private SymUser createUser(String user, UserAttributes.AccountTypeEnum userType, List<String> roles) {
+    UserCreate userCreate = new UserCreate();
+
+    UserAttributes userAttributes = buildUserAttributes(user, userType);
+    userCreate.setUserAttributes(userAttributes);
+
+    userCreate.setRoles(roles);
+
+    try {
+      return helpDeskSymphonyClient.getUsersClient().createUser(userCreate);
+    } catch (UsersClientException e) {
+      throw new IllegalStateException("Cannot create user.", e);
+    }
+  }
+
+  /**
+   * Build user attributes
+   * @param user user
+   * @param userType type of account
+   * @return the SymUser
+   */
+  private UserAttributes buildUserAttributes(String user, UserAttributes.AccountTypeEnum userType) {
+    String rnd = UUID.randomUUID().toString();
+    String userName = user + "." + rnd;
+
+    UserAttributes userAttrs = new UserAttributes();
+    userAttrs.setFirstName(user);
+    userAttrs.setLastName(rnd);
+    userAttrs.setEmailAddress(userName + "@example.com");
+    userAttrs.setDisplayName(userName);
+    userAttrs.setUserName(userName);
+    userAttrs.setAccountType(userType);
+
+    return userAttrs;
+  }
+
+  /**
+   * Add user on queue room.
+   * @return userId the id of user
+   */
+  private void addUserOnQueueRoom(Long userId) {
+    try {
+      helpDeskSymphonyClient.getRoomMembershipClient().addMemberToRoom("", userId);
+    } catch (SymException e) {
+      throw new IllegalStateException("Couldn't add user on this room.", e);
     }
   }
 
