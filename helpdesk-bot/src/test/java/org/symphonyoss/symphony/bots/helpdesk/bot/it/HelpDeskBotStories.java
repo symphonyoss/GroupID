@@ -134,7 +134,7 @@ public class HelpDeskBotStories extends JUnitStories {
       try {
         return createRoom(Boolean.FALSE);
       } catch (RoomException e1) {
-        throw new IllegalStateException("Couldn't create queue room.", e1.getCause());
+        throw new IllegalStateException("Couldn't create queue room.", e1);
       }
     }
   }
@@ -170,7 +170,7 @@ public class HelpDeskBotStories extends JUnitStories {
     try {
       helpDeskSymphonyClient.init(symAuth, config.getEmail(), config.getAgentUrl(), config.getPodUrl());
     } catch (InitException e) {
-      throw new IllegalStateException("Cannot instantiate symphony client.", e.getCause());
+      throw new IllegalStateException("Cannot instantiate symphony client.", e);
     }
   }
 
