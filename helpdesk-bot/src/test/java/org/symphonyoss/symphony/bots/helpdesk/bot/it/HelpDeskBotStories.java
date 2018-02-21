@@ -106,13 +106,13 @@ public class HelpDeskBotStories extends JUnitStories {
     roles.add("INDIVIDUAL");
 
     SymUser agent1 = createUser("Agent", UserAttributes.AccountTypeEnum.NORMAL, roles);
-    addUserOnQueueRoom(agent1);
+    addUserOnQueueRoom(agent1.getId());
 
     SymUser agent2 = createUser("Agent", UserAttributes.AccountTypeEnum.NORMAL, roles);
-    addUserOnQueueRoom(agent2);
+    addUserOnQueueRoom(agent2.getId());
 
     SymUser agent3 = createUser("Agent", UserAttributes.AccountTypeEnum.NORMAL, roles);
-    addUserOnQueueRoom(agent3);
+    addUserOnQueueRoom(agent3.getId());
 
     createBotCertificate();
     setupSystemProperties(queueRoom);
