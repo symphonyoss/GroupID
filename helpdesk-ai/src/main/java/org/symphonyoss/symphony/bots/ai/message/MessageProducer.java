@@ -64,6 +64,11 @@ public class MessageProducer {
       return;
     }
 
+    if (userId == null) {
+      sendAgentMessage(symphonyAiMessage, streamId);
+      return;
+    }
+
     Membership membership = membershipClient.getMembership(userId);
 
     if (MembershipClient.MembershipType.CLIENT.getType().equals(membership.getType())) {
@@ -238,16 +243,20 @@ public class MessageProducer {
    * @return True if message is a chime, false otherwise
    */
   private boolean isChime(SymphonyAiMessage message) {
-    Element elementMessageML;
-    Document doc = Jsoup.parse(message.getMessageData());
+    Element elementMessageML = null;
 
-    elementMessageML = doc.select("messageML").first();
-    if (elementMessageML == null) {
-      elementMessageML = doc.select("div").first();
-    }
+    if (message.getMessageData() != null) {
+      Document doc = Jsoup.parse(message.getMessageData());
 
-    if (elementMessageML != null) {
-      elementMessageML = doc.select("audio").first();
+      elementMessageML = doc.select("messageML").first();
+
+      if (elementMessageML == null) {
+        elementMessageML = doc.select("div").first();
+      }
+
+      if (elementMessageML != null) {
+        elementMessageML = doc.select("audio").first();
+      }
     }
 
     return elementMessageML != null;

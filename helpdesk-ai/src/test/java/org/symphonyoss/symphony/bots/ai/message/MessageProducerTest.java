@@ -105,6 +105,7 @@ public class MessageProducerTest {
       "<messageML><audio src=\"https://asset.symphony.com/symphony/audio/chime.mp3\" autoplay"
           + "=\"true\"></audio></messageML>";
 
+
   private static final Long USER_ID = Long.valueOf(1234);
   private static final int ATTACHMENTS_COUNT = 10;
   private static final String USER_NAME = "Ultimate Tester";
@@ -151,6 +152,22 @@ public class MessageProducerTest {
     doReturn(fileBytes).when(attachmentsClient)
         .getAttachmentData(any(SymAttachmentInfo.class), any(SymMessage.class));
     messageProducer = new MessageProducer(membershipClient, symphonyClient);
+  }
+
+  @Test
+  public void testBotMessage() throws MessagesException {
+    String BOT_MESSAGE =
+        "Thank you for contacting us, this session is now over. Any new messages in this chat will "
+            + "be delivered to the JPM Equity Team as a new session.";
+    String EXPECTED_BOT_MESSAGE = "<messageML>" + BOT_MESSAGE + "</messageML>";
+    symphonyAiMessage.setAiMessage(BOT_MESSAGE);
+
+    messageProducer.publishMessage(symphonyAiMessage, streamId);
+    ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
+    verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
+
+    SymMessage sentMessage = captor.getValue();
+    assertEquals(sentMessage.getMessage(), EXPECTED_BOT_MESSAGE);
   }
 
   @Test
