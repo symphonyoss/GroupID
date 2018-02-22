@@ -2,6 +2,7 @@ package org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.mongo;
 
 import com.mongodb.DuplicateKeyException;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.MakercheckerDao;
@@ -21,9 +22,9 @@ import org.symphonyoss.symphony.bots.helpdesk.service.mongo.MongoCondition;
 /**
  * Created by alexandre-silva-daitan on 01/12/17.
  */
-
 @Component
 @Conditional(MongoCondition.class)
+@Lazy
 public class MongoMakercheckerDAO implements MakercheckerDao {
 
   private static final String COLLECTION_NAME = "helpdeskmakerchecker";

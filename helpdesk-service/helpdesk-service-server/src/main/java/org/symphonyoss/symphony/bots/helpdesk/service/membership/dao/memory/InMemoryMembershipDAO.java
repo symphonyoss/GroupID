@@ -1,12 +1,12 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.memory;
 
-import org.springframework.context.annotation.Conditional;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.MembershipDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.model.MembershipIndex;
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.mongo.MongoMembershipDAO;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.exception
     .MembershipNotFoundException;
-import org.symphonyoss.symphony.bots.helpdesk.service.memory.MemoryCondition;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 
 import java.util.HashMap;
@@ -18,7 +18,7 @@ import java.util.Map;
  * Created by rsanchez on 22/11/17.
  */
 @Component
-@Conditional(MemoryCondition.class)
+@ConditionalOnMissingBean(MongoMembershipDAO.class)
 public class InMemoryMembershipDAO implements MembershipDao {
 
   private final Map<MembershipIndex, Membership> database = new HashMap<>();

@@ -4,6 +4,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
 import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ import java.util.List;
  */
 @Component
 @Conditional(MongoCondition.class)
+@Lazy
 public class MongoTicketDAO implements TicketDao {
 
   private static final String COLLECTION_NAME = "helpdeskticket";

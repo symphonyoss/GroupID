@@ -7,6 +7,7 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
 import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -28,13 +29,13 @@ import javax.net.ssl.SSLSocketFactory;
 @Configuration
 @EnableConfigurationProperties({ MongoParameters.class })
 @Conditional(MongoCondition.class)
-public class MongoConfiguration extends AbstractMongoConfiguration {
+public class HelpDeskServiceMongoConfiguration extends AbstractMongoConfiguration {
 
   private MongoClient mongoClient;
 
   private final MongoParameters mongoParameters;
 
-  public MongoConfiguration(MongoParameters mongoParameters) {
+  public HelpDeskServiceMongoConfiguration(MongoParameters mongoParameters) {
     this.mongoParameters = mongoParameters;
   }
 
@@ -75,12 +76,14 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public MongoDbFactory mongoDbFactory() throws Exception {
     MongoClient mongo = (MongoClient) mongo();
     return new SimpleMongoDbFactory(mongo, getDatabaseName());
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public MongoTemplate mongoTemplate() throws Exception {
     MappingMongoConverter converter =
         new MappingMongoConverter(new DefaultDbRefResolver(mongoDbFactory()),
@@ -92,11 +95,13 @@ public class MongoConfiguration extends AbstractMongoConfiguration {
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public DB db(MongoTemplate mongoTemplate) {
     return mongoTemplate.getDb();
   }
 
   @Bean
+  @ConditionalOnMissingBean
   public MappingMongoConverter mappingMongoConverter() throws Exception {
     DefaultDbRefResolver dbRefResolver = new DefaultDbRefResolver(this.mongoDbFactory());
     MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, this.mongoMappingContext());

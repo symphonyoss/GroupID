@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.mongo;
 
 import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
@@ -28,6 +29,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.mongo.MongoCondition;
  */
 @Component
 @Conditional(MongoCondition.class)
+@Lazy
 public class MongoMembershipDAO implements MembershipDao {
 
   private static final String COLLECTION_NAME = "helpdeskmembership";
