@@ -109,7 +109,6 @@ public class HelpDeskBotStories extends JUnitStories {
     createBotCertificate();
   }
 
-
   private void createBotCertificate() {
     // TODO APP-1629
   }
@@ -237,7 +236,6 @@ public class HelpDeskBotStories extends JUnitStories {
 
   /**
    * Method responsible to create user, add on queue room and set users on the testContext.
-   * @return userId the id of user
    */
   private void createUsersAndAddToQueueRoom() {
     List<String> roles = new ArrayList<>();
