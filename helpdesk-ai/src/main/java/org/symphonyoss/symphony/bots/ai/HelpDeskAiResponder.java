@@ -3,7 +3,6 @@ package org.symphonyoss.symphony.bots.ai;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponder;
 import org.symphonyoss.symphony.bots.ai.message.MessageProducer;

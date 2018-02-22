@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.message;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
