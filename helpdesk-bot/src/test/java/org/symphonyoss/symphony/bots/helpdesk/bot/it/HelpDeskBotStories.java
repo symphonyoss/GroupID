@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.it;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jbehave.core.configuration.MostUsefulConfiguration;
 import org.jbehave.core.failures.FailingUponPendingStep;
 import org.jbehave.core.io.CodeLocations;
@@ -39,10 +38,7 @@ import org.symphonyoss.symphony.pod.model.UserCreate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
