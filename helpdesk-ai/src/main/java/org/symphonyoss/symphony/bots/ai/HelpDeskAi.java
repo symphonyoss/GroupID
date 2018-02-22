@@ -15,8 +15,6 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
-import org.symphonyoss.symphony.clients.MessagesClient;
-import org.symphonyoss.symphony.clients.UsersClient;
 
 /**
  * Created by nick.tarsillo on 9/28/17.
@@ -27,7 +25,8 @@ public class HelpDeskAi extends SymphonyAi {
   private HelpDeskAiSession helpDeskAiSession;
 
   public HelpDeskAi(HelpDeskAiSession helpDeskAiSession) {
-    super(helpDeskAiSession.getSymphonyClient(), helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands());
+    super(helpDeskAiSession.getSymphonyClient(),
+        helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands());
     this.helpDeskAiSession = helpDeskAiSession;
   }
 
@@ -38,12 +37,12 @@ public class HelpDeskAi extends SymphonyAi {
     boolean suggestCommands = helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands();
     SymphonyClient symphonyClient = helpDeskAiSession.getSymphonyClient();
 
-    MessagesClient messagesClient = symphonyClient.getMessagesClient();
-    UsersClient usersClient = symphonyClient.getUsersClient();
     MembershipClient membershipClient = helpDeskAiSession.getMembershipClient();
 
-    this.aiResponder = new HelpDeskAiResponder(messagesClient, membershipClient, usersClient);
-    this.aiEventListener = new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
+    this.aiResponder =
+        new HelpDeskAiResponder(symphonyClient, membershipClient);
+    this.aiEventListener =
+        new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
   }
 
   @Override
@@ -59,7 +58,8 @@ public class HelpDeskAi extends SymphonyAi {
     Membership membership =
         helpDeskAiSession.getMembershipClient().getMembership(sessionKey.getUid());
 
-    if ((membership != null) && (MembershipClient.MembershipType.AGENT.getType().equals(membership.getType()))) {
+    if ((membership != null) && (MembershipClient.MembershipType.AGENT.getType()
+        .equals(membership.getType()))) {
       Ticket ticket =
           helpDeskAiSession.getTicketClient().getTicketByServiceStreamId(sessionKey.getStreamId());
       if (ticket != null) {

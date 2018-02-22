@@ -4,7 +4,6 @@ import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.Ticke
     .TicketStateType.UNRESOLVED;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.client.SymphonyClient;
@@ -18,6 +17,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -43,9 +43,6 @@ import javax.ws.rs.BadRequestException;
 public class AgentExternalCheck implements Checker {
 
   private static final int MAKERCHECKER_ID_LENGTH = 10;
-  private static final String MESSAGE_COULD_NOT_CREATE_FILE = "Couldn't create a file.";
-  private static final String MESSAGE_ATTACHMENT_NOT_FOUND = "Attachment not found.";
-  private static final String MESSAGE_FAILED_TO_CREATE_FILE = "Failed to create File";
   private static final String MESSAGE_TO_APPROVE_MAKER_CHECKER =
       "%s approved %s attachment. It has been delivered to the client(s).";
   private static final String MESSAGE_TO_DENY_MAKER_CHECKER =
@@ -65,14 +62,18 @@ public class AgentExternalCheck implements Checker {
 
   private final SymphonyValidationUtil symphonyValidationUtil;
 
+  private final SymphonyClientUtil symphonyClientUtil;
+
   public AgentExternalCheck(String botHost, String serviceHost, String groupId,
-      TicketClient ticketClient, SymphonyClient symphonyClient, SymphonyValidationUtil symphonyValidationUtil) {
+      TicketClient ticketClient, SymphonyClient symphonyClient,
+      SymphonyValidationUtil symphonyValidationUtil) {
     this.botHost = botHost;
     this.serviceHost = serviceHost;
     this.groupId = groupId;
     this.ticketClient = ticketClient;
     this.symphonyClient = symphonyClient;
     this.symphonyValidationUtil = symphonyValidationUtil;
+    this.symphonyClientUtil = new SymphonyClientUtil(this.symphonyClient);
   }
 
   @Override
@@ -107,9 +108,10 @@ public class AgentExternalCheck implements Checker {
     Set<String> proxyToIds = (Set<String>) opaque;
 
 
-    for(SymAttachmentInfo attachmentInfo: symMessage.getAttachments()) {
+    for (SymAttachmentInfo attachmentInfo : symMessage.getAttachments()) {
       MakerCheckerMessageBuilder makerCheckerMessageBuilder = new MakerCheckerMessageBuilder();
-      String makerCheckerId = RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
+      String makerCheckerId =
+          RandomStringUtils.randomAlphanumeric(MAKERCHECKER_ID_LENGTH).toUpperCase();
       makerCheckerMessageBuilder.makerCheckerId(makerCheckerId);
       makerCheckerMessageBuilder.botHost(botHost);
       makerCheckerMessageBuilder.serviceHost(serviceHost);
@@ -143,7 +145,8 @@ public class AgentExternalCheck implements Checker {
 
   public Optional<SymAttachmentInfo> getApprovedAttachment(MakerCheckerMessage makerCheckerMessage,
       SymMessage symMessage) {
-    AttachmentMakerCheckerMessage checkerMessage = (AttachmentMakerCheckerMessage) makerCheckerMessage;
+    AttachmentMakerCheckerMessage checkerMessage =
+        (AttachmentMakerCheckerMessage) makerCheckerMessage;
 
     return symMessage.getAttachments()
         .stream()
@@ -152,17 +155,22 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public SymMessage getActionMessage(Makerchecker makerchecker, MakercheckerClient.AttachmentStateType attachmentState) {
+  public SymMessage getActionMessage(Makerchecker makerchecker,
+      MakercheckerClient.AttachmentStateType attachmentState) {
     ActionMessageBuilder actionMessageBuilder = new ActionMessageBuilder();
     actionMessageBuilder.makerCheckerId(makerchecker.getId());
     actionMessageBuilder.state(attachmentState.getState());
 
     UserInfo checker = getUser(makerchecker.getChecker().getUserId());
     actionMessageBuilder.checker(checker);
-    if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
-      actionMessageBuilder.messageToAgents(getMessageApproved(checker.getDisplayName(), makerchecker.getAttachmentName()));
-    } else if (attachmentState.getState().equals(MakercheckerClient.AttachmentStateType.DENIED.getState())) {
-      actionMessageBuilder.messageToAgents(getMessageDenied(checker.getDisplayName(), makerchecker.getAttachmentName()));
+    if (attachmentState.getState()
+        .equals(MakercheckerClient.AttachmentStateType.APPROVED.getState())) {
+      actionMessageBuilder.messageToAgents(
+          getMessageApproved(checker.getDisplayName(), makerchecker.getAttachmentName()));
+    } else if (attachmentState.getState()
+        .equals(MakercheckerClient.AttachmentStateType.DENIED.getState())) {
+      actionMessageBuilder.messageToAgents(
+          getMessageDenied(checker.getDisplayName(), makerchecker.getAttachmentName()));
     }
 
     SymMessage actionMessage = actionMessageBuilder.build();
@@ -202,10 +210,11 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage, SymMessage symMessage) {
+  public Set<SymMessage> makeApprovedMessages(MakerCheckerMessage makerCheckerMessage,
+      SymMessage symMessage) {
     Set<SymMessage> symApprovedMessages = new HashSet<>();
 
-    for(String streamId: makerCheckerMessage.getProxyToStreamIds()) {
+    for (String streamId : makerCheckerMessage.getProxyToStreamIds()) {
       SymMessage approvedMessage = new SymMessage();
 
       SymStream stream = new SymStream();
@@ -218,7 +227,8 @@ public class AgentExternalCheck implements Checker {
       approvedMessage.setTimestamp(symMessage.getTimestamp());
       approvedMessage.setFromUserId(symMessage.getFromUserId());
 
-      Optional<SymAttachmentInfo> symApprovedAttachmentInfo = getApprovedAttachment(makerCheckerMessage, symMessage);
+      Optional<SymAttachmentInfo> symApprovedAttachmentInfo =
+          getApprovedAttachment(makerCheckerMessage, symMessage);
       if (symApprovedAttachmentInfo.isPresent()) {
         SymAttachmentInfo symAttachmentInfo = symApprovedAttachmentInfo.get();
 
@@ -226,7 +236,7 @@ public class AgentExternalCheck implements Checker {
         attachmentInfoList.add(symAttachmentInfo);
         approvedMessage.setAttachments(attachmentInfoList);
 
-        File file = getFileAttachment(symAttachmentInfo, symMessage);
+        File file = symphonyClientUtil.getFileAttachment(symAttachmentInfo, symMessage);
         approvedMessage.setAttachment(file);
       }
 
@@ -248,37 +258,6 @@ public class AgentExternalCheck implements Checker {
 
       directory.delete();
     }
-  }
-
-  private File getFileAttachment(SymAttachmentInfo symAttachmentInfo, SymMessage symMessage) {
-    String tmpDir = System.getProperty("java.io.tmpdir");
-    File directory = new File(tmpDir + File.separator + symAttachmentInfo.getId());
-    if (!directory.exists()) {
-      directory.mkdir();
-    }
-
-    File file = new File(directory + File.separator + symAttachmentInfo.getName());
-    try {
-      file.createNewFile();
-    } catch (IOException e) {
-      throw new BadRequestException(MESSAGE_COULD_NOT_CREATE_FILE);
-    }
-
-    byte[] aByte;
-    try {
-      aByte = symphonyClient.getAttachmentsClient().getAttachmentData(symAttachmentInfo, symMessage);
-    } catch (AttachmentsException e) {
-      throw new BadRequestException(MESSAGE_ATTACHMENT_NOT_FOUND);
-    }
-
-    InputStream inputStream = new ByteArrayInputStream(aByte);
-    try {
-      FileUtils.copyInputStreamToFile(inputStream, file);
-    } catch (IOException e) {
-      throw new BadRequestException(MESSAGE_FAILED_TO_CREATE_FILE);
-    }
-
-    return file;
   }
 
 }
