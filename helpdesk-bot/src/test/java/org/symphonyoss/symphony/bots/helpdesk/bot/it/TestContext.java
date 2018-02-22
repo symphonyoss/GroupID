@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.it;
 
-import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
