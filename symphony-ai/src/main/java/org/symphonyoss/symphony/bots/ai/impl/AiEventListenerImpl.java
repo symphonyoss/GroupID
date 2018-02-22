@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Concrete implementation for an {@link AiEventListener AI event listener}
+ * <p>
  * Created by nick.tarsillo on 8/20/17.
  */
 public class AiEventListenerImpl implements AiEventListener {

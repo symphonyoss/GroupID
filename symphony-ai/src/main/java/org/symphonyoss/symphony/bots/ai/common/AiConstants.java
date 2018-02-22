@@ -3,6 +3,8 @@ package org.symphonyoss.symphony.bots.ai.common;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Constants used in the Symphony's AI context
+ * <p>
  * Created by nick.tarsillo on 8/20/17.
  */
 public class AiConstants {

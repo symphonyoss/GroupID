@@ -10,9 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by nick.tarsillo on 10/2/17.
  * A Symphony version of an Ai message.
  * Allows the Ai to send and receive entity data and attachments.
+ * <p>
+ * Created by nick.tarsillo on 10/2/17.
  */
 public class SymphonyAiMessage extends AiMessage {
   protected String entityData;
@@ -97,6 +98,7 @@ public class SymphonyAiMessage extends AiMessage {
   public void setTimestamp(String timestamp) {
     this.timestamp = timestamp;
   }
+
   public String getMessageData() {
     return messageData;
   }

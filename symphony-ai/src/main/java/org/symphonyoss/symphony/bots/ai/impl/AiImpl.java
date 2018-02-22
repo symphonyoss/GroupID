@@ -10,6 +10,8 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionContextManager;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 /**
+ * Concrete implementation of {@link Ai}
+ * <p>
  * Created by nick.tarsillo on 11/10/17.
  */
 public class AiImpl extends Ai {
