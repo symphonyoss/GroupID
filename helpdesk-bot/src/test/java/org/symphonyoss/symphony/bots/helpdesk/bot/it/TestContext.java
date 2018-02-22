@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class TestContext {
 
-  private static TestContext instance;
+  private static final TestContext INSTANCE = new TestContext();
 
   private Map<UsersEnum, SymUser> users = new HashMap();
 
@@ -21,12 +21,8 @@ public class TestContext {
   private TestContext() {
   }
 
-  public static synchronized TestContext getInstance() {
-    if (instance == null) {
-      instance = new TestContext();
-    }
-
-    return instance;
+  public static TestContext getInstance() {
+    return INSTANCE;
   }
 
   public SymUser getUser(UsersEnum key) {
@@ -38,6 +34,10 @@ public class TestContext {
   }
 
   public void setUsers(UsersEnum key, SymUser user) {
+    if (key == null) {
+      throw new IllegalArgumentException("Parameter key is required.");
+    }
+
     users.put(key, user);
   }
 
