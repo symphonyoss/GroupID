@@ -1,15 +1,12 @@
 package org.symphonyoss.symphony.bots.ai.message;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.sun.org.apache.xpath.internal.Arg;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +17,6 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.AttachmentsException;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAi;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
@@ -140,7 +136,7 @@ public class MessageProducerTest {
 
   private byte[] fileBytes = "filebytes".getBytes();
 
-  private String streamId;
+  private String streamId = "random_stream_id";
 
   @Before
   public void init() throws UsersClientException, AttachmentsException {

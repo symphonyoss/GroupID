@@ -25,11 +25,7 @@ public class HelpDeskAiResponder extends SymphonyAiResponder {
 
   @Override
   protected void publishMessage(AiResponseIdentifier respond, SymphonyAiMessage symphonyAiMessage) {
-    try {
-      messageProducer.publishMessage(symphonyAiMessage, respond.getResponseIdentifier());
-    } catch (MessagesException e) {
-      LOGGER.error("Ai could not send message: ", e);
-    }
+    messageProducer.publishMessage(symphonyAiMessage, respond.getResponseIdentifier());
   }
 
 }

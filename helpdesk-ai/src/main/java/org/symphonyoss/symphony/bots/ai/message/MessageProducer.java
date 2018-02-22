@@ -1,9 +1,9 @@
 package org.symphonyoss.symphony.bots.ai.message;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
@@ -21,8 +21,6 @@ import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.io.File;
-import java.lang.reflect.Member;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -54,75 +52,153 @@ public class MessageProducer {
   }
 
   /**
-   * Build and send a message into a stream, if it has multiple attachments, it will send one for
-   * each
+   * Build and send a message(s) into a stream (if it is a Client message with multiple attachments,
+   * it will send one for each)
    * @param symphonyAiMessage SymphonyAiMessage with the message contents
    * @param streamId String that contains the streamId
-   * @throws MessagesException Failure to send the message
    */
-  public void publishMessage(SymphonyAiMessage symphonyAiMessage, String streamId)
-      throws MessagesException {
+  public void publishMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
     Long userId = symphonyAiMessage.getFromUserId();
-    Membership membership;
-    boolean isClient = false;
 
-    if (userId != null) {
-      membership = membershipClient.getMembership(userId);
-      if ((membership != null) && (MembershipClient.MembershipType.CLIENT.getType()
-          .equals(membership.getType()))) {
-        isClient = true;
-      }
+    if (isChime(symphonyAiMessage)) {
+      sendChimeMessage(symphonyAiMessage, streamId);
+      return;
     }
 
-    if (hasAttachment(symphonyAiMessage) && isClient) {
-      for (int i = 1; i <= symphonyAiMessage.getAttachments().size(); i++) {
-        SymMessage symMessage = buildMessage(symphonyAiMessage, i, isClient);
-        sendMessage(symMessage, streamId);
-      }
+    Membership membership = membershipClient.getMembership(userId);
+
+    if (MembershipClient.MembershipType.CLIENT.getType().equals(membership.getType())) {
+      sendClientMessage(symphonyAiMessage, streamId);
     } else {
-      SymMessage symMessage = buildMessage(symphonyAiMessage, 0, isClient);
+      sendAgentMessage(symphonyAiMessage, streamId);
+    }
+  }
+
+  /**
+   * Build Client message and send it. If it has multiple attachments, it will send one for each
+   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param streamId String that contains the streamId
+   */
+  private void sendClientMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
+    if (hasAttachment(symphonyAiMessage)) {
+      sendClientMessageWithAttachments(symphonyAiMessage, streamId);
+    } else {
+      SymMessage symMessage = buildClientMessage(symphonyAiMessage);
       sendMessage(symMessage, streamId);
     }
   }
 
   /**
-   * Build a SymMessage given a SymphonyAiMessage
+   * Build Client messages and send it, one for each attachment. Only the first message contains the
+   * original message text, if any.
+   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param streamId String that contains the streamId
+   */
+  private void sendClientMessageWithAttachments(SymphonyAiMessage symphonyAiMessage,
+      String streamId) {
+    SymMessage symMessage = buildClientMessage(symphonyAiMessage);
+    symMessage.setAttachment(
+        getClientAttachment(symphonyAiMessage, symphonyAiMessage.getAttachments().get(0)));
+    sendMessage(symMessage, streamId);
+
+    symphonyAiMessage.setAiMessage("");
+    symphonyAiMessage.setMessageData("");
+
+    symphonyAiMessage.getAttachments().stream()
+        .skip(1)
+        .forEach(attachmentInfo -> {
+          SymMessage attachmentMessage = buildClientMessage(symphonyAiMessage);
+          attachmentMessage.setAttachment(getClientAttachment(symphonyAiMessage, attachmentInfo));
+          sendMessage(attachmentMessage, streamId);
+        });
+  }
+
+  /**
+   * Build and send an Agent message
+   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param streamId String that contains the streamId
+   */
+  private void sendAgentMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
+    SymMessage symMessage = buildAgentMessage(symphonyAiMessage);
+    sendMessage(symMessage, streamId);
+  }
+
+  /**
+   * Build and send a SymMessage that contains a chime
+   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param streamId String that contains the streamId
+   */
+  private void sendChimeMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
+    SymMessage symMessage = buildChimeMessage(symphonyAiMessage);
+    sendMessage(symMessage, streamId);
+  }
+
+  /**
+   * Build a SymMessage that contains a chime
    * @param symphonyAiMessage SymphonyAiMessage with the message contents
    * @return The built SymMessage
    */
-  private SymMessage buildMessage(SymphonyAiMessage symphonyAiMessage, int attachmentId,
-      boolean isClient) {
+  private SymMessage buildChimeMessage(SymphonyAiMessage symphonyAiMessage) {
     StringBuilder message = new StringBuilder("<messageML>");
+    SymMessage symMessage = new SymMessage();
+    message.append(parseMessage(symphonyAiMessage));
+    message.append("</messageML>");
 
+    symMessage.setMessage(message.toString());
+    symMessage.setEntityData(symphonyAiMessage.getEntityData());
+
+    return symMessage;
+  }
+
+  /**
+   * Build a SymMessage for a Client given a SymphonyAiMessage
+   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @return The built SymMessage
+   */
+  private SymMessage buildClientMessage(SymphonyAiMessage symphonyAiMessage) {
+    StringBuilder header = new StringBuilder();
     Long userId = symphonyAiMessage.getFromUserId();
 
-    if (isClient && !isChime(symphonyAiMessage)) {
-      try {
-        SymUser user = usersClient.getUserFromId(userId);
+    try {
+      SymUser user = usersClient.getUserFromId(userId);
 
-        message.append("<b>");
-        message.append(user.getDisplayName());
-        message.append("</b>: ");
-      } catch (UsersClientException e) {
-        LOGGER.info("User " + userId + " not found");
-      }
+      header.append("<b>");
+      header.append(user.getDisplayName());
+      header.append("</b>: ");
+    } catch (UsersClientException e) {
+      LOGGER.info("User " + userId + " not found");
     }
 
-    if (attachmentId < 2) {
-      if (symphonyAiMessage.getMessageData() != null) {
-        message.append(parseMessage(symphonyAiMessage));
-      } else {
-        message.append(symphonyAiMessage.getAiMessage());
-      }
+    return buildMessage(symphonyAiMessage, header.toString());
+  }
+
+  /**
+   * Build a SymMessage for an Agent given a SymphonyAiMessage
+   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @return The built SymMessage
+   */
+  private SymMessage buildAgentMessage(SymphonyAiMessage symphonyAiMessage) {
+    return buildMessage(symphonyAiMessage, "");
+  }
+
+  /**
+   * Build a SymMessage given a SymphonyAiMessage and a header String
+   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param header String with the message header (e.g. Client name)
+   * @return The built SymMessage
+   */
+  private SymMessage buildMessage(SymphonyAiMessage symphonyAiMessage, String header) {
+    StringBuilder message = new StringBuilder("<messageML>");
+    SymMessage symMessage = new SymMessage();
+
+    message.append(header);
+    if (symphonyAiMessage.getMessageData() != null) {
+      message.append(parseMessage(symphonyAiMessage));
+    } else {
+      message.append(symphonyAiMessage.getAiMessage());
     }
 
     message.append("</messageML>");
-
-    SymMessage symMessage = new SymMessage();
-
-    if (isClient && attachmentId > 0) {
-      setClientAttachment(symphonyAiMessage, attachmentId);
-    }
 
     symMessage.setMessage(message.toString());
     symMessage.setEntityData(symphonyAiMessage.getEntityData());
@@ -133,21 +209,18 @@ public class MessageProducer {
   }
 
   /**
-   * Add an Attachment to a SymphonyAiMessage
-   * @param symphonyAiMessage The SymphonyAiMessage where to add the attachment
-   * @param attachmentId The id of the attachment to be added
-   * @return The built SymMessage
+   * Get an Attachment to a SymphonyAiMessage
+   * @param symphonyAiMessage The SymphonyAiMessage containing the attachment
+   * @param attachmentInfo The SymAttachmentInfo of the specific attachment to be added
+   * @return The attachment
    */
-  private void setClientAttachment(SymphonyAiMessage symphonyAiMessage, int attachmentId) {
+  private File getClientAttachment(SymphonyAiMessage symphonyAiMessage,
+      SymAttachmentInfo attachmentInfo) {
     SymMessage attachmentMessage = new SymMessage();
     attachmentMessage.setId(symphonyAiMessage.getMessageId());
     attachmentMessage.setStreamId(symphonyAiMessage.getStreamId());
 
-    List<SymAttachmentInfo> attachmentInfoList = symphonyAiMessage.getAttachments();
-
-    File file = symphonyClientUtil.getFileAttachment(attachmentInfoList.get(attachmentId - 1),
-        attachmentMessage);
-    symphonyAiMessage.setAttachment(file);
+    return symphonyClientUtil.getFileAttachment(attachmentInfo, attachmentMessage);
   }
 
   /**
@@ -217,11 +290,15 @@ public class MessageProducer {
    * @param streamId A String specifying the stream where the message should be sent to
    * @throws MessagesException Failure to send message
    */
-  private void sendMessage(SymMessage symMessage, String streamId) throws MessagesException {
+  private void sendMessage(SymMessage symMessage, String streamId) {
     SymStream stream = new SymStream();
     stream.setStreamId(streamId);
 
-    messagesClient.sendMessage(stream, symMessage);
+    try {
+      messagesClient.sendMessage(stream, symMessage);
+    } catch (MessagesException e) {
+      LOGGER.error("AI could not send message: ", e);
+    }
   }
 
 }
