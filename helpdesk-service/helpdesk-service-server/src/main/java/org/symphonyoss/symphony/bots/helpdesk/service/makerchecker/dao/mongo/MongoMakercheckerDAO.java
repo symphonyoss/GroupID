@@ -20,6 +20,12 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.mongo.MongoCondition;
 
 /**
+ * DAO component responsible for managing maker/checker documents into MongoDB. This class
+ * depends of {@link MongoCondition} to be created.
+ * <p>
+ * This component is being lazily initialized to ensure the database connection only happens when
+ * it receives the first request to get data.
+ * <p>
  * Created by alexandre-silva-daitan on 01/12/17.
  */
 @Component

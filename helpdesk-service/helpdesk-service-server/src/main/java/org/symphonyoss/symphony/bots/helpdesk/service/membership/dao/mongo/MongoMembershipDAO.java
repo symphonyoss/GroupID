@@ -23,8 +23,12 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.mongo.MongoCondition;
 
 /**
- * Mongo DAO for membership.
- *
+ * DAO component responsible for managing membership documents into MongoDB. This class
+ * depends of {@link MongoCondition} to be created.
+ * <p>
+ * This component is being lazily initialized to ensure the database connection only happens when
+ * it receives the first request to get data.
+ * <p>
  * Created by rsanchez on 22/11/17.
  */
 @Component

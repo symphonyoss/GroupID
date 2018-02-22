@@ -12,6 +12,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * DAO component responsible for managing maker/checker objects in-memory. This component will be
+ * created only if the {@link MongoMakercheckerDAO} component wasn't created previously.
+ * <p>
+ * This class should be used only for tests purpose.
+ * <p>
  * Created by alexandre-silva-daitan on 01/12/17.
  */
 @Component

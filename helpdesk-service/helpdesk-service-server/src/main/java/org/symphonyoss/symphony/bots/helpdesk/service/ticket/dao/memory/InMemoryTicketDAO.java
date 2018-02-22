@@ -14,8 +14,11 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Mongo DAO for ticket.
- *
+ * DAO component responsible for managing ticket objects in-memory. This component will be
+ * created only if the {@link MongoTicketDAO} component wasn't created previously.
+ * <p>
+ * This class should be used only for tests purpose.
+ * <p>
  * Created by rsanchez on 22/11/17.
  */
 @Component

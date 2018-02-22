@@ -24,6 +24,11 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
+ * Spring auto-configuration class responsible for creating Mongo client according to the parameters
+ * defined in the {@link MongoParameters} class.
+ * <p>
+ * All beans defined in this class only will be created if it doesn't exist in the Spring application context.
+ * <p>
  * Created by rsanchez on 22/11/17.
  */
 @Configuration
@@ -75,6 +80,13 @@ public class HelpDeskServiceMongoConfiguration extends AbstractMongoConfiguratio
     return mongoClient;
   }
 
+  /**
+   * Creates a new spring component of type {@link SimpleMongoDbFactory} to be used by the
+   * {@link MongoTemplate}.
+   *
+   * @return MongoDB factory
+   * @throws Exception Unexpected errors to create the database factory.
+   */
   @Bean
   @ConditionalOnMissingBean
   public MongoDbFactory mongoDbFactory() throws Exception {
@@ -82,6 +94,12 @@ public class HelpDeskServiceMongoConfiguration extends AbstractMongoConfiguratio
     return new SimpleMongoDbFactory(mongo, getDatabaseName());
   }
 
+  /**
+   * Creates new spring component of type a {@link MongoTemplate}. This class will be used to interact to MongoDB.
+   *
+   * @return Mongo template
+   * @throws Exception Unexpected errors to create the mongo template.
+   */
   @Bean
   @ConditionalOnMissingBean
   public MongoTemplate mongoTemplate() throws Exception {
@@ -94,12 +112,25 @@ public class HelpDeskServiceMongoConfiguration extends AbstractMongoConfiguratio
     return template;
   }
 
+  /**
+   * Creates a thread-safe client view of a logical database in a MongoDB cluster.
+   *
+   * @param mongoTemplate Mongo template
+   * @return thread-safe client view of a logical database
+   */
   @Bean
   @ConditionalOnMissingBean
   public DB db(MongoTemplate mongoTemplate) {
     return mongoTemplate.getDb();
   }
 
+  /**
+   * Creates a new spring component of type {@link MappingMongoConverter} using the configured
+   * {@link #mongoDbFactory()} and {@link #mongoMappingContext()}.
+   *
+   * @return Mapping Mongo converter
+   * @throws Exception Unexpected errors to create the mapping mongo converter.
+   */
   @Bean
   @ConditionalOnMissingBean
   public MappingMongoConverter mappingMongoConverter() throws Exception {

@@ -13,8 +13,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Mongo DAO for membership.
- *
+ * DAO component responsible for managing membership objects in-memory. This component will be
+ * created only if the {@link MongoMembershipDAO} component wasn't created previously.
+ * <p>
+ * This class should be used only for tests purpose.
+ * <p>
  * Created by rsanchez on 22/11/17.
  */
 @Component

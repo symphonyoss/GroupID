@@ -15,6 +15,10 @@ import org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao.TicketDao;
 import java.util.List;
 
 /**
+ * REST controller responsible for handling HTTP requests for all REST resources. This component
+ * is being lazily initialized to ensure the dependent components will be created only the first
+ * request happens.
+ *
  * Created by rsanchez on 13/11/17.
  */
 @RestController
