@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.mongo;
 
 import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
@@ -22,12 +23,17 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.mongo.MongoCondition;
 
 /**
- * Mongo DAO for membership.
- *
+ * DAO component responsible for managing membership documents into MongoDB. This class
+ * depends of {@link MongoCondition} to be created.
+ * <p>
+ * This component is being lazily initialized to ensure the database connection only happens when
+ * it receives the first request to get data.
+ * <p>
  * Created by rsanchez on 22/11/17.
  */
 @Component
 @Conditional(MongoCondition.class)
+@Lazy
 public class MongoMembershipDAO implements MembershipDao {
 
   private static final String COLLECTION_NAME = "helpdeskmembership";

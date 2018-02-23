@@ -1,0 +1,25 @@
+mongo:
+  host: localhost
+  port: ${spring.data.mongodb.port}
+  database: helpdesk
+  socketTimeout: 10000
+  connectTimeout: 5000
+  waitTimeout: 10000
+  readPreference: nearest
+  writeConcern: majority
+  ignoreSSL: true
+
+helpdesk-bot:
+  host: localhost.symphony.com
+  port: 12345
+
+helpdesk-service:
+  host: localhost.symphony.com
+  port: 12345
+
+groupId: integrationtestgroup
+
+spring:
+  data:
+    mongodb:
+      port: 17017

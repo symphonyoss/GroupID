@@ -65,6 +65,11 @@ public class MessageProducer {
       return;
     }
 
+    if (userId == null) {
+      sendAgentMessage(symphonyAiMessage, streamId);
+      return;
+    }
+
     Membership membership = membershipClient.getMembership(userId);
 
     if (MembershipClient.MembershipType.CLIENT.getType().equals(membership.getType())) {
