@@ -1,6 +1,9 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
 import org.apache.commons.codec.binary.Base64;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,6 +20,8 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.Instructional
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.message.SymMessageUtil;
+import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -25,6 +30,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 
 /**
@@ -35,7 +41,8 @@ public class TicketService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(TicketService.class);
 
-  private static final String SERVICE_ROOM_WAS_NOT_CREATED = "There was a problem trying to create the service room. Please try again.";
+  private static final String SERVICE_ROOM_WAS_NOT_CREATED =
+      "There was a problem trying to create the service room. Please try again.";
 
   private final String agentStreamId;
 
@@ -132,19 +139,36 @@ public class TicketService {
 
     try {
       SymUser symUser = symphonyClient.getUsersClient().getUserFromId(message.getFromUserId());
-      builder.username(symUser.getDisplayName());
+      String username = symUser.getDisplayName();
+      builder.username(username);
       builder.company(symUser.getCompany());
+      builder.question(getQuestionFromMessage(message, username));
     } catch (UsersClientException e) {
       LOGGER.error("Could not get user info: ", e);
+      builder.question(getQuestionFromMessage(message, "Client"));
     }
-
-    builder.question(message.getMessageText());
 
     try {
       symphonyClient.getMessagesClient().sendMessage(stream, builder.build());
     } catch (MessagesException e) {
       LOGGER.error("Could not send ticket message to agent stream ID: ", e);
     }
+  }
+
+  private String getQuestionFromMessage(SymMessage message, String username) {
+    if (SymMessageUtil.isChime(message)) {
+      return username + " sent a chime!";
+    }
+
+    if (SymMessageUtil.hasAttachment(message) && message.getMessageText().equals("")) {
+      return username + " sent an attachment!";
+    }
+
+    if (SymMessageUtil.hasTable(message)) {
+      return username + " sent a table!";
+    }
+
+    return message.getMessageText();
   }
 
   public void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
@@ -171,8 +195,7 @@ public class TicketService {
 
   /**
    * This method is responsible to send message to room when the service room was not created.
-   *
-   * @param SymMessage symMessage the message to be send to room.
+   * @param symMessage The message to be sent to room.
    */
   public void sendMessageWhenRoomCreationFails(SymMessage symMessage) {
     symMessage.setMessageText(serviceRoomWasNotCreated);
