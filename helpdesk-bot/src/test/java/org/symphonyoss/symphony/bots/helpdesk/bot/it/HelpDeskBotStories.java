@@ -102,6 +102,8 @@ public class HelpDeskBotStories extends JUnitStories {
   }
 
   private void prepareEnvironment() {
+    testContext.setCertsDir(System.getProperty("java.io.tmpdir"));
+
     initSymphonyClient();
 
     createQueueRoom();
