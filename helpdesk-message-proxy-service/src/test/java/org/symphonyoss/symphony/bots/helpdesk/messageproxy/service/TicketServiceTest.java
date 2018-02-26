@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.when;
 import org.apache.commons.codec.binary.Base64;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.symphonyoss.client.SymphonyClient;
@@ -24,13 +26,18 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.Instructional
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.message.SymMessageUtil;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.UsersClient;
+import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
 import org.symphonyoss.symphony.clients.model.SymRoomDetail;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by nick.tarsillo on 12/14/17.
@@ -47,6 +54,15 @@ public class TicketServiceTest {
   private static final String TEST_CREATE_TICKET_MESSAGE = "TEST_CREATE";
 
   private static final String TEST_AGENT_STREAM = "TEST_AGENT_STREAM";
+
+  private static final String CHIME_MESSAGE =
+      "<div data-format=\"PresentationML\"data-version=\"2.0\"><audio src=\""
+          + "https://asset.symphony.com/symphony/audio/chime.mp3\" autoplay=\"true\"/></div>";
+
+  private static final String ATTACHMENT_MESSAGE = "This message contains an attachment!";
+
+  private static final String TABLE_MESSAGE = "<div data-format=\"PresentationML\"data-version"
+      + "=\"2.0\"><table><tr><td>text</td></tr></table></div>";
 
   private static final Long TEST_TIMESTAMP = 1L;
 
@@ -124,6 +140,16 @@ public class TicketServiceTest {
     return client;
   }
 
+  private SymUser getTestUser() throws UsersClientException {
+    SymUser symUser = new SymUser();
+    symUser.setId(TEST_FROM_USER_ID);
+    symUser.setDisplayName(TEST_DISPLAY_NAME);
+
+    when(usersClient.getUserFromId(TEST_FROM_USER_ID)).thenReturn(symUser);
+
+    return symUser;
+  }
+
   @Test
   public void testCreateTicket() throws UsersClientException, MessagesException {
     SymMessage testSym = getTestSymMessage();
@@ -149,6 +175,80 @@ public class TicketServiceTest {
     Ticket ticket = ticketService.createTicket(TEST_TICKET_ID, testSym, serviceStream);
 
     assertEquals("Ticket return", mockTicket, ticket);
+  }
+
+  @Test
+  public void testSendTicketMessageWithChime() throws UsersClientException, MessagesException {
+    SymUser user = getTestUser();
+
+    SymMessage testSym = getTestSymMessage();
+    testSym.setMessage(CHIME_MESSAGE);
+
+    ticketService.sendTicketMessageToAgentStreamId(mock(Ticket.class), testSym);
+
+    ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
+    verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
+    SymMessage sentMessage = captor.getValue();
+
+    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + user.getDisplayName() + " sent a chime!\""));
+  }
+
+  @Test
+  public void testSendTicketMessageWithAttachmentOnly()
+      throws UsersClientException, MessagesException {
+    SymUser user = getTestUser();
+    List<SymAttachmentInfo> attachments = new ArrayList<>();
+    attachments.add(new SymAttachmentInfo());
+    attachments.add(new SymAttachmentInfo());
+
+    SymMessage testSym = getTestSymMessage();
+    testSym.setMessageText("");
+    testSym.setAttachments(attachments);
+
+    ticketService.sendTicketMessageToAgentStreamId(mock(Ticket.class), testSym);
+
+    ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
+    verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
+    SymMessage sentMessage = captor.getValue();
+
+    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + user.getDisplayName() + " sent an attachment!\""));
+  }
+
+  @Test
+  public void testSendTicketMessageWithText() throws UsersClientException, MessagesException {
+    getTestUser();
+    List<SymAttachmentInfo> attachments = new ArrayList<>();
+    attachments.add(new SymAttachmentInfo());
+    attachments.add(new SymAttachmentInfo());
+
+    SymMessage testSym = getTestSymMessage();
+    testSym.setMessageText(ATTACHMENT_MESSAGE);
+    testSym.setAttachments(attachments);
+
+    ticketService.sendTicketMessageToAgentStreamId(mock(Ticket.class), testSym);
+
+    ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
+    verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
+    SymMessage sentMessage = captor.getValue();
+
+    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + ATTACHMENT_MESSAGE));
+  }
+
+  @Test
+  public void testSendTicketMessageWithTable() throws MessagesException, UsersClientException {
+    SymUser user = getTestUser();
+
+    SymMessage testSym = getTestSymMessage();
+    testSym.setMessageText("");
+    testSym.setMessage(TABLE_MESSAGE);
+
+    ticketService.sendTicketMessageToAgentStreamId(mock(Ticket.class), testSym);
+
+    ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
+    verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
+    SymMessage sentMessage = captor.getValue();
+
+    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + user.getDisplayName() + " sent a table!\""));
   }
 
   @Test
