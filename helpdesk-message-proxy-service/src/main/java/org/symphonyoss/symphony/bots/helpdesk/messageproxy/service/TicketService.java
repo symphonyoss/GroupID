@@ -168,7 +168,11 @@ public class TicketService {
       return username + " sent a table!";
     }
 
-    return message.getMessageText();
+    if (message.getMessage() != null && message.getEntityData().equals("{}")) {
+      return SymMessageUtil.parseMessage(message);
+    } else {
+      return message.getMessageText();
+    }
   }
 
   public void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
