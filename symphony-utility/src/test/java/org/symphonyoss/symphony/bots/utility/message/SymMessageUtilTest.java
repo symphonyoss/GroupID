@@ -1,39 +1,16 @@
-package org.symphonyoss.symphony.bots.utility.client;
+package org.symphonyoss.symphony.bots.utility.message;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.client.exceptions.AttachmentsException;
-import org.symphonyoss.client.exceptions.MessagesException;
-import org.symphonyoss.symphony.bots.utility.message.SymMessageUtil;
-import org.symphonyoss.symphony.clients.AttachmentsClient;
-import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
-import org.symphonyoss.symphony.clients.model.SymStream;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.InternalServerErrorException;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SymMessageUtilTest {
@@ -61,7 +38,7 @@ public class SymMessageUtilTest {
   }
 
   @Test
-  public void testHasAttachment() throws MessagesException {
+  public void testHasAttachment() {
     SymMessage testMessage = new SymMessage();
     List<SymAttachmentInfo> attachments = new ArrayList<>();
     attachments.add(new SymAttachmentInfo());
@@ -75,7 +52,7 @@ public class SymMessageUtilTest {
   }
 
   @Test
-  public void testHasTable() throws MessagesException {
+  public void testHasTable() {
     SymMessage testMessage = new SymMessage();
 
     testMessage.setMessage(TABLE_MESSAGE);

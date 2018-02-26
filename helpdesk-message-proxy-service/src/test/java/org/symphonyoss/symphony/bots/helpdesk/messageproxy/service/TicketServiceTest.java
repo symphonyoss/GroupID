@@ -26,7 +26,6 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.Instructional
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
-import org.symphonyoss.symphony.bots.utility.message.SymMessageUtil;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
