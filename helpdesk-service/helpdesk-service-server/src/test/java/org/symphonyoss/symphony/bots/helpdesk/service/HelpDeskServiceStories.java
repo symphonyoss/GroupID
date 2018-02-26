@@ -26,7 +26,7 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = { HelpDeskServiceInit.class })
-public class HelpDeskServiceStories extends JUnitStories {
+  public class HelpDeskServiceStories extends JUnitStories {
 
   @Autowired
   private ApplicationContext applicationContext;
