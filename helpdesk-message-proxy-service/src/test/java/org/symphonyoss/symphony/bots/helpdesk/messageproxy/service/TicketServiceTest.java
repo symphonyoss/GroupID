@@ -214,7 +214,7 @@ public class TicketServiceTest {
   }
 
   @Test
-  public void testSendTicketMessageWithText() throws UsersClientException, MessagesException {
+  public void testSendTicketMessageWithAttachmentAndText() throws UsersClientException, MessagesException {
     getTestUser();
     List<SymAttachmentInfo> attachments = new ArrayList<>();
     attachments.add(new SymAttachmentInfo());
@@ -222,6 +222,7 @@ public class TicketServiceTest {
 
     SymMessage testSym = getTestSymMessage();
     testSym.setMessageText(ATTACHMENT_MESSAGE);
+    testSym.setEntityData("{}");
     testSym.setAttachments(attachments);
 
     ticketService.sendTicketMessageToAgentStreamId(mock(Ticket.class), testSym);
@@ -230,7 +231,7 @@ public class TicketServiceTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
     SymMessage sentMessage = captor.getValue();
 
-    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + ATTACHMENT_MESSAGE));
+    assertTrue(sentMessage.getEntityData().contains("\"question\":\"\\n" + ATTACHMENT_MESSAGE));
   }
 
   @Test
