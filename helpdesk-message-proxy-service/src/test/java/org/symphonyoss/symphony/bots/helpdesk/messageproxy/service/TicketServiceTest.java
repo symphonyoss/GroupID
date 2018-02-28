@@ -63,6 +63,26 @@ public class TicketServiceTest {
   private static final String TABLE_MESSAGE = "<div data-format=\"PresentationML\"data-version"
       + "=\"2.0\"><table><tr><td>text</td></tr></table></div>";
 
+  private static final String COMPLEX_MESSAGE =
+      "<div data-format=\"PresentationML\" data-version=\"2.0\"><span class=\"entity\" "
+          + "data-entity-id=\"keyword1\">#hash</span> <span class=\"entity\" "
+          + "data-entity-id=\"keyword2\">$cash</span> <span class=\"entity\" "
+          + "data-entity-id=\"mention3\">@HelpDesk</span> mention <b>bold</b> <i>italic</i> "
+          + "<b><i>combo</i></b><ul><li>bullet1</li><li>bullet2</li></ul></div>";
+
+  private static final String COMPLEX_MESSAGE_ENTITY_DATA =
+      "{\"keyword1\":{\"type\":\"org.symphonyoss.taxonomy\",\"version\":\"1.0\","
+          + "\"id\":[{\"type\":\"org.symphonyoss.taxonomy.hashtag\",\"value\":\"hash\"}]},"
+          + "\"keyword2\":{\"type\":\"org.symphonyoss.fin.security\",\"version\":\"1.0\","
+          + "\"id\":[{\"type\":\"org.symphonyoss.fin.security.id.ticker\",\"value\":\"cash\"}]},"
+          + "\"mention3\":{\"type\":\"com.symphony.user.mention\",\"version\":\"1.0\","
+          + "\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"9208409883842\"}]}}";
+
+  private static final String EXPECTED_COMPLEX_MESSAGE =
+      "<hash tag=\\\"hash\\\" /> <cash tag=\\\"cash\\\" /> <mention uid=\\\"9208409883842\\\" /> mention "
+          + "<b>bold</b> <i>italic</i> <b><i>combo</i></b><ul>\\n <li>bullet1</li>\\n "
+          + "<li>bullet2</li>\\n</ul>";
+
   private static final Long TEST_TIMESTAMP = 1L;
 
   private static final Long TEST_FROM_USER_ID = 2L;
@@ -82,7 +102,7 @@ public class TicketServiceTest {
   private SymphonyClient symphonyClient;
 
   @Before
-  public void initMocks(){
+  public void initMocks() {
     MockitoAnnotations.initMocks(this);
 
     when(symphonyClient.getUsersClient()).thenReturn(usersClient);
@@ -164,7 +184,8 @@ public class TicketServiceTest {
     stream.setStreamId(TEST_CLIENT_STREAM_ID);
     when(messagesClient.sendMessage(stream, symMessage)).thenReturn(symMessage);
     stream.setStreamId(TEST_AGENT_STREAM);
-    when(messagesClient.sendMessage(stream, getTestClaimMessage())).thenReturn(getTestClaimMessage());
+    when(messagesClient.sendMessage(stream, getTestClaimMessage())).thenReturn(
+        getTestClaimMessage());
     stream.setStreamId(TEST_SERVICE_STREAM_ID);
     when(messagesClient.sendMessage(stream, getTestInstructionalMessage()))
         .thenReturn(getTestInstructionalMessage());
@@ -174,6 +195,23 @@ public class TicketServiceTest {
     Ticket ticket = ticketService.createTicket(TEST_TICKET_ID, testSym, serviceStream);
 
     assertEquals("Ticket return", mockTicket, ticket);
+  }
+
+  @Test
+  public void testSendComplexTicketMessage() throws UsersClientException, MessagesException {
+    getTestUser();
+
+    SymMessage testSym = getTestSymMessage();
+    testSym.setMessage(COMPLEX_MESSAGE);
+    testSym.setEntityData(COMPLEX_MESSAGE_ENTITY_DATA);
+
+    ticketService.sendTicketMessageToAgentStreamId(mock(Ticket.class), testSym);
+
+    ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
+    verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
+    SymMessage sentMessage = captor.getValue();
+
+    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + EXPECTED_COMPLEX_MESSAGE));
   }
 
   @Test
@@ -189,7 +227,8 @@ public class TicketServiceTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
     SymMessage sentMessage = captor.getValue();
 
-    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + user.getDisplayName() + " sent a chime!\""));
+    assertTrue(sentMessage.getEntityData()
+        .contains("\"question\":\"" + user.getDisplayName() + " sent a chime!\""));
   }
 
   @Test
@@ -210,11 +249,13 @@ public class TicketServiceTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
     SymMessage sentMessage = captor.getValue();
 
-    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + user.getDisplayName() + " sent an attachment!\""));
+    assertTrue(sentMessage.getEntityData()
+        .contains("\"question\":\"" + user.getDisplayName() + " sent an attachment!\""));
   }
 
   @Test
-  public void testSendTicketMessageWithText() throws UsersClientException, MessagesException {
+  public void testSendTicketMessageWithAttachmentAndText()
+      throws UsersClientException, MessagesException {
     getTestUser();
     List<SymAttachmentInfo> attachments = new ArrayList<>();
     attachments.add(new SymAttachmentInfo());
@@ -222,6 +263,7 @@ public class TicketServiceTest {
 
     SymMessage testSym = getTestSymMessage();
     testSym.setMessageText(ATTACHMENT_MESSAGE);
+    testSym.setEntityData("{}");
     testSym.setAttachments(attachments);
 
     ticketService.sendTicketMessageToAgentStreamId(mock(Ticket.class), testSym);
@@ -230,7 +272,7 @@ public class TicketServiceTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
     SymMessage sentMessage = captor.getValue();
 
-    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + ATTACHMENT_MESSAGE));
+    assertTrue(sentMessage.getEntityData().contains("\"question\":\"\\n" + ATTACHMENT_MESSAGE));
   }
 
   @Test
@@ -247,7 +289,8 @@ public class TicketServiceTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
     SymMessage sentMessage = captor.getValue();
 
-    assertTrue(sentMessage.getEntityData().contains("\"question\":\"" + user.getDisplayName() + " sent a table!\""));
+    assertTrue(sentMessage.getEntityData()
+        .contains("\"question\":\"" + user.getDisplayName() + " sent a table!\""));
   }
 
   @Test

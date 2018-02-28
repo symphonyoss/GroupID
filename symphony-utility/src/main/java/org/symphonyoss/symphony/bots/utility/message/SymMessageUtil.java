@@ -69,4 +69,34 @@ public class SymMessageUtil {
 
     return elementMessageML != null;
   }
+
+  /**
+   * Parse a message into valid MessageML format
+   * @param message SymphonyAiMessage with the message contents
+   * @return StringBuilder with the output message in MessageML format
+   */
+  public static String parseMessage(SymMessage message) {
+    Element elementMessageML;
+    StringBuilder textDoc = new StringBuilder("");
+
+    Document doc = Jsoup.parse(message.getMessage());
+
+    doc.select("errors").remove();
+    elementMessageML = doc.select("messageML").first();
+    if (elementMessageML == null) {
+      elementMessageML = doc.select("div").first();
+    }
+
+    if (elementMessageML != null) {
+      elementMessageML.childNodes().forEach(node -> {
+        if (node.toString().equalsIgnoreCase("<br>")) {
+          textDoc.append("<br/>");
+        } else {
+          textDoc.append(node.toString());
+        }
+      });
+    }
+
+    return textDoc.toString();
+  }
 }
