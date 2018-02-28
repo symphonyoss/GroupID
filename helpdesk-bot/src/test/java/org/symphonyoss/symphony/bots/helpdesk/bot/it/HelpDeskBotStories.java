@@ -36,6 +36,7 @@ import org.symphonyoss.symphony.clients.model.SymUser;
 import org.symphonyoss.symphony.pod.model.UserAttributes;
 import org.symphonyoss.symphony.pod.model.UserCreate;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,6 +55,8 @@ public class HelpDeskBotStories extends JUnitStories {
   private static final String ROLE_INDIVIDUAL = "INDIVIDUAL";
 
   private static final String AGENT = "Agent";
+
+  private static final String CERTS_DIR = "certs";
 
   @Autowired
   private ApplicationContext applicationContext;
@@ -102,6 +105,9 @@ public class HelpDeskBotStories extends JUnitStories {
   }
 
   private void prepareEnvironment() {
+    String certsDir = System.getProperty("java.io.tmpdir") + File.separator + CERTS_DIR;
+    testContext.setCertsDir(certsDir);
+
     initSymphonyClient();
 
     createQueueRoom();
