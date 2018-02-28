@@ -1,9 +1,11 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.codec.binary.Base64;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
+import org.symphonyoss.client.model.NodeTypes;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
@@ -30,6 +33,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 
@@ -168,11 +174,69 @@ public class TicketService {
       return username + " sent a table!";
     }
 
-    if (message.getMessage() != null && message.getEntityData().equals("{}")) {
-      return SymMessageUtil.parseMessage(message);
+    if (message.getMessage() != null) {
+      return parseTicketMessage(message);
     } else {
       return message.getMessageText();
     }
+  }
+
+  /**
+   * Parse the received PresentationML formatted message into a valid MessageML fragment that
+   * will compose the "Question" field of the ticket
+   * @param message The message to be processed
+   * @return String containing the valid MessageML fragment
+   */
+  private String parseTicketMessage(SymMessage message) {
+    Element elementMessageML;
+    StringBuilder textDoc = new StringBuilder("");
+
+    Document doc = Jsoup.parse(message.getMessage());
+
+    doc.select("errors").remove();
+    elementMessageML = doc.select("messageML").first();
+    if (elementMessageML == null) {
+      elementMessageML = doc.select("div").first();
+    }
+
+    if (elementMessageML != null) {
+      for (Node node : elementMessageML.childNodes()) {
+        if (node.nodeName().equalsIgnoreCase("span")) {
+          if (node.attributes().get("class").equalsIgnoreCase("entity")) {
+            String value = node.childNodes().get(0).toString();
+            String statement = "";
+            if (value.startsWith("#")) {
+              statement =
+                  "<" + NodeTypes.HASHTAG.toString() + " tag=\"" + value.substring(1) + "\" />";
+            } else if (value.startsWith("$")) {
+              statement =
+                  "<" + NodeTypes.CASHTAG.toString() + " tag=\"" + value.substring(1) + "\" />";
+            } else if (value.startsWith("@")) {
+              try {
+                LinkedHashMap result = (LinkedHashMap)
+                    new ObjectMapper().readValue(message.getEntityData(), HashMap.class)
+                        .get(node.attributes().get("data-entity-id"));
+                ArrayList<LinkedHashMap> ids = (ArrayList) result.get("id");
+                for (LinkedHashMap id : ids) {
+                  statement +=
+                      "<" + NodeTypes.MENTION.toString() + " uid=\"" + id.get("value").toString()
+                          + "\" />";
+                }
+              } catch (IOException e) {
+                LOGGER.error("Could not get entity data: ", e);
+              }
+            }
+            textDoc.append(statement);
+          }
+        } else if (node.nodeName().equalsIgnoreCase("<br>")) {
+          textDoc.append("<br/>");
+        } else {
+          textDoc.append(node.toString());
+        }
+      }
+    }
+
+    return textDoc.toString();
   }
 
   public void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
