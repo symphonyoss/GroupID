@@ -52,13 +52,13 @@ public class MessageProducerTest {
           + "class=\"entity\" data-entity-id=\"emoji8\">\uD83D\uDE06</span> <span "
           + "class=\"entity\" data-entity-id=\"emoji9\">\uD83D\uDE05</span> <span "
           + "class=\"entity\" data-entity-id=\"emoji10\">\uD83D\uDE03</span> <span "
-          + "class=\"entity\" data-entity-id=\"emoji11\">:rofl:</span> <span class=\"entity\" "
-          + "data-entity-id=\"emoji12\">\uD83C\uDDE8\uD83C\uDDEE</span> <span class=\"entity\" "
-          + "data-entity-id=\"emoji13\">\uD83C\uDDEE\uD83C\uDDE8</span> <span class=\"entity\" "
-          + "data-entity-id=\"emoji14\">\uD83C\uDDF9\uD83C\uDDFB</span> <span class=\"entity\" "
-          + "data-entity-id=\"emoji15\">\uD83C\uDDF9\uD83C\uDDF0</span> <span class=\"entity\" "
-          + "data-entity-id=\"emoji16\">\uD83C\uDDFF\uD83C\uDDFC</span><br/>Finally,"
-          + "<ul><li>we</li><li>have</li><li>a</li><li>bullet</li><li>list</li></ul></div>";
+          + "class=\"entity\" data-entity-id=\"emoji12\">\uD83C\uDDE8\uD83C\uDDEE</span> <span "
+          + "class=\"entity\" data-entity-id=\"emoji13\">\uD83C\uDDEE\uD83C\uDDE8</span> <span "
+          + "class=\"entity\" data-entity-id=\"emoji14\">\uD83C\uDDF9\uD83C\uDDFB</span> <span "
+          + "class=\"entity\" data-entity-id=\"emoji15\">\uD83C\uDDF9\uD83C\uDDF0</span> <span "
+          + "class=\"entity\" data-entity-id=\"emoji16\">\uD83C\uDDFF\uD83C\uDDFC</span><br"
+          + "/>Finally,<ul><li>we</li><li>have</li><li>a</li><li>bullet</li><li>list</li></ul"
+          + "></div>";
   private String COMPLEX_MESSAGE_ENTITY_DATA =
       "{\"emoji1\":{\"type\":\"com.symphony.emoji\",\"version\":\"1.0\",\"data\":{\"short\""
           + ":\"copyright\",\"size\":\"normal\",\"unicode\":\"©\"}},\"emoji2\":{\"type\":\"com"
@@ -167,7 +167,7 @@ public class MessageProducerTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
     SymMessage sentMessage = captor.getValue();
-    assertEquals(sentMessage.getMessage(), EXPECTED_BOT_MESSAGE);
+    assertEquals(EXPECTED_BOT_MESSAGE, sentMessage.getMessage());
   }
 
   @Test
@@ -180,7 +180,7 @@ public class MessageProducerTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
     SymMessage sentMessage = captor.getValue();
-    assertEquals(sentMessage.getMessage(), EXPECTED_CHIME_MESSAGE);
+    assertEquals(EXPECTED_CHIME_MESSAGE, sentMessage.getMessage());
   }
 
   @Test
@@ -199,7 +199,6 @@ public class MessageProducerTest {
             + "data-entity-id=\"emoji8\">\uD83D\uDE06</span> <span class=\"entity\" "
             + "data-entity-id=\"emoji9\">\uD83D\uDE05</span> <span class=\"entity\" "
             + "data-entity-id=\"emoji10\">\uD83D\uDE03</span> <span class=\"entity\" "
-            + "data-entity-id=\"emoji11\">:rofl:</span> <span class=\"entity\" "
             + "data-entity-id=\"emoji12\">\uD83C\uDDE8\uD83C\uDDEE</span> <span class=\"entity\" "
             + "data-entity-id=\"emoji13\">\uD83C\uDDEE\uD83C\uDDE8</span> <span class=\"entity\" "
             + "data-entity-id=\"emoji14\">\uD83C\uDDF9\uD83C\uDDFB</span> <span class=\"entity\" "
@@ -216,8 +215,8 @@ public class MessageProducerTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
     SymMessage sentMessage = captor.getValue();
-    assertEquals(sentMessage.getMessage(), EXPECTED_COMPLEX_MESSAGE);
-    assertEquals(sentMessage.getEntityData(), COMPLEX_MESSAGE_ENTITY_DATA);
+    assertEquals(EXPECTED_COMPLEX_MESSAGE, sentMessage.getMessage());
+    assertEquals(COMPLEX_MESSAGE_ENTITY_DATA, sentMessage.getEntityData());
   }
 
   @Test
@@ -246,7 +245,7 @@ public class MessageProducerTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
     SymMessage sentMessage = captor.getValue();
-    assertEquals(sentMessage.getMessage(), EXPECTED_CHIME_MESSAGE);
+    assertEquals(EXPECTED_CHIME_MESSAGE, sentMessage.getMessage());
   }
 
   @Test
@@ -266,13 +265,12 @@ public class MessageProducerTest {
             + "class=\"entity\" data-entity-id=\"emoji8\">\uD83D\uDE06</span> <span "
             + "class=\"entity\" data-entity-id=\"emoji9\">\uD83D\uDE05</span> <span "
             + "class=\"entity\" data-entity-id=\"emoji10\">\uD83D\uDE03</span> <span "
-            + "class=\"entity\" data-entity-id=\"emoji11\">:rofl:</span> <span class=\"entity\" "
-            + "data-entity-id=\"emoji12\">\uD83C\uDDE8\uD83C\uDDEE</span> <span class=\"entity\" "
-            + "data-entity-id=\"emoji13\">\uD83C\uDDEE\uD83C\uDDE8</span> <span class=\"entity\" "
-            + "data-entity-id=\"emoji14\">\uD83C\uDDF9\uD83C\uDDFB</span> <span class=\"entity\" "
-            + "data-entity-id=\"emoji15\">\uD83C\uDDF9\uD83C\uDDF0</span> <span class=\"entity\" "
-            + "data-entity-id=\"emoji16\">\uD83C\uDDFF\uD83C\uDDFC</span><br/>Finally,<ul>\n "
-            + "<li>we</li>\n <li>have</li>\n <li>a</li>\n <li>bullet</li>\n "
+            + "class=\"entity\" data-entity-id=\"emoji12\">\uD83C\uDDE8\uD83C\uDDEE</span> <span "
+            + "class=\"entity\" data-entity-id=\"emoji13\">\uD83C\uDDEE\uD83C\uDDE8</span> <span "
+            + "class=\"entity\" data-entity-id=\"emoji14\">\uD83C\uDDF9\uD83C\uDDFB</span> <span "
+            + "class=\"entity\" data-entity-id=\"emoji15\">\uD83C\uDDF9\uD83C\uDDF0</span> <span "
+            + "class=\"entity\" data-entity-id=\"emoji16\">\uD83C\uDDFF\uD83C\uDDFC</span><br"
+            + "/>Finally,<ul>\n <li>we</li>\n <li>have</li>\n <li>a</li>\n <li>bullet</li>\n "
             + "<li>list</li>\n</ul></messageML>";
     doReturn("CLIENT").when(membership).getType();
     symphonyAiMessage.setMessageData(COMPLEX_MESSAGE);
@@ -283,8 +281,8 @@ public class MessageProducerTest {
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
     SymMessage sentMessage = captor.getValue();
-    assertEquals(sentMessage.getMessage(), EXPECTED_USER_COMPLEX_MESSAGE);
-    assertEquals(sentMessage.getEntityData(), COMPLEX_MESSAGE_ENTITY_DATA);
+    assertEquals(EXPECTED_USER_COMPLEX_MESSAGE, sentMessage.getMessage());
+    assertEquals(COMPLEX_MESSAGE_ENTITY_DATA, sentMessage.getEntityData());
   }
 
   @Test

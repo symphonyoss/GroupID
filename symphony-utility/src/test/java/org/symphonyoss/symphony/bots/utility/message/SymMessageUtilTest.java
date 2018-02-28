@@ -22,8 +22,25 @@ public class SymMessageUtilTest {
   private static final String TABLE_MESSAGE = "<div data-format=\"PresentationML\"data-version"
       + "=\"2.0\"><table><tr><td>text</td></tr></table></div>";
 
+  private static final String EMOJI_MESSAGE =
+      "<div data-format=\"PresentationML\" data-version=\"2.0\">Emoji: :joy:  No emoji: just "
+          + "colon but no emoji : : : yayy: :891 lastly, new emoji: :end:</div>";
+
+  private static final String EXPECTED_EMOJI_MESSAGE =
+      "\nEmoji: <emoji shortcode=\"joy\" /> No emoji: just colon but no emoji : : : yayy: :891 "
+          + "lastly, new emoji: <emoji shortcode=\"end\" />";
+
   @Before
   public void init() {
+  }
+
+  @Test
+  public void testEmojis() {
+    SymMessage testMessage = new SymMessage();
+
+    testMessage.setMessage(EMOJI_MESSAGE);
+
+    assertTrue(SymMessageUtil.parseMessage(testMessage).equals(EXPECTED_EMOJI_MESSAGE));
   }
 
   @Test
