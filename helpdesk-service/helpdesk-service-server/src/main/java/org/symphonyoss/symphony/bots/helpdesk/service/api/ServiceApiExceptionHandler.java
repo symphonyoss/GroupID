@@ -20,9 +20,9 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Error;
  * Created by rsanchez on 27/11/2017.
  */
 @ControllerAdvice
-public class ApiExceptionHandler {
+public class ServiceApiExceptionHandler {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(ApiExceptionHandler.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(ServiceApiExceptionHandler.class);
 
   /**
    * Handle {@link MissingServletRequestParameterException} exception.

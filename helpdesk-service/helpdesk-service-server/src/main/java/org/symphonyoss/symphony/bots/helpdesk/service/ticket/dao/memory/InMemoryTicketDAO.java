@@ -1,10 +1,10 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao.memory;
 
-import org.springframework.context.annotation.Conditional;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.symphony.bots.helpdesk.service.memory.MemoryCondition;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao.TicketDao;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao.mongo.MongoTicketDAO;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.TicketNotFoundException;
 
 import java.util.HashMap;
@@ -14,12 +14,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Mongo DAO for ticket.
- *
+ * DAO component responsible for managing ticket objects in-memory. This component will be
+ * created only if the {@link MongoTicketDAO} component wasn't created previously.
+ * <p>
+ * This class should be used only for tests purpose.
+ * <p>
  * Created by rsanchez on 22/11/17.
  */
 @Component
-@Conditional(MemoryCondition.class)
+@ConditionalOnMissingBean(MongoTicketDAO.class)
 public class InMemoryTicketDAO implements TicketDao {
 
   private final Map<String, Ticket> database = new HashMap<>();

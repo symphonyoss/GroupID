@@ -12,6 +12,7 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
+import org.symphonyoss.symphony.bots.utility.message.SymMessageUtil;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
@@ -59,7 +60,7 @@ public class MessageProducer {
   public void publishMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
     Long userId = symphonyAiMessage.getFromUserId();
 
-    if (isChime(symphonyAiMessage)) {
+    if (SymMessageUtil.isChime(symphonyAiMessage.toSymMessage())) {
       sendChimeMessage(symphonyAiMessage, streamId);
       return;
     }
@@ -84,7 +85,7 @@ public class MessageProducer {
    * @param streamId String that contains the streamId
    */
   private void sendClientMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
-    if (hasAttachment(symphonyAiMessage)) {
+    if (SymMessageUtil.hasAttachment(symphonyAiMessage.toSymMessage())) {
       sendClientMessageWithAttachments(symphonyAiMessage, streamId);
     } else {
       SymMessage symMessage = buildClientMessage(symphonyAiMessage);
@@ -226,42 +227,7 @@ public class MessageProducer {
 
     return symphonyClientUtil.getFileAttachment(attachmentInfo, attachmentMessage);
   }
-
-  /**
-   * Check if a SymphonyAiMessage contains an attachment
-   * @param message SymphonyAiMessage with the message contents
-   * @return True if message contains an attachment, false otherwise
-   */
-  private boolean hasAttachment(SymphonyAiMessage message) {
-    List<SymAttachmentInfo> attachments = message.getAttachments();
-    return attachments != null && !attachments.isEmpty();
-  }
-
-  /**
-   * Check if a SymphonyAiMessage is a chime
-   * @param message SymphonyAiMessage with the message contents
-   * @return True if message is a chime, false otherwise
-   */
-  private boolean isChime(SymphonyAiMessage message) {
-    Element elementMessageML = null;
-
-    if (message.getMessageData() != null) {
-      Document doc = Jsoup.parse(message.getMessageData());
-
-      elementMessageML = doc.select("messageML").first();
-
-      if (elementMessageML == null) {
-        elementMessageML = doc.select("div").first();
-      }
-
-      if (elementMessageML != null) {
-        elementMessageML = doc.select("audio").first();
-      }
-    }
-
-    return elementMessageML != null;
-  }
-
+  
   /**
    * Parse a message into valid MessageML format
    * @param message SymphonyAiMessage with the message contents

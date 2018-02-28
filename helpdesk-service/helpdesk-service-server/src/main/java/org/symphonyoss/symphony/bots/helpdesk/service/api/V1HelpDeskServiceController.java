@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.api;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.RestController;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.MakercheckerDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.dao.MembershipDao;
@@ -14,9 +15,14 @@ import org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao.TicketDao;
 import java.util.List;
 
 /**
+ * REST controller responsible for handling HTTP requests for all REST resources. This component
+ * is being lazily initialized to ensure the dependent components will be created only the first
+ * request happens.
+ *
  * Created by rsanchez on 13/11/17.
  */
 @RestController
+@Lazy
 public class V1HelpDeskServiceController extends V1ApiController {
 
   private static final String DELETE_MEMBERSHIP_RESPONSE = "Membership deleted.";

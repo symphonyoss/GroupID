@@ -5,7 +5,8 @@ import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
 /**
- * Condition to connect to MongoDB
+ * Condition class to decide if the Mongo DAO's must be created.
+ *
  * Created by rsanchez on 24/11/17.
  */
 public class MongoCondition implements Condition {
