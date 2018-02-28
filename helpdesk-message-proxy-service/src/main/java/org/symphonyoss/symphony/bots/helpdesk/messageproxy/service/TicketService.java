@@ -1,9 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 
 import org.apache.commons.codec.binary.Base64;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,16 +19,9 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.message.SymMessageUtil;
-import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
 
 
 /**
@@ -43,6 +34,14 @@ public class TicketService {
 
   private static final String SERVICE_ROOM_WAS_NOT_CREATED =
       "There was a problem trying to create the service room. Please try again.";
+
+  private static final String DEFAULT_CLIENT_NAME = "Client";
+
+  private static final String CHIME_MESSAGE = "%s sent a chime!";
+
+  private static final String ATTACHMENT_MESSAGE = "%s sent an attachment!";
+
+  private static final String TABLE_MESSAGE = "%s sent a table!";
 
   private final String agentStreamId;
 
@@ -145,7 +144,7 @@ public class TicketService {
       builder.question(getQuestionFromMessage(message, username));
     } catch (UsersClientException e) {
       LOGGER.error("Could not get user info: ", e);
-      builder.question(getQuestionFromMessage(message, "Client"));
+      builder.question(getQuestionFromMessage(message, DEFAULT_CLIENT_NAME));
     }
 
     try {
@@ -155,17 +154,23 @@ public class TicketService {
     }
   }
 
+  /**
+   * Return a string that will compose the question field of the ticket card
+   * @param message The original message sent by the client
+   * @param username The client username
+   * @return String that will compose the question field of the ticket card
+   */
   private String getQuestionFromMessage(SymMessage message, String username) {
     if (SymMessageUtil.isChime(message)) {
-      return username + " sent a chime!";
+      return String.format(CHIME_MESSAGE, username);
     }
 
-    if (SymMessageUtil.hasAttachment(message) && message.getMessageText().equals("")) {
-      return username + " sent an attachment!";
+    if (SymMessageUtil.hasAttachment(message) && StringUtils.isEmpty(message.getMessageText())) {
+      return String.format(ATTACHMENT_MESSAGE, username);
     }
 
     if (SymMessageUtil.hasTable(message)) {
-      return username + " sent a table!";
+      return String.format(TABLE_MESSAGE, username);
     }
 
     return message.getMessageText();
