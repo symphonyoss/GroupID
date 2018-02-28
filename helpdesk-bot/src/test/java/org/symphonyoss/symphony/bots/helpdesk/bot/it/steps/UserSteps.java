@@ -11,10 +11,16 @@ import java.util.List;
  * <p>
  * Created by rsanchez on 23/02/18.
  */
+@Component
 public class UserSteps {
 
   @Given("a new user account $user with roles $roles")
   public void createEndUser(String user, List<String> roles) {
+    // TODO
+  }
+
+  @Given("a service account $user with roles $roles")
+  public void createServiceAccount(String user, List<String> roles) {
     // TODO
   }
 
