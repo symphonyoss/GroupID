@@ -60,6 +60,15 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private static final String CERTS_DIR = "certs";
 
+  private static final String BOT_CERTIFICATE_NOT_FOUND = "Bot certificate not found.";
+
+  private static final String PROVISIONING_CERTIFICATE_NOT_FOUND =
+      "Provisioning certificate not found.";
+
+  private static final String USER_PROVISIONING = "userProvisioning";
+
+  private static final String EXTENSION_CERTIFICATE = ".p12";
+
   @Autowired
   private ApplicationContext applicationContext;
 
@@ -69,6 +78,8 @@ public class HelpDeskBotStories extends JUnitStories {
   private HelpDeskSymphonyClient helpDeskSymphonyClient;
 
   private TestContext testContext = TestContext.getInstance();
+
+  private CertificateUtils certificateUtils = new CertificateUtils();
 
   public HelpDeskBotStories() {
     initJBehaveConfiguration();
@@ -275,12 +286,33 @@ public class HelpDeskBotStories extends JUnitStories {
     testContext.setUsers(UsersEnum.AGENT_3, agent);
   }
 
-  private SymUser createSystemAccount(String userName) {
+  private void createServiceAccount(String userName) {
     List<String> roles = new ArrayList<>();
     roles.add(ROLE_PROVISIONING);
 
-    SymUser serviceAccount = createUser(userName, UserAttributes.AccountTypeEnum.SYSTEM, roles);
+    createUser(userName, UserAttributes.AccountTypeEnum.SYSTEM, roles);
+  }
 
-    return serviceAccount;
+  private void provisioningSteps() {
+    // To define the name of user.
+    String userProvisioning = USER_PROVISIONING;
+
+    certificateUtils.createCertificateP12("/opt/test/root-key.pem", "/opt/test/root-cert.pem", userProvisioning);
+
+    File provisioningCertificate = new File(testContext.getCertsDir() + userProvisioning + ".p12");
+    if (!provisioningCertificate.exists()) {
+      throw new IllegalStateException(PROVISIONING_CERTIFICATE_NOT_FOUND);
+    }
+
+    UUID uuid = UUID.randomUUID();
+    String userBot = "Bot" + uuid;
+    certificateUtils.createCertificateP12("/opt/test/root-key.pem", "/opt/test/root-cert.pem", userBot);
+
+    File botCertificate = new File(testContext.getCertsDir() + userBot + EXTENSION_CERTIFICATE);
+    if (!botCertificate.exists()) {
+      throw new IllegalStateException(BOT_CERTIFICATE_NOT_FOUND);
+    }
+
+    createServiceAccount(userBot);
   }
 }

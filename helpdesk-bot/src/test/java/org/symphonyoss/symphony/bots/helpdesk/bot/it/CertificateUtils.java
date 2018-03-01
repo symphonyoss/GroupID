@@ -63,7 +63,7 @@ public class CertificateUtils {
     createCertificateP12("/opt/test/root-key.pem", "/opt/test/root-cert.pem", "Test- 2");
   }
 
-  public static void createCertificateP12(String caKeyPath, String caCertPath, String certificateName) {
+  public static void createCertificateP12(String caKeyPath, String caCertPath, String userName) {
     URI certsDir = new File(testContext.getCertsDir()).toURI();
 
     Security.addProvider(new BouncyCastleProvider());
@@ -77,10 +77,10 @@ public class CertificateUtils {
       File publicKeyFile = new File(caCertPath);
       PublicKey publicKey = getPublicKey(publicKeyFile.getPath());
 
-      Certificate[] certChain = createCertificate(publicKey, privateKey);
+      Certificate[] certChain = createCertificate(publicKey, privateKey, userName);
 
-      URI certificateP12 = certsDir.resolve(certificateName.replace(WHITE_SPACES, "") + ".p12");
-      writeKeystore(certificateP12, PASSWD, certChain, certificateName, keys);
+      URI certificateP12 = certsDir.resolve(userName.replace(WHITE_SPACES, "") + ".p12");
+      writeKeystore(certificateP12, PASSWD, certChain, userName, keys);
     } catch (Exception e) {
       throw new IllegalStateException("Couldn't create certificate.", e);
     }
@@ -115,11 +115,11 @@ public class CertificateUtils {
     return certificate.getPublicKey();
   }
 
-  private static Certificate[] createCertificate(PublicKey publicKey, PrivateKey privateKey) throws Exception {
+  private static Certificate[] createCertificate(PublicKey publicKey, PrivateKey privateKey, String userName) throws Exception {
     X509V1CertificateGenerator v1CertGen = new X509V1CertificateGenerator();
 
-    String issuer = "C=AU, O=Symphony Software Foundation, OU=Symphony Certificate";
-    String subject = "C=AU, O=Symphony Software Foundation, OU=Symphony Certificate";
+    String issuer = "CN=" + userName + ", C=US, O=Symphony Communications LLC, OU=NOT FOR PRODUCTION USE";
+    String subject = "CN=" + userName + ", C=US, O=Symphony Communications LLC, OU=NOT FOR PRODUCTION USE";
 
     v1CertGen.setSerialNumber(BigInteger.valueOf(1));
     v1CertGen.setIssuerDN(new X509Principal(issuer));
