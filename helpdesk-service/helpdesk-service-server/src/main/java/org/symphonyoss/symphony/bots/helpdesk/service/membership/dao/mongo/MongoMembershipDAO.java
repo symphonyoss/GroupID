@@ -68,7 +68,7 @@ public class MongoMembershipDAO implements MembershipDao {
           this.mongoTemplate.findById(index, MembershipEntity.class, COLLECTION_NAME);
 
       if (entity != null) {
-        this.mongoTemplate.remove(entity);
+        this.mongoTemplate.remove(entity, COLLECTION_NAME);
       }
     } catch (Exception e) {
       throw new DeleteMembershipException(groupId, id, e);
