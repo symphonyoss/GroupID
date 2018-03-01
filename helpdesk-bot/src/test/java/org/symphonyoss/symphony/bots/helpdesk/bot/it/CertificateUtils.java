@@ -68,7 +68,7 @@ public class CertificateUtils {
 
   private static TestContext testContext = TestContext.getInstance();
 
-  public static void createCertificateP12(String caKeyPath, String caCertPath, String userName) {
+  public void createCertificateP12(String caKeyPath, String caCertPath, String userName) {
     URI certsDir = new File(testContext.getCertsDir()).toURI();
 
     Security.addProvider(new BouncyCastleProvider());
@@ -91,14 +91,14 @@ public class CertificateUtils {
     }
   }
 
-  private static KeyPair generateKeys() throws NoSuchProviderException, NoSuchAlgorithmException {
+  private KeyPair generateKeys() throws NoSuchProviderException, NoSuchAlgorithmException {
     KeyPairGenerator generator = KeyPairGenerator.getInstance(ALGORITHM, PROVIDER);
     generator.initialize(KEYSIZE);
 
     return generator.generateKeyPair();
   }
 
-  private static PrivateKey getPrivateKey(File privateKey)
+  private PrivateKey getPrivateKey(File privateKey)
       throws IOException, PKCSException, OperatorCreationException {
     FileReader fileReader = new FileReader(privateKey);
     PEMParser parser = new PEMParser(fileReader);
@@ -110,7 +110,7 @@ public class CertificateUtils {
     return jcaPEMKeyConverter.getPrivateKey(pair.decryptPrivateKeyInfo(decryptorProvider));
   }
 
-  private static PublicKey getPublicKey(String filename) throws Exception {
+  private PublicKey getPublicKey(String filename) throws Exception {
     File file = new File(filename);
     FileInputStream is = new FileInputStream(file);
 
@@ -120,7 +120,7 @@ public class CertificateUtils {
     return certificate.getPublicKey();
   }
 
-  private static Certificate[] createCertificate2(PublicKey publicKey, PrivateKey privateKey, String userName)
+  private Certificate[] createCertificate2(PublicKey publicKey, PrivateKey privateKey, String userName)
       throws IOException, OperatorCreationException, CertificateException, NoSuchProviderException,
       NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     X500Name issuer = new X500Name("CN=" + userName + ", C=US, O=Symphony Communications LLC, OU=NOT FOR PRODUCTION USE");
@@ -160,7 +160,7 @@ public class CertificateUtils {
     return chain;
   }
 
-  private static void writeKeystore(URI keyStoreFile, String keyStorePassword, Certificate[] chain,
+  private void writeKeystore(URI keyStoreFile, String keyStorePassword, Certificate[] chain,
       String userRef, KeyPair keys) throws NoSuchAlgorithmException, NoSuchProviderException, KeyStoreException,
       IOException, CertificateException {
     KeyStore store = KeyStore.getInstance(PKCS_12, PROVIDER);
