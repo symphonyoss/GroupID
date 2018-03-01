@@ -249,15 +249,15 @@ public class HelpDeskBotStories extends JUnitStories {
 
     SymUser agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
     addUserOnQueueRoom(agent.getId());
-    testContext.setUsers(UsersEnum.AGENT_1, agent);
+    testContext.setUsers(UsersEnum.AGENT1, agent);
 
     agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
     addUserOnQueueRoom(agent.getId());
-    testContext.setUsers(UsersEnum.AGENT_2, agent);
+    testContext.setUsers(UsersEnum.AGENT2, agent);
 
     agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
     addUserOnQueueRoom(agent.getId());
-    testContext.setUsers(UsersEnum.AGENT_3, agent);
+    testContext.setUsers(UsersEnum.AGENT3, agent);
   }
 
 }
