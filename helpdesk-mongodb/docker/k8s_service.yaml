@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: helpdesk-mongodb-service
+  labels:
+    run: helpdesk-mongodb
+spec:
+  selector:
+    run: helpdesk-mongodb
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 27017

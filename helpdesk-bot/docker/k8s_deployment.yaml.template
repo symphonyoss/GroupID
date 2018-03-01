@@ -1,0 +1,58 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: helpdesk-bot
+  namespace: default
+  labels:
+    run: helpdesk-bot
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: helpdesk-bot
+    spec:
+      containers:
+      - name: helpdesk-bot
+        image: gcr.io/sym-dev-plat/helpdesk-bot:<VERSION>
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: SERVER_PORT
+          value: 8080
+        - name: HELPDESK_BOT_HOST
+          value: http://helpdesk-bot-service
+        - name: HELPDESK_BOT_PORT
+          value: 80
+        - name: HELPDESK_SERVICE_HOST
+          value: http://helpdesk-api-service
+        - name: HELPDESK_SERVICE_PORT
+          value: 80
+        - name: AGENT_HOST
+          value: <enter_a_value_here>
+        - name: AGENT_PORT
+          value: <enter_a_value_here>
+        - name: SESSION_AUTH_HOST
+          value: <enter_a_value_here>
+        - name: SESSION_AUTH_PORT
+          value: <enter_a_value_here>
+        - name: KEY_AUTH_HOST
+          value: <enter_a_value_here>
+        - name: KEY_AUTH_PORT
+          value: <enter_a_value_here>
+        - name: POD_HOST
+          value: <enter_a_value_here>
+        - name: POD_PORT
+          value: <enter_a_value_here>
+        - name: APP_AUTHENTICATION_ENABLED
+          value: <enter_a_value_here>
+        - name: APP_AUTHENTICATION_POD_HOST
+          value: <enter_a_value_here>
+        - name: APP_AUTHENTICATION_POD_PORT
+          value: <enter_a_value_here>
+        - name: APP_AUTHENTICATION_SESSION_AUTH_HOST
+          value: <enter_a_value_here>
+        - name: APP_AUTHENTICATION_SESSION_AUTH_PORT
+          value: <enter_a_value_here>

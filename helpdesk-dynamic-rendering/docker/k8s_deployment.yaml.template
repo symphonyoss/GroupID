@@ -1,0 +1,24 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: helpdesk-renderer
+  namespace: default
+  labels:
+    run: helpdesk-renderer
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: helpdesk-renderer
+    spec:
+      containers:
+      - name: helpdesk-renderer
+        image: gcr.io/sym-dev-plat/helpdesk-renderer:<VERSION>
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+        env:
+        - name: SERVER_PORT
+          value: 8080

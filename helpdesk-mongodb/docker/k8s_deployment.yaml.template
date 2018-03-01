@@ -1,0 +1,21 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: helpdesk-mongodb
+  namespace: default
+  labels:
+    run: helpdesk-mongodb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: helpdesk-mongodb
+    spec:
+      containers:
+      - name: helpdesk-mongodb
+        image: gcr.io/sym-dev-plat/helpdesk-mongodb:1.0.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 27017
+          protocol: TCP
