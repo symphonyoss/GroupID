@@ -7,42 +7,42 @@ So that I can assert those actions are available and working.
 
 Scenario: Create a maker/checker
 When call the create makerchecker API
-Then receive a successful created message
+Then check that makerchecker was created/founded
 
 Scenario: Create a maker/checker with invalid id
 When call the create makerchecker API with invalid id
-Then receive a created error message
+Then receive a bad request error
 
 Scenario: Create a maker/checker with invalid stream id
 When call the create makerchecker API with invalid stream id
-Then receive a created error message
+Then receive a bad request error
 
 Scenario: Create a maker/checker with invalid maker id
 When call the create makerchecker API with invalid maker id
-Then receive a created error message
+Then receive a bad request error
 
 Scenario: Create a maker/checker with same id
 When call the create makerchecker API with same id
-Then receive a created error message
+Then receive an internal server error
 
 Scenario: Search for a maker/checker
-When call the read makerchecker API
-Then receive a successful founded message
+When call the retrieve makerchecker API
+Then check that makerchecker was created/founded
 
 Scenario: Search for an invalid maker/checker
 When call the read makerchecker API with invalid id
-Then receive a founded error message
+Then receive a no content message
 
 Scenario: Search for a maker/checker with invalid parameter
 When call the read makerchecker API with invalid parameter
-Then receive a founded error message
+Then receive a method not allowed error
 
 Scenario: try to update a maker/checker
 When call the update makerchecker API and returns bad request
-Then receive an updated error message
+Then receive a bad request error
 
 Scenario: Update a maker/checker
 When call the update makerchecker API
-Then receive a successful updated message
+Then check that makerchecker was updated
 
 
