@@ -105,8 +105,7 @@ public class HelpDeskBotStories extends JUnitStories {
   }
 
   private void prepareEnvironment() {
-    String certsDir = System.getProperty("java.io.tmpdir") + File.separator + CERTS_DIR;
-    testContext.setCertsDir(certsDir);
+    createCertsDir();
 
     initSymphonyClient();
 
@@ -115,8 +114,23 @@ public class HelpDeskBotStories extends JUnitStories {
     createBotCertificate();
   }
 
+  /**
+   * Creates directory of certificates in tmp directory and set on Context.
+   */
+  private void createCertsDir() {
+    String certsDir = System.getProperty("java.io.tmpdir") + File.separator + CERTS_DIR;
+    File directory = new File(certsDir);
+    if (!directory.exists()) {
+      directory.mkdirs();
+    }
+
+    testContext.setCertsDir(certsDir);
+  }
+
   private void createBotCertificate() {
     // TODO APP-1629
+    CertificateUtils certificateUtils = new CertificateUtils();
+    certificateUtils.createCertificateP12("/opt/test/root-key.pem", "/opt/test/root-cert.pem", "Test 2");
   }
 
   @Override
