@@ -54,6 +54,8 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private static final String ROLE_INDIVIDUAL = "INDIVIDUAL";
 
+  private static final String ROLE_PROVISIONING = "USER_PROVISIONING";
+
   private static final String AGENT = "Agent";
 
   private static final String CERTS_DIR = "certs";
@@ -128,7 +130,6 @@ public class HelpDeskBotStories extends JUnitStories {
   }
 
   private void createBotCertificate() {
-    // TODO APP-1629
     CertificateUtils certificateUtils = new CertificateUtils();
     certificateUtils.createCertificateP12("/opt/test/root-key.pem", "/opt/test/root-cert.pem", "Test 2");
   }
@@ -274,4 +275,12 @@ public class HelpDeskBotStories extends JUnitStories {
     testContext.setUsers(UsersEnum.AGENT_3, agent);
   }
 
+  private SymUser createSystemAccount(String userName) {
+    List<String> roles = new ArrayList<>();
+    roles.add(ROLE_PROVISIONING);
+
+    SymUser serviceAccount = createUser(userName, UserAttributes.AccountTypeEnum.SYSTEM, roles);
+
+    return serviceAccount;
+  }
 }
