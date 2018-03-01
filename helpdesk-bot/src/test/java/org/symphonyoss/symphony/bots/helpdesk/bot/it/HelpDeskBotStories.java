@@ -60,9 +60,9 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private static final String CERTS_DIR = "certs";
 
-  private static final String BOT_CERTIFICATE_NOT_FOUND = "Bot certificate not found.";
+  private static final String MESSAGE_BOT_CERTIFICATE_NOT_FOUND = "Bot certificate not found.";
 
-  private static final String PROVISIONING_CERTIFICATE_NOT_FOUND =
+  private static final String MESSAGE_PROVISIONING_CERTIFICATE_NOT_FOUND =
       "Provisioning certificate not found.";
 
   private static final String USER_PROVISIONING = "userProvisioning";
@@ -122,8 +122,8 @@ public class HelpDeskBotStories extends JUnitStories {
   private void prepareEnvironment() {
     createCertsDir();
 
-    String caKeyPath = "/opt/test/root-key.pem";
-    String caCertPath = "/opt/test/root-cert.pem";
+    String caKeyPath = System.getProperty("caKeyPath");
+    String caCertPath = System.getProperty("caCertPath");
 
     provisioningSteps(caKeyPath, caCertPath);
 
@@ -139,6 +139,7 @@ public class HelpDeskBotStories extends JUnitStories {
    */
   private void createCertsDir() {
     String certsDir = System.getProperty("java.io.tmpdir") + File.separator + CERTS_DIR;
+
     File directory = new File(certsDir);
     if (!directory.exists()) {
       directory.mkdirs();
@@ -312,21 +313,22 @@ public class HelpDeskBotStories extends JUnitStories {
    */
   private void provisioningSteps(String caKeyPath, String caCertPath) {
     String userProvisioning = USER_PROVISIONING;
+    String certsDir = testContext.getCertsDir();
 
     certificateUtils.createCertificateP12(caKeyPath, caCertPath, userProvisioning);
 
-    File provisioningCertificate = new File(testContext.getCertsDir() + userProvisioning + ".p12");
+    File provisioningCertificate = new File(certsDir + userProvisioning + ".p12");
     if (!provisioningCertificate.exists()) {
-      throw new IllegalStateException(PROVISIONING_CERTIFICATE_NOT_FOUND);
+      throw new IllegalStateException(MESSAGE_PROVISIONING_CERTIFICATE_NOT_FOUND);
     }
 
     UUID uuid = UUID.randomUUID();
     String userBot = BEGIN_NAME_OF_CERTIFICATE + uuid;
     certificateUtils.createCertificateP12(caKeyPath, caCertPath, userBot);
 
-    File botCertificate = new File(testContext.getCertsDir() + userBot + EXTENSION_CERTIFICATE);
+    File botCertificate = new File(certsDir + userBot + EXTENSION_CERTIFICATE);
     if (!botCertificate.exists()) {
-      throw new IllegalStateException(BOT_CERTIFICATE_NOT_FOUND);
+      throw new IllegalStateException(MESSAGE_BOT_CERTIFICATE_NOT_FOUND);
     }
 
     createServiceAccount(userBot);

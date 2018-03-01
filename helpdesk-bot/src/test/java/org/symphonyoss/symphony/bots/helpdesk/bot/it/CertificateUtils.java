@@ -1,16 +1,29 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.it;
 
-import org.bouncycastle.jce.X509Principal;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v1CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
+import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
+import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.InputDecryptorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 import org.bouncycastle.pkcs.PKCSException;
-import org.bouncycastle.x509.X509V1CertificateGenerator;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -18,6 +31,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URI;
+import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -27,6 +41,7 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.Security;
+import java.security.SignatureException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -77,7 +92,7 @@ public class CertificateUtils {
       File publicKeyFile = new File(caCertPath);
       PublicKey publicKey = getPublicKey(publicKeyFile.getPath());
 
-      Certificate[] certChain = createCertificate(publicKey, privateKey, userName);
+      Certificate[] certChain = createCertificate2(publicKey, privateKey, userName);
 
       URI certificateP12 = certsDir.resolve(userName.replace(WHITE_SPACES, "") + ".p12");
       writeKeystore(certificateP12, PASSWD, certChain, userName, keys);
@@ -115,21 +130,34 @@ public class CertificateUtils {
     return certificate.getPublicKey();
   }
 
-  private static Certificate[] createCertificate(PublicKey publicKey, PrivateKey privateKey, String userName) throws Exception {
-    X509V1CertificateGenerator v1CertGen = new X509V1CertificateGenerator();
+  private static Certificate[] createCertificate2(PublicKey publicKey, PrivateKey privateKey, String userName)
+      throws IOException, OperatorCreationException, CertificateException, NoSuchProviderException,
+      NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    X500Name issuer = new X500Name("CN=" + userName + ", C=US, O=Symphony Communications LLC, OU=NOT FOR PRODUCTION USE");
+    X500Name subject = new X500Name("CN=" + userName + ", C=US, O=Symphony Communications LLC, OU=NOT FOR PRODUCTION USE");
 
-    String issuer = "CN=" + userName + ", C=US, O=Symphony Communications LLC, OU=NOT FOR PRODUCTION USE";
-    String subject = "CN=" + userName + ", C=US, O=Symphony Communications LLC, OU=NOT FOR PRODUCTION USE";
+    ByteArrayInputStream bIn = new ByteArrayInputStream(publicKey.getEncoded());
+    SubjectPublicKeyInfo publicKeyInfo = new SubjectPublicKeyInfo((ASN1Sequence)new ASN1InputStream(bIn).readObject());
 
-    v1CertGen.setSerialNumber(BigInteger.valueOf(1));
-    v1CertGen.setIssuerDN(new X509Principal(issuer));
-    v1CertGen.setNotBefore(new Date(System.currentTimeMillis() - 1000L * 60 * 60 * 24 * 30));
-    v1CertGen.setNotAfter(new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30)));
-    v1CertGen.setSubjectDN(new X509Principal(subject));
-    v1CertGen.setPublicKey(publicKey);
-    v1CertGen.setSignatureAlgorithm(SIGNATURE_ALGORITHM);
+    X509v1CertificateBuilder x509v1CertificateBuilder =
+        new X509v1CertificateBuilder(issuer,
+            BigInteger.valueOf(1),
+            new Date(System.currentTimeMillis() - 1000L * 60 * 60 * 24 * 30),
+            new Date(System.currentTimeMillis() + (1000L * 60 * 60 * 24 * 30)),
+            subject,
+            publicKeyInfo);
 
-    X509Certificate cert = v1CertGen.generate(privateKey);
+    AsymmetricKeyParameter privateKeyAsymKeyParam = PrivateKeyFactory.createKey(privateKey.getEncoded());
+    DefaultDigestAlgorithmIdentifierFinder digAlgFinder = new DefaultDigestAlgorithmIdentifierFinder();
+    AlgorithmIdentifier sigAlgId = new DefaultSignatureAlgorithmIdentifierFinder().find(SIGNATURE_ALGORITHM);
+    AlgorithmIdentifier digAlgId = digAlgFinder.find(sigAlgId);
+    ContentSigner sigGen = new BcRSAContentSignerBuilder(sigAlgId, digAlgId).build(privateKeyAsymKeyParam);
+
+    X509CertificateHolder certificateHolder = x509v1CertificateBuilder.build(sigGen);
+
+    JcaX509CertificateConverter converter = new JcaX509CertificateConverter();
+
+    X509Certificate cert = converter.getCertificate(certificateHolder);
 
     cert.checkValidity(new Date());
 
