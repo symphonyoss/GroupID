@@ -311,7 +311,7 @@ public class HelpDeskBotStories extends JUnitStories {
 
     certificateUtils.createCertificateP12(caKeyPath, caCertPath, userProvisioning);
 
-    File provisioningCertificate = new File(certsDir + userProvisioning + ".p12");
+    File provisioningCertificate = new File(certsDir + userProvisioning + EXTENSION_CERTIFICATE);
     if (!provisioningCertificate.exists()) {
       throw new IllegalStateException(MESSAGE_PROVISIONING_CERTIFICATE_NOT_FOUND);
     }
