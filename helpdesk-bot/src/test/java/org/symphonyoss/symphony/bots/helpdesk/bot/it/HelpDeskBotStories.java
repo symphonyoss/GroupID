@@ -131,7 +131,6 @@ public class HelpDeskBotStories extends JUnitStories {
 
     createQueueRoom();
     createUsersAndAddToQueueRoom();
-    createBotCertificate();
   }
 
   /**
@@ -146,11 +145,6 @@ public class HelpDeskBotStories extends JUnitStories {
     }
 
     testContext.setCertsDir(certsDir);
-  }
-
-  private void createBotCertificate() {
-    CertificateUtils certificateUtils = new CertificateUtils();
-    certificateUtils.createCertificateP12("/opt/test/root-key.pem", "/opt/test/root-cert.pem", "Test 2");
   }
 
   @Override
