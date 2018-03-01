@@ -69,6 +69,8 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private static final String EXTENSION_CERTIFICATE = ".p12";
 
+  private static final String BEGIN_NAME_OF_CERTIFICATE = "Bot";
+
   @Autowired
   private ApplicationContext applicationContext;
 
@@ -119,6 +121,11 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private void prepareEnvironment() {
     createCertsDir();
+
+    String caKeyPath = "/opt/test/root-key.pem";
+    String caCertPath = "/opt/test/root-cert.pem";
+
+    provisioningSteps(caKeyPath, caCertPath);
 
     initSymphonyClient();
 
@@ -304,10 +311,9 @@ public class HelpDeskBotStories extends JUnitStories {
    * @param caCertPath path to certificate path
    */
   private void provisioningSteps(String caKeyPath, String caCertPath) {
-    // To define the name of user.
     String userProvisioning = USER_PROVISIONING;
 
-    certificateUtils.createCertificateP12("/opt/test/root-key.pem", "/opt/test/root-cert.pem", userProvisioning);
+    certificateUtils.createCertificateP12(caKeyPath, caCertPath, userProvisioning);
 
     File provisioningCertificate = new File(testContext.getCertsDir() + userProvisioning + ".p12");
     if (!provisioningCertificate.exists()) {
@@ -315,8 +321,8 @@ public class HelpDeskBotStories extends JUnitStories {
     }
 
     UUID uuid = UUID.randomUUID();
-    String userBot = "Bot" + uuid;
-    certificateUtils.createCertificateP12("/opt/test/root-key.pem", "/opt/test/root-cert.pem", userBot);
+    String userBot = BEGIN_NAME_OF_CERTIFICATE + uuid;
+    certificateUtils.createCertificateP12(caKeyPath, caCertPath, userBot);
 
     File botCertificate = new File(testContext.getCertsDir() + userBot + EXTENSION_CERTIFICATE);
     if (!botCertificate.exists()) {
