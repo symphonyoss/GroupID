@@ -29,26 +29,19 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 @Component
 public class MakerCheckerSteps {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MakerCheckerSteps.class);
-
   @Autowired
-    private TestRestTemplate restTemplate;
-
-  @Given("a system state")
-  public void doSomething() {
-  }
+  private TestRestTemplate restTemplate;
 
   @When("call the create makerchecker API")
   public void callMakercheckerAPI() {
 
     Makerchecker makerchecker = createMakerchecker();
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.postForEntity("/v1/makerchecker" , makerchecker, Makerchecker.class);
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
 
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertEquals(makerchecker, responseEntity.getBody());
-
-    LOGGER.info("Calling the API");
 
   }
 
@@ -58,11 +51,10 @@ public class MakerCheckerSteps {
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.setId(null);
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.postForEntity("/v1/makerchecker" , makerchecker, Makerchecker.class);
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
 
     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-
-    LOGGER.info("Calling the API");
 
   }
 
@@ -72,11 +64,11 @@ public class MakerCheckerSteps {
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.setStreamId(null);
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.postForEntity("/v1/makerchecker" , makerchecker, Makerchecker.class);
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
 
     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
 
-    LOGGER.info("Calling the API");
 
   }
 
@@ -86,11 +78,11 @@ public class MakerCheckerSteps {
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.makerId(null);
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.postForEntity("/v1/makerchecker" , makerchecker, Makerchecker.class);
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
 
     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
 
-    LOGGER.info("Calling the API");
 
   }
 
@@ -101,11 +93,11 @@ public class MakerCheckerSteps {
     makerchecker.setId("NEW_MOCK_MAKERCHECKER_ID");
     makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.postForEntity("/v1/makerchecker" , makerchecker, Makerchecker.class);
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
 
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
 
-    LOGGER.info("Calling the API");
 
   }
 
@@ -114,46 +106,47 @@ public class MakerCheckerSteps {
 
     Makerchecker makerchecker = createMakerchecker();
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.postForEntity("/v1/makerchecker" , makerchecker, Makerchecker.class);
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
 
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
 
-    LOGGER.info("Calling the API");
 
   }
 
   @When("call the read makerchecker API")
   public void callGetMakercheckerAPI() {
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.getForEntity("/v1/makerchecker/{id}" , Makerchecker.class, "MOCK_MAKERCHECKER_ID");
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class,
+            "MOCK_MAKERCHECKER_ID");
 
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertNotNull(responseEntity.getBody());
 
-    LOGGER.info("Calling the API");
 
   }
 
   @When("call the read makerchecker API with invalid id")
   public void callGetMakercheckerAPIWithInvalidId() {
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.getForEntity("/v1/makerchecker/{id}" , Makerchecker.class, "INVALID_ID");
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class, "INVALID_ID");
 
     assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
     assertNull(responseEntity.getBody());
 
-    LOGGER.info("Calling the API");
 
   }
 
   @When("call the read makerchecker API with invalid parameter")
   public void callGetMakercheckerAPIWithInvalidParameter() {
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.getForEntity("/v1/makerchecker/{id}" , Makerchecker.class, "");
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class, "");
 
     assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
 
-    LOGGER.info("Calling the API");
 
   }
 
@@ -169,10 +162,11 @@ public class MakerCheckerSteps {
     HttpEntity<Makerchecker> requestEntity = new HttpEntity<>(makerchecker, headers);
 
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.exchange("/v1/makerchecker/{id}", HttpMethod.PUT, requestEntity, Makerchecker.class, "MOCK_MAKERCHECKER_ID");
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.exchange("/v1/makerchecker/{id}", HttpMethod.PUT, requestEntity,
+            Makerchecker.class, "MOCK_MAKERCHECKER_ID");
     assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
 
-    LOGGER.info("Calling the API");
 
   }
 
@@ -184,26 +178,26 @@ public class MakerCheckerSteps {
 
     restTemplate.put("/v1/makerchecker/{id}", makerchecker, "MOCK_MAKERCHECKER_ID");
 
-    ResponseEntity<Makerchecker> responseEntity = restTemplate.getForEntity("/v1/makerchecker/{id}" , Makerchecker.class, "MOCK_MAKERCHECKER_ID");
+    ResponseEntity<Makerchecker> responseEntity =
+        restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class,
+            "MOCK_MAKERCHECKER_ID");
 
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertEquals(createUserInfo(), responseEntity.getBody().getChecker());
 
-    LOGGER.info("Calling the API");
 
   }
 
-  public Makerchecker createMakerchecker() {
+  private Makerchecker createMakerchecker() {
     Makerchecker makerchecker = new Makerchecker();
     makerchecker.setState(MakercheckerClient.AttachmentStateType.OPENED.getState());
     makerchecker.setStreamId("MOCK_SERVICE_STREAM_ID");
     makerchecker.setId("MOCK_MAKERCHECKER_ID");
     makerchecker.setMakerId(0123456L);
-    makerchecker.checker(null);
     return makerchecker;
   }
 
-  public UserInfo createUserInfo() {
+  private UserInfo createUserInfo() {
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId(1234L);
     userInfo.setDisplayName("DISPLAY_NAME");
@@ -212,32 +206,31 @@ public class MakerCheckerSteps {
 
   @Then("receive a successful created message")
   public void logSuccessfulCreatedMessage() {
-    LOGGER.info("Makerchecker created successfully");
   }
 
   @Then("receive a successful founded message")
   public void logSuccessfulFoundedMessage() {
-    LOGGER.info("Makerchecker founded successfully");
+
   }
 
   @Then("receive a successful updated message")
   public void logSuccessfulUpdatedMessage() {
-    LOGGER.info("Makerchecker updated successfully");
+
   }
 
   @Then("receive a created error message")
   public void logErrorMessage() {
-    LOGGER.info("Makerchecker not created");
+
   }
 
   @Then("receive an updated error message")
   public void logUpdatedErrorMessage() {
-    LOGGER.info("Makerchecker not updated");
+
   }
 
   @Then("receive a founded error message")
   public void logFoundedErrorMessage() {
-    LOGGER.info("Makerchecker not founded");
+
   }
 
 }

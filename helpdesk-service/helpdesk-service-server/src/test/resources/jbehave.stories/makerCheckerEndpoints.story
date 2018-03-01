@@ -2,8 +2,8 @@ Meta:
 
 Narrative:
 As a user
-I want to create update and read a makerchecker
-So that I can achieve a business goal
+I want to save and recover maker/checker data
+So that I can assert those actions are available and working.
 
 Scenario: Create a maker/checker
 When call the create makerchecker API
