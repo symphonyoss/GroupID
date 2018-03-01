@@ -68,16 +68,6 @@ public class CertificateUtils {
 
   private static TestContext testContext = TestContext.getInstance();
 
-  public static void main(String[] args) {
-    testContext.setCertsDir("/tmp/certs");
-    File directory = new File(testContext.getCertsDir());
-    if (!directory.exists()) {
-      directory.mkdirs();
-    }
-
-    createCertificateP12("/opt/test/root-key.pem", "/opt/test/root-cert.pem", "Test- 2");
-  }
-
   public static void createCertificateP12(String caKeyPath, String caCertPath, String userName) {
     URI certsDir = new File(testContext.getCertsDir()).toURI();
 
