@@ -141,9 +141,14 @@ public class HelpDeskRoomEventListenerTest {
   public void testUserLeftRoomOnlyTheBotRemains() throws MessagesException {
     SymUserLeftRoom symUserLeftRoom = mockLeaveEvent(MOCK_ANY_USER, MOCK_STREAM);
 
+    UserInfo clientUserInfo = new UserInfo();
+    clientUserInfo.setUserId(MOCK_ANY_USER);
+
     Ticket mockTicket = new Ticket();
     mockTicket.setAgent(new UserInfo());
     mockTicket.setState(TicketClient.TicketStateType.UNRESOLVED.toString());
+    mockTicket.setQuestionTimestamp(1L);
+    mockTicket.setClient(clientUserInfo);
 
     SymMessage symMessage = new SymMessage();
     symMessage.setId(MESSAGE_ID);

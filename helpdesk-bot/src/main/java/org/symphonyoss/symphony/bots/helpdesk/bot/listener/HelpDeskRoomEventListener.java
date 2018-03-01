@@ -154,7 +154,7 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
         try {
           Optional<SymMessage> clientMessage =
               symphonyClientUtil.getSymMessageByStreamAndId(ticket.getClientStreamId(),
-                  ticket.getQuestionTimestamp(), ticket.getConversationID());
+                  ticket.getQuestionTimestamp() - 1, ticket.getConversationID());
           if (clientMessage.isPresent()) {
             question = clientMessage.get().getMessageText();
           }
@@ -166,7 +166,7 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
         // Resend ticket message to the agent room
         SymMessage symMessage =
             SymMessageBuilder.message(String.format(MESSAGEML_TEMPLATE, question)).build();
-        symMessage.setFromUserId(localUser.getId());
+        symMessage.setFromUserId(ticket.getClient().getUserId());
         ticketService.sendTicketMessageToAgentStreamId(ticket, symMessage);
 
         // Warn the client that no agents are connected to the ticket
