@@ -13,9 +13,9 @@ spec:
         run: helpdesk-mongodb
     spec:
       containers:
-      - name: helpdesk-mongodb
-        image: gcr.io/sym-dev-plat/helpdesk-mongodb:1.0.0
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 27017
-          protocol: TCP
+        - name: helpdesk-mongodb
+          image: mongo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 27017
+              protocol: TCP

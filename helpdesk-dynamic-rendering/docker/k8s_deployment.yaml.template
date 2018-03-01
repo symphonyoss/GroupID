@@ -13,12 +13,12 @@ spec:
         run: helpdesk-renderer
     spec:
       containers:
-      - name: helpdesk-renderer
-        image: gcr.io/sym-dev-plat/helpdesk-renderer:<VERSION>
-        imagePullPolicy: Always
-        ports:
-        - containerPort: 8080
-          protocol: TCP
-        env:
-        - name: SERVER_PORT
-          value: 8080
+        - name: helpdesk-renderer
+          image: gcr.io/sym-dev-plat/helpdesk-renderer:<VERSION>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SERVER_PORT
+              value: '8080'

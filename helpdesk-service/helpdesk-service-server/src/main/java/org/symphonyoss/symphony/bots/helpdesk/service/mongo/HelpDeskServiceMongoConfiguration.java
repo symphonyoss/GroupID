@@ -75,6 +75,16 @@ public class HelpDeskServiceMongoConfiguration extends AbstractMongoConfiguratio
 
     int port = mongoParameters.getPort();
 
+    System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
+    System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
+    System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
+    System.out.println(" MONGO DB PROPERTIES: ");
+    System.out.println(" host: " + host);
+    System.out.println(" port: " + port);
+    System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
+    System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
+    System.out.println(" - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ");
+
     this.mongoClient = new MongoClient(new ServerAddress(host, port), options);
 
     return mongoClient;

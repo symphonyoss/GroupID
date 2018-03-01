@@ -1,19 +1,5 @@
 #!/usr/bin/env bash
-printf "Building MongoDB project [helpdesk-mongodb]\n\n"
-VERSION=1.0.0
-printf "Project version: $(printf $VERSION)\n\n"
-
-printf "Pulling Docker Ubuntu base image\n\n"
-docker pull ubuntu
-
-printf "Building docker image [helpdesk-mongodb] for GCE\n"
-printf "docker build -t gcr.io/${PROJECT_ID}/helpdesk-mongodb:$VERSION .\n\n"
-export PROJECT_ID="$(gcloud config get-value project -q)"
-docker build -f Dockerfile -t gcr.io/${PROJECT_ID}/helpdesk-mongodb:$VERSION .
-
-printf "Uploading docker image [helpdesk-mongodb] on GCE\n"
-printf "gcloud docker -- push gcr.io/${PROJECT_ID}/helpdesk-mongodb:$VERSION\n"
-gcloud docker -- push gcr.io/${PROJECT_ID}/helpdesk-mongodb:$VERSION
+printf "Building MongoDB project [helpdesk-mongodb]\n"
 
 printf "\nDeleting previous service on kubernetes\n"
 printf "kubectl delete service helpdesk-mongodb-service\n"

@@ -29,6 +29,3 @@ helpdesk-service/helpdesk-service-server/application.yaml
 *.log
 *.pid
 application-custom.yaml
-helpdesk-dynamic-rendering/docker/k8s_deployment.yaml
-helpdesk-bot/docker/k8s_deployment.yaml
-helpdesk-service/docker/k8s_deployment.yaml
