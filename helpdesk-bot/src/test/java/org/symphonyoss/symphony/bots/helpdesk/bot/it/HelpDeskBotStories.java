@@ -54,8 +54,6 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private static final String ROLE_INDIVIDUAL = "INDIVIDUAL";
 
-  private static final String ROLE_PROVISIONING = "USER_PROVISIONING";
-
   private static final String AGENT = "Agent";
 
   private static final String CERTS_DIR = "certs";
@@ -294,7 +292,7 @@ public class HelpDeskBotStories extends JUnitStories {
    */
   private void createServiceAccount(String userName) {
     List<String> roles = new ArrayList<>();
-    roles.add(ROLE_PROVISIONING);
+    roles.add(ROLE_INDIVIDUAL);
 
     createUser(userName, UserAttributes.AccountTypeEnum.SYSTEM, roles);
   }

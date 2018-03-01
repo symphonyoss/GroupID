@@ -68,6 +68,13 @@ public class CertificateUtils {
 
   private static TestContext testContext = TestContext.getInstance();
 
+  /**
+   * Main method to create certificate p12, this method generates a keypair, creates a certificate
+   * and save the certificate on path.
+   * @param caKeyPath path to private key
+   * @param caCertPath path to public key
+   * @param userName user name of the certificate
+   */
   public void createCertificateP12(String caKeyPath, String caCertPath, String userName) {
     URI certsDir = new File(testContext.getCertsDir()).toURI();
 
@@ -80,9 +87,9 @@ public class CertificateUtils {
       PrivateKey privateKey = getPrivateKey(privateKeyFile);
 
       File publicKeyFile = new File(caCertPath);
-      PublicKey publicKey = getPublicKey(publicKeyFile.getPath());
+      PublicKey publicKey = getPublicKey(publicKeyFile);
 
-      Certificate[] certChain = createCertificate2(publicKey, privateKey, userName);
+      Certificate[] certChain = createCertificate(publicKey, privateKey, userName);
 
       URI certificateP12 = certsDir.resolve(userName.replace(WHITE_SPACES, "") + ".p12");
       writeKeystore(certificateP12, PASSWD, certChain, userName, keys);
@@ -91,6 +98,10 @@ public class CertificateUtils {
     }
   }
 
+  /**
+   * Generate a key pair to generate the certificate
+   * @return keyPair
+   */
   private KeyPair generateKeys() throws NoSuchProviderException, NoSuchAlgorithmException {
     KeyPairGenerator generator = KeyPairGenerator.getInstance(ALGORITHM, PROVIDER);
     generator.initialize(KEYSIZE);
@@ -98,6 +109,11 @@ public class CertificateUtils {
     return generator.generateKeyPair();
   }
 
+  /**
+   * Convert the File into PrivateKey.
+   * @param privateKey file to private key
+   * @return privateKey
+   */
   private PrivateKey getPrivateKey(File privateKey)
       throws IOException, PKCSException, OperatorCreationException {
     FileReader fileReader = new FileReader(privateKey);
@@ -110,9 +126,13 @@ public class CertificateUtils {
     return jcaPEMKeyConverter.getPrivateKey(pair.decryptPrivateKeyInfo(decryptorProvider));
   }
 
-  private PublicKey getPublicKey(String filename) throws Exception {
-    File file = new File(filename);
-    FileInputStream is = new FileInputStream(file);
+  /**
+   * Convert the File into PublicKey.
+   * @param publicKey file to public key
+   * @return publicKey
+   */
+  private PublicKey getPublicKey(File publicKey) throws Exception {
+    FileInputStream is = new FileInputStream(publicKey);
 
     CertificateFactory certificateFactory = CertificateFactory.getInstance(X_509);
     X509Certificate certificate = (X509Certificate) certificateFactory.generateCertificate(is);
@@ -120,7 +140,14 @@ public class CertificateUtils {
     return certificate.getPublicKey();
   }
 
-  private Certificate[] createCertificate2(PublicKey publicKey, PrivateKey privateKey, String userName)
+  /**
+   * Create a certificate with public and private keys.
+   * @param publicKey file to public key
+   * @param privateKey file to private key
+   * @param userName user name of the certificate
+   * @return Array of certificate
+   */
+  private Certificate[] createCertificate(PublicKey publicKey, PrivateKey privateKey, String userName)
       throws IOException, OperatorCreationException, CertificateException, NoSuchProviderException,
       NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     X500Name issuer = new X500Name("CN=" + userName + ", C=US, O=Symphony Communications LLC, OU=NOT FOR PRODUCTION USE");
@@ -160,14 +187,22 @@ public class CertificateUtils {
     return chain;
   }
 
-  private void writeKeystore(URI keyStoreFile, String keyStorePassword, Certificate[] chain,
+  /**
+   * Method responsible to save file .p12 in directory of certificates.
+   * @param certificateFile path to save the certificate.
+   * @param keyStorePassword password of certificate
+   * @param chain the certificate chain
+   * @param userRef alias name of the certificate
+   * @param keys private and public key to be associated with the alias
+   */
+  private void writeKeystore(URI certificateFile, String keyStorePassword, Certificate[] chain,
       String userRef, KeyPair keys) throws NoSuchAlgorithmException, NoSuchProviderException, KeyStoreException,
       IOException, CertificateException {
     KeyStore store = KeyStore.getInstance(PKCS_12, PROVIDER);
     store.load(null, null);
     store.setKeyEntry(userRef, keys.getPrivate(), null, chain);
 
-    try (FileOutputStream fOut = new FileOutputStream(keyStoreFile.getPath())) {
+    try (FileOutputStream fOut = new FileOutputStream(certificateFile.getPath())) {
       store.store(fOut, keyStorePassword.toCharArray());
     }
   }
