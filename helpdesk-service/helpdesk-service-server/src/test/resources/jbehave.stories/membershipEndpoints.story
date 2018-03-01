@@ -2,8 +2,8 @@ Meta:
 
 Narrative:
 As a user
-I want to perform an action
-So that I can achieve a business goal
+I want to save and recover membership data
+So that I can assert those actions are available and working.
 
 Scenario: Create an agent membership without id
 When I call the create membership API for agent without id
@@ -45,5 +45,8 @@ Scenario: Update a membership agent
 When call the update membership API for agent
 Then check that agent was updated
 
+Scenario: Try to update a client and receiva an error
+When call the update membership API for client
+Then receive a not found error
 
 
