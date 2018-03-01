@@ -286,6 +286,10 @@ public class HelpDeskBotStories extends JUnitStories {
     testContext.setUsers(UsersEnum.AGENT_3, agent);
   }
 
+  /**
+   * Creates a new service account on POD
+   * @param userName name of user
+   */
   private void createServiceAccount(String userName) {
     List<String> roles = new ArrayList<>();
     roles.add(ROLE_PROVISIONING);
@@ -293,7 +297,13 @@ public class HelpDeskBotStories extends JUnitStories {
     createUser(userName, UserAttributes.AccountTypeEnum.SYSTEM, roles);
   }
 
-  private void provisioningSteps() {
+  /**
+   * Method responsible to create a certificate for user provisioning and use the certificate to
+   * create a new service account and create a certificate to authenticates the new service account.
+   * @param caKeyPath path to certificate key
+   * @param caCertPath path to certificate path
+   */
+  private void provisioningSteps(String caKeyPath, String caCertPath) {
     // To define the name of user.
     String userProvisioning = USER_PROVISIONING;
 
