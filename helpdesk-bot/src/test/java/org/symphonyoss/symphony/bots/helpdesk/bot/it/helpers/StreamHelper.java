@@ -3,12 +3,18 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.StreamsException;
+import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.client.services.RoomService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.clients.StreamsClient;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
+import org.symphonyoss.symphony.pod.model.MemberInfo;
 import org.symphonyoss.symphony.pod.model.Stream;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -52,9 +58,8 @@ public class StreamHelper {
    *
    * @param agentId Agent id
    * @return Ticket room
-   * @throws StreamsException Failure to retrieve the stream
    */
-  public Optional<SymStream> getTicketStream(Long agentId) throws StreamsException {
+  public Optional<SymStream> getTicketStream(Long agentId) {
     Optional<Ticket> claimedTicket = ticketHelper.getClaimedTicket(agentId);
 
     if (claimedTicket.isPresent()) {
@@ -67,6 +72,30 @@ public class StreamHelper {
     }
 
     return Optional.empty();
+  }
+
+  /**
+   * Returns the ticket room.
+   *
+   * @param ticket The claimed ticket
+   * @return Ticket room
+   */
+  public SymStream getTicketStream(Ticket ticket) {
+    String serviceStreamId = ticket.getServiceStreamId();
+    SymStream stream = new SymStream();
+    stream.setStreamId(serviceStreamId);
+
+    return stream;
+  }
+
+  /**
+   * Returns the stream's membership list.
+   *
+   * @param symStream SymStream
+   * @return List of MemberInfo of specified stream
+   */
+  public List<MemberInfo> getStreamMembershipList(SymStream symStream) throws SymException {
+    return symphonyClient.getRoomMembershipClient().getRoomMembership(symStream.getStreamId());
   }
 
   /**

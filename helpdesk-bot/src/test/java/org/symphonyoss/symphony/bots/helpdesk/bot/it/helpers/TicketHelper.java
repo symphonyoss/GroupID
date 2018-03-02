@@ -115,4 +115,24 @@ public class TicketHelper {
     return responseEntity.getBody();
   }
 
+  public TicketResponse joinTicketRoom(String ticketId, Long agentId) {
+    String url = "/v1/ticket/{ticketId}/join";
+
+    Map<String, String> uriParams = new HashMap<>();
+    uriParams.put("ticketId", ticketId);
+
+    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
+        .queryParam("agentId", agentId);
+
+    ResponseEntity<TicketResponse> responseEntity =
+        restTemplate.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.POST, null,
+            TicketResponse.class);
+
+    if (!responseEntity.getStatusCode().equals(HttpStatus.OK)) {
+      throw new WebApplicationException(responseEntity.getStatusCodeValue());
+    }
+
+    return responseEntity.getBody();
+  }
+
 }
