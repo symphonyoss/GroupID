@@ -36,6 +36,7 @@ import org.symphonyoss.symphony.clients.model.SymUser;
 import org.symphonyoss.symphony.pod.model.UserAttributes;
 import org.symphonyoss.symphony.pod.model.UserCreate;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,6 +56,19 @@ public class HelpDeskBotStories extends JUnitStories {
 
   private static final String AGENT = "Agent";
 
+  private static final String CERTS_DIR = "certs";
+
+  private static final String MESSAGE_BOT_CERTIFICATE_NOT_FOUND = "Bot certificate not found.";
+
+  private static final String MESSAGE_PROVISIONING_CERTIFICATE_NOT_FOUND =
+      "Provisioning certificate not found.";
+
+  private static final String USER_PROVISIONING = "userProvisioning";
+
+  private static final String EXTENSION_CERTIFICATE = ".p12";
+
+  private static final String BEGIN_NAME_OF_CERTIFICATE = "Bot";
+
   @Autowired
   private ApplicationContext applicationContext;
 
@@ -64,6 +78,8 @@ public class HelpDeskBotStories extends JUnitStories {
   private HelpDeskSymphonyClient helpDeskSymphonyClient;
 
   private TestContext testContext = TestContext.getInstance();
+
+  private CertificateUtils certificateUtils = new CertificateUtils();
 
   public HelpDeskBotStories() {
     initJBehaveConfiguration();
@@ -102,15 +118,31 @@ public class HelpDeskBotStories extends JUnitStories {
   }
 
   private void prepareEnvironment() {
+    createCertsDir();
+
+    String caKeyPath = System.getProperty("caKeyPath");
+    String caCertPath = System.getProperty("caCertPath");
+
+    provisioningSteps(caKeyPath, caCertPath);
+
     initSymphonyClient();
 
     createQueueRoom();
     createUsersAndAddToQueueRoom();
-    createBotCertificate();
   }
 
-  private void createBotCertificate() {
-    // TODO APP-1629
+  /**
+   * Creates directory of certificates in tmp directory and set on Context.
+   */
+  private void createCertsDir() {
+    String certsDir = System.getProperty("java.io.tmpdir") + File.separator + CERTS_DIR;
+
+    File directory = new File(certsDir);
+    if (!directory.exists()) {
+      directory.mkdirs();
+    }
+
+    testContext.setCertsDir(certsDir);
   }
 
   @Override
@@ -243,15 +275,54 @@ public class HelpDeskBotStories extends JUnitStories {
 
     SymUser agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
     addUserOnQueueRoom(agent.getId());
-    testContext.setUsers(UsersEnum.AGENT_1, agent);
+    testContext.setUsers(UsersEnum.AGENT1, agent);
 
     agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
     addUserOnQueueRoom(agent.getId());
-    testContext.setUsers(UsersEnum.AGENT_2, agent);
+    testContext.setUsers(UsersEnum.AGENT2, agent);
 
     agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
     addUserOnQueueRoom(agent.getId());
-    testContext.setUsers(UsersEnum.AGENT_3, agent);
+    testContext.setUsers(UsersEnum.AGENT3, agent);
   }
 
+  /**
+   * Creates a new service account on POD
+   * @param userName name of user
+   */
+  private void createServiceAccount(String userName) {
+    List<String> roles = new ArrayList<>();
+    roles.add(ROLE_INDIVIDUAL);
+
+    createUser(userName, UserAttributes.AccountTypeEnum.SYSTEM, roles);
+  }
+
+  /**
+   * Method responsible to create a certificate for user provisioning and use the certificate to
+   * create a new service account and create a certificate to authenticates the new service account.
+   * @param caKeyPath path to certificate key
+   * @param caCertPath path to certificate path
+   */
+  private void provisioningSteps(String caKeyPath, String caCertPath) {
+    String userProvisioning = USER_PROVISIONING;
+    String certsDir = testContext.getCertsDir();
+
+    certificateUtils.createCertificateP12(caKeyPath, caCertPath, userProvisioning);
+
+    File provisioningCertificate = new File(certsDir + userProvisioning + EXTENSION_CERTIFICATE);
+    if (!provisioningCertificate.exists()) {
+      throw new IllegalStateException(MESSAGE_PROVISIONING_CERTIFICATE_NOT_FOUND);
+    }
+
+    UUID uuid = UUID.randomUUID();
+    String userBot = BEGIN_NAME_OF_CERTIFICATE + uuid;
+    certificateUtils.createCertificateP12(caKeyPath, caCertPath, userBot);
+
+    File botCertificate = new File(certsDir + userBot + EXTENSION_CERTIFICATE);
+    if (!botCertificate.exists()) {
+      throw new IllegalStateException(MESSAGE_BOT_CERTIFICATE_NOT_FOUND);
+    }
+
+    createServiceAccount(userBot);
+  }
 }
