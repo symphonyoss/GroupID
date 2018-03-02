@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.bot.it;
+package org.symphonyoss.symphony.bots.helpdesk.bot.it.utils;
 
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
@@ -22,10 +22,14 @@ import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 import org.bouncycastle.pkcs.PKCSException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -48,35 +52,65 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+/**
+ * Utility class to deal with certificate stuff.
+ *
+ * Created by crepache on 01/03/18.
+ */
 public class CertificateUtils {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(CertificateUtils.class);
+
+  private static final String CERTS_DIR = "certs";
 
   private static final String ALGORITHM = "RSA";
 
-  private static final String PROVIDER = "BC";
-
-  private static final String PKCS_12 = "PKCS12";
-
   private static final String X_509 = "X.509";
+
+  private static final String PROVIDER = "BC";
 
   private static final int KEYSIZE = 2048;
 
-  private static final String SIGNATURE_ALGORITHM = "SHA1WithRSAEncryption";
-
   private static final String WHITE_SPACES = " ";
 
-  private static String PASSWD = "changeit";
+  private static final String PASSWD = "changeit";
 
-  private static TestContext testContext = TestContext.getInstance();
+  private static final String SIGNATURE_ALGORITHM = "SHA1WithRSAEncryption";
+
+  private static final String PKCS_12 = "PKCS12";
+
+  private static final TestContext CONTEXT = TestContext.getInstance();
 
   /**
-   * Main method to create certificate p12, this method generates a keypair, creates a certificate
-   * and save the certificate on path.
-   * @param caKeyPath path to private key
-   * @param caCertPath path to public key
-   * @param userName user name of the certificate
+   * Creates certificate directory and set it into the test context.
    */
-  public void createCertificateP12(String caKeyPath, String caCertPath, String userName) {
-    URI certsDir = new File(testContext.getCertsDir()).toURI();
+  public static void createCertsDir() {
+    String certsDir = System.getProperty("java.io.tmpdir") + File.separator + CERTS_DIR;
+
+    File directory = new File(certsDir);
+
+    if (!directory.exists()) {
+      LOGGER.info("Creating certificate directory: " + directory.getAbsolutePath());
+      directory.mkdirs();
+    } else {
+      LOGGER.info("Certificate directory already exists");
+    }
+
+    CONTEXT.setCertsDir(certsDir);
+
+    System.setProperty("CERTS_DIR", certsDir);
+  }
+
+  /**
+   * Creates p12 certificate file. This method generates a key pair, creates a certificate
+   * and save it on the filesystem.
+   *
+   * @param caKeyPath Path to CA private key
+   * @param caCertPath Path to CA certificate
+   * @param userName user name
+   */
+  public static void createUserCertificate(String caKeyPath, String caCertPath, String userName) {
+    URI certsDir = new File(CONTEXT.getCertsDir()).toURI();
 
     Security.addProvider(new BouncyCastleProvider());
 
@@ -99,10 +133,10 @@ public class CertificateUtils {
   }
 
   /**
-   * Generate a key pair to generate the certificate
-   * @return keyPair
+   * Generate the public/private key pair
+   * @return Public/private key pair
    */
-  private KeyPair generateKeys() throws NoSuchProviderException, NoSuchAlgorithmException {
+  private static KeyPair generateKeys() throws NoSuchProviderException, NoSuchAlgorithmException {
     KeyPairGenerator generator = KeyPairGenerator.getInstance(ALGORITHM, PROVIDER);
     generator.initialize(KEYSIZE);
 
@@ -110,11 +144,11 @@ public class CertificateUtils {
   }
 
   /**
-   * Convert the File into PrivateKey.
-   * @param privateKey file to private key
-   * @return privateKey
+   * Convert the File object into PrivateKey object.
+   * @param privateKey private key file
+   * @return PrivateKey object
    */
-  private PrivateKey getPrivateKey(File privateKey)
+  private static PrivateKey getPrivateKey(File privateKey)
       throws IOException, PKCSException, OperatorCreationException {
     FileReader fileReader = new FileReader(privateKey);
     PEMParser parser = new PEMParser(fileReader);
@@ -127,11 +161,12 @@ public class CertificateUtils {
   }
 
   /**
-   * Convert the File into PublicKey.
-   * @param publicKey file to public key
-   * @return publicKey
+   * Convert the File object into PublicKey object.
+   * @param publicKey public key file
+   * @return PublicKey object
    */
-  private PublicKey getPublicKey(File publicKey) throws Exception {
+  private static PublicKey getPublicKey(File publicKey)
+      throws FileNotFoundException, CertificateException {
     FileInputStream is = new FileInputStream(publicKey);
 
     CertificateFactory certificateFactory = CertificateFactory.getInstance(X_509);
@@ -141,13 +176,14 @@ public class CertificateUtils {
   }
 
   /**
-   * Create a certificate with public and private keys.
-   * @param publicKey file to public key
-   * @param privateKey file to private key
-   * @param userName user name of the certificate
-   * @return Array of certificate
+   * Create a certificate according to the public and private keys.
+   *
+   * @param publicKey Public key
+   * @param privateKey Private key
+   * @param userName Certificate common name
+   * @return Certificate chain
    */
-  private Certificate[] createCertificate(PublicKey publicKey, PrivateKey privateKey, String userName)
+  private static Certificate[] createCertificate(PublicKey publicKey, PrivateKey privateKey, String userName)
       throws IOException, OperatorCreationException, CertificateException, NoSuchProviderException,
       NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     X500Name issuer = new X500Name("CN=" + userName + ", C=US, O=Symphony Communications LLC, OU=NOT FOR PRODUCTION USE");
@@ -188,22 +224,24 @@ public class CertificateUtils {
   }
 
   /**
-   * Method responsible to save file .p12 in directory of certificates.
-   * @param certificateFile path to save the certificate.
-   * @param keyStorePassword password of certificate
+   * Method responsible for saving p12 file in certificate directory.
+   *
+   * @param certificateDir path to save the certificate.
+   * @param keyStorePassword certificate password
    * @param chain the certificate chain
    * @param userRef alias name of the certificate
-   * @param keys private and public key to be associated with the alias
+   * @param keys private and public keys to be associated with the alias
    */
-  private void writeKeystore(URI certificateFile, String keyStorePassword, Certificate[] chain,
-      String userRef, KeyPair keys) throws NoSuchAlgorithmException, NoSuchProviderException, KeyStoreException,
-      IOException, CertificateException {
+  private static void writeKeystore(URI certificateDir, String keyStorePassword, Certificate[] chain,
+      String userRef, KeyPair keys) throws NoSuchAlgorithmException, NoSuchProviderException,
+      KeyStoreException, IOException, CertificateException {
     KeyStore store = KeyStore.getInstance(PKCS_12, PROVIDER);
     store.load(null, null);
     store.setKeyEntry(userRef, keys.getPrivate(), null, chain);
 
-    try (FileOutputStream fOut = new FileOutputStream(certificateFile.getPath())) {
+    try (FileOutputStream fOut = new FileOutputStream(certificateDir.getPath())) {
       store.store(fOut, keyStorePassword.toCharArray());
     }
   }
+
 }

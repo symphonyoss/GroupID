@@ -1,0 +1,1 @@
+org.springframework.test.context.TestExecutionListener=org.symphonyoss.symphony.bots.helpdesk.bot.it.listener.PrepareEnvironmentListener
