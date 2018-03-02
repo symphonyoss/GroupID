@@ -131,11 +131,10 @@ function help {
 function authenticate {
     CERTS_DIR=${SCRIPT_DIRECTORY}/certs
     CERTS_FILE=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.pem
+    CERTS_PKCS12=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.p12
 
     if [ ! -e ${CERTS_FILE} ]
     then
-        CERTS_PKCS12=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.p12
-
         if [ ! -e ${CERTS_PKCS12} ]
         then
             echo "[ERROR] Missing bot certificate."
@@ -146,6 +145,17 @@ function authenticate {
     fi
 
     SESSION_TOKEN=$(curl -X POST -k --cert $CERTS_FILE --cert-type PEM -s $AUTH_ENDPOINT | jq -r '.token')
+
+    if [ -z $SESSION_TOKEN ]
+    then
+        if [ ! -e ${CERTS_PKCS12} ]
+        then
+            echo "[ERROR] Missing bot certificate."
+            exit 1
+        fi
+
+        SESSION_TOKEN=$(curl -X POST -k --cert $CERTS_PKCS12:changeit -s $AUTH_ENDPOINT | jq -r '.token')
+    fi
 
     if [ -z $SESSION_TOKEN ]
     then
