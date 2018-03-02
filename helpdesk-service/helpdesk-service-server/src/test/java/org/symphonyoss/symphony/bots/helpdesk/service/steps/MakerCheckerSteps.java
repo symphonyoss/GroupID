@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Error;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 
@@ -26,11 +27,12 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 @Component
 public class MakerCheckerSteps {
 
-  public static final String OPENED = MakercheckerClient.AttachmentStateType.OPENED.getState();
-  public static final String MOCK_SERVICE_STREAM_ID = "MOCK_SERVICE_STREAM_ID";
-  public static final String MOCK_MAKERCHECKER_ID = "MOCK_MAKERCHECKER_ID";
-  public static final String DISPLAY_NAME = "DISPLAY_NAME";
+  private static final String OPENED = MakercheckerClient.AttachmentStateType.OPENED.getState();
+  private static final String MOCK_SERVICE_STREAM_ID = "MOCK_SERVICE_STREAM_ID";
+  private static final String MOCK_MAKERCHECKER_ID = "MOCK_MAKERCHECKER_ID";
+  private static final String DISPLAY_NAME = "DISPLAY_NAME";
   private ResponseEntity<Makerchecker> responseEntity;
+  private ResponseEntity<Error> errorResponseEntity;
 
   @Autowired
   private TestRestTemplate restTemplate;
@@ -51,8 +53,8 @@ public class MakerCheckerSteps {
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.setId(null);
 
-    responseEntity =
-        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
+    errorResponseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Error.class);
 
   }
 
@@ -62,8 +64,8 @@ public class MakerCheckerSteps {
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.setStreamId(null);
 
-    responseEntity =
-        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
+    errorResponseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Error.class);
 
   }
 
@@ -73,8 +75,8 @@ public class MakerCheckerSteps {
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.makerId(null);
 
-    responseEntity =
-        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
+    errorResponseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Error.class);
 
   }
 
@@ -85,8 +87,8 @@ public class MakerCheckerSteps {
     makerchecker.setId("NEW_MOCK_MAKERCHECKER_ID");
     makerchecker.setState(MakercheckerClient.AttachmentStateType.DENIED.getState());
 
-    responseEntity =
-        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
+    errorResponseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Error.class);
 
   }
 
@@ -95,8 +97,8 @@ public class MakerCheckerSteps {
 
     Makerchecker makerchecker = createMakerchecker();
 
-    responseEntity =
-        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
+    errorResponseEntity =
+        restTemplate.postForEntity("/v1/makerchecker", makerchecker, Error.class);
 
   }
 
@@ -111,15 +113,15 @@ public class MakerCheckerSteps {
   @When("call the read makerchecker API with invalid id")
   public void callGetMakercheckerAPIWithInvalidId() {
 
-    responseEntity =
-        restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class, "INVALID_ID");
+    errorResponseEntity =
+        restTemplate.getForEntity("/v1/makerchecker/{id}", Error.class, "INVALID_ID");
   }
 
   @When("call the read makerchecker API with invalid parameter")
   public void callGetMakercheckerAPIWithInvalidParameter() {
 
-    responseEntity =
-        restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class, "");
+    errorResponseEntity =
+        restTemplate.getForEntity("/v1/makerchecker/{id}", Error.class, "");
 
   }
 
@@ -134,9 +136,9 @@ public class MakerCheckerSteps {
 
     HttpEntity<Makerchecker> requestEntity = new HttpEntity<>(makerchecker, headers);
 
-    responseEntity =
+    errorResponseEntity =
         restTemplate.exchange("/v1/makerchecker/{id}", HttpMethod.PUT, requestEntity,
-            Makerchecker.class, MOCK_MAKERCHECKER_ID);
+            Error.class, MOCK_MAKERCHECKER_ID);
   }
 
   @When("call the update makerchecker API")
@@ -168,7 +170,7 @@ public class MakerCheckerSteps {
     return userInfo;
   }
 
-  @Then("check that makerchecker was created/founded")
+  @Then("check that makerchecker exists")
   public void checkMakercheckerWasCreatedFounded() {
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertEquals(createMakerchecker(), responseEntity.getBody());
@@ -180,24 +182,29 @@ public class MakerCheckerSteps {
     assertEquals(createUserInfo(), responseEntity.getBody().getChecker());
   }
 
-  @Then("receive a bad request error")
-  public void errorBadRequest() {
-    assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
+  @Then("receive a bad request error caused by $id missing in $body")
+  public void errorBadRequest(String paramName, String requiredIn) {
+    assertEquals(HttpStatus.BAD_REQUEST, errorResponseEntity.getStatusCode());
+    assertEquals("This request requires a " + paramName +
+        " to be provided with the " + requiredIn + ".", errorResponseEntity.getBody().getMessage());
   }
 
   @Then("receive an internal server error")
   public void errorInternalServerError() {
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
+    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, errorResponseEntity.getStatusCode());
+    assertEquals("Failed to create new makerchecker. Id: MOCK_MAKERCHECKER_ID",
+        errorResponseEntity.getBody().getMessage());
   }
 
   @Then("receive a no content message")
   public void noContentInfo() {
-    assertEquals(HttpStatus.NO_CONTENT, responseEntity.getStatusCode());
-    assertNull(responseEntity.getBody());
+    assertEquals(HttpStatus.NO_CONTENT, errorResponseEntity.getStatusCode());
+    assertNull(errorResponseEntity.getBody());
   }
 
   @Then("receive a method not allowed error")
   public void errorMethodNotAllowed() {
-    assertEquals(HttpStatus.METHOD_NOT_ALLOWED, responseEntity.getStatusCode());
+    assertEquals(HttpStatus.METHOD_NOT_ALLOWED, errorResponseEntity.getStatusCode());
+    assertEquals("Request method 'GET' not supported", errorResponseEntity.getBody().getMessage());
   }
 }
