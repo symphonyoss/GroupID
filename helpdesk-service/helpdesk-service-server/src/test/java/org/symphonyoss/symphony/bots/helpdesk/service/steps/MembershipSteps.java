@@ -199,7 +199,7 @@ public class MembershipSteps {
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
   }
 
-  public Membership createMembershipClient() {
+  private Membership createMembershipClient() {
     Membership membership = new Membership();
     membership.setId(CLIENT_ID);
     membership.setGroupId(GROUP_ID);
@@ -207,7 +207,7 @@ public class MembershipSteps {
     return membership;
   }
 
-  public Membership createMembershipAgent() {
+  private Membership createMembershipAgent() {
     Membership agent = new Membership();
     agent.setId(AGENT_ID);
     agent.setGroupId(GROUP_ID);
