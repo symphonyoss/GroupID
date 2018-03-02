@@ -1,15 +1,12 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.steps;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.TEXT_PLAIN;
 
-import org.jbehave.core.annotations.Given;
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -29,6 +26,10 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 @Component
 public class MakerCheckerSteps {
 
+  public static final String OPENED = MakercheckerClient.AttachmentStateType.OPENED.getState();
+  public static final String MOCK_SERVICE_STREAM_ID = "MOCK_SERVICE_STREAM_ID";
+  public static final String MOCK_MAKERCHECKER_ID = "MOCK_MAKERCHECKER_ID";
+  public static final String DISPLAY_NAME = "DISPLAY_NAME";
   private ResponseEntity<Makerchecker> responseEntity;
 
   @Autowired
@@ -64,9 +65,6 @@ public class MakerCheckerSteps {
     responseEntity =
         restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
 
-    assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-
-
   }
 
   @When("call the create makerchecker API with invalid maker id")
@@ -77,9 +75,6 @@ public class MakerCheckerSteps {
 
     responseEntity =
         restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
-
-    assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
-
 
   }
 
@@ -93,9 +88,6 @@ public class MakerCheckerSteps {
     responseEntity =
         restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
 
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, responseEntity.getStatusCode());
-
-
   }
 
   @When("call the create makerchecker API with same id")
@@ -106,7 +98,6 @@ public class MakerCheckerSteps {
     responseEntity =
         restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
 
-
   }
 
   @When("call the retrieve makerchecker API")
@@ -114,7 +105,7 @@ public class MakerCheckerSteps {
 
     responseEntity =
         restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class,
-            "MOCK_MAKERCHECKER_ID");
+            MOCK_MAKERCHECKER_ID);
   }
 
   @When("call the read makerchecker API with invalid id")
@@ -136,17 +127,16 @@ public class MakerCheckerSteps {
   public void callUpdateMakerCheckerWithErros() {
 
     Makerchecker makerchecker = createMakerchecker();
-    makerchecker.setMakerId(666666L);
+    makerchecker.setMakerId(null);
 
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(APPLICATION_JSON);
 
     HttpEntity<Makerchecker> requestEntity = new HttpEntity<>(makerchecker, headers);
 
-
     responseEntity =
         restTemplate.exchange("/v1/makerchecker/{id}", HttpMethod.PUT, requestEntity,
-            Makerchecker.class, "MOCK_MAKERCHECKER_ID");
+            Makerchecker.class, MOCK_MAKERCHECKER_ID);
   }
 
   @When("call the update makerchecker API")
@@ -155,18 +145,18 @@ public class MakerCheckerSteps {
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.setChecker(createUserInfo());
 
-    restTemplate.put("/v1/makerchecker/{id}", makerchecker, "MOCK_MAKERCHECKER_ID");
+    restTemplate.put("/v1/makerchecker/{id}", makerchecker, MOCK_MAKERCHECKER_ID);
 
     responseEntity =
         restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class,
-            "MOCK_MAKERCHECKER_ID");
+            MOCK_MAKERCHECKER_ID);
   }
 
   private Makerchecker createMakerchecker() {
     Makerchecker makerchecker = new Makerchecker();
-    makerchecker.setState(MakercheckerClient.AttachmentStateType.OPENED.getState());
-    makerchecker.setStreamId("MOCK_SERVICE_STREAM_ID");
-    makerchecker.setId("MOCK_MAKERCHECKER_ID");
+    makerchecker.setState(OPENED);
+    makerchecker.setStreamId(MOCK_SERVICE_STREAM_ID);
+    makerchecker.setId(MOCK_MAKERCHECKER_ID);
     makerchecker.setMakerId(0123456L);
     return makerchecker;
   }
@@ -174,7 +164,7 @@ public class MakerCheckerSteps {
   private UserInfo createUserInfo() {
     UserInfo userInfo = new UserInfo();
     userInfo.setUserId(1234L);
-    userInfo.setDisplayName("DISPLAY_NAME");
+    userInfo.setDisplayName(DISPLAY_NAME);
     return userInfo;
   }
 
