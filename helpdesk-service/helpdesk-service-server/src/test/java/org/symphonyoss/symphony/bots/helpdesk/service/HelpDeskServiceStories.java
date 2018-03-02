@@ -25,8 +25,9 @@ import java.util.List;
  * Created by rsanchez on 21/02/18.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = { HelpDeskServiceInit.class })
-  public class HelpDeskServiceStories extends JUnitStories {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = {HelpDeskServiceInit.class})
+public class HelpDeskServiceStories extends JUnitStories {
 
   @Autowired
   private ApplicationContext applicationContext;
