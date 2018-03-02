@@ -23,8 +23,6 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
-import java.io.IOException;
-
 /**
  * Created by rsanchez on 01/12/17.
  */
@@ -175,12 +173,7 @@ public class TicketService {
     }
 
     if (message.getMessage() != null) {
-      try {
-        return SymMessageUtil.parseTicketMessage(message);
-      } catch (IOException e) {
-        LOGGER.error("Could not access message entity data: ", e);
-        return message.getMessageText();
-      }
+      return SymMessageUtil.parseMessage(message);
     } else {
       return message.getMessageText();
     }

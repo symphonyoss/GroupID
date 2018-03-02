@@ -10,10 +10,11 @@ import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SymMessageUtil {
 
@@ -95,62 +96,10 @@ public class SymMessageUtil {
     }
 
     if (elementMessageML != null) {
-      elementMessageML.childNodes().forEach(node -> {
-        if (node.toString().equalsIgnoreCase("<br>")) {
-          textDoc.append("<br/>");
-        } else {
-          textDoc.append(node.toString());
-        }
-      });
-    }
-
-    return placeEmojis(textDoc.toString());
-  }
-
-  /**
-   * Parse the received PresentationML formatted message into a valid MessageML fragment that
-   * will compose the "Question" field of the ticket
-   * @param message The message to be processed
-   * @return String containing the valid MessageML fragment
-   */
-  public static String parseTicketMessage(SymMessage message) throws IOException {
-    Element elementMessageML;
-    StringBuilder textDoc = new StringBuilder("");
-
-    Document doc = Jsoup.parse(message.getMessage());
-
-    doc.select("errors").remove();
-    elementMessageML = doc.select("messageML").first();
-    if (elementMessageML == null) {
-      elementMessageML = doc.select("div").first();
-    }
-
-    if (elementMessageML != null) {
       for (Node node : elementMessageML.childNodes()) {
         if (node.nodeName().equalsIgnoreCase("span")) {
-          if (node.attributes().get("class").equalsIgnoreCase("entity")) {
-            String value = node.childNodes().get(0).toString();
-            String statement = "";
-            if (value.startsWith("#")) {
-              statement =
-                  "<" + NodeTypes.HASHTAG.toString() + " tag=\"" + value.substring(1) + "\" />";
-            } else if (value.startsWith("$")) {
-              statement =
-                  "<" + NodeTypes.CASHTAG.toString() + " tag=\"" + value.substring(1) + "\" />";
-            } else if (value.startsWith("@")) {
-              LinkedHashMap result = (LinkedHashMap)
-                  new ObjectMapper().readValue(message.getEntityData(), HashMap.class)
-                      .get(node.attributes().get("data-entity-id"));
-              ArrayList<LinkedHashMap> ids = (ArrayList) result.get("id");
-              for (LinkedHashMap id : ids) {
-                statement +=
-                    "<" + NodeTypes.MENTION.toString() + " uid=\"" + id.get("value").toString()
-                        + "\" />";
-              }
-            }
-            textDoc.append(statement);
-          }
-        } else if (node.nodeName().equalsIgnoreCase("<br>")) {
+          textDoc.append(parseSpan(node, message.getEntityData()));
+        } else if (node.nodeName().equalsIgnoreCase("br")) {
           textDoc.append("<br/>");
         } else {
           textDoc.append(node.toString());
@@ -162,37 +111,68 @@ public class SymMessageUtil {
   }
 
   /**
-   * Verifies a string changing any emoji shortcodes with the correct MessageML emoji tags
-   * @param message String with   the possible emojis
+   * Parse Hashtag, Cashtag and Mention spans in the original PresentationML into valid MessageML
+   * @param node The original PresentationML span node
+   * @param entityData The message's entity data for data fetching in case of mentions
+   * @return String with the parsed span
+   */
+  private static String parseSpan(Node node, String entityData) {
+    if (node.attributes().get("class").equalsIgnoreCase("entity")) {
+      String value = node.childNodes().get(0).toString();
+      StringBuilder parsedSpan = new StringBuilder();
+      if (value.startsWith("#")) {
+        parsedSpan.append("<")
+            .append(NodeTypes.HASHTAG.toString())
+            .append(" tag=\"")
+            .append(value.substring(1))
+            .append("\" />");
+      } else if (value.startsWith("$")) {
+        parsedSpan.append("<")
+            .append(NodeTypes.CASHTAG.toString())
+            .append(" tag=\"")
+            .append(value.substring(1))
+            .append("\" />");
+      } else if (value.startsWith("@")) {
+        try {
+          LinkedHashMap<String, Object> result = (LinkedHashMap<String, Object>)
+              new ObjectMapper().readValue(entityData, HashMap.class)
+                  .get(node.attributes().get("data-entity-id"));
+          List<LinkedHashMap> ids = (List<LinkedHashMap>) result.get("id");
+          for (LinkedHashMap id : ids) {
+            parsedSpan.append("<")
+                .append(NodeTypes.MENTION.toString())
+                .append(" uid=\"")
+                .append(id.get("value").toString())
+                .append("\" />");
+          }
+        } catch (IOException e) {
+          parsedSpan.append(value);
+        }
+      } else {
+        return node.toString();
+      }
+      return parsedSpan.toString();
+    }
+    return node.toString();
+  }
+
+  /**
+   * Verify a string changing any emoji shortcodes with the correct MessageML emoji tags
+   * @param message String with the possible emojis
    * @return String with any emojis processed into MessageML tags
    */
   private static String placeEmojis(String message) {
-    StringBuilder result = new StringBuilder();
-    StringBuilder partial = new StringBuilder();
-    boolean possileEmoji = false;
-    for (Character c : message.toCharArray()) {
-      if (possileEmoji) {
-        partial.append(c);
-        if (c == ':') {
-          partial.setLength(partial.length()-1);
-          String shortCode = partial.toString();
-          shortCode = shortCode.substring(1);
-          result.append("<emoji shortcode=\"" + shortCode + "\" />");
-          possileEmoji = false;
-        } else if (!Character.isLetter(c) && !Character.isDigit(c) && c != '_' && c != '-' && c != '+') {
-          possileEmoji = false;
-          result.append(partial);
-        }
-      } else {
-        if (c == ':') {
-          possileEmoji = true;
-          partial.setLength(0);
-          partial.append(c);
-        } else {
-          result.append(c);
-        }
-      }
+    StringBuffer result = new StringBuffer();
+    Matcher matcher = Pattern.compile(":([a-z0-9_+-]+):").matcher(message);
+
+    if (!matcher.find()) {
+      return message;
+    } else {
+      do {
+        matcher.appendReplacement(result, "<emoji shortcode=\"" + matcher.group(1) + "\" />");
+      } while (matcher.find());
     }
+
     return result.toString();
   }
 }

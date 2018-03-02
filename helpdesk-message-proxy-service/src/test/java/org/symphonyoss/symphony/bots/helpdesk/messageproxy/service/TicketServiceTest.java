@@ -79,7 +79,8 @@ public class TicketServiceTest {
           + "\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":\"9208409883842\"}]}}";
 
   private static final String EXPECTED_COMPLEX_MESSAGE =
-      "<hash tag=\\\"hash\\\" /> <cash tag=\\\"cash\\\" /> <mention uid=\\\"9208409883842\\\" /> mention "
+      "<hash tag=\\\"hash\\\" /> <cash tag=\\\"cash\\\" /> <mention uid=\\\"9208409883842\\\" /> "
+          + "mention "
           + "<b>bold</b> <i>italic</i> <b><i>combo</i></b><ul>\\n <li>bullet1</li>\\n "
           + "<li>bullet2</li>\\n</ul>";
 
