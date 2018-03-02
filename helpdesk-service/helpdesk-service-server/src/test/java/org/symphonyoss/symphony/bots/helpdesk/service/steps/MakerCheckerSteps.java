@@ -147,11 +147,14 @@ public class MakerCheckerSteps {
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.setChecker(createUserInfo());
 
-    restTemplate.put("/v1/makerchecker/{id}", makerchecker, MOCK_MAKERCHECKER_ID);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(APPLICATION_JSON);
+
+    HttpEntity<Makerchecker> requestEntity = new HttpEntity<>(makerchecker, headers);
 
     responseEntity =
-        restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class,
-            MOCK_MAKERCHECKER_ID);
+        restTemplate.exchange("/v1/makerchecker/{id}", HttpMethod.PUT, requestEntity,
+            Makerchecker.class, MOCK_MAKERCHECKER_ID);
   }
 
   private Makerchecker createMakerchecker() {
