@@ -179,7 +179,7 @@ public class MakerCheckerSteps {
     assertEquals(createUserInfo(), responseEntity.getBody().getChecker());
   }
 
-  @Then("receive a bad request error caused by $id missing in the $body")
+  @Then("receive a bad request error from makerchecker API caused by $id missing in the $body")
   public void errorBadRequest(String paramName, String requiredIn) {
     assertEquals(HttpStatus.BAD_REQUEST, errorResponseEntity.getStatusCode());
     assertEquals("This request requires a " + paramName +

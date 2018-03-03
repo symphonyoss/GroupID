@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.steps;
+package org.symphonyoss.symphony.bots.helpdesk.service.it.steps;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
@@ -6,7 +6,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,6 +18,8 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Error;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 
 /**
+ * Steps to validate membership API.
+ *
  * Created by alexandre-silva-daitan on 28/02/18.
  */
 @Component
@@ -29,11 +30,16 @@ public class MembershipSteps {
   private static final String GROUP_ID = "GROUP_ID";
   private static final long AGENT_ID = 321L;
   private static final long CLIENT_ID = 123L;
+
   private ResponseEntity<Membership> responseEntity;
+
   private ResponseEntity<Error> errorResponseEntity;
 
-  @Autowired
-  private TestRestTemplate restTemplate;
+  private final TestRestTemplate restTemplate;
+
+  public MembershipSteps(TestRestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
 
   @When("I call the create membership API for client")
   public void callCreateMembershipClient() {
@@ -153,19 +159,19 @@ public class MembershipSteps {
             Membership.class, GROUP_ID, AGENT_ID);
   }
 
-  @Then("check that membership client exists")
+  @Then("check that client membership exists")
   public void checkMembershipClientExists() {
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertEquals(createMembershipClient(), responseEntity.getBody());
   }
 
-  @Then("check that membership agent exists")
+  @Then("check that agent membership exists")
   public void checkMembershipAgentExists() {
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertEquals(createMembershipAgent(), responseEntity.getBody());
   }
 
-  @Then("receive a bad request error caused by $id missing in $body")
+  @Then("receive a bad request error from membership API caused by $id missing in the $body")
   public void errorBadRequest(String paramName, String requiredIn) {
     assertEquals(HttpStatus.BAD_REQUEST, errorResponseEntity.getStatusCode());
     assertEquals("This request requires a " + paramName +
@@ -197,6 +203,19 @@ public class MembershipSteps {
   @Then("receive successfull message even there is no agent")
   public void checkAgentUnexistentDeleted() {
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+  }
+
+  @When("I call the create membership API for client duplicated")
+  public void callCreateMembershipClientDuplicated() {
+    Membership client = createMembershipClient();
+    errorResponseEntity = restTemplate.postForEntity("/v1/membership", client, Error.class);
+  }
+
+  @Then("receive a bad request error caused by membership already exists")
+  public void errorMembershipAlreadyExists() {
+    assertEquals(HttpStatus.BAD_REQUEST, errorResponseEntity.getStatusCode());
+    assertEquals("Membership already exists. GroupId: GROUP_ID, userId: 123",
+        errorResponseEntity.getBody().getMessage());
   }
 
   private Membership createMembershipClient() {

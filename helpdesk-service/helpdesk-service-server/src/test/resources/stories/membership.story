@@ -7,31 +7,35 @@ So that I can assert those actions are available and working.
 
 Scenario: Create an agent membership without id
 When I call the create membership API for agent without id
-Then receive a bad request error caused by id missing in body
+Then receive a bad request error from membership API caused by id missing in the body
 
 Scenario: Create an agent membership without group id
 When I call the create membership API for agent without group id
-Then receive a bad request error caused by groupId missing in body
+Then receive a bad request error from membership API caused by groupId missing in the body
 
 Scenario: Create an agent membership without type
 When I call the create membership API for agent without type
-Then receive a bad request error caused by type missing in body
+Then receive a bad request error from membership API caused by type missing in the body
 
 Scenario: Create a client membership
 When I call the create membership API for client
-Then check that membership client exists
+Then check that client membership exists
+
+Scenario: Create a membership duplicate
+When I call the create membership API for client duplicated
+Then receive a bad request error caused by membership already exists
 
 Scenario: Create an agent membership
 When I call the create membership API for agent
-Then check that membership agent exists
+Then check that agent membership exists
 
 Scenario: Retrieve an agent membership
 When I call the search membership API for agent
-Then check that membership agent exists
+Then check that agent membership exists
 
 Scenario: Retrieve a client membership
 When I call the search membership API for client
-Then check that membership client exists
+Then check that client membership exists
 
 Scenario: Search an unexistent membership
 When I call the search membership API for unexistent client
@@ -61,5 +65,4 @@ Scenario: Delete an agent
 When call the delete membership API for agent
 And I call the search membership API for agent
 Then check that agent no longer exists
-
 
