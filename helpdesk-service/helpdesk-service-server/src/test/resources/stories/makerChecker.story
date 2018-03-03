@@ -11,22 +11,22 @@ Then check that makerchecker exists
 
 Scenario: Create a maker/checker with invalid id
 When call the create makerchecker API with invalid id
-Then receive a bad request error caused by id missing in body
+Then receive a bad request error caused by id missing in the body
 
 Scenario: Create a maker/checker with invalid stream id
 When call the create makerchecker API with invalid stream id
-Then receive a bad request error caused by streamId missing in body
+Then receive a bad request error caused by streamId missing in the body
 
 Scenario: Create a maker/checker with invalid maker id
 When call the create makerchecker API with invalid maker id
-Then receive a bad request error caused by makerId missing in body
+Then receive a bad request error caused by makerId missing in the body
 
 Scenario: Create a maker/checker with same id
 When call the create makerchecker API with same id
 Then receive an internal server error
 
 Scenario: Search for a maker/checker
-When call the retrieve makerchecker API
+When call the read makerchecker API
 Then check that makerchecker exists
 
 Scenario: Search for an invalid maker/checker
@@ -38,8 +38,8 @@ When call the read makerchecker API with invalid parameter
 Then receive a method not allowed error
 
 Scenario: try to update a maker/checker
-When call the update makerchecker API and returns bad request
-Then receive a bad request error caused by makerId missing in body
+When call the update makerchecker API with invalid makerId
+Then receive a bad request error caused by makerId missing in the body
 
 Scenario: Update a maker/checker
 When call the update makerchecker API

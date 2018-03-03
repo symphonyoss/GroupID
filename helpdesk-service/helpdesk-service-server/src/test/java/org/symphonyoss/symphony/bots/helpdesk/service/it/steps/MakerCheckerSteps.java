@@ -1,13 +1,11 @@
-package org.symphonyoss.symphony.bots.helpdesk.service.steps;
+package org.symphonyoss.symphony.bots.helpdesk.service.it.steps;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNull;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.TEXT_PLAIN;
 
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,9 +19,10 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 
 /**
+ * Steps to validate makerchecker API.
+ *
  * Created by alexandre-silva-daitan on 23/02/18.
  */
-
 @Component
 public class MakerCheckerSteps {
 
@@ -31,11 +30,16 @@ public class MakerCheckerSteps {
   private static final String MOCK_SERVICE_STREAM_ID = "MOCK_SERVICE_STREAM_ID";
   private static final String MOCK_MAKERCHECKER_ID = "MOCK_MAKERCHECKER_ID";
   private static final String DISPLAY_NAME = "DISPLAY_NAME";
+
   private ResponseEntity<Makerchecker> responseEntity;
+
   private ResponseEntity<Error> errorResponseEntity;
 
-  @Autowired
-  private TestRestTemplate restTemplate;
+  private final TestRestTemplate restTemplate;
+
+  public MakerCheckerSteps(TestRestTemplate restTemplate) {
+    this.restTemplate = restTemplate;
+  }
 
   @When("call the create makerchecker API")
   public void callMakercheckerAPI() {
@@ -44,7 +48,6 @@ public class MakerCheckerSteps {
 
     responseEntity =
         restTemplate.postForEntity("/v1/makerchecker", makerchecker, Makerchecker.class);
-
   }
 
   @When("call the create makerchecker API with invalid id")
@@ -55,7 +58,6 @@ public class MakerCheckerSteps {
 
     errorResponseEntity =
         restTemplate.postForEntity("/v1/makerchecker", makerchecker, Error.class);
-
   }
 
   @When("call the create makerchecker API with invalid stream id")
@@ -66,7 +68,6 @@ public class MakerCheckerSteps {
 
     errorResponseEntity =
         restTemplate.postForEntity("/v1/makerchecker", makerchecker, Error.class);
-
   }
 
   @When("call the create makerchecker API with invalid maker id")
@@ -77,7 +78,6 @@ public class MakerCheckerSteps {
 
     errorResponseEntity =
         restTemplate.postForEntity("/v1/makerchecker", makerchecker, Error.class);
-
   }
 
   @When("call the create makerchecker API with invalid state")
@@ -94,17 +94,16 @@ public class MakerCheckerSteps {
 
   @When("call the create makerchecker API with same id")
   public void callMakercheckerAPIWithSameId() {
+    this.errorResponseEntity = null;
 
     Makerchecker makerchecker = createMakerchecker();
 
     errorResponseEntity =
         restTemplate.postForEntity("/v1/makerchecker", makerchecker, Error.class);
-
   }
 
-  @When("call the retrieve makerchecker API")
+  @When("call the read makerchecker API")
   public void callGetMakercheckerAPI() {
-
     responseEntity =
         restTemplate.getForEntity("/v1/makerchecker/{id}", Makerchecker.class,
             MOCK_MAKERCHECKER_ID);
@@ -112,22 +111,18 @@ public class MakerCheckerSteps {
 
   @When("call the read makerchecker API with invalid id")
   public void callGetMakercheckerAPIWithInvalidId() {
-
     errorResponseEntity =
         restTemplate.getForEntity("/v1/makerchecker/{id}", Error.class, "INVALID_ID");
   }
 
   @When("call the read makerchecker API with invalid parameter")
   public void callGetMakercheckerAPIWithInvalidParameter() {
-
     errorResponseEntity =
         restTemplate.getForEntity("/v1/makerchecker/{id}", Error.class, "");
-
   }
 
-  @When("call the update makerchecker API and returns bad request")
+  @When("call the update makerchecker API with invalid makerId")
   public void callUpdateMakerCheckerWithErros() {
-
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.setMakerId(null);
 
@@ -143,7 +138,6 @@ public class MakerCheckerSteps {
 
   @When("call the update makerchecker API")
   public void callUpdateMakerChecker() {
-
     Makerchecker makerchecker = createMakerchecker();
     makerchecker.setChecker(createUserInfo());
 
@@ -174,7 +168,7 @@ public class MakerCheckerSteps {
   }
 
   @Then("check that makerchecker exists")
-  public void checkMakercheckerWasCreatedFounded() {
+  public void checkMakercheckerExists() {
     assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
     assertEquals(createMakerchecker(), responseEntity.getBody());
   }
@@ -185,7 +179,7 @@ public class MakerCheckerSteps {
     assertEquals(createUserInfo(), responseEntity.getBody().getChecker());
   }
 
-  @Then("receive a bad request error caused by $id missing in $body")
+  @Then("receive a bad request error caused by $id missing in the $body")
   public void errorBadRequest(String paramName, String requiredIn) {
     assertEquals(HttpStatus.BAD_REQUEST, errorResponseEntity.getStatusCode());
     assertEquals("This request requires a " + paramName +
