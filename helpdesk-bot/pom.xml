@@ -19,6 +19,7 @@
         <swagger.source.bot>${swagger.source}/helpdesk-bot-api.yaml</swagger.source.bot>
         <templates.source.server>${swagger.source}/templates</templates.source.server>
         <helpdesk.api.bot.package>org.symphonyoss.symphony.bots.helpdesk.bot</helpdesk.api.bot.package>
+        <skipBotBddTests>true</skipBotBddTests>
     </properties>
 
     <dependencies>
@@ -160,6 +161,7 @@
                             <additionalClasspathElements>
                                 <additionalClasspathElement>${project.build.outputDirectory}</additionalClasspathElement>
                             </additionalClasspathElements>
+                            <skipITs>${skipBotBddTests}</skipITs>
                         </configuration>
                     </execution>
                 </executions>

@@ -105,12 +105,14 @@ After that, you must run the **create_agent_room.sh** script providing the envir
 
 ### Validate applications
 
-- Access URL: 'https://localhost.symphony.com:8100/helpdesk-renderer/bundle.json'. Make sure this URL is reachable
+- Access this in your Chrome browser: 'chrome://flags/#allow-insecure-localhost'. You should see highlighted
+text saying: Allow invalid certificates for resources loaded from localhost. Click 'Enable'
+- Access URL: 'https://localhost:8100/helpdesk-renderer/bundle.json'. Make sure this URL is reachable
 - Access Symphony Client providing the bundle JSON as query string.
 
 Example:
 ```
-https://nexus4-2.symphony.com/client/?bundle=https://localhost.symphony.com:8100/helpdesk-renderer/bundle.json
+https://nexus4-2.symphony.com/client/?bundle=https://localhost:8100/helpdesk-renderer/bundle.json
 ```
 
 - Make sure your user is member of the queue room

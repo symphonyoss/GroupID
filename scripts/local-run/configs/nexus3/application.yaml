@@ -7,11 +7,11 @@ authentication:
   keystore-password: changeit
 
 helpdesk-bot:
-  host: localhost.symphony.com
+  host: localhost
   port: 8090
 
 helpdesk-service:
-  host: localhost.symphony.com
+  host: localhost
   port: 8081
 
 agent:

@@ -23,7 +23,6 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
-
 /**
  * Created by rsanchez on 01/12/17.
  */
@@ -173,7 +172,11 @@ public class TicketService {
       return String.format(TABLE_MESSAGE, username);
     }
 
-    return message.getMessageText();
+    if (message.getMessage() != null) {
+      return SymMessageUtil.parseMessage(message);
+    } else {
+      return message.getMessageText();
+    }
   }
 
   public void sendClientMessageToServiceStreamId(String streamId, SymMessage message) {
