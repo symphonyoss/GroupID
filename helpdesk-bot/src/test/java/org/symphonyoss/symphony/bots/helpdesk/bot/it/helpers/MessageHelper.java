@@ -60,7 +60,7 @@ public class MessageHelper {
    */
   public void sendAgentMessage(String userRef, SymMessage message)
       throws StreamsException, MessagesException {
-    String username = userHelper.getAgentUser(userRef).getUsername();
+    String username = userHelper.getUser(userRef.toUpperCase()).getUsername();
 
     SymphonyClient userAgent = userHelper.getUserContext(username);
     SymUser agentUser = userAgent.getLocalUser();
@@ -77,16 +77,16 @@ public class MessageHelper {
   /**
    * Retrieve the latest client message.
    *
-   * @param username Client username
+   * @param user Client user
    * @param initialTime Initial time to retrieve messages
    * @return Latest message
    * @throws StreamsException Failure to retrieve the stream
    * @throws MessagesException Failure to retrieve messages
    */
-  public Optional<SymMessage> getLatestClientMessage(String username, Long initialTime)
+  public Optional<SymMessage> getLatestClientMessage(String user, Long initialTime)
       throws StreamsException, MessagesException {
-    SymStream stream = streamHelper.getClientStream(username);
-    SymphonyClient userClient = userHelper.getUserContext(username);
+    SymStream stream = streamHelper.getClientStream(user);
+    SymphonyClient userClient = userHelper.getUserContext(user);
 
     List<SymMessage> messagesFromStream =
         userClient.getMessagesClient().getMessagesFromStream(stream, initialTime, 0, 100);

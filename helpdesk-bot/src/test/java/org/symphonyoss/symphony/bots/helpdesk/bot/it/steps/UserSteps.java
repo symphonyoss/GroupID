@@ -6,6 +6,7 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.CertificateUtils;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.UserUtils;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,15 +34,19 @@ public class UserSteps {
     String username = user + UUID.randomUUID();
 
     UserUtils userUtils = new UserUtils(symphonyClient);
-    userUtils.createEndUser(username, roles);
+    SymUser endUser = userUtils.createEndUser(username, roles);
+
+    context.setUsers(user, endUser);
   }
 
   @Given("a certificate for $user user")
   public void createUserCertificate(String user) {
+    String username = context.getUser(user).getUsername();
+
     String caKeyPath = System.getProperty(CA_KEY_PATH);
     String caCertPath = System.getProperty(CA_CERT_PATH);
 
-    CertificateUtils.createUserCertificate(caKeyPath, caCertPath, user);
+    CertificateUtils.createUserCertificate(caKeyPath, caCertPath, username);
   }
 
 }

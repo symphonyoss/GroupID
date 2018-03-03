@@ -106,9 +106,9 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
     SymUser agent2 = userUtils.createEndUser(AGENT_USER + UUID.randomUUID());
     SymUser agent3 = userUtils.createEndUser(AGENT_USER + UUID.randomUUID());
 
-    CONTEXT.setUsers(UsersEnum.AGENT1, agent1);
-    CONTEXT.setUsers(UsersEnum.AGENT2, agent2);
-    CONTEXT.setUsers(UsersEnum.AGENT3, agent3);
+    CONTEXT.setUsers(UsersEnum.AGENT1.name(), agent1);
+    CONTEXT.setUsers(UsersEnum.AGENT2.name(), agent2);
+    CONTEXT.setUsers(UsersEnum.AGENT3.name(), agent3);
 
     CertificateUtils.createUserCertificate(caKeyPath, caCertPath, agent1.getUsername());
     CertificateUtils.createUserCertificate(caKeyPath, caCertPath, agent2.getUsername());

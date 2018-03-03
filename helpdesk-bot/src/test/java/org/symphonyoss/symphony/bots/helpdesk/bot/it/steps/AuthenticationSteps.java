@@ -57,7 +57,7 @@ public class AuthenticationSteps {
    */
   @When("$user agent authenticates using a certificate")
   public void authenticateAgent(String agentRef) throws AuthenticationException, InitException {
-    SymUser agentUser = userHelper.getAgentUser(agentRef);
+    SymUser agentUser = userHelper.getUser(agentRef.toUpperCase());
 
     AuthenticationUtils utils = new AuthenticationUtils(config);
     utils.authenticateUser(agentUser.getUsername());
