@@ -34,14 +34,64 @@ public class UserUtils {
    *
    * @param username
    */
-  public void createServiceAccount(String username) {
+  public SymUser createServiceAccount(String username) {
+    return createServiceAccount(username, Arrays.asList(ROLE_INDIVIDUAL));
+  }
+
+  public SymUser createServiceAccount(String username, List<String> roles) {
     try {
-      symphonyClient.getUsersClient().getUserFromName(username);
+      SymUser user = symphonyClient.getUsersClient().getUserFromName(username);
       LOGGER.info("User " + username + " already exists");
+
+      return user;
     } catch (UserNotFoundException e) {
-      createUser(username, UserAttributes.AccountTypeEnum.SYSTEM, Arrays.asList(ROLE_INDIVIDUAL));
+      return createServiceUser(username, roles);
     } catch (UsersClientException e) {
       throw new IllegalStateException("Cannot search user.", e);
+    }
+  }
+
+  /**
+   * Creates a new end user.
+   *
+   * @param username
+   */
+  public SymUser createEndUser(String username) {
+    return createEndUser(username, Arrays.asList(ROLE_INDIVIDUAL));
+  }
+
+  public SymUser createEndUser(String username, List<String> roles) {
+    try {
+      SymUser user = symphonyClient.getUsersClient().getUserFromName(username);
+      LOGGER.info("User " + username + " already exists");
+
+      return user;
+    } catch (UserNotFoundException e) {
+      return createNormalUser(username, roles);
+    } catch (UsersClientException e) {
+      throw new IllegalStateException("Cannot search user.", e);
+    }
+  }
+
+  /**
+   * Creates a new service account user on POD
+   *
+   * @param username username
+   * @param roles list of roles
+   * @return SymUser object
+   */
+  private SymUser createServiceUser(String username, List<String> roles) {
+    UserCreate userCreate = new UserCreate();
+
+    UserAttributes userAttributes = buildUserAttributes(username, UserAttributes.AccountTypeEnum.SYSTEM);
+    userCreate.setUserAttributes(userAttributes);
+
+    userCreate.setRoles(roles);
+
+    try {
+      return symphonyClient.getUsersClient().createUser(userCreate);
+    } catch (UsersClientException e) {
+      throw new IllegalStateException("Cannot create user.", e);
     }
   }
 
@@ -49,15 +99,16 @@ public class UserUtils {
    * Creates a new user on POD
    *
    * @param username username
-   * @param userType type of account
    * @param roles list of roles
    * @return SymUser object
    */
-  private SymUser createUser(String username, UserAttributes.AccountTypeEnum userType,
-      List<String> roles) {
+  private SymUser createNormalUser(String username, List<String> roles) {
     UserCreate userCreate = new UserCreate();
 
-    UserAttributes userAttributes = buildUserAttributes(username, userType);
+    UserAttributes userAttributes = buildUserAttributes(username, UserAttributes.AccountTypeEnum.NORMAL);
+    userAttributes.setFirstName(username);
+    userAttributes.setLastName("Test");
+
     userCreate.setUserAttributes(userAttributes);
 
     userCreate.setRoles(roles);

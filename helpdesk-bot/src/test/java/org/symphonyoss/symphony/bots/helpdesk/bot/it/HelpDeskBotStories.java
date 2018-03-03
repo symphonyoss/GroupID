@@ -77,16 +77,6 @@ public class HelpDeskBotStories extends JUnitStories {
 
   @Before
   public void bootstrap() {
-    String[] activeProfiles = applicationContext.getEnvironment().getActiveProfiles();
-
-    long count = Arrays.stream(activeProfiles)
-        .filter(profile -> Arrays.asList(SUPPORTED_ENVS).contains(profile))
-        .count();
-
-    if (count == 0) {
-      throw new IllegalStateException("You must setup environment");
-    }
-
     new HelpDeskBootstrap().execute(applicationContext);
   }
 
@@ -98,74 +88,7 @@ public class HelpDeskBotStories extends JUnitStories {
   @Override
   protected List<String> storyPaths() {
     return new StoryFinder().findPaths(CodeLocations.codeLocationFromClass(this.getClass()),
-        "**/*.bla", "**/excluded*.story");
+        "**/*.story", "**/excluded*.story");
   }
-
-//  /**
-//   * Create queue room. There is a retry behavior to avoid errors when
-//   * the POD doesn't support to create private room with the view history flag set to TRUE.
-//   * @return the created stream
-//   */
-//  private Room createQueueRoom() {
-//    try {
-//      return createRoom(Boolean.TRUE);
-//    } catch (RoomException e) {
-//      try {
-//        return createRoom(Boolean.FALSE);
-//      } catch (RoomException e1) {
-//        throw new IllegalStateException("Couldn't create queue room.", e1);
-//      }
-//    }
-//  }
-//
-//  /**
-//   * Creates a new stream for Queue Room and set on TestContext.
-//   * @param showHistory Show History
-//   * @return the created stream
-//   */
-//  private Room createRoom(Boolean showHistory) throws RoomException {
-//    SymRoomAttributes symRoomAttributes = new SymRoomAttributes();
-//    symRoomAttributes.setViewHistory(showHistory);
-//
-//    String randomId = UUID.randomUUID().toString();
-//    symRoomAttributes.setName("Queue Room " + randomId);
-//    symRoomAttributes.setDescription("Queue Room " + randomId);
-//
-//    Room queueRoom = helpDeskSymphonyClient.getRoomService().createRoom(symRoomAttributes);
-//    testContext.setQueueRoom(queueRoom);
-//
-//    return queueRoom;
-//  }
-//
-//  /**
-//   * Add user on queue room.
-//   * @return userId the id of user
-//   */
-//  private void addUserOnQueueRoom(Long userId) {
-//    try {
-//      helpDeskSymphonyClient.getRoomMembershipClient().addMemberToRoom(testContext.getQueueRoom().getStreamId(), userId);
-//    } catch (SymException e) {
-//      throw new IllegalStateException("Couldn't add user on this room.", e);
-//    }
-//  }
-//  /**
-//   * Method responsible to create user, add on queue room and set users on the testContext.
-//   */
-//  private void createUsersAndAddToQueueRoom() {
-//    List<String> roles = new ArrayList<>();
-//    roles.add(ROLE_INDIVIDUAL);
-//
-//    SymUser agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
-//    addUserOnQueueRoom(agent.getId());
-//    testContext.setUsers(UsersEnum.AGENT1, agent);
-//
-//    agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
-//    addUserOnQueueRoom(agent.getId());
-//    testContext.setUsers(UsersEnum.AGENT2, agent);
-//
-//    agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
-//    addUserOnQueueRoom(agent.getId());
-//    testContext.setUsers(UsersEnum.AGENT3, agent);
-//  }
 
 }

@@ -53,13 +53,15 @@ public class MessageHelper {
   /**
    * Send the agent message through the ticket room.
    *
-   * @param username Agent username
+   * @param userRef Agent reference
    * @param message Message to be sent out
    * @throws StreamsException Failure to retrieve the stream
    * @throws MessagesException Failure to send out the message
    */
-  public void sendAgentMessage(String username, SymMessage message)
+  public void sendAgentMessage(String userRef, SymMessage message)
       throws StreamsException, MessagesException {
+    String username = userHelper.getAgentUser(userRef).getUsername();
+
     SymphonyClient userAgent = userHelper.getUserContext(username);
     SymUser agentUser = userAgent.getLocalUser();
 

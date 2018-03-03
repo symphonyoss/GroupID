@@ -1,32 +1,14 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.it.steps;
 
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.ClientProperties;
 import org.jbehave.core.annotations.When;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.client.SymphonyClientConfig;
-import org.symphonyoss.client.SymphonyClientConfigID;
 import org.symphonyoss.client.exceptions.AuthenticationException;
 import org.symphonyoss.client.exceptions.InitException;
-import org.symphonyoss.client.impl.SymphonyBasicClient;
-import org.symphonyoss.client.model.SymAuth;
-import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.bot.config.HttpClientConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext;
+import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.UserHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.AuthenticationUtils;
-import org.symphonyoss.symphony.clients.AuthenticationClient;
-import org.symphonyoss.symphony.pod.invoker.JSON;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 /**
  * Class responsible for managing authentication steps.
@@ -44,10 +26,13 @@ public class AuthenticationSteps {
 
   private final HelpDeskBotConfig config;
 
+  private final UserHelper userHelper;
+
   private final TestContext context = TestContext.getInstance();
 
-  public AuthenticationSteps(HelpDeskBotConfig config) {
+  public AuthenticationSteps(HelpDeskBotConfig config, UserHelper userHelper) {
     this.config = config;
+    this.userHelper = userHelper;
   }
 
   /**
@@ -63,4 +48,18 @@ public class AuthenticationSteps {
     utils.authenticateUser(username);
   }
 
+  /**
+   * Authenticates an agent given the agent reference.
+   *
+   * @param agentRef Agent reference
+   * @throws AuthenticationException Failure to authenticate user
+   * @throws InitException Failure to initialize Symphony client
+   */
+  @When("$user agent authenticates using a certificate")
+  public void authenticateAgent(String agentRef) throws AuthenticationException, InitException {
+    SymUser agentUser = userHelper.getAgentUser(agentRef);
+
+    AuthenticationUtils utils = new AuthenticationUtils(config);
+    utils.authenticateUser(agentUser.getUsername());
+  }
 }
