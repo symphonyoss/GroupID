@@ -1,16 +1,23 @@
 #!/usr/bin/env bash
 
-declare -A pod_envs
-pod_envs[nexus1]='nexus1-2.symphony.com'
-pod_envs[nexus2]='nexus2-2.symphony.com'
-pod_envs[nexus3]='nexus3-2.symphony.com'
-pod_envs[nexus4]='nexus4-2.symphony.com'
+envs=('nexus1' 'nexus2' 'nexus3' 'nexus4')
+pod_envs=('nexus1-2.symphony.com' 'nexus2-2.symphony.com' 'nexus3-2.symphony.com' 'nexus4-2.symphony.com')
+fqdn_envs=('sym-nexus1-dev-chat-glb-3-ause1-all.symphony.com' 'sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com' 'sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com' 'sym-nexus4-dev-chat-glb-3-ause1-all.symphony.com')
 
-declare -A fqdn_envs
-fqdn_envs[nexus1]='sym-nexus1-dev-chat-glb-3-ause1-all.symphony.com'
-fqdn_envs[nexus2]='sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com'
-fqdn_envs[nexus3]='sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com'
-fqdn_envs[nexus4]='sym-nexus4-dev-chat-glb-3-ause1-all.symphony.com'
+##
+# Checks if the given element is in the provided array of elements.
+#
+function elementInArray () {
+    ELEMENT=$1  
+    ARRAY="${@:2}"
+    COUNTER=1
+    for ARRAYELEMENT in $ARRAY
+    do 
+        [[ "$ARRAYELEMENT" == "$ELEMENT" ]] && return $COUNTER;
+        COUNTER=$((COUNTER+1))
+    done
+    return 0
+}
 
 ##
 # Parses the input and adds information to shell variables
@@ -26,8 +33,17 @@ function parseInput {
             --env)
                 shift
                 ENV=$1
-                POD_ADDRESS=${pod_envs[$ENV]}
-                FQDN_POD_ADDRESS=${fqdn_envs[$ENV]}
+                elementInArray "$ENV" "${envs[@]}"
+                INDEX=$?
+
+                if [ $INDEX == 0 ]
+                then
+                    echo "[ERROR] Invalid environment."
+                    exit 1
+                fi
+
+                POD_ADDRESS=${pod_envs[$INDEX-1]}
+                FQDN_POD_ADDRESS=${fqdn_envs[$INDEX-1]}
                 AUTH_ENDPOINT="https://$FQDN_POD_ADDRESS:8444/sessionauth/v1/authenticate"
                 CREATE_ENDPOINT="https://$POD_ADDRESS/pod/v3/room/create"
                 shift
@@ -115,11 +131,10 @@ function help {
 function authenticate {
     CERTS_DIR=${SCRIPT_DIRECTORY}/certs
     CERTS_FILE=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.pem
+    CERTS_PKCS12=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.p12
 
     if [ ! -e ${CERTS_FILE} ]
     then
-        CERTS_PKCS12=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.p12
-
         if [ ! -e ${CERTS_PKCS12} ]
         then
             echo "[ERROR] Missing bot certificate."
@@ -130,6 +145,17 @@ function authenticate {
     fi
 
     SESSION_TOKEN=$(curl -X POST -k --cert $CERTS_FILE --cert-type PEM -s $AUTH_ENDPOINT | jq -r '.token')
+
+    if [ -z $SESSION_TOKEN ]
+    then
+        if [ ! -e ${CERTS_PKCS12} ]
+        then
+            echo "[ERROR] Missing bot certificate."
+            exit 1
+        fi
+
+        SESSION_TOKEN=$(curl -X POST -k --cert $CERTS_PKCS12:changeit -s $AUTH_ENDPOINT | jq -r '.token')
+    fi
 
     if [ -z $SESSION_TOKEN ]
     then

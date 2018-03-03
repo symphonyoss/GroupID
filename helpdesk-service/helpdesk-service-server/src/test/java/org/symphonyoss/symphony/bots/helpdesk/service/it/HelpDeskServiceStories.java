@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.service;
+package org.symphonyoss.symphony.bots.helpdesk.service.it;
 
 import org.jbehave.core.configuration.MostUsefulConfiguration;
 import org.jbehave.core.failures.FailingUponPendingStep;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskServiceInit;
 
 import java.util.List;
 
@@ -25,7 +26,8 @@ import java.util.List;
  * Created by rsanchez on 21/02/18.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = { HelpDeskServiceInit.class })
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = {HelpDeskServiceInit.class})
 public class HelpDeskServiceStories extends JUnitStories {
 
   @Autowired
