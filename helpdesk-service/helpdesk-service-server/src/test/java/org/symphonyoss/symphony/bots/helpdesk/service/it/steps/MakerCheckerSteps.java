@@ -186,10 +186,10 @@ public class MakerCheckerSteps {
         " to be provided with the " + requiredIn + ".", errorResponseEntity.getBody().getMessage());
   }
 
-  @Then("receive an internal server error")
-  public void errorInternalServerError() {
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, errorResponseEntity.getStatusCode());
-    assertEquals("Failed to create new makerchecker. Id: MOCK_MAKERCHECKER_ID",
+  @Then("receive a bad request error caused by makerchecker already exists")
+  public void errorMakerCheckerAlreadyExists() {
+    assertEquals(HttpStatus.BAD_REQUEST, errorResponseEntity.getStatusCode());
+    assertEquals("Makerchecker already exists. Id: MOCK_MAKERCHECKER_ID",
         errorResponseEntity.getBody().getMessage());
   }
 

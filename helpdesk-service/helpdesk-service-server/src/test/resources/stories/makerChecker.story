@@ -23,7 +23,7 @@ Then receive a bad request error caused by makerId missing in the body
 
 Scenario: Create a maker/checker with same id
 When call the create makerchecker API with same id
-Then receive an internal server error
+Then receive a bad request error caused by makerchecker already exists
 
 Scenario: Search for a maker/checker
 When call the read makerchecker API
