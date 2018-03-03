@@ -95,17 +95,21 @@ public class SymMessageUtil {
       elementMessageML = doc.select("div").first();
     }
 
-    if (elementMessageML != null) {
-      for (Node node : elementMessageML.childNodes()) {
-        if (node.nodeName().equalsIgnoreCase("span")) {
-          textDoc.append(parseSpan(node, message.getEntityData()));
-        } else if (node.nodeName().equalsIgnoreCase("br")) {
-          textDoc.append("<br/>");
-        } else {
-          textDoc.append(node.toString());
-        }
-      }
+    if (elementMessageML == null) {
+      return placeEmojis(textDoc.toString());
     }
+
+    elementMessageML.childNodes().stream()
+        .map(node -> {
+          if (node.nodeName().equalsIgnoreCase("span")) {
+            return parseSpan(node, message.getEntityData());
+          } else if (node.nodeName().equalsIgnoreCase("br")) {
+            return "<br/>";
+          } else {
+            return node.toString();
+          }
+        })
+        .forEach(value -> textDoc.append(value));
 
     return placeEmojis(textDoc.toString());
   }
@@ -119,41 +123,83 @@ public class SymMessageUtil {
   private static String parseSpan(Node node, String entityData) {
     if (node.attributes().get("class").equalsIgnoreCase("entity")) {
       String value = node.childNodes().get(0).toString();
-      StringBuilder parsedSpan = new StringBuilder();
+
       if (value.startsWith("#")) {
-        parsedSpan.append("<")
-            .append(NodeTypes.HASHTAG.toString())
-            .append(" tag=\"")
-            .append(value.substring(1))
-            .append("\" />");
+        return processHashTag(value);
       } else if (value.startsWith("$")) {
-        parsedSpan.append("<")
-            .append(NodeTypes.CASHTAG.toString())
-            .append(" tag=\"")
-            .append(value.substring(1))
-            .append("\" />");
+        return processCashTag(value);
       } else if (value.startsWith("@")) {
-        try {
-          LinkedHashMap<String, Object> result = (LinkedHashMap<String, Object>)
-              new ObjectMapper().readValue(entityData, HashMap.class)
-                  .get(node.attributes().get("data-entity-id"));
-          List<LinkedHashMap> ids = (List<LinkedHashMap>) result.get("id");
-          for (LinkedHashMap id : ids) {
-            parsedSpan.append("<")
-                .append(NodeTypes.MENTION.toString())
-                .append(" uid=\"")
-                .append(id.get("value").toString())
-                .append("\" />");
-          }
-        } catch (IOException e) {
-          parsedSpan.append(value);
-        }
-      } else {
-        return node.toString();
+        return processMention(node, entityData, value);
       }
-      return parsedSpan.toString();
     }
+
     return node.toString();
+  }
+
+  /**
+   * Process hashtag.
+   *
+   * @param value Hashtag value
+   * @return Parsed hashtag
+   */
+  private static String processHashTag(String value) {
+    StringBuilder parsedSpan = new StringBuilder();
+
+    parsedSpan.append("<")
+        .append(NodeTypes.HASHTAG.toString())
+        .append(" tag=\"")
+        .append(value.substring(1))
+        .append("\" />");
+
+    return parsedSpan.toString();
+  }
+
+  /**
+   * Process cashtag.
+   *
+   * @param value Cashtag value
+   * @return Parsed hashtag
+   */
+  private static String processCashTag(String value) {
+    StringBuilder parsedSpan = new StringBuilder();
+
+    parsedSpan.append("<")
+        .append(NodeTypes.CASHTAG.toString())
+        .append(" tag=\"")
+        .append(value.substring(1))
+        .append("\" />");
+
+    return parsedSpan.toString();
+  }
+
+  /**
+   * Process menition.
+   *
+   * @param node The original PresentationML span node
+   * @param entityData The message's entity data for data fetching in case of mentions
+   * @param value Mention value
+   * @return Parsed hashtag
+   */
+  private static String processMention(Node node, String entityData, String value) {
+    StringBuilder parsedSpan = new StringBuilder();
+
+    try {
+      LinkedHashMap<String, Object> result = (LinkedHashMap<String, Object>)
+          new ObjectMapper().readValue(entityData, HashMap.class)
+              .get(node.attributes().get("data-entity-id"));
+      List<LinkedHashMap> ids = (List<LinkedHashMap>) result.get("id");
+      for (LinkedHashMap id : ids) {
+        parsedSpan.append("<")
+            .append(NodeTypes.MENTION.toString())
+            .append(" uid=\"")
+            .append(id.get("value").toString())
+            .append("\" />");
+      }
+    } catch (IOException e) {
+      parsedSpan.append(value);
+    }
+
+    return parsedSpan.toString();
   }
 
   /**
