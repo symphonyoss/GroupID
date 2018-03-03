@@ -29,7 +29,7 @@ function createSelfSignedCertificate {
 
         ${JAVA_HOME}/bin/keytool -genkey -keyalg RSA -alias groupid -keystore ${KEYSTORE_FILE} \
             -keypass ${KEYSTORE_PASSWORD} -storepass ${KEYSTORE_PASSWORD} -validity 360 -keysize 2048 \
-            -dname CN=localhost.symphony.com -storetype pkcs12 -noprompt
+            -dname CN=localhost -storetype pkcs12 -noprompt -ext san=dns:localhost
     fi
 
     if [ ! -e ${CERT_FILE} ]
