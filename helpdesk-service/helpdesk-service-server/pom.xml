@@ -16,6 +16,7 @@
     <properties>
         <swagger.source.service>${project.parent.basedir}/helpdesk-service-api/src/main/swagger/helpdesk-service-api.yaml</swagger.source.service>
         <helpdesk.api.service.package>org.symphonyoss.symphony.bots.helpdesk.service</helpdesk.api.service.package>
+        <skipServiceBddTests>false</skipServiceBddTests>
     </properties>
 
     <dependencies>
@@ -158,6 +159,7 @@
                             <additionalClasspathElements>
                                 <additionalClasspathElement>${project.build.outputDirectory}</additionalClasspathElement>
                             </additionalClasspathElements>
+                            <skipITs>${skipServiceBddTests}</skipITs>
                         </configuration>
                     </execution>
                 </executions>
