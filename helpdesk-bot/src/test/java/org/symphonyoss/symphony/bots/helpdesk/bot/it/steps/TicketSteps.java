@@ -44,7 +44,7 @@ public class TicketSteps {
 
   private Long initialTime = 0L;
 
-  private Ticket claimedTicket = null;
+  private Ticket claimedTicket;
 
   public TicketSteps(MessageHelper messageHelper, TicketHelper ticketHelper, UserHelper userHelper,
       HelpDeskBotConfig helpDeskBotConfig,
@@ -114,15 +114,22 @@ public class TicketSteps {
     List<MemberInfo> membershipList = streamHelper.getStreamMembershipList(ticketStream);
     Long userId = userHelper.getAgentUser(username).getId();
 
-    assertTrue(membershipList.stream()
-        .anyMatch((MemberInfo memberInfo) ->
-          memberInfo.getId().equals(userId)
-        ));
+    boolean match = membershipList.stream()
+        .anyMatch(memberInfo -> memberInfo.getId().equals(userId));
+
+    assertTrue(match);
   }
 
   @Then("$user user can see all the history conversation in the ticket room")
-  public void verifyHistoryConversation(String username) {
-    // TODO
+  public void verifyHistoryConversation(String username) throws MessagesException {
+    assertTrue(claimedTicket != null);
+
+    List<SymMessage> ticketRoomMessages =
+        messageHelper.getTicketRoomMessages(initialTime, claimedTicket.getServiceStreamId());
+
+    assertEquals(2, ticketRoomMessages.size());
+    assertTrue(ticketRoomMessages.get(0).getMessage().contains("close the ticket upon ticket resolution"));
+    assertTrue(ticketRoomMessages.get(1).getMessage().contains("Hi customer, I'm fine."));
   }
 
   @Then("$user can verify the ticket claimed message in the client room")

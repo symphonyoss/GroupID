@@ -112,4 +112,18 @@ public class MessageHelper {
         .findFirst();
   }
 
+  /**
+   * Retrieve all messages in the ticket room.
+   *
+   * @param initialTime Initial time to retrieve messages
+   * @param streamId Ticket room id
+   * @return Room messages
+   * @throws MessagesException Failure to retrieve messages
+   */
+  public List<SymMessage> getTicketRoomMessages(Long initialTime, String streamId) throws MessagesException {
+    Stream ticketRoom = new Stream();
+    ticketRoom.setId(streamId);
+
+    return symphonyClient.getMessagesClient().getMessagesFromStream(ticketRoom, initialTime, 0, 100);
+  }
 }
