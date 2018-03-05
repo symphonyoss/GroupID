@@ -5,11 +5,13 @@ import static org.junit.Assert.assertTrue;
 
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
+import org.junit.Assert;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.StreamsException;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
+import org.symphonyoss.symphony.bots.helpdesk.bot.it.UsersEnum;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.MessageHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.StreamHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.TicketHelper;
@@ -42,9 +44,46 @@ public class TicketSteps {
 
   private final StreamHelper streamHelper;
 
+  private static final String AGENT_TICKET_CREATION_MESSAGE = "<div data-format=\"PresentationML"
+      + "\" data-version=\"V4\">    <div class=\"entity\" data-entity-id=\"helpdesk\">        "
+      + "<div class=\"card barStyle\">            <div class=\"cardHeader\">                "
+      + "<span><b>Equities Desk Bot</b></span>            </div>            <div "
+      + "class=\"cardBody\">                <span><b>Company:</b> Symphony Engineering Services "
+      + "Dev 5</span><br/>                <span><b>Customer:</b> "
+      + "%s</span><br/>                "
+      + "<span><b>Question:</b>  Hi bot, how are you doing?</span>            </div>        "
+      + "</div>    </div></div>";
+
+  private static final String CLIENT_TICKET_CREATION_MESSAGE = "<div data-format=\"PresentationML"
+      + "\" data-version=\"V4\">%s</div>";
+
+  private static final String MESSAGE_HISTORY_0 = "<div data-format=\"PresentationML\" "
+      + "data-version=\"V4\">Use <span class=\"entity\" "
+      + "data-entity-id=\"mention1\">@%s</span> "
+      + "<b>Close</b>  to close the ticket upon ticket resolution.</div>";
+
+  private static final String MESSAGE_HISTORY_1 = "<div data-format=\"PresentationML\" "
+      + "data-version=\"V4\"><b>%s</b>:  Hi bot, how are you doing?</div>";
+
+  private static final String MESSAGE_HISTORY_2 =
+      "<div data-format=\"PresentationML\" data-version=\"V4\">Hi customer, I'm fine.</div>";
+
+  private static final String TICKET_CLAIMED_MESSAGE = "<div data-format=\"PresentationML\" "
+      + "data-version=\"V4\">%s</div>";
+
+  private static final String AGENT_RESPONSE_MESSAGE = "<div data-format=\"PresentationML\" "
+      + "data-version=\"V4\"> Hi customer, I'm fine.</div>";
+
+  private static final String TICKET_CLOSED_MESSAGE = "<div data-format=\"PresentationML\" "
+      + "data-version=\"V4\">%s</div>";
+
   private Long initialTime = 0L;
 
   private Ticket claimedTicket;
+
+  private String clientUsername;
+
+  private String agentUsername;
 
   public TicketSteps(MessageHelper messageHelper, TicketHelper ticketHelper, UserHelper userHelper,
       HelpDeskBotConfig helpDeskBotConfig,
@@ -57,14 +96,16 @@ public class TicketSteps {
   }
 
   @When("$user sends an initial question to the bot")
-  public void sendInitialQuestion(String username)
+  public void sendInitialQuestion(String user)
       throws StreamsException, MessagesException, InterruptedException {
     this.initialTime = System.currentTimeMillis();
 
     SymMessage message = new SymMessage();
     message.setMessageText("Hi bot, how are you doing?");
 
-    messageHelper.sendClientMessage(username, message);
+    messageHelper.sendClientMessage(user, message);
+
+    clientUsername = userHelper.getUser(user).getUsername();
 
     // Waiting message be processed
     Thread.sleep(5000L);
@@ -76,8 +117,11 @@ public class TicketSteps {
         messageHelper.getLatestQueueRoomMessage(initialTime);
 
     assertTrue(message.isPresent());
+    assertTrue(clientUsername != null);
 
-    assertTrue(message.get().getMessage().contains("<b>Question:</b> Hi bot, how are you doing?"));
+    String expectedString = String.format(AGENT_TICKET_CREATION_MESSAGE, clientUsername);
+
+    assertEquals(expectedString, message.get().getMessage());
   }
 
   @Then("$user can verify the ticket successfully created message in the client room")
@@ -88,7 +132,9 @@ public class TicketSteps {
 
     assertTrue(message.isPresent());
 
-    assertTrue(message.get().getMessage().contains(helpDeskBotConfig.getCreateTicketMessage()));
+    assertEquals(
+        String.format(CLIENT_TICKET_CREATION_MESSAGE, helpDeskBotConfig.getCreateTicketMessage()),
+        message.get().getMessage());
   }
 
   @When("$user user claims the latest ticket created")
@@ -123,24 +169,45 @@ public class TicketSteps {
   @Then("$user user can see all the history conversation in the ticket room")
   public void verifyHistoryConversation(String username) throws MessagesException {
     assertTrue(claimedTicket != null);
+    assertTrue(clientUsername != null);
 
     List<SymMessage> ticketRoomMessages =
         messageHelper.getTicketRoomMessages(initialTime, claimedTicket.getServiceStreamId());
 
     assertEquals(2, ticketRoomMessages.size());
-    assertTrue(ticketRoomMessages.get(0).getMessage().contains("close the ticket upon ticket resolution"));
-    assertTrue(ticketRoomMessages.get(1).getMessage().contains("Hi customer, I'm fine."));
+    assertEquals(String.format(MESSAGE_HISTORY_0, userHelper.getBotUser().getUsername()),
+        ticketRoomMessages.get(1).getMessage());
+    assertEquals(String.format(MESSAGE_HISTORY_1, clientUsername),
+        ticketRoomMessages.get(0).getMessage());
+  }
+
+  @Then("$user user can see all the history conversation in the ticket room after agent answer")
+  public void verifyHistoryConversationAfterAsnwer(String username) throws MessagesException {
+    assertTrue(claimedTicket != null);
+    assertTrue(clientUsername != null);
+    assertTrue(agentUsername != null);
+
+    List<SymMessage> ticketRoomMessages =
+        messageHelper.getTicketRoomMessages(initialTime, claimedTicket.getServiceStreamId());
+
+    assertEquals(3, ticketRoomMessages.size());
+    assertEquals(String.format(MESSAGE_HISTORY_0, userHelper.getBotUser().getUsername()),
+        ticketRoomMessages.get(2).getMessage());
+    assertEquals(String.format(MESSAGE_HISTORY_1, clientUsername),
+        ticketRoomMessages.get(1).getMessage());
+    assertEquals(MESSAGE_HISTORY_2, ticketRoomMessages.get(0).getMessage());
   }
 
   @Then("$user can verify the ticket claimed message in the client room")
-  public void verifyTicketClaimedMessage(String username)
+  public void verifyTicketClaimedMessage(String user)
       throws MessagesException, StreamsException {
     Optional<SymMessage> message =
-        messageHelper.getLatestClientMessage(username, initialTime);
+        messageHelper.getLatestClientMessage(user, initialTime);
 
     assertTrue(message.isPresent());
 
-    assertTrue(message.get().getMessage().contains(helpDeskBotConfig.getAcceptTicketClientSuccessResponse()));
+    assertEquals(String.format(TICKET_CLAIMED_MESSAGE,
+        helpDeskBotConfig.getAcceptTicketClientSuccessResponse()), message.get().getMessage());
   }
 
   @When("$user answer the client question")
@@ -151,18 +218,20 @@ public class TicketSteps {
 
     messageHelper.sendAgentMessage(username, message);
 
+    agentUsername = userHelper.getUser(username.toUpperCase()).getUsername();
+
     // Waiting message be processed
     Thread.sleep(5000L);
   }
 
   @Then("$user can verify the agent answer in the client room")
-  public void verifyAgentAnswer(String username) throws MessagesException, StreamsException {
+  public void verifyAgentAnswer(String user) throws MessagesException, StreamsException {
     Optional<SymMessage> message =
-        messageHelper.getLatestClientMessage(username, initialTime);
+        messageHelper.getLatestClientMessage(user, initialTime);
 
     assertTrue(message.isPresent());
 
-    assertTrue(message.get().getMessage().contains("Hi customer, I'm fine."));
+    assertEquals(AGENT_RESPONSE_MESSAGE, message.get().getMessage());
   }
 
   @When("$user user join the conversation")
@@ -177,7 +246,8 @@ public class TicketSteps {
       throws InterruptedException, MessagesException, StreamsException {
     SymUser botUser = userHelper.getBotUser();
 
-    String closeMessage = String.format("<messageML><mention uid=\"%d\"/> close</messageML>", botUser.getId());
+    String closeMessage =
+        String.format("<messageML><mention uid=\"%d\"/> close</messageML>", botUser.getId());
 
     SymMessage message = new SymMessage();
     message.setMessage(closeMessage);
@@ -201,14 +271,16 @@ public class TicketSteps {
   }
 
   @Then("$user can verify the ticket closed message in the client room")
-  public void verifyTicketClosedMessage(String username)
+  public void verifyTicketClosedMessage(String user)
       throws MessagesException, StreamsException {
     Optional<SymMessage> message =
-        messageHelper.getLatestClientMessage(username, initialTime);
+        messageHelper.getLatestClientMessage(user, initialTime);
 
     assertTrue(message.isPresent());
 
-    assertTrue(message.get().getMessage().contains(helpDeskBotConfig.getCloseTicketSuccessResponse()));
+    assertEquals(
+        String.format(TICKET_CLOSED_MESSAGE, helpDeskBotConfig.getCloseTicketSuccessResponse()),
+        message.get().getMessage());
   }
 
 }

@@ -29,7 +29,7 @@ Scenario: Join conversation
 When agent2 agent authenticates using a certificate
 And agent2 user join the conversation
 Then bot can verify the agent2 user was added to the ticket room
-And agent2 user can see all the history conversation in the ticket room
+And agent2 user can see all the history conversation in the ticket room after agent answer
 
 Scenario: Close conversation
 When agent1 agent authenticates using a certificate

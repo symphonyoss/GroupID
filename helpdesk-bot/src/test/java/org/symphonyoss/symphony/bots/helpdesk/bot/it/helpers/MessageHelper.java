@@ -38,13 +38,15 @@ public class MessageHelper {
   /**
    * Send the client message through the IM between client and bot.
    *
-   * @param username Client username
+   * @param userRef Client reference
    * @param message Message to be sent out
    * @throws StreamsException Failure to retrieve the stream
    * @throws MessagesException Failure to send out the message
    */
-  public void sendClientMessage(String username, SymMessage message)
+  public void sendClientMessage(String userRef, SymMessage message)
       throws StreamsException, MessagesException {
+    String username = userHelper.getUser(userRef).getUsername();
+
     SymStream stream = streamHelper.getClientStream(username);
     SymphonyClient userClient = userHelper.getUserContext(username);
     userClient.getMessageService().sendMessage(stream, message);
@@ -85,8 +87,10 @@ public class MessageHelper {
    */
   public Optional<SymMessage> getLatestClientMessage(String user, Long initialTime)
       throws StreamsException, MessagesException {
-    SymStream stream = streamHelper.getClientStream(user);
-    SymphonyClient userClient = userHelper.getUserContext(user);
+    String username = userHelper.getUser(user).getUsername();
+
+    SymStream stream = streamHelper.getClientStream(username);
+    SymphonyClient userClient = userHelper.getUserContext(username);
 
     List<SymMessage> messagesFromStream =
         userClient.getMessagesClient().getMessagesFromStream(stream, initialTime, 0, 100);
