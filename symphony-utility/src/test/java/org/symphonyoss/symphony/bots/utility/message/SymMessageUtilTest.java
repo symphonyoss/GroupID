@@ -24,11 +24,11 @@ public class SymMessageUtilTest {
 
   private static final String EMOJI_MESSAGE =
       "<div data-format=\"PresentationML\"data-version=\"2.0\">Emoji: :joy: No emoji: just colon "
-          + "but no emoji : : : yayy: :891 lastly, new emoji: :end:</div>";
+          + "but no emoji : : : yayy: :891 lastly, new emoji: :end: new test</div>";
 
   private static final String EXPECTED_EMOJI_MESSAGE =
       "\nEmoji: <emoji shortcode=\"joy\" /> No emoji: just colon but no emoji : : : yayy: :891 "
-          + "lastly, new emoji: <emoji shortcode=\"end\" />";
+          + "lastly, new emoji: <emoji shortcode=\"end\" /> new test";
 
   @Before
   public void init() {
