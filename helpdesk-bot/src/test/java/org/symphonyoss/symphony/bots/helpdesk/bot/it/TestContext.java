@@ -15,7 +15,7 @@ public class TestContext {
 
   private static final TestContext INSTANCE = new TestContext();
 
-  private Map<UsersEnum, SymUser> users = new HashMap<>();
+  private Map<String, SymUser> users = new HashMap<>();
 
   private Map<String, SymphonyClient> authUsers = new HashMap<>();
 
@@ -30,7 +30,7 @@ public class TestContext {
     return INSTANCE;
   }
 
-  public SymUser getUser(UsersEnum key) {
+  public SymUser getUser(String key) {
     if (key == null) {
       return null;
     }
@@ -38,7 +38,7 @@ public class TestContext {
     return users.get(key);
   }
 
-  public void setUsers(UsersEnum key, SymUser user) {
+  public void setUsers(String key, SymUser user) {
     if (key == null) {
       throw new IllegalArgumentException("Parameter key is required.");
     }

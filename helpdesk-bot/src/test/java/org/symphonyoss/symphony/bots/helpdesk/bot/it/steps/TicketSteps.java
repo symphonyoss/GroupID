@@ -64,10 +64,10 @@ public class TicketSteps {
   }
 
   @Then("$user can verify the ticket successfully created message in the client room")
-  public void verifyTicketCreatedMessage(String username) throws MessagesException,
+  public void verifyTicketCreatedMessage(String user) throws MessagesException,
       StreamsException {
     Optional<SymMessage> message =
-        messageHelper.getLatestClientMessage(username, initialTime);
+        messageHelper.getLatestClientMessage(user, initialTime);
 
     assertTrue(message.isPresent());
 
@@ -80,7 +80,7 @@ public class TicketSteps {
 
     assertTrue(ticket.isPresent());
 
-    SymUser agentUser = userHelper.getAgentUser(username);
+    SymUser agentUser = userHelper.getUser(username.toUpperCase());
 
     TicketResponse response = ticketHelper.acceptTicket(ticket.get().getId(), agentUser.getId());
 

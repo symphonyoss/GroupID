@@ -3,8 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext;
-import org.symphonyoss.symphony.bots.helpdesk.bot.it.UsersEnum;
-import org.symphonyoss.symphony.bots.helpdesk.bot.it.exception.AgentNotFoundException;
+import org.symphonyoss.symphony.bots.helpdesk.bot.it.exception.UserNotFoundException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.exception.UserNotAuthenticatedException;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
@@ -50,21 +49,19 @@ public class UserHelper {
   }
 
   /**
-   * Retrieves the agent user info.
+   * Retrieves the user info.
    *
-   * @param username Agent username
-   * @return Agent user info
+   * @param user user ref
+   * @return User info
    */
-  public SymUser getAgentUser(String username) {
-    UsersEnum user = UsersEnum.valueOf(username.toUpperCase());
+  public SymUser getUser(String user) {
+    SymUser symUser = context.getUser(user);
 
-    SymUser agentUser = context.getUser(user);
-
-    if (agentUser == null) {
-      throw new AgentNotFoundException("Agent " + username + " not found");
+    if (symUser == null) {
+      throw new UserNotFoundException("User " + user + " not found");
     }
 
-    return agentUser;
+    return symUser;
   }
 
 }
