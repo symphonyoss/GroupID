@@ -217,6 +217,7 @@ public class SymMessageUtil {
       do {
         matcher.appendReplacement(result, "<emoji shortcode=\"" + matcher.group(1) + "\" />");
       } while (matcher.find());
+      matcher.appendTail(result);
     }
 
     return result.toString();
