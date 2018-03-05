@@ -14,34 +14,15 @@ import org.jbehave.core.steps.InjectableStepsFactory;
 import org.jbehave.core.steps.SilentStepMonitor;
 import org.jbehave.core.steps.spring.SpringStepsFactory;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.symphonyoss.client.exceptions.InitException;
-import org.symphonyoss.client.exceptions.RoomException;
-import org.symphonyoss.client.exceptions.SymException;
-import org.symphonyoss.client.exceptions.UsersClientException;
-import org.symphonyoss.client.model.Room;
-import org.symphonyoss.client.model.SymAuth;
-import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.bootstrap.HelpDeskBootstrap;
-import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskHttpClient;
-import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
-import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.init.SpringHelpDeskBotInit;
-import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
-import org.symphonyoss.symphony.clients.model.SymUser;
-import org.symphonyoss.symphony.pod.model.UserAttributes;
-import org.symphonyoss.symphony.pod.model.UserCreate;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by rsanchez on 15/02/18.

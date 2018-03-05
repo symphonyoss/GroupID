@@ -107,12 +107,12 @@ public class TicketSteps {
   }
 
   @Then("bot can verify the $user user was added to the ticket room")
-  public void verifyAgentInTheTicketRoom(String username) throws SymException {
+  public void verifyAgentInTheTicketRoom(String user) throws SymException {
     assertTrue(claimedTicket != null);
 
     SymStream ticketStream = streamHelper.getTicketStream(claimedTicket);
     List<MemberInfo> membershipList = streamHelper.getStreamMembershipList(ticketStream);
-    Long userId = userHelper.getAgentUser(username).getId();
+    Long userId = userHelper.getUser(user.toUpperCase()).getId();
 
     boolean match = membershipList.stream()
         .anyMatch(memberInfo -> memberInfo.getId().equals(userId));
@@ -166,8 +166,8 @@ public class TicketSteps {
   }
 
   @When("$user user join the conversation")
-  public void joinConversation(String username) throws SymException {
-    Long agentId = userHelper.getAgentUser(username).getId();
+  public void joinConversation(String user) throws SymException {
+    Long agentId = userHelper.getUser(user.toUpperCase()).getId();
 
     ticketHelper.joinTicketRoom(claimedTicket.getId(), agentId);
   }
