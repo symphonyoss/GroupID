@@ -1,7 +1,7 @@
 email: helpdesk@symphony.com
 
 authentication:
-  keystore-file: keystore.p12
+  keystore-file: ${CERTS_DIR}/${BOT_USER}.p12
   keystore-password: changeit
 
 helpdesk-bot:

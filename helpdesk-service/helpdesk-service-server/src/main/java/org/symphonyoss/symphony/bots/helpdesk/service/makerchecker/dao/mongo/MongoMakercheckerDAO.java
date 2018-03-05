@@ -1,15 +1,14 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.mongo;
 
-import com.mongodb.DuplicateKeyException;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.dao.MakercheckerDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.exception
     .CreateMakercheckerExcpetion;
-import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.exception
-    .DuplicateMakercheckerExcpetion;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.exception.DuplicateMakercheckerException;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.exception
     .GetMakercheckerException;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.exception
@@ -48,7 +47,7 @@ public class MongoMakercheckerDAO implements MakercheckerDao {
       return makerchecker;
 
     } catch (DuplicateKeyException e) {
-      throw new DuplicateMakercheckerExcpetion(makerchecker.getId(), e);
+      throw new DuplicateMakercheckerException(makerchecker.getId(), e);
     } catch (Exception e) {
       throw new CreateMakercheckerExcpetion(makerchecker.getId(), e);
     }

@@ -7,10 +7,24 @@ function usage {
     echo
     echo "This script run the helpdesk service"
     echo
-    echo "Usage: startup.sh <env> [<kv_enabled>]"
+    echo "Usage: startup.sh <env>"
     echo "          --env <nexus1 | nexus2 | nexus3 | nexus4>"
-    echo "          --kv_enabled <true | false>"
     echo
+}
+
+##
+# Checks if the given element is in the provided array of elements.
+#
+function elementInArray () {
+    ELEMENT=$1  
+    ARRAY="${@:2}"
+    COUNTER=1
+    for ARRAYELEMENT in $ARRAY
+    do 
+        [[ "$ARRAYELEMENT" == "$ELEMENT" ]] && return $COUNTER;
+        COUNTER=$((COUNTER+1))
+    done
+    return 0
 }
 
 function copyAppBinary {
@@ -50,31 +64,19 @@ function configureSSL {
 }
 
 function configureEnvVariables {
-    declare -A pod_envs
-    pod_envs[nexus1]='sym-nexus1-dev-chat-glb-3'
-    pod_envs[nexus2]='sym-nexus2-dev-chat-glb-3'
-    pod_envs[nexus3]='sym-nexus3-dev-chat-glb-3'
-    pod_envs[nexus4]='sym-nexus4-dev-chat-glb-3'
+    envs=('nexus1' 'nexus2' 'nexus3' 'nexus4')
 
-    INFRA_NAME=${pod_envs[$ENV]}
+    elementInArray "$ENV" "${envs[@]}"
+    INDEX=$?
 
-    if [[ -z "$INFRA_NAME" ]]
+    if [ $INDEX == 0 ]
     then
         echo "[ERROR] Missing environment. Possible options: nexus1, nexus2, nexus3 and nexus4"
         exit 1
     fi
 
-    if [[ $KV_ENABLED == "true" ]]
-    then
-#        export POD_ENV=dev
-#        export CONSUL_ENABLED=true
-#        export INFRA_NAME=${INFRA_NAME}
-        echo "Not implemented yet"
-        exit 1
-    else
-        export SPRING_CONFIG_LOCATION=${SCRIPT_DIRECTORY}/../configs/${ENV}/
-        export SPRING_PROFILES_ACTIVE=custom
-    fi
+    export SPRING_CONFIG_LOCATION=${SCRIPT_DIRECTORY}/../configs/${ENV}/
+    export SPRING_PROFILES_ACTIVE=custom
 }
 
 function execApplication {
@@ -95,7 +97,6 @@ function main {
     fi
 
     ENV=$1
-    KV_ENABLED=$2
 
     copyAppBinary
     createLogsDirectory
