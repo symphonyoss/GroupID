@@ -56,6 +56,8 @@ public class HelpDeskBotConfig {
 
   private String welcomeMessage;
 
+  private String createTicketMessage;
+
   public String getEmail() {
     return email;
   }
@@ -326,5 +328,13 @@ public class HelpDeskBotConfig {
 
   public void setWelcomeMessage(String welcomeMessage) {
     this.welcomeMessage = welcomeMessage;
+  }
+
+  public String getCreateTicketMessage() {
+    return createTicketMessage;
+  }
+
+  public void setCreateTicketMessage(String createTicketMessage) {
+    this.createTicketMessage = createTicketMessage;
   }
 }
