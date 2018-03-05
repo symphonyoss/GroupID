@@ -87,8 +87,10 @@ public class MessageHelper {
    */
   public Optional<SymMessage> getLatestClientMessage(String user, Long initialTime)
       throws StreamsException, MessagesException {
-    SymStream stream = streamHelper.getClientStream(user);
-    SymphonyClient userClient = userHelper.getUserContext(user);
+    String username = userHelper.getUser(user).getUsername();
+
+    SymStream stream = streamHelper.getClientStream(username);
+    SymphonyClient userClient = userHelper.getUserContext(username);
 
     List<SymMessage> messagesFromStream =
         userClient.getMessagesClient().getMessagesFromStream(stream, initialTime, 0, 100);

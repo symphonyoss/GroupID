@@ -133,10 +133,10 @@ public class TicketSteps {
   }
 
   @Then("$user can verify the ticket claimed message in the client room")
-  public void verifyTicketClaimedMessage(String username)
+  public void verifyTicketClaimedMessage(String user)
       throws MessagesException, StreamsException {
     Optional<SymMessage> message =
-        messageHelper.getLatestClientMessage(username, initialTime);
+        messageHelper.getLatestClientMessage(user, initialTime);
 
     assertTrue(message.isPresent());
 
@@ -156,9 +156,9 @@ public class TicketSteps {
   }
 
   @Then("$user can verify the agent answer in the client room")
-  public void verifyAgentAnswer(String username) throws MessagesException, StreamsException {
+  public void verifyAgentAnswer(String user) throws MessagesException, StreamsException {
     Optional<SymMessage> message =
-        messageHelper.getLatestClientMessage(username, initialTime);
+        messageHelper.getLatestClientMessage(user, initialTime);
 
     assertTrue(message.isPresent());
 
@@ -201,10 +201,10 @@ public class TicketSteps {
   }
 
   @Then("$user can verify the ticket closed message in the client room")
-  public void verifyTicketClosedMessage(String username)
+  public void verifyTicketClosedMessage(String user)
       throws MessagesException, StreamsException {
     Optional<SymMessage> message =
-        messageHelper.getLatestClientMessage(username, initialTime);
+        messageHelper.getLatestClientMessage(user, initialTime);
 
     assertTrue(message.isPresent());
 
