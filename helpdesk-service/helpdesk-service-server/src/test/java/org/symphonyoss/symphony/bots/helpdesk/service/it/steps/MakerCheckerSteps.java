@@ -193,7 +193,7 @@ public class MakerCheckerSteps {
         errorResponseEntity.getBody().getMessage());
   }
 
-  @Then("receive a no content message")
+  @Then("receive a no content response from makerchecker API")
   public void noContentInfo() {
     assertEquals(HttpStatus.NO_CONTENT, errorResponseEntity.getStatusCode());
     assertNull(errorResponseEntity.getBody());

@@ -178,13 +178,13 @@ public class MembershipSteps {
         " to be provided with the " + requiredIn + ".", errorResponseEntity.getBody().getMessage());
   }
 
-  @Then("receive a not found error")
+  @Then("receive a not found error from membership API")
   public void NotFoundError() {
     assertEquals(HttpStatus.NOT_FOUND, errorResponseEntity.getStatusCode());
     assertEquals("No message available", errorResponseEntity.getBody().getMessage());
   }
 
-  @Then("receive a no content response")
+  @Then("receive a no content response from membership API")
   public void noContentResponse() {
     assertEquals(HttpStatus.NO_CONTENT, errorResponseEntity.getStatusCode());
     assertNull(errorResponseEntity.getBody());

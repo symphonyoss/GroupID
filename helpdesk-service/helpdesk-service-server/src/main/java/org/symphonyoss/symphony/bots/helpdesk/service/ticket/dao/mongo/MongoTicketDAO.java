@@ -5,6 +5,7 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.mongo.MongoCondition;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.dao.TicketDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.CreateTicketException;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.DeleteTicketException;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.DuplicateTicketException;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.GetTicketException;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.TicketNotFoundException;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.UpdateTicketException;
@@ -47,6 +49,8 @@ public class MongoTicketDAO implements TicketDao {
     try {
       this.mongoTemplate.insert(ticket, COLLECTION_NAME);
       return ticket;
+    } catch (DuplicateKeyException e) {
+      throw new DuplicateTicketException(ticket.getId(), e);
     } catch (Exception e) {
       throw new CreateTicketException(e);
     }
