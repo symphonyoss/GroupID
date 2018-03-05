@@ -32,8 +32,6 @@ import java.util.List;
     classes = SpringHelpDeskBotInit.class)
 public class HelpDeskBotStories extends JUnitStories {
 
-  private static final String[] SUPPORTED_ENVS = { "nexus1", "nexus2", "nexus3", "nexus4" };
-
   @Autowired
   private ApplicationContext applicationContext;
 

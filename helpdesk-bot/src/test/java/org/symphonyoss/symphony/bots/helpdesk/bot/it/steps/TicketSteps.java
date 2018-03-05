@@ -57,14 +57,14 @@ public class TicketSteps {
   }
 
   @When("$user sends an initial question to the bot")
-  public void sendInitialQuestion(String username)
+  public void sendInitialQuestion(String user)
       throws StreamsException, MessagesException, InterruptedException {
     this.initialTime = System.currentTimeMillis();
 
     SymMessage message = new SymMessage();
     message.setMessageText("Hi bot, how are you doing?");
 
-    messageHelper.sendClientMessage(username, message);
+    messageHelper.sendClientMessage(user, message);
 
     // Waiting message be processed
     Thread.sleep(5000L);
