@@ -128,8 +128,21 @@ public class TicketSteps {
         messageHelper.getTicketRoomMessages(initialTime, claimedTicket.getServiceStreamId());
 
     assertEquals(2, ticketRoomMessages.size());
-    assertTrue(ticketRoomMessages.get(0).getMessage().contains("close the ticket upon ticket resolution"));
-    assertTrue(ticketRoomMessages.get(1).getMessage().contains("Hi customer, I'm fine."));
+    assertTrue(ticketRoomMessages.get(0).getMessage().contains("Hi bot, how are you doing?"));
+    assertTrue(ticketRoomMessages.get(1).getMessage().contains("close the ticket upon ticket resolution"));
+  }
+
+  @Then("$user user can see all the history conversation in the ticket room after agent answer")
+  public void verifyHistoryConversationAfterAsnwer(String username) throws MessagesException {
+    assertTrue(claimedTicket != null);
+
+    List<SymMessage> ticketRoomMessages =
+        messageHelper.getTicketRoomMessages(initialTime, claimedTicket.getServiceStreamId());
+
+    assertEquals(3, ticketRoomMessages.size());
+    assertTrue(ticketRoomMessages.get(0).getMessage().contains("Hi bot, how are you doing?"));
+    assertTrue(ticketRoomMessages.get(1).getMessage().contains("close the ticket upon ticket resolution"));
+    assertTrue(ticketRoomMessages.get(2).getMessage().contains("Hi customer, I'm fine."));
   }
 
   @Then("$user can verify the ticket claimed message in the client room")
