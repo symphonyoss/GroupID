@@ -21,7 +21,7 @@ import java.util.Optional;
  */
 @Component
 public class MessageHelper {
-  
+
   private final StreamHelper streamHelper;
 
   private final UserHelper userHelper;
@@ -90,6 +90,33 @@ public class MessageHelper {
 
     List<SymMessage> messagesFromStream =
         userClient.getMessagesClient().getMessagesFromStream(stream, initialTime, 0, 100);
+
+    return messagesFromStream.stream()
+        .sorted(Comparator.comparing(SymMessage::getTimestamp).reversed())
+        .findFirst();
+  }
+
+  /**
+   * Retrieve the latest agent message.
+   *
+   * @param SymUser Agent user
+   * @param initialTime Initial time to retrieve messages
+   * @return Latest message
+   * @throws StreamsException Failure to retrieve the stream
+   * @throws MessagesException Failure to retrieve messages
+   */
+  public Optional<SymMessage> getLatestTicketMessage(SymUser agent, Long initialTime)
+      throws StreamsException, MessagesException {
+    Optional<SymStream> stream = streamHelper.getTicketStream(agent.getId());
+
+    if (!stream.isPresent()) {
+      throw new TicketRoomNotFoundException("Ticket room not found");
+    }
+
+    SymphonyClient userAgent = userHelper.getUserContext(agent.getUsername());
+
+    List<SymMessage> messagesFromStream =
+        userAgent.getMessagesClient().getMessagesFromStream(stream.get(), initialTime, 0, 100);
 
     return messagesFromStream.stream()
         .sorted(Comparator.comparing(SymMessage::getTimestamp).reversed())
