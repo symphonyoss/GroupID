@@ -65,7 +65,7 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
   }
 
   private void setGroupId() {
-    String groupId = StringUtils.abbreviate(UUID.randomUUID().toString(), 20);
+    String groupId = StringUtils.abbreviate(UUID.randomUUID().toString(), 10);
     System.setProperty(GROUP_ID, groupId);
   }
 

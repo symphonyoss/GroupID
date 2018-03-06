@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 
 import java.net.MalformedURLException;
@@ -47,9 +48,9 @@ public class MakerCheckerHelper {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
         .queryParam(USER_ID, agentId);
 
-    ResponseEntity<TicketResponse> responseEntity =
+    ResponseEntity<MakerCheckerResponse> responseEntity =
         restTemplate.exchange(builder.buildAndExpand().toUri(), HttpMethod.POST, null,
-            TicketResponse.class);
+            MakerCheckerResponse.class);
 
     if (!responseEntity.getStatusCode().equals(HttpStatus.OK)) {
       throw new WebApplicationException(responseEntity.getStatusCodeValue());
