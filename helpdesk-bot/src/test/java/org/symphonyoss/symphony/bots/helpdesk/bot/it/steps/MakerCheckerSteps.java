@@ -1,11 +1,15 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.it.steps;
 
+import static org.junit.Assert.assertEquals;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jbehave.core.annotations.Then;
 import org.jbehave.core.annotations.When;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.exceptions.MessagesException;
-import org.symphonyoss.client.exceptions.StreamsException;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.symphony.bots.helpdesk.bot.health.HealthCheckFailedException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.exception.TicketRoomNotFoundException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.MakerCheckerHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.MessageHelper;
@@ -15,6 +19,8 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -39,6 +45,8 @@ public class MakerCheckerSteps {
   private final UserHelper userHelper;
 
   private static final String ATTACHMENTS_DIR = "attachment/";
+
+  private static final ObjectMapper MAPPER = new ObjectMapper();
 
   public MakerCheckerSteps(MessageHelper messageHelper, MakerCheckerHelper makerCheckerHelper, UserHelper userHelper) {
     this.messageHelper = messageHelper;
@@ -67,9 +75,9 @@ public class MakerCheckerSteps {
     messageHelper.sendAgentMessage(agent, message);
   }
 
-  @When("$agent agent approve attachment $attachment")
-  public void approveAttachment(String agent, String attachment)
-      throws MessagesException {
+  @When("$agent agent approve attachment")
+  public void approveAttachment(String agent)
+      throws MessagesException, HealthCheckFailedException, MalformedURLException {
     SymUser userAgent = userHelper.getUser(agent.toUpperCase());
     Optional<SymMessage> message = messageHelper.getLatestTicketMessage(userAgent, initialTime);
 
@@ -77,15 +85,14 @@ public class MakerCheckerSteps {
       throw new TicketRoomNotFoundException("Message not found");
     }
 
-    if (message.get().getAttachment().getName().equals(attachment)) {
-      makerCheckerHelper.approveAttachment(message.get().getId(), userAgent.getId());
-    }
+    String url = getValueFromParam(message.get().getEntityData(), "approveUrl");
 
+    makerCheckerHelper.actionAttachment(url, userAgent.getId());
   }
 
-  @When("$agent agent deny attachment $attachment")
-  public void denyAttachment(String agent, String attachment)
-      throws MessagesException {
+  @When("$agent agent deny attachment")
+  public void denyAttachment(String agent)
+      throws MessagesException, HealthCheckFailedException, MalformedURLException {
     SymUser userAgent = userHelper.getUser(agent.toUpperCase());
     Optional<SymMessage> message = messageHelper.getLatestTicketMessage(userAgent, initialTime);
 
@@ -93,14 +100,30 @@ public class MakerCheckerSteps {
       throw new TicketRoomNotFoundException("Message not found");
     }
 
-    if (message.get().getAttachment().getName().equals(attachment)) {
-      makerCheckerHelper.denyAttachment(message.get().getId(), userAgent.getId());
-    }
+    String url = getValueFromParam(message.get().getEntityData(), "denyUrl");
+
+    makerCheckerHelper.actionAttachment(url, userAgent.getId());
   }
 
-  @Then("bot can verify attachment $attachment is $state")
-  public void verifyStateOfMakerChecker(String attachment, String state) {
+  @Then("$agent can verify the attachment $attachment is $state")
+  public void verifyStateOfMakerChecker(String agent, String attachment, String state)
+      throws MessagesException, HealthCheckFailedException {
+    SymUser userAgent = userHelper.getUser(agent.toUpperCase());
+    Optional<SymMessage> message = messageHelper.getLatestTicketMessage(userAgent, initialTime);
 
+    assertEquals(state.toUpperCase(), getValueFromParam(message.get().getEntityData(), "state"));
+  }
+
+  private String getValueFromParam(String entityDate, String key) throws HealthCheckFailedException {
+    JsonNode node = null;
+
+    try {
+      node = MAPPER.readTree(entityDate);
+    } catch (IOException e) {
+      throw new HealthCheckFailedException("Failed to read response entity.");
+    }
+
+    return node.get("makerchecker").get(key).asText();
   }
 
 }

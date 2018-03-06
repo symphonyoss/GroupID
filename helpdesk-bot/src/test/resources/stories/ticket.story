@@ -35,15 +35,15 @@ Scenario: Approve attachment
 When agent1 agent authenticates using a certificate
 And agent1 agent sends an attachment Attachment1.jpg
 When agent2 agent authenticates using a certificate
-And agent2 agent approve attachment Attachment1.jpg
-Then bot can verify attachment Attachment1.jpg is approved
+And agent2 agent approve attachment
+Then agent2 can verify the attachment Attachment1.jpg is approved
 
 Scenario: Deny attachment
 When agent1 agent authenticates using a certificate
 And agent1 agent sends an attachment Attachment2.jpg
 When agent2 agent authenticates using a certificate
-And agent2 agent deny attachment Attachment2.jpg
-Then bot can verify attachment Attachment2.jpg is deny
+And agent2 agent deny attachment
+Then agent2 can verify the attachment Attachment2.jpg is denied
 
 Scenario: Close conversation
 When agent1 agent authenticates using a certificate

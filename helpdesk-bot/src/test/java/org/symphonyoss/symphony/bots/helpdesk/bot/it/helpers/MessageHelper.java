@@ -109,7 +109,7 @@ public class MessageHelper {
    */
   public Optional<SymMessage> getLatestTicketMessage(SymUser agent, Long initialTime)
       throws MessagesException {
-    Optional<SymStream> stream = streamHelper.getTicketStream(agent.getId());
+    Optional<SymStream> stream = streamHelper.getTicketStream();
 
     if (!stream.isPresent()) {
       throw new TicketRoomNotFoundException("Ticket room not found");

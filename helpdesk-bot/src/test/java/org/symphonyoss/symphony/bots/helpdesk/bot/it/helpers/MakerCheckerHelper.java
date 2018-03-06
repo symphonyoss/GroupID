@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,50 +30,21 @@ public class MakerCheckerHelper {
   }
 
   /**
-   * Approve attachment
+   * Approve or Deny attachment
    *
-   * @param attachmentId Ticket id
+   * @param url Url to Approve or Deny attachment
    * @param agentId Agent id
-   * @return Ticket API response
+   * @return ResponseEntity
    */
-  public ResponseEntity approveAttachment(String attachmentId, Long agentId) {
-    String url = "/v1/makerchecker/{makerCheckerId}/approve";
-
-    Map<String, String> uriParams = new HashMap<>();
-    uriParams.put("makerCheckerId", attachmentId);
+  public ResponseEntity actionAttachment(String url, Long agentId) throws MalformedURLException {
+    URL context = new URL(url);
+    url = context.getPath().replace("/helpdesk-bot", "");
 
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
         .queryParam("userId", agentId);
 
     ResponseEntity<TicketResponse> responseEntity =
-        restTemplate.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.POST, null,
-            TicketResponse.class);
-
-    if (!responseEntity.getStatusCode().equals(HttpStatus.OK)) {
-      throw new WebApplicationException(responseEntity.getStatusCodeValue());
-    }
-
-    return responseEntity;
-  }
-
-  /**
-   * Deny attachment
-   *
-   * @param attachmentId Ticket id
-   * @param agentId Agent id
-   * @return Ticket API response
-   */
-  public ResponseEntity denyAttachment(String attachmentId, Long agentId) {
-    String url = "/v1/makerchecker/{makerCheckerId}/deny";
-
-    Map<String, String> uriParams = new HashMap<>();
-    uriParams.put("makerCheckerId", attachmentId);
-
-    UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
-        .queryParam("userId", agentId);
-
-    ResponseEntity<TicketResponse> responseEntity =
-        restTemplate.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.POST, null,
+        restTemplate.exchange(builder.buildAndExpand().toUri(), HttpMethod.POST, null,
             TicketResponse.class);
 
     if (!responseEntity.getStatusCode().equals(HttpStatus.OK)) {

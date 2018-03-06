@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.it.listener;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestContext;
@@ -36,9 +37,11 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
   private static final String QUEUE_ROOM = "Queue Room";
   private static final String[] SUPPORTED_ENVS = { "nexus1", "nexus2", "nexus3", "nexus4" };
   private static final String AGENT_STREAM_ID = "agentStreamId";
+  private static final String GROUP_ID = "groupId";
 
   private static final org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext CONTEXT = org
       .symphonyoss.symphony.bots.helpdesk.bot.it.TestContext.getInstance();
+
 
   @Override
   public void beforeTestClass(TestContext testContext) throws Exception {
@@ -47,6 +50,8 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
 
     CertificateUtils.createCertsDir();
     CertificateUtils.createUserCertificate(caKeyPath, caCertPath, USER_PROVISIONING);
+
+    changeGroupId();
 
     ApplicationContext context = testContext.getApplicationContext();
 
@@ -57,6 +62,12 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
     createUsers(symphonyClient, queueRoom);
 
     testContext.markApplicationContextDirty(DirtiesContext.HierarchyMode.CURRENT_LEVEL);
+  }
+
+  private void changeGroupId() {
+    String groupId = StringUtils.abbreviate(UUID.randomUUID().toString(), 20);
+    System.setProperty(GROUP_ID, groupId);
+
   }
 
   private void validateEnvironment(ApplicationContext applicationContext) {
