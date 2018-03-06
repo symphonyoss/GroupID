@@ -31,7 +31,7 @@ Then check that makerchecker exists
 
 Scenario: Search for an invalid maker/checker
 When call the read makerchecker API with invalid id
-Then receive a no content message
+Then receive a no content response from makerchecker API
 
 Scenario: Search for a maker/checker with invalid parameter
 When call the read makerchecker API with invalid parameter

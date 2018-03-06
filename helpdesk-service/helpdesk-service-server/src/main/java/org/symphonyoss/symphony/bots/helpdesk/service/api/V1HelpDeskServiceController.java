@@ -65,6 +65,7 @@ public class V1HelpDeskServiceController extends V1ApiController {
 
   @Override
   public Ticket createTicket(Ticket ticket) {
+    validateRequiredParameter("id", ticket.getId(), "body");
     validateRequiredParameter("groupId", ticket.getGroupId(), "body");
     validateRequiredParameter("state", ticket.getState(), "body");
 

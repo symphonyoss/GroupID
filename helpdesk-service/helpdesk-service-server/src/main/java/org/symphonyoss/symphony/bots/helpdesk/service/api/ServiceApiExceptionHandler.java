@@ -17,6 +17,8 @@ import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.exception.Dup
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.exception
     .DuplicateMembershipException;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Error;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.DuplicateTicketException;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.TicketNotFoundException;
 
 /**
  * Global exception handler for web resources.
@@ -35,7 +37,8 @@ public class ServiceApiExceptionHandler {
    */
   @ResponseBody
   @ExceptionHandler({MissingServletRequestParameterException.class, BadRequestException.class,
-      DuplicateMakercheckerException.class, DuplicateMembershipException.class})
+      DuplicateMakercheckerException.class, DuplicateMembershipException.class,
+      DuplicateTicketException.class, TicketNotFoundException.class})
   public ResponseEntity<Error> handleMissingRequiredParameterException(Exception ex) {
     Error response = new Error().code(HttpStatus.BAD_REQUEST.value()).message(ex.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
