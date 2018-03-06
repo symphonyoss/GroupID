@@ -39,11 +39,11 @@ Then check that client membership exists
 
 Scenario: Search an unexistent membership
 When I call the search membership API for unexistent client
-Then receive a no content response
+Then receive a no content response from membership API
 
 Scenario: Search a membership for unexistent path
 When I call the search membership API for unexistent path
-Then receive a not found error
+Then receive a not found error from membership API
 
 Scenario: Update a membership agent
 When call the update membership API for agent
@@ -51,7 +51,7 @@ Then check that agent was updated
 
 Scenario: Try to update a client and receive an error
 When call the update membership API for client
-Then receive a not found error
+Then receive a not found error from membership API
 
 Scenario: Try to delete an unexistent agent
 When call the delete membership API for an unexistent agent
@@ -59,7 +59,7 @@ Then receive successfull message even there is no agent
 
 Scenario: Try to delete an agent with wrong parameters
 When call the delete membership API with wrong parameters
-Then receive a not found error
+Then receive a not found error from membership API
 
 Scenario: Delete an agent
 When call the delete membership API for agent

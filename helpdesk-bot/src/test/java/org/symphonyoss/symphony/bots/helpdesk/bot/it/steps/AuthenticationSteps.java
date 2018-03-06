@@ -38,12 +38,14 @@ public class AuthenticationSteps {
   /**
    * Authenticates an user given the username.
    *
-   * @param username Username
+   * @param user User ref
    * @throws AuthenticationException Failure to authenticate user
    * @throws InitException Failure to initialize Symphony client
    */
   @When("$user user authenticates using a certificate")
-  public void authenticateUser(String username) throws AuthenticationException, InitException {
+  public void authenticateUser(String user) throws AuthenticationException, InitException {
+    String username = context.getUser(user).getUsername();
+
     AuthenticationUtils utils = new AuthenticationUtils(config);
     utils.authenticateUser(username);
   }
