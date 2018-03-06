@@ -69,8 +69,8 @@ public class MakerCheckerSteps {
 
   @When("$agent agent approve attachment $attachment")
   public void approveAttachment(String agent, String attachment)
-      throws MessagesException, StreamsException {
-    SymUser userAgent = userHelper.getUser(agent);
+      throws MessagesException {
+    SymUser userAgent = userHelper.getUser(agent.toUpperCase());
     Optional<SymMessage> message = messageHelper.getLatestTicketMessage(userAgent, initialTime);
 
     if (!message.isPresent()) {
@@ -85,8 +85,8 @@ public class MakerCheckerSteps {
 
   @When("$agent agent deny attachment $attachment")
   public void denyAttachment(String agent, String attachment)
-      throws MessagesException, StreamsException {
-    SymUser userAgent = userHelper.getUser(agent);
+      throws MessagesException {
+    SymUser userAgent = userHelper.getUser(agent.toUpperCase());
     Optional<SymMessage> message = messageHelper.getLatestTicketMessage(userAgent, initialTime);
 
     if (!message.isPresent()) {
