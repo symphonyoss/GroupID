@@ -36,6 +36,14 @@ import java.util.UUID;
 @Component
 public class MakerCheckerSteps {
 
+  private static final String ATTACHMENTS_DIR = "attachment/";
+
+  private static final String APPROVE_URL = "approveUrl";
+
+  private static final String DENY_URL = "denyUrl";
+
+  private static final String STATE = "state";
+
   private Long initialTime = 0L;
 
   private final MessageHelper messageHelper;
@@ -43,8 +51,6 @@ public class MakerCheckerSteps {
   private final MakerCheckerHelper makerCheckerHelper;
 
   private final UserHelper userHelper;
-
-  private static final String ATTACHMENTS_DIR = "attachment/";
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -75,7 +81,7 @@ public class MakerCheckerSteps {
     messageHelper.sendAgentMessage(agent, message);
   }
 
-  @When("$agent agent approve attachment")
+  @When("$agent agent approve the attachment")
   public void approveAttachment(String agent)
       throws MessagesException, HealthCheckFailedException, MalformedURLException {
     SymUser userAgent = userHelper.getUser(agent.toUpperCase());
@@ -85,12 +91,12 @@ public class MakerCheckerSteps {
       throw new TicketRoomNotFoundException("Message not found");
     }
 
-    String url = getValueFromParam(message.get().getEntityData(), "approveUrl");
+    String url = getValueFromParam(message.get().getEntityData(), APPROVE_URL);
 
     makerCheckerHelper.actionAttachment(url, userAgent.getId());
   }
 
-  @When("$agent agent deny attachment")
+  @When("$agent agent deny the attachment")
   public void denyAttachment(String agent)
       throws MessagesException, HealthCheckFailedException, MalformedURLException {
     SymUser userAgent = userHelper.getUser(agent.toUpperCase());
@@ -100,18 +106,18 @@ public class MakerCheckerSteps {
       throw new TicketRoomNotFoundException("Message not found");
     }
 
-    String url = getValueFromParam(message.get().getEntityData(), "denyUrl");
+    String url = getValueFromParam(message.get().getEntityData(), DENY_URL);
 
     makerCheckerHelper.actionAttachment(url, userAgent.getId());
   }
 
-  @Then("$agent can verify the attachment $attachment is $state")
-  public void verifyStateOfMakerChecker(String agent, String attachment, String state)
+  @Then("$agent can verify the attachment is $state")
+  public void verifyStateOfMakerChecker(String agent, String state)
       throws MessagesException, HealthCheckFailedException {
     SymUser userAgent = userHelper.getUser(agent.toUpperCase());
     Optional<SymMessage> message = messageHelper.getLatestTicketMessage(userAgent, initialTime);
 
-    assertEquals(state.toUpperCase(), getValueFromParam(message.get().getEntityData(), "state"));
+    assertEquals(state.toUpperCase(), getValueFromParam(message.get().getEntityData(), STATE));
   }
 
   private String getValueFromParam(String entityDate, String key) throws HealthCheckFailedException {

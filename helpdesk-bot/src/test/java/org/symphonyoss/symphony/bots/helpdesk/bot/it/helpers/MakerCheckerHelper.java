@@ -16,12 +16,16 @@ import java.util.Map;
 import javax.ws.rs.WebApplicationException;
 
 /**
- * Helper class to deal with stream stuff.
+ * Helper class to deal with maker checker stuff.
  *
  * Created by crepache on 05/03/18.
  */
 @Component
 public class MakerCheckerHelper {
+
+  private static final String HELPDESK_BOT = "/helpdesk-bot";
+
+  private static final String USER_ID = "userId";
 
   private final TestRestTemplate restTemplate;
 
@@ -30,18 +34,18 @@ public class MakerCheckerHelper {
   }
 
   /**
-   * Approve or Deny attachment
+   * Dispatch action to Approve or Deny the attachment
    *
-   * @param url Url to Approve or Deny attachment
+   * @param actionUrl Url to action of the attachment
    * @param agentId Agent id
    * @return ResponseEntity
    */
-  public ResponseEntity actionAttachment(String url, Long agentId) throws MalformedURLException {
-    URL context = new URL(url);
-    url = context.getPath().replace("/helpdesk-bot", "");
+  public ResponseEntity actionAttachment(String actionUrl, Long agentId) throws MalformedURLException {
+    URL context = new URL(actionUrl);
+    String url = context.getPath().replace(HELPDESK_BOT, "");
 
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
-        .queryParam("userId", agentId);
+        .queryParam(USER_ID, agentId);
 
     ResponseEntity<TicketResponse> responseEntity =
         restTemplate.exchange(builder.buildAndExpand().toUri(), HttpMethod.POST, null,

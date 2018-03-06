@@ -51,7 +51,7 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
     CertificateUtils.createCertsDir();
     CertificateUtils.createUserCertificate(caKeyPath, caCertPath, USER_PROVISIONING);
 
-    changeGroupId();
+    setGroupId();
 
     ApplicationContext context = testContext.getApplicationContext();
 
@@ -64,10 +64,9 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
     testContext.markApplicationContextDirty(DirtiesContext.HierarchyMode.CURRENT_LEVEL);
   }
 
-  private void changeGroupId() {
+  private void setGroupId() {
     String groupId = StringUtils.abbreviate(UUID.randomUUID().toString(), 20);
     System.setProperty(GROUP_ID, groupId);
-
   }
 
   private void validateEnvironment(ApplicationContext applicationContext) {
