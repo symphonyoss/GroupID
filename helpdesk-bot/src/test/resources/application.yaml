@@ -12,8 +12,6 @@ server:
   ssl:
     enabled: false
 
-groupId: integrationtestgroup
-
 claimEntityHeader: "<b>Equities Desk Bot</b>"
 
 idle-ticket:
