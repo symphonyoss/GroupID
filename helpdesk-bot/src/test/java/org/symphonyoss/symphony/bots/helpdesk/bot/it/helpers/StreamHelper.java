@@ -107,4 +107,14 @@ public class StreamHelper {
     return context.getQueueRoom().getStream();
   }
 
+  /**
+   * Remove a membership from room
+   *
+   * @param streamId Room ID
+   * @param userId User ID
+   */
+  public void removeMembershipFromRoom(String streamId, Long userId) throws SymException {
+    symphonyClient.getRoomMembershipClient().removeMemberFromRoom(streamId, userId);
+  }
+
 }

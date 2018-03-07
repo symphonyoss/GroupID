@@ -16,6 +16,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.MessageHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.StreamHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.TicketHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.UserHelper;
+import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.StreamUtils;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -77,6 +78,12 @@ public class TicketSteps {
   private static final String TICKET_CLOSED_MESSAGE = "<div data-format=\"PresentationML\" "
       + "data-version=\"V4\">%s</div>";
 
+  private static final String IDLE_TICKET_MESSAGE = "<div data-format=\"PresentationML\" "
+      + "data-version=\"V4\">    <div class=\"entity\" data-entity-id=\"helpdesk\">        <div "
+      + "class=\"card barStyle\">            <div class=\"cardHeader\">                <span>    "
+      + "                Ticket %s has been idle for 60 seconds.                </span>  "
+      + "          </div>        </div>    </div></div>";
+
   private Long initialTime = 0L;
 
   private Ticket claimedTicket;
@@ -111,8 +118,26 @@ public class TicketSteps {
     Thread.sleep(5000L);
   }
 
+  @Then("bot can verify a new idle message was created in the queue room")
+  public void verifyIdleMessage() throws StreamsException, MessagesException, InterruptedException {
+
+    // Waiting message be processed
+    Thread.sleep(60000L);
+
+    Optional<SymMessage> message = messageHelper.getLatestQueueRoomMessage(initialTime);
+
+    assertTrue(message.isPresent());
+
+    Optional<Ticket> ticket = ticketHelper.getUnservicedTicket();
+
+    String expectedString = String.format(IDLE_TICKET_MESSAGE, ticket.get().getId());
+
+    assertEquals(expectedString, message.get().getMessage());
+
+  }
+
   @Then("bot can verify a new ticket was created in the queue room")
-  public void verifyInitialQuestion() throws MessagesException {
+  public void verifyInitialQuestion() throws MessagesException, InterruptedException {
     Optional<SymMessage> message =
         messageHelper.getLatestQueueRoomMessage(initialTime);
 
@@ -138,7 +163,10 @@ public class TicketSteps {
   }
 
   @When("$user user claims the latest ticket created")
-  public void claimTicket(String username) {
+  public void claimTicket(String username) throws StreamsException, MessagesException, InterruptedException {
+    // Waiting message be processed
+    Thread.sleep(5000L);
+
     Optional<Ticket> ticket = ticketHelper.getUnservicedTicket();
 
     assertTrue(ticket.isPresent());
@@ -281,6 +309,16 @@ public class TicketSteps {
     assertEquals(
         String.format(TICKET_CLOSED_MESSAGE, helpDeskBotConfig.getCloseTicketSuccessResponse()),
         message.get().getMessage());
+  }
+
+  @Then("$user leaves the ticket room")
+  public void leavesTicketRoom(String user) throws SymException {
+
+    Long userId = userHelper.getUser(user.toUpperCase()).getId();
+    Optional<SymStream> symStream = streamHelper.getTicketStream(userId);
+    assertTrue(symStream.isPresent());
+
+    streamHelper.removeMembershipFromRoom(symStream.get().getStreamId(),userId);
   }
 
 }
