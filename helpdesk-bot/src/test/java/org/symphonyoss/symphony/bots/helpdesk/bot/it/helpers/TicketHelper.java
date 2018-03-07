@@ -89,6 +89,23 @@ public class TicketHelper {
   }
 
   /**
+   * Retrieves the latest claimed ticket.
+   * @return Unresolved ticket
+   */
+  public Optional<Ticket> getClaimedTicket() {
+    try {
+      List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, null);
+
+      return ticketList.stream()
+          .filter(ticket -> ticket.getState().equals(TicketClient.TicketStateType.UNRESOLVED.getState()))
+          .sorted(Comparator.comparing(Ticket::getQuestionTimestamp).reversed())
+          .findFirst();
+    } catch (ApiException e) {
+      throw new HelpDeskApiException("Failed to search tickets", e);
+    }
+  }
+
+  /**
    * Accepts the ticket.
    *
    * @param ticketId Ticket id

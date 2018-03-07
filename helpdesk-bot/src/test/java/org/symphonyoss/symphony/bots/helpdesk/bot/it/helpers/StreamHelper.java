@@ -77,6 +77,26 @@ public class StreamHelper {
   /**
    * Returns the ticket room.
    *
+   * @return Ticket room
+   */
+  public Optional<SymStream> getTicketStream() {
+    Optional<Ticket> claimedTicket = ticketHelper.getClaimedTicket();
+
+    if (claimedTicket.isPresent()) {
+      String serviceStreamId = claimedTicket.get().getServiceStreamId();
+
+      SymStream stream = new SymStream();
+      stream.setStreamId(serviceStreamId);
+
+      return Optional.of(stream);
+    }
+
+    return Optional.empty();
+  }
+
+  /**
+   * Returns the ticket room.
+   *
    * @param ticket The claimed ticket
    * @return Ticket room
    */
