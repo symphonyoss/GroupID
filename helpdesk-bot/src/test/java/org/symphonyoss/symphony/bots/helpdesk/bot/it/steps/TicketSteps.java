@@ -118,6 +118,22 @@ public class TicketSteps {
     Thread.sleep(5000L);
   }
 
+  @When("$user sends another initial question to the bot")
+  public void sendAnotherInitialQuestion(String user)
+      throws StreamsException, MessagesException, InterruptedException {
+    this.initialTime = System.currentTimeMillis();
+
+    SymMessage message = new SymMessage();
+    message.setMessageText("Hi bot, Can you help me?");
+
+    messageHelper.sendClientMessage(user, message);
+
+    clientUsername = userHelper.getUser(user).getUsername();
+
+    // Waiting message be processed
+    Thread.sleep(5000L);
+  }
+
   @Then("bot can verify a new idle message was created in the queue room")
   public void verifyIdleMessage() throws StreamsException, MessagesException, InterruptedException {
 
