@@ -120,3 +120,61 @@ https://nexus4-2.symphony.com/client/?bundle=https://localhost:8100/helpdesk-ren
 - Open a new browser and sign in with a different user (ask the administrator if required). Start a direct chat
 between you and the bot
 - New ticket should be created and posted in the queue. Your user should be able to claim this ticket
+
+## Running integration tests
+
+In order to validate provided endpoints, we have created a set of BDD tests using JBehave. The integration tests for
+HelpDesk API are always executed during the build process (in the integration-test phase) because we don't need
+external dependencies (there is an embedded mongo to validate Mongo DAO's).
+
+To run the integration tests for HelpDesk bot you must follow above instructions in order to know how to setup the
+dependencies the application requires.
+
+**Important**: You must have a trusted certificate that have already imported on POD (see POD provisioning).
+
+### Nexus environments
+
+You should execute the build process using the parameters:
+
+```
+mvn -DcaKeyPath=./scripts/local-run/certs/${env}/helpdesk-root-key.pem -DcaCertPath=
+./scripts/local-run/certs/${env}/helpdesk-root.pem -Dspring.profiles.active=${env} clean install
+```
+
+You must replace ${env} variable with the environment name you wish.
+
+### Other POD's
+
+You should create a new YAML file to specify the service endpoint URLs.
+
+Example:
+
+```
+agent:
+  host: foundation-dev.symphony.com
+  port: 443
+
+session_auth:
+  host: foundation-dev-api.symphony.com
+  port: 443
+
+key_auth:
+  host: foundation-dev-api.symphony.com
+  port: 443
+
+pod:
+  host: foundation-dev.symphony.com
+  port: 443
+
+helpdesk-service:
+  host: localhost
+  port: 8081
+```
+
+Then you should execute the build process using the parameters:
+
+```
+mvn -DcaKeyPath=${PATH_TO_CERTS}/helpdesk-root-key.pem -DcaCertPath=${PATH_TO_CERTS}/helpdesk-root.pem -Dspring.config.location=${PATH_TO_YAML} clean install
+```
+
+You must replace ${PATH_TO_CERTS} variable with the certificate directory and ${PATH_TO_YAML} with the YAML absolute path.
