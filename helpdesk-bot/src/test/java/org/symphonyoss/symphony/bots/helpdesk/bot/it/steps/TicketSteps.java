@@ -55,6 +55,16 @@ public class TicketSteps {
       + "<span><b>Question:</b>  Hi bot, how are you doing?</span>            </div>        "
       + "</div>    </div></div>";
 
+  private static final String AGENT_TICKET_CREATION_OTHER_MESSAGE = "<div data-format=\"PresentationML"
+      + "\" data-version=\"V4\">    <div class=\"entity\" data-entity-id=\"helpdesk\">        "
+      + "<div class=\"card barStyle\">            <div class=\"cardHeader\">                "
+      + "<span><b>Equities Desk Bot</b></span>            </div>            <div "
+      + "class=\"cardBody\">                <span><b>Company:</b> Symphony Engineering Services "
+      + "Dev 5</span><br/>                <span><b>Customer:</b> "
+      + "%s</span><br/>                "
+      + "<span><b>Question:</b>  Hi bot, can you help me?</span>            </div>        "
+      + "</div>    </div></div>";
+
   private static final String CLIENT_TICKET_CREATION_MESSAGE = "<div data-format=\"PresentationML"
       + "\" data-version=\"V4\">%s</div>";
 
@@ -69,11 +79,17 @@ public class TicketSteps {
   private static final String MESSAGE_HISTORY_2 =
       "<div data-format=\"PresentationML\" data-version=\"V4\">Hi customer, I'm fine.</div>";
 
+  private static final String MESSAGE_HISTORY_3 = "<div data-format=\"PresentationML\" "
+      + "data-version=\"V4\"><b>%s</b>:  Hi bot, can you help me?</div>";
+
   private static final String TICKET_CLAIMED_MESSAGE = "<div data-format=\"PresentationML\" "
       + "data-version=\"V4\">%s</div>";
 
   private static final String AGENT_RESPONSE_MESSAGE = "<div data-format=\"PresentationML\" "
       + "data-version=\"V4\"> Hi customer, I'm fine.</div>";
+
+  private static final String AGENT_RESPONSE_FIRST_MESSAGE = "<div data-format=\"PresentationML\" "
+      + "data-version=\"V4\"> Hi customer, I'm good, and you?</div>";
 
   private static final String TICKET_CLOSED_MESSAGE = "<div data-format=\"PresentationML\" "
       + "data-version=\"V4\">%s</div>";
@@ -124,7 +140,7 @@ public class TicketSteps {
     this.initialTime = System.currentTimeMillis();
 
     SymMessage message = new SymMessage();
-    message.setMessageText("Hi bot, Can you help me?");
+    message.setMessageText("Hi bot, can you help me?");
 
     messageHelper.sendClientMessage(user, message);
 
@@ -161,6 +177,19 @@ public class TicketSteps {
     assertTrue(clientUsername != null);
 
     String expectedString = String.format(AGENT_TICKET_CREATION_MESSAGE, clientUsername);
+
+    assertEquals(expectedString, message.get().getMessage());
+  }
+
+  @Then("bot can verify a new ticket with other message was created in the queue room")
+  public void verifyAnotherInitialQuestion() throws MessagesException, InterruptedException {
+    Optional<SymMessage> message =
+        messageHelper.getLatestQueueRoomMessage(initialTime);
+
+    assertTrue(message.isPresent());
+    assertTrue(clientUsername != null);
+
+    String expectedString = String.format(AGENT_TICKET_CREATION_OTHER_MESSAGE, clientUsername);
 
     assertEquals(expectedString, message.get().getMessage());
   }
@@ -225,6 +254,21 @@ public class TicketSteps {
         ticketRoomMessages.get(0).getMessage());
   }
 
+  @Then("$user user can see all the history conversation in other ticket room")
+  public void verifyNewHistoryConversation(String username) throws MessagesException {
+    assertTrue(claimedTicket != null);
+    assertTrue(clientUsername != null);
+
+    List<SymMessage> ticketRoomMessages =
+        messageHelper.getTicketRoomMessages(initialTime, claimedTicket.getServiceStreamId());
+
+    assertEquals(2, ticketRoomMessages.size());
+    assertEquals(String.format(MESSAGE_HISTORY_0, userHelper.getBotUser().getUsername()),
+        ticketRoomMessages.get(1).getMessage());
+    assertEquals(String.format(MESSAGE_HISTORY_3, clientUsername),
+        ticketRoomMessages.get(0).getMessage());
+  }
+
   @Then("$user user can see all the history conversation in the ticket room after agent answer")
   public void verifyHistoryConversationAfterAsnwer(String username) throws MessagesException {
     assertTrue(claimedTicket != null);
@@ -268,6 +312,21 @@ public class TicketSteps {
     Thread.sleep(5000L);
   }
 
+  @When("$user answer the first client question")
+  public void answerFirstQuestion(String username)
+      throws MessagesException, StreamsException, InterruptedException {
+    SymMessage message = new SymMessage();
+    message.setMessageText("Hi customer, I'm good, and you?");
+
+    messageHelper.sendAgentMessageToOther(username, message);
+
+    agentUsername = userHelper.getUser(username.toUpperCase()).getUsername();
+
+    // Waiting message be processed
+    Thread.sleep(5000L);
+  }
+
+
   @Then("$user can verify the agent answer in the client room")
   public void verifyAgentAnswer(String user) throws MessagesException, StreamsException {
     Optional<SymMessage> message =
@@ -276,6 +335,16 @@ public class TicketSteps {
     assertTrue(message.isPresent());
 
     assertEquals(AGENT_RESPONSE_MESSAGE, message.get().getMessage());
+  }
+
+  @Then("$user can verify the agent answer your question in the client room")
+  public void verifyFirstAgentAnswer(String user) throws MessagesException, StreamsException {
+    Optional<SymMessage> message =
+        messageHelper.getLatestClientMessage(user, initialTime);
+
+    assertTrue(message.isPresent());
+
+    assertEquals(AGENT_RESPONSE_FIRST_MESSAGE, message.get().getMessage());
   }
 
   @When("$user user join the conversation")
@@ -297,6 +366,23 @@ public class TicketSteps {
     message.setMessage(closeMessage);
 
     messageHelper.sendAgentMessage(username, message);
+
+    // Waiting message be processed
+    Thread.sleep(5000L);
+  }
+
+  @When("$user user sends a message to close the other ticket")
+  public void closeOtherTicket(String username)
+      throws InterruptedException, MessagesException, StreamsException {
+    SymUser botUser = userHelper.getBotUser();
+
+    String closeMessage =
+        String.format("<messageML><mention uid=\"%d\"/> close</messageML>", botUser.getId());
+
+    SymMessage message = new SymMessage();
+    message.setMessage(closeMessage);
+
+    messageHelper.sendAgentMessageToOther(username, message);
 
     // Waiting message be processed
     Thread.sleep(5000L);

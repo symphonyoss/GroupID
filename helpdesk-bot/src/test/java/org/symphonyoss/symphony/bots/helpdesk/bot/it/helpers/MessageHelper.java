@@ -76,6 +76,29 @@ public class MessageHelper {
   }
 
   /**
+   * Send the agent message through the ticket room.
+   *
+   * @param userRef Agent reference
+   * @param message Message to be sent out
+   * @throws MessagesException Failure to send out the message
+   */
+  public void sendAgentMessageToOther(String userRef, SymMessage message)
+      throws MessagesException {
+    String username = userHelper.getUser(userRef.toUpperCase()).getUsername();
+
+    SymphonyClient userAgent = userHelper.getUserContext(username);
+    SymUser agentUser = userAgent.getLocalUser();
+
+    Optional<SymStream> stream = streamHelper.getFirstTicketStream(agentUser.getId());
+
+    if (stream.isPresent()) {
+      userAgent.getMessageService().sendMessage(stream.get(), message);
+    } else {
+      throw new TicketRoomNotFoundException("Ticket room not found");
+    }
+  }
+
+  /**
    * Retrieve the latest client message.
    *
    * @param user Client user
