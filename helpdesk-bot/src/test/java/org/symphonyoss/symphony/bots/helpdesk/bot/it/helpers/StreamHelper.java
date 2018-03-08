@@ -75,6 +75,27 @@ public class StreamHelper {
   }
 
   /**
+   * Returns the first ticket room.
+   *
+   * @param agentId Agent id
+   * @return Ticket room
+   */
+  public Optional<SymStream> getFirstTicketStream(Long agentId) {
+    Optional<Ticket> claimedTicket = ticketHelper.getFirstClaimedTicket(agentId);
+
+    if (claimedTicket.isPresent()) {
+      String serviceStreamId = claimedTicket.get().getServiceStreamId();
+
+      SymStream stream = new SymStream();
+      stream.setStreamId(serviceStreamId);
+
+      return Optional.of(stream);
+    }
+
+    return Optional.empty();
+  }
+
+  /**
    * Returns the ticket room.
    *
    * @return Ticket room
@@ -125,6 +146,16 @@ public class StreamHelper {
    */
   public Stream getQueueRoom() {
     return context.getQueueRoom().getStream();
+  }
+
+  /**
+   * Remove a membership from room
+   *
+   * @param streamId Room ID
+   * @param userId User ID
+   */
+  public void removeMembershipFromRoom(String streamId, Long userId) throws SymException {
+    symphonyClient.getRoomMembershipClient().removeMemberFromRoom(streamId, userId);
   }
 
 }

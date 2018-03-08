@@ -15,9 +15,9 @@ server:
 claimEntityHeader: "<b>Equities Desk Bot</b>"
 
 idle-ticket:
-  message: "has been idle for 60 minutes."
+  message: "has been idle for 60 seconds."
   timeout: 1
-  unit: "HOURS"
+  unit: "MINUTES"
 
 instructional-ticket:
   message: " to close the ticket upon ticket resolution."

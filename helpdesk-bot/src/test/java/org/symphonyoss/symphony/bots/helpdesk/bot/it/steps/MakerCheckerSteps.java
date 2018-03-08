@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.it.steps;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -49,6 +50,8 @@ public class MakerCheckerSteps {
   private static final String MAKERCHECKER_NODE = "makerchecker";
 
   private static final String WHITE_SPACE = " ";
+
+  private static final String APPROVED = "APPROVED";
 
   private Long initialTime = 0L;
 
@@ -103,6 +106,22 @@ public class MakerCheckerSteps {
     makerCheckerHelper.actionAttachment(url, userAgent.getId());
   }
 
+  @When("$agent agent try approves the attachment")
+  public void tryApproveAttachment(String agent)
+      throws MessagesException, HealthCheckFailedException, MalformedURLException {
+    SymUser userAgent = userHelper.getUser(agent.toUpperCase());
+    Optional<SymMessage> message = messageHelper.getLatestTicketMessage(userAgent, initialTime);
+
+    if (!message.isPresent()) {
+      throw new MessageNotFoundException("Message not found");
+    }
+
+    String url = getValueFromEntityData(message.get().getEntityData(), APPROVE_URL);
+
+    assertNull(url);
+    assertEquals(APPROVED, getValueFromEntityData(message.get().getEntityData(), STATE));
+  }
+
   @When("$agent agent deny the attachment")
   public void denyAttachment(String agent)
       throws MessagesException, HealthCheckFailedException, MalformedURLException {
@@ -116,6 +135,20 @@ public class MakerCheckerSteps {
     String url = getValueFromEntityData(message.get().getEntityData(), DENY_URL);
 
     makerCheckerHelper.actionAttachment(url, userAgent.getId());
+  }
+
+  @Then("$agent can verify the attachment $attachment was approved by $agent2")
+  public void verifyApprovedMakerChecker(String agent, String attachment, String agent2)
+      throws MessagesException, HealthCheckFailedException {
+    SymUser userAgent = userHelper.getUser(agent.toUpperCase());
+    SymUser userAgentApprover = userHelper.getUser(agent2.toUpperCase());
+    Optional<SymMessage> message = messageHelper.getLatestTicketMessage(userAgent, initialTime);
+
+
+    String messageAction = userAgentApprover.getDisplayName() + WHITE_SPACE + "approved" + WHITE_SPACE + attachment
+          + " attachment. It has been delivered to the client(s).";
+
+    assertEquals(messageAction , message.get().getMessageText().trim());
   }
 
   @Then("$agent can verify the attachment $attachment is $state")
@@ -155,7 +188,7 @@ public class MakerCheckerSteps {
       throw new JsonParseException("Failed to read response entity.");
     }
 
-    return node.get(MAKERCHECKER_NODE).get(key).asText(StringUtils.EMPTY);
+    return node.get(MAKERCHECKER_NODE).get(key) != null ? node.get(MAKERCHECKER_NODE).get(key).asText(StringUtils.EMPTY) : null;
   }
 
 }

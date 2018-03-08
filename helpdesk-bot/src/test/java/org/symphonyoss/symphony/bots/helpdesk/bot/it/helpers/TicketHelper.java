@@ -79,9 +79,28 @@ public class TicketHelper {
       List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, null);
 
       return ticketList.stream()
-          .filter(ticket -> ticket.getState().equals(TicketClient.TicketStateType.UNRESOLVED.getState()))
+          .filter(ticket -> TicketClient.TicketStateType.UNRESOLVED.getState().equals(ticket.getState()))
           .filter(ticket -> ticket.getAgent() != null && ticket.getAgent().getUserId().equals(agentId))
           .sorted(Comparator.comparing(Ticket::getQuestionTimestamp).reversed())
+          .findFirst();
+    } catch (ApiException e) {
+      throw new HelpDeskApiException("Failed to search tickets", e);
+    }
+  }
+
+  /**
+   * Retrieves the first claimed ticket by an agent.
+   * @param agentId Agent id
+   * @return Unresolved ticket
+   */
+  public Optional<Ticket> getFirstClaimedTicket(Long agentId) {
+    try {
+      List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, null);
+
+      return ticketList.stream()
+          .filter(ticket -> TicketClient.TicketStateType.UNRESOLVED.getState().equals(ticket.getState()))
+          .filter(ticket -> ticket.getAgent() != null && ticket.getAgent().getUserId().equals(agentId))
+          .sorted(Comparator.comparing(Ticket::getQuestionTimestamp))
           .findFirst();
     } catch (ApiException e) {
       throw new HelpDeskApiException("Failed to search tickets", e);
