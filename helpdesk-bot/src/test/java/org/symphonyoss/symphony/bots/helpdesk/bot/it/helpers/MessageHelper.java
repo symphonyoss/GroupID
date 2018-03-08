@@ -68,11 +68,10 @@ public class MessageHelper {
 
     Optional<SymStream> stream = streamHelper.getTicketStream(agentUser.getId());
 
-    if (stream.isPresent()) {
-      userAgent.getMessageService().sendMessage(stream.get(), message);
-    } else {
+    if (!stream.isPresent()) {
       throw new TicketRoomNotFoundException("Ticket room not found");
     }
+    userAgent.getMessageService().sendMessage(stream.get(), message);
   }
 
   /**

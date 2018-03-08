@@ -6,8 +6,8 @@ I want to perform an alternatives scenarios with makerchecker
 So that I can assert those actions are available and working.
 
 Scenario: All agents join to same ticket room
-When helpdesk_client1 sends an initial question to the bot
-Then bot can verify a new ticket was created in the queue room
+When helpdesk_client1 sends an initial personal question to the bot
+Then bot can verify a new ticket was created in the queue room with personal question
 And helpdesk_client1 can verify the ticket successfully created message in the client room
 When agent1 user claims the latest ticket created
 Then bot can verify the agent1 user was added to the ticket room
