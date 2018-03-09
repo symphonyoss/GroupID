@@ -31,7 +31,6 @@ import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 import org.symphonyoss.symphony.pod.model.MemberInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
