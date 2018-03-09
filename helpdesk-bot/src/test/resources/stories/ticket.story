@@ -48,7 +48,7 @@ Then agent2 can verify the attachment Attachment2.jpg is denied
 Scenario: Close conversation
 When agent1 agent authenticates using a certificate
 And agent1 user sends a message to close the ticket
-Then bot can verify there are no agents in the ticket room
+Then bot can verify there are no agent in the ticket room
 And helpdesk_client1 can verify the ticket closed message in the client room
 
 

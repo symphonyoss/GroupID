@@ -1,6 +1,8 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.it.steps;
 
+import static junit.framework.TestCase.assertFalse;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.jbehave.core.annotations.Then;
@@ -143,7 +145,7 @@ public class TicketSteps {
   public void verifyIdleMessage() throws StreamsException, MessagesException, InterruptedException {
 
     // Waiting message be processed
-    Thread.sleep(60000L);
+    Thread.sleep(61000L);
 
     Optional<SymMessage> message = messageHelper.getLatestQueueRoomMessage(initialTime);
 
@@ -154,6 +156,19 @@ public class TicketSteps {
     String expectedString = String.format(IDLE_TICKET_MESSAGE, ticket.get().getId());
 
     assertEquals(expectedString, message.get().getMessage());
+
+  }
+
+  @Then("bot can verify there is no message created in the queue room")
+  public void verifyNoneMessage() throws StreamsException, MessagesException, InterruptedException {
+
+    Optional<SymMessage> message = messageHelper.getLatestQueueRoomMessage(initialTime);
+
+    Optional<Ticket> ticket = ticketHelper.getUnservicedTicket();
+
+    String expectedString = String.format(IDLE_TICKET_MESSAGE, ticket.get().getId());
+
+    assertNotEquals(expectedString, message.get().getMessage());
 
   }
 
@@ -208,10 +223,7 @@ public class TicketSteps {
 
   @Then("bot can verify the $user user was added to the ticket room")
   public void verifyAgentInTheTicketRoom(String user) throws SymException {
-    assertTrue(claimedTicket != null);
-
-    SymStream ticketStream = streamHelper.getTicketStream(claimedTicket);
-    List<MemberInfo> membershipList = streamHelper.getStreamMembershipList(ticketStream);
+    List<MemberInfo> membershipList = getMembershipList();
     Long userId = userHelper.getUser(user.toUpperCase()).getId();
 
     boolean match = membershipList.stream()
@@ -360,16 +372,24 @@ public class TicketSteps {
     Thread.sleep(5000L);
   }
 
-  @Then("bot can verify there are no agents in the ticket room")
-  public void emptyRoom() throws SymException {
+  @Then("bot can verify there are $condition agent in the ticket room")
+  public void emptyRoom(String condition) throws SymException {
+    List<MemberInfo> membershipList = getMembershipList();
+    Long botId = userHelper.getBotUser().getId();
+
+    if(condition.equals("no")){
+      assertEquals(1, membershipList.size());
+      assertEquals(botId, membershipList.get(0).getId());
+    } else {
+      assertEquals(2, membershipList.size());
+    }
+  }
+
+  private List<MemberInfo> getMembershipList() throws SymException {
     assertTrue(claimedTicket != null);
 
     SymStream ticketStream = streamHelper.getTicketStream(claimedTicket);
-    List<MemberInfo> membershipList = streamHelper.getStreamMembershipList(ticketStream);
-    Long botId = userHelper.getBotUser().getId();
-
-    assertEquals(1, membershipList.size());
-    assertEquals(botId, membershipList.get(0).getId());
+    return streamHelper.getStreamMembershipList(ticketStream);
   }
 
   @Then("$user can verify the ticket closed message in the client room")
