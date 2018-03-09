@@ -43,7 +43,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       ticket = rsp.data;
       return Promise.all([getUserId(), getRooms()]);
     }).then(userInfo =>
-    this.showTicketRenderer(entity, ticket, userInfo[0], userInfo[1])
+      this.showTicketRenderer(entity, ticket, userInfo[0], userInfo[1])
     ).catch((e) => {
       if (e.messageException === undefined) {
         return renderErrorMessage(entity, 'Cannot retrieve ticket state.', enricherServiceName);
@@ -87,10 +87,10 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       actionObjs.push(joinConversationAction);
     }
 
-    let inRoom = false;
+    let isTicketRoomMember = false;
     userRooms.forEach((room) => {
       if (base64.escape(room.threadId) === ticket.serviceStreamId) {
-        inRoom = true;
+        isTicketRoomMember = true;
       }
     });
 
@@ -100,7 +100,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       template: actions({ showClaim: data.claimTicket.data.show,
         userName: data.claimTicket.data.userName,
         resolved: ticket.state === 'RESOLVED',
-        inRoom,
+        isTicketRoomMember,
       }),
       data,
       enricherInstanceId: entity.ticketId,
@@ -134,7 +134,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       const template = actions({ showClaim: dataUpdate.claimTicket.data.show,
         resolved: rsp.data.state === 'RESOLVED',
         userName: dataUpdate.claimTicket.data.userName,
-        inRoom: true });
+        isTicketRoomMember: true });
 
       entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
     });
@@ -157,7 +157,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
       const template = actions({ showClaim: false,
         resolved: rsp.data.state === 'RESOLVED',
         userName: dataUpdate.joinConversation.data.userName,
-        inRoom: true });
+        isTicketRoomMember: true });
 
       entityRegistry.updateEnricher(data.enricherInstanceId, template, dataUpdate);
     });

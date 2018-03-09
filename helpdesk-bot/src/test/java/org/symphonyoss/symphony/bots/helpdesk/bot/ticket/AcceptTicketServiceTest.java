@@ -116,8 +116,7 @@ public class AcceptTicketServiceTest {
 
     this.acceptTicketService =
         new AcceptTicketService(symphonyValidationUtil, symphonyClient,
-            helpDeskBotConfig, ticketClient, helpDeskAi, validateMembershipService,
-            helpDeskBotInfo);
+            helpDeskBotConfig, ticketClient, helpDeskAi, validateMembershipService);
   }
 
   @Test

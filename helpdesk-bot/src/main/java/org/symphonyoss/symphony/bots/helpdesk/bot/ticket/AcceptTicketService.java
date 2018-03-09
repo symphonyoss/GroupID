@@ -46,16 +46,12 @@ public class AcceptTicketService extends TicketService {
 
   private final HelpDeskAi helpDeskAi;
 
-  private final HelpDeskBotInfo helpDeskBotInfo;
-
   public AcceptTicketService(SymphonyValidationUtil symphonyValidationUtil,
       SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
-      HelpDeskAi helpDeskAi, ValidateMembershipService validateMembershipService,
-      HelpDeskBotInfo helpDeskBotInfo) {
+      HelpDeskAi helpDeskAi, ValidateMembershipService validateMembershipService) {
     super(symphonyValidationUtil, symphonyClient, helpDeskBotConfig, ticketClient,
         validateMembershipService);
     this.helpDeskAi = helpDeskAi;
-    this.helpDeskBotInfo = helpDeskBotInfo;
   }
 
   /**
@@ -143,7 +139,7 @@ public class AcceptTicketService extends TicketService {
         .agent(userInfo)
         .ticketState(ticketState.getState())
         .streamId(ticket.getServiceStreamId())
-        .botHost(helpDeskBotInfo.getUrl())
+        .botHost(helpDeskBotConfig.getHelpDeskBotUrl())
         .ticketId(ticket.getId())
         .build();
 

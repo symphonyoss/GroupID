@@ -6,8 +6,8 @@
         {{#if resolved}}
             <label class="label">This ticket is closed.</label>
         {{else}}
-            {{#if inRoom}}
-                <label class="label">You are in this ticket room.</label>
+            {{#if isTicketRoomMember}}
+                <label class="label">You are a member of this ticket's room.</label>
             {{else}}
                 <action id="joinConversation" class="tempo-text-color--link"/>
             {{/if}}

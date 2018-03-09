@@ -1,6 +1,7 @@
 import { MessageEnricherBase } from 'symphony-integration-commons';
 import { getUserId, getRooms } from '../utils/userUtils';
 import actionFactory from '../utils/actionFactory';
+import { renderErrorMessage } from '../utils/errorMessage';
 
 const actions = require('../templates/claimTicketActions.hbs');
 const base64 = require('base64-url');
@@ -34,10 +35,10 @@ export default class ActionClaimTicketEnricher extends MessageEnricherBase {
         };
 
         getRooms().then((userRooms) => {
-          let inRoom = false;
+          let isTicketRoomMember = false;
           userRooms.forEach((room) => {
             if (base64.escape(room.threadId) === entity.streamId) {
-              inRoom = true;
+              isTicketRoomMember = true;
             }
           });
 
@@ -47,11 +48,21 @@ export default class ActionClaimTicketEnricher extends MessageEnricherBase {
           const template = actions({ showClaim: false,
             resolved: entity.state === 'RESOLVED',
             userName: displayName,
-            inRoom,
+            isTicketRoomMember,
           });
 
           entityRegistry.updateEnricher(entity.ticketId, template, data);
+        }).catch((e) => {
+          if (e.messageException === undefined) {
+            return renderErrorMessage(entity, 'Could not get rooms for this user.', updatedEnricherServiceName);
+          }
+          return renderErrorMessage(entity, e.messageException, updatedEnricherServiceName);
         });
+      }).catch((e) => {
+        if (e.messageException === undefined) {
+          return renderErrorMessage(entity, 'Could not get rooms for this user.', updatedEnricherServiceName);
+        }
+        return renderErrorMessage(entity, e.messageException, updatedEnricherServiceName);
       });
     }
   }
