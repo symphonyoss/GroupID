@@ -17,6 +17,7 @@ import org.symphonyoss.client.events.SymRoomUpdated;
 import org.symphonyoss.client.events.SymUserJoinedRoom;
 import org.symphonyoss.client.events.SymUserLeftRoom;
 import org.symphonyoss.client.exceptions.MessagesException;
+import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.services.RoomServiceEventListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
@@ -28,10 +29,13 @@ import org.symphonyoss.symphony.bots.utility.message.SymMessageBuilder;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
+import org.symphonyoss.symphony.pod.model.MemberInfo;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
+ * Listener for events in bot rooms
  * Created by rsanchez on 13/12/17.
  */
 @Service
@@ -96,6 +100,10 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
     // Do nothing
   }
 
+  /**
+   * Sends a welcome message when a user joins a room
+   * @param symUserJoinedRoom the SymUserJoinedRoom object
+   */
   @Override
   public void onSymUserJoinedRoom(SymUserJoinedRoom symUserJoinedRoom) {
     SymStream stream = symUserJoinedRoom.getStream();
@@ -107,6 +115,11 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
     sendWelcomeMessage(stream, symUser);
   }
 
+  /**
+   * The welcome message builder and sender
+   * @param symStream The stream where to send the message
+   * @param symUser The user to welcome
+   */
   private void sendWelcomeMessage(SymStream symStream, SymUser symUser) {
     if (isBotUser(symUser) && !isAgentStreamId(symStream)) {
       String messageML = String.format(MESSAGEML_TEMPLATE, config.getWelcomeMessage());
@@ -124,22 +137,38 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
     }
   }
 
+  /**
+   * Checks if a SymUser is the bot
+   * @param symUser The SymUser to check
+   * @return true if symUser is the bot, false otherwise
+   */
   private boolean isBotUser(SymUser symUser) {
     return symUser.getId().equals(symphonyClient.getLocalUser().getId());
   }
 
+  /**
+   * Checks if a stream is the agent room for the bot
+   * @param symStream The SymStream to check
+   * @return true if the symStream is the stream of the agent room, false otherwise
+   */
   private boolean isAgentStreamId(SymStream symStream) {
     return symStream.getStreamId().equals(config.getAgentStreamId());
   }
 
+  /**
+   * When the last agent leaves the service room, mark the ticket as unserviced, warn the client
+   * room, and resend the ticket message to the agent room for the agents to claim
+   * @param symUserLeftRoom The SymUserLeftRoom object
+   */
   @Override
   public void onSymUserLeftRoom(SymUserLeftRoom symUserLeftRoom) {
     SymStream symStream = symUserLeftRoom.getStream();
 
-    if (!isAgentStreamId(symStream) && (symStream.getMembers().size() <= 1)) {
+    if (!isAgentStreamId(symStream)) {
       Ticket ticket = ticketClient.getTicketByServiceStreamId(symStream.getStreamId());
 
-      if (ticket != null && UNRESOLVED.getState().equals(ticket.getState())) {
+      if (ticket != null && UNRESOLVED.getState().equals(ticket.getState())
+          && isRoomUnserviced(symStream.getStreamId())) {
         LOGGER.info("Only the bot was left in the ticket room. Reopening ticket in the Agent room");
 
         // Update ticket to a state that it can be claimed again by another agent
@@ -176,6 +205,22 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
         ticketService.sendClientMessageToServiceStreamId(ticket.getClientStreamId(), symMessage);
 
       }
+    }
+  }
+
+  /**
+   * Checks if room is out of agents
+   * @param streamId The Stream ID for the room
+   * @return true if room is out of agents, false otherwise
+   */
+  private boolean isRoomUnserviced(String streamId) {
+    try {
+      List<MemberInfo> membershipList =
+          symphonyClient.getRoomMembershipClient().getRoomMembership(streamId);
+      return membershipList.size() <= 1;
+    } catch (SymException e) {
+      LOGGER.error(String.format("Could not find membership list for stream [%s]", streamId));
+      return false;
     }
   }
 
