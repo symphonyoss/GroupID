@@ -6,6 +6,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.Membersh
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 
 /**
+ * HelpDesk AI Session
  * Created by nick.tarsillo on 10/27/17.
  */
 public class HelpDeskAiSession {

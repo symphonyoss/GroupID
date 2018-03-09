@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.common;
 
 /**
+ * Constants used in the Helpdesk's AI context
  * Created by nick.tarsillo on 10/27/17.
  */
 public class HelpDeskAiConstants {

@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.config;
 
 /**
+ * Helpdesk AI configuration
  * Created by nick.tarsillo on 10/27/17.
  */
 public class HelpDeskAiConfig {
