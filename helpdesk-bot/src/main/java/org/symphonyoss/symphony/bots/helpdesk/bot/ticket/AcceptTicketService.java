@@ -14,6 +14,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.AcceptMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
@@ -45,12 +46,16 @@ public class AcceptTicketService extends TicketService {
 
   private final HelpDeskAi helpDeskAi;
 
+  private final HelpDeskBotInfo helpDeskBotInfo;
+
   public AcceptTicketService(SymphonyValidationUtil symphonyValidationUtil,
       SymphonyClient symphonyClient, HelpDeskBotConfig helpDeskBotConfig, TicketClient ticketClient,
-      HelpDeskAi helpDeskAi, ValidateMembershipService validateMembershipService) {
+      HelpDeskAi helpDeskAi, ValidateMembershipService validateMembershipService,
+      HelpDeskBotInfo helpDeskBotInfo) {
     super(symphonyValidationUtil, symphonyClient, helpDeskBotConfig, ticketClient,
         validateMembershipService);
     this.helpDeskAi = helpDeskAi;
+    this.helpDeskBotInfo = helpDeskBotInfo;
   }
 
   /**
@@ -137,6 +142,8 @@ public class AcceptTicketService extends TicketService {
     SymMessage acceptMessage = new AcceptMessageBuilder()
         .agent(userInfo)
         .ticketState(ticketState.getState())
+        .streamId(ticket.getServiceStreamId())
+        .botHost(helpDeskBotInfo.getUrl())
         .ticketId(ticket.getId())
         .build();
 

@@ -25,6 +25,10 @@ public class AcceptMessageBuilder extends TicketMessageBuilder {
 
   private String ticketState;
 
+  private String streamId;
+
+  private String botHost;
+
   public AcceptMessageBuilder agent(UserInfo agent) {
     this.agent = agent;
     return this;
@@ -32,6 +36,16 @@ public class AcceptMessageBuilder extends TicketMessageBuilder {
 
   public AcceptMessageBuilder ticketState(String ticketState) {
     this.ticketState = ticketState;
+    return this;
+  }
+
+  public AcceptMessageBuilder streamId(String streamId) {
+    this.streamId = streamId;
+    return this;
+  }
+
+  public AcceptMessageBuilder botHost(String botHost) {
+    this.botHost = botHost;
     return this;
   }
 
@@ -50,6 +64,10 @@ public class AcceptMessageBuilder extends TicketMessageBuilder {
 
     bodyBuilder.addField("ticketId", ticketId);
     bodyBuilder.addField("state", ticketState);
+    bodyBuilder.addField("streamId", streamId);
+
+    String joinUrl = String.format("%s/v1/ticket/%s/join", botHost, ticketId);
+    bodyBuilder.addField("joinUrl", joinUrl);
 
     EntityBuilder userBuilder = EntityBuilder.createEntity(USER_TICKET_EVENT, VERSION);
     userBuilder.addField("displayName", agent.getDisplayName());

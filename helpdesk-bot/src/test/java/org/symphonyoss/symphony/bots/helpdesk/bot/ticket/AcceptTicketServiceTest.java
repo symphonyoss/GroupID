@@ -24,6 +24,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
@@ -103,6 +104,9 @@ public class AcceptTicketServiceTest {
   @Mock
   private ValidateMembershipService validateMembershipService;
 
+  @Mock
+  private HelpDeskBotInfo helpDeskBotInfo;
+
   private AcceptTicketService acceptTicketService;
 
   @Before
@@ -112,7 +116,8 @@ public class AcceptTicketServiceTest {
 
     this.acceptTicketService =
         new AcceptTicketService(symphonyValidationUtil, symphonyClient,
-            helpDeskBotConfig, ticketClient, helpDeskAi, validateMembershipService);
+            helpDeskBotConfig, ticketClient, helpDeskAi, validateMembershipService,
+            helpDeskBotInfo);
   }
 
   @Test
@@ -181,7 +186,8 @@ public class AcceptTicketServiceTest {
 
     doReturn(messagesClient).when(symphonyClient).getMessagesClient();
     doReturn(mockMessages()).when(messagesClient)
-        .getMessagesFromStream(any(SymStream.class), eq(ticket.getQuestionTimestamp()), eq(0), eq(100));
+        .getMessagesFromStream(any(SymStream.class), eq(ticket.getQuestionTimestamp()), eq(0),
+            eq(100));
 
     acceptTicketService.sendTicketHistory(ticket, MOCK_CLIENT_ID);
 
