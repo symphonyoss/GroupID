@@ -20,7 +20,8 @@ public class AcceptMessageBuilderTest {
 
   private static final String EXPECTED_ENTITY = "{\"helpdesk\":{\"type\":\"com.symphony.bots"
       + ".helpdesk.event.ticket.accept\",\"version\":\"1.0\",\"ticketId\":\"ABCDEFG\","
-      + "\"state\":\"UNRESOLVED\",\"agent\":{\"type\":\"com.symphony.bots.helpdesk.event.ticket"
+      + "\"state\":\"UNRESOLVED\",\"joinUrl\":\"http://localhost:8001/helpdesk-bot/v1/ticket"
+      + "/ABCDEFG/join\",\"agent\":{\"type\":\"com.symphony.bots.helpdesk.event.ticket"
       + ".user\",\"version\":\"1.0\",\"displayName\":\"Agent User\"}}}";
 
   @Test
@@ -28,10 +29,12 @@ public class AcceptMessageBuilderTest {
     AcceptMessageBuilder acceptMessageBuilder = new AcceptMessageBuilder();
     String expectedMessage = acceptMessageBuilder.getMessageTemplate();
 
-    SymMessage symMessage = acceptMessageBuilder.ticketState(TicketClient.TicketStateType.UNRESOLVED.getState())
-        .agent(mockUserInfo())
-        .ticketId(MOCK_TICKET)
-        .build();
+    SymMessage symMessage =
+        acceptMessageBuilder.ticketState(TicketClient.TicketStateType.UNRESOLVED.getState())
+            .agent(mockUserInfo())
+            .ticketId(MOCK_TICKET)
+            .botHost("http://localhost:8001/helpdesk-bot")
+            .build();
 
     assertEquals(expectedMessage, symMessage.getMessage());
     assertEquals(EXPECTED_ENTITY, symMessage.getEntityData());
