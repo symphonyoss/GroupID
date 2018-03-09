@@ -14,7 +14,6 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.AcceptMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
