@@ -17,6 +17,7 @@ import org.symphonyoss.client.events.SymRoomUpdated;
 import org.symphonyoss.client.events.SymUserJoinedRoom;
 import org.symphonyoss.client.events.SymUserLeftRoom;
 import org.symphonyoss.client.exceptions.MessagesException;
+import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.services.RoomServiceEventListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
@@ -28,7 +29,10 @@ import org.symphonyoss.symphony.bots.utility.message.SymMessageBuilder;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
+import org.symphonyoss.symphony.pod.model.MemberInfo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -135,8 +139,16 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
   @Override
   public void onSymUserLeftRoom(SymUserLeftRoom symUserLeftRoom) {
     SymStream symStream = symUserLeftRoom.getStream();
+    List<MemberInfo> membershipList = null;
 
-    if (!isAgentStreamId(symStream) && (symStream.getMembers().size() <= 1)) {
+    try {
+      membershipList =
+          symphonyClient.getRoomMembershipClient().getRoomMembership(symStream.getStreamId());
+    } catch (SymException e) {
+      LOGGER.error("Could not find room");
+    }
+
+    if (!isAgentStreamId(symStream) && (membershipList != null) && (membershipList.size() <= 1)) {
       Ticket ticket = ticketClient.getTicketByServiceStreamId(symStream.getStreamId());
 
       if (ticket != null && UNRESOLVED.getState().equals(ticket.getState())) {
