@@ -138,19 +138,12 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
   @Override
   public void onSymUserLeftRoom(SymUserLeftRoom symUserLeftRoom) {
     SymStream symStream = symUserLeftRoom.getStream();
-    List<MemberInfo> membershipList = null;
 
-    try {
-      membershipList =
-          symphonyClient.getRoomMembershipClient().getRoomMembership(symStream.getStreamId());
-    } catch (SymException e) {
-      LOGGER.error("Could not find room");
-    }
-
-    if (!isAgentStreamId(symStream) && (membershipList != null) && (membershipList.size() <= 1)) {
+    if (!isAgentStreamId(symStream)) {
       Ticket ticket = ticketClient.getTicketByServiceStreamId(symStream.getStreamId());
 
-      if (ticket != null && UNRESOLVED.getState().equals(ticket.getState())) {
+      if (ticket != null && UNRESOLVED.getState().equals(ticket.getState())
+          && isRoomEmpty(symStream.getStreamId())) {
         LOGGER.info("Only the bot was left in the ticket room. Reopening ticket in the Agent room");
 
         // Update ticket to a state that it can be claimed again by another agent
@@ -187,6 +180,17 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
         ticketService.sendClientMessageToServiceStreamId(ticket.getClientStreamId(), symMessage);
 
       }
+    }
+  }
+
+  private boolean isRoomEmpty(String streamId) {
+    try {
+      List<MemberInfo> membershipList =
+          symphonyClient.getRoomMembershipClient().getRoomMembership(streamId);
+      return membershipList.size() <= 1;
+    } catch (SymException e) {
+      LOGGER.error(String.format("Could not find membership list for stream [%s]", streamId));
+      return false;
     }
   }
 
