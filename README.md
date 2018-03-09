@@ -103,6 +103,12 @@ After that, you must run the **create_agent_room.sh** script providing the envir
 - Execute HelpDeskBot configuration
 - Execute HelpDeskRenderer configuration
 
+### Command Line
+- It's possible to run the Helpdesk Renderer app in watch mode:
+1. Go to the 'helpdesk-dynamic-rendering' directory.
+2. Execute ```npm run watch```.
+3. Access the helpdesk-renderer URL to validate if it's served properly as described below.
+
 ### Validate applications
 
 - Access this in your Chrome browser: 'chrome://flags/#allow-insecure-localhost'. You should see highlighted

@@ -59,5 +59,15 @@ module.exports = {
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.UglifyJsPlugin(),
     new webpack.optimize.AggressiveMergingPlugin()
-  ]
+  ],
+  devServer: {
+    contentBase: path.resolve(__dirname, './target/static'),
+    port: 8100,
+    inline: true,
+    headers: {
+      "Access-Control-Allow-Origin": "*"
+    },
+    disableHostCheck: true,
+    publicPath: "/helpdesk-renderer/"
+  }
 };
