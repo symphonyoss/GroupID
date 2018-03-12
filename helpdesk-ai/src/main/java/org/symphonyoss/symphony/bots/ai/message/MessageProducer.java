@@ -20,6 +20,8 @@ import org.symphonyoss.symphony.clients.model.SymUser;
 import java.io.File;
 
 /**
+ * The message producer will process messages into the MessageML format and send them via a
+ * SymStream.
  * Created by rsanchez on 30/11/17.
  */
 public class MessageProducer {

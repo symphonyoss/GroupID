@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Timer to keep track of how long a ticket room has been unattended by agents.
  * Created by nick.tarsillo on 11/28/17.
  */
 public abstract class ProxyIdleTimer {
