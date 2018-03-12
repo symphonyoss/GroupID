@@ -71,21 +71,19 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
 
     const actionObjs = [claimTicketAction];
 
-    if (agent && agent.userId !== userId) {
-      const joinConversationAction = {
-        id: 'joinConversation',
-        service: enricherServiceName,
-        type: 'joinConversation',
-        label: 'Join the conversation',
-        enricherInstanceId: entity.ticketId,
-        show: ticket.state === 'UNSERVICED',
-        userName: displayName,
-        streamId: entity.streamId,
-        userId,
-      };
+    const joinConversationAction = {
+      id: 'joinConversation',
+      service: enricherServiceName,
+      type: 'joinConversation',
+      label: 'Join the conversation',
+      enricherInstanceId: entity.ticketId,
+      show: ticket.state === 'UNRESOLVED',
+      userName: displayName,
+      streamId: entity.streamId,
+      userId,
+    };
 
-      actionObjs.push(joinConversationAction);
-    }
+    actionObjs.push(joinConversationAction);
 
     let isTicketRoomMember = false;
     userRooms.forEach((room) => {
@@ -149,7 +147,7 @@ export default class ClaimTicketEnricher extends MessageEnricherBase {
         type: 'joinConversation',
         label: 'Join the conversation',
         enricherInstanceId: rsp.data.ticketId,
-        show: rsp.data.state === 'UNSERVICED',
+        show: rsp.data.state === 'UNRESOLVED',
         userName: rsp.data.user.displayName,
       };
 
