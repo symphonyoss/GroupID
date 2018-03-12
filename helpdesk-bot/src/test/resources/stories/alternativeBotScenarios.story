@@ -42,3 +42,29 @@ And agent2 user can see all the personal history conversation in the ticket room
 When agent2 user sends a message to close the ticket
 Then bot can verify there are no agents in the ticket room
 And helpdesk_client1 can verify the ticket closed message in the client room
+
+Scenario: Agent claims a ticket
+When helpdesk_client1 sends an initial personal question to the bot
+Then bot can verify a new ticket was created in the queue room with personal question
+And helpdesk_client1 can verify the ticket successfully created message in the client room
+When agent2 agent authenticates using a certificate
+And agent1 user claims the latest ticket created
+Then bot can verify the agent1 user was added to the ticket room
+
+Scenario: Another agent joins the ticket room
+When agent2 agent authenticates using a certificate
+And agent2 user join the conversation
+Then bot can verify the agent2 user was added to the ticket room
+
+Scenario: Agent leaves the room and the ticket can not be closed
+When agent1 agent authenticates using a certificate
+Then agent1 leaves the ticket room
+And bot can verify only user agent2 is in the ticket room
+And bot can verify there is no question message created in the queue room
+
+Scenario: Remaining agent closes the ticket
+When agent2 agent authenticates using a certificate
+Then agent2 user can see all the personal history conversation in the ticket room
+When agent2 user sends a message to close the ticket
+Then bot can verify there are no agents in the ticket room
+And helpdesk_client1 can verify the ticket closed message in the client room
