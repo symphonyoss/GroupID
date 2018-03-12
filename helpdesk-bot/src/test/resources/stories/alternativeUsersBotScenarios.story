@@ -40,10 +40,10 @@ Then helpdesk_client1 can verify the agent answer your question in the client ro
 
 Scenario: Close the last ticket
 When agent1 user sends a message to close the ticket
-Then bot can verify there are no agent in the ticket room
+Then bot can verify there are no agents in the ticket room
 And helpdesk_client2 can verify the ticket closed message in the client room
 
 Scenario: Close the first ticket
 When agent1 user sends a message to close the other ticket
-Then bot can verify there are no agent in the ticket room
+Then bot can verify there are no agents in the ticket room
 And helpdesk_client1 can verify the ticket closed message in the client room

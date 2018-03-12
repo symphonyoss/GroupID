@@ -47,25 +47,29 @@ public class TicketSteps {
 
   private final StreamHelper streamHelper;
 
-  private static final String AGENT_TICKET_CREATION_PERSONAL_MESSAGE = "<div data-format=\"PresentationML"
-      + "\" data-version=\"V4\">    <div class=\"entity\" data-entity-id=\"helpdesk\">        "
-      + "<div class=\"card barStyle\">            <div class=\"cardHeader\">                "
-      + "<span><b>Equities Desk Bot</b></span>            </div>            <div "
-      + "class=\"cardBody\">                <span><b>Company:</b> Symphony Engineering Services "
-      + "Dev 5</span><br/>                <span><b>Customer:</b> "
-      + "%s</span><br/>                "
-      + "<span><b>Question:</b>  Hi bot, what are you doing?</span>            </div>        "
-      + "</div>    </div></div>";
+  private static final String AGENT_TICKET_CREATION_PERSONAL_MESSAGE =
+      "<div data-format=\"PresentationML"
+          + "\" data-version=\"V4\">    <div class=\"entity\" data-entity-id=\"helpdesk\">        "
+          + "<div class=\"card barStyle\">            <div class=\"cardHeader\">                "
+          + "<span><b>Equities Desk Bot</b></span>            </div>            <div "
+          + "class=\"cardBody\">                <span><b>Company:</b> Symphony Engineering "
+          + "Services "
+          + "Dev 5</span><br/>                <span><b>Customer:</b> "
+          + "%s</span><br/>                "
+          + "<span><b>Question:</b>  Hi bot, what are you doing?</span>            </div>        "
+          + "</div>    </div></div>";
 
-  private static final String AGENT_TICKET_CREATION_HELP_MESSAGE = "<div data-format=\"PresentationML"
-      + "\" data-version=\"V4\">    <div class=\"entity\" data-entity-id=\"helpdesk\">        "
-      + "<div class=\"card barStyle\">            <div class=\"cardHeader\">                "
-      + "<span><b>Equities Desk Bot</b></span>            </div>            <div "
-      + "class=\"cardBody\">                <span><b>Company:</b> Symphony Engineering Services "
-      + "Dev 5</span><br/>                <span><b>Customer:</b> "
-      + "%s</span><br/>                "
-      + "<span><b>Question:</b>  Hi bot, can you help me?</span>            </div>        "
-      + "</div>    </div></div>";
+  private static final String AGENT_TICKET_CREATION_HELP_MESSAGE =
+      "<div data-format=\"PresentationML"
+          + "\" data-version=\"V4\">    <div class=\"entity\" data-entity-id=\"helpdesk\">        "
+          + "<div class=\"card barStyle\">            <div class=\"cardHeader\">                "
+          + "<span><b>Equities Desk Bot</b></span>            </div>            <div "
+          + "class=\"cardBody\">                <span><b>Company:</b> Symphony Engineering "
+          + "Services "
+          + "Dev 5</span><br/>                <span><b>Customer:</b> "
+          + "%s</span><br/>                "
+          + "<span><b>Question:</b>  Hi bot, can you help me?</span>            </div>        "
+          + "</div>    </div></div>";
 
   private static final String CLIENT_TICKET_CREATION_MESSAGE = "<div data-format=\"PresentationML"
       + "\" data-version=\"V4\">%s</div>";
@@ -127,7 +131,7 @@ public class TicketSteps {
 
     SymMessage message = new SymMessage();
 
-    if(question.equals(PERSONAL)) {
+    if (question.equals(PERSONAL)) {
       message.setMessageText(PERSONAL_QUESTION);
     } else {
       message.setMessageText(HELP_QUESTION);
@@ -159,21 +163,23 @@ public class TicketSteps {
 
   }
 
-  @Then("bot can verify there is no message created in the queue room")
+  @Then("bot can verify there is no question message created in the queue room")
   public void verifyNoneMessage() throws StreamsException, MessagesException, InterruptedException {
 
     Optional<SymMessage> message = messageHelper.getLatestQueueRoomMessage(initialTime);
 
     Optional<Ticket> ticket = ticketHelper.getUnservicedTicket();
 
-    String expectedString = String.format(IDLE_TICKET_MESSAGE, ticket.get().getId());
+    String expectedString =
+        String.format(AGENT_TICKET_CREATION_PERSONAL_MESSAGE, ticket.get().getId());
 
     assertNotEquals(expectedString, message.get().getMessage());
 
   }
 
   @Then("bot can verify a new ticket was created in the queue room with $question question")
-  public void verifyInitialQuestion(String question) throws MessagesException, InterruptedException {
+  public void verifyInitialQuestion(String question)
+      throws MessagesException, InterruptedException {
     Optional<SymMessage> message =
         messageHelper.getLatestQueueRoomMessage(initialTime);
 
@@ -182,7 +188,7 @@ public class TicketSteps {
 
     String expectedString;
 
-    if(question.equals(PERSONAL)) {
+    if (question.equals(PERSONAL)) {
       expectedString = String.format(AGENT_TICKET_CREATION_PERSONAL_MESSAGE, clientUsername);
     } else {
       expectedString = String.format(AGENT_TICKET_CREATION_HELP_MESSAGE, clientUsername);
@@ -204,7 +210,8 @@ public class TicketSteps {
   }
 
   @When("$user user claims the latest ticket created")
-  public void claimTicket(String username) throws StreamsException, MessagesException, InterruptedException {
+  public void claimTicket(String username)
+      throws StreamsException, MessagesException, InterruptedException {
     // Waiting message be processed
     Thread.sleep(5000L);
 
@@ -244,7 +251,7 @@ public class TicketSteps {
     assertEquals(String.format(MESSAGE_HISTORY_0, userHelper.getBotUser().getUsername()),
         ticketRoomMessages.get(1).getMessage());
 
-    if(question.equals(PERSONAL)) {
+    if (question.equals(PERSONAL)) {
       assertEquals(String.format(MESSAGE_HISTORY_1, clientUsername),
           ticketRoomMessages.get(0).getMessage());
     } else {
@@ -372,17 +379,23 @@ public class TicketSteps {
     Thread.sleep(5000L);
   }
 
-  @Then("bot can verify there are $condition agent in the ticket room")
-  public void emptyRoom(String condition) throws SymException {
+  @Then("bot can verify there are no agents in the ticket room")
+  public void verifyOnlyBotInTicketRoom() throws SymException {
     List<MemberInfo> membershipList = getMembershipList();
     Long botId = userHelper.getBotUser().getId();
 
-    if(condition.equals("no")){
-      assertEquals(1, membershipList.size());
-      assertEquals(botId, membershipList.get(0).getId());
-    } else {
-      assertEquals(2, membershipList.size());
-    }
+    assertEquals(1, membershipList.size());
+    assertEquals(botId, membershipList.get(0).getId());
+  }
+
+  @Then("bot can verify only user $agent is in the ticket room")
+  public void verifyAgentInTicketRoom(String agent) throws SymException {
+    List<MemberInfo> membershipList = getMembershipList();
+    Long botId = userHelper.getBotUser().getId();
+
+    assertEquals(2, membershipList.size());
+    assertEquals(botId, membershipList.get(1).getId());
+    assertEquals(userHelper.getUser(agent.toUpperCase()).getId(), membershipList.get(0).getId());
   }
 
   private List<MemberInfo> getMembershipList() throws SymException {
@@ -412,7 +425,7 @@ public class TicketSteps {
     Optional<SymStream> symStream = streamHelper.getTicketStream(userId);
     assertTrue(symStream.isPresent());
 
-    streamHelper.removeMembershipFromRoom(symStream.get().getStreamId(),userId);
+    streamHelper.removeMembershipFromRoom(symStream.get().getStreamId(), userId);
   }
 
 }
