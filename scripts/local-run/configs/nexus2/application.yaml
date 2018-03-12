@@ -30,3 +30,7 @@ pod:
   host: nexus2-2.symphony.com
   port: 443
 
+app-authentication:
+  api:
+    keystore-file: ${CERTS_DIR}/nexus2/helpdesk-app.p12
+    keystore-password: changeit

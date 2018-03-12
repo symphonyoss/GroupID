@@ -24,6 +24,7 @@ You’ll build the three java applications described above.
 * Webpack (globally installed)
 * A service user on the pod that will act as the HelpDesk bot
 * A cert for the HelpDesk bot user
+* A cert for the HelpDesk application
 * HelpDesk App installed on pod ([Bundle File](/helpdesk-dynamic-rendering/src/main/webapp/bundle.json))
 * OpenSSL
 * jq (https://stedolan.github.io/jq/)
@@ -71,9 +72,9 @@ This process should be executed to create the required artifacts to run the appl
 If you're an admin user in the POD, please follow these steps:
  * Go to AC Portal
  * Create new service account for your bot
- * Run **generate_bot_keystore.sh** script to generate bot p12 file. You must provide service account username and environment as script parameters
+ * Run **generate_keystores.sh** script to generate bot and application p12 files. You must provide service account username and environment as script parameters
 ```
-./generate_bot_keystore.sh --env nexus1 --user helpdesk
+./generate_keystores.sh --env nexus1 --user helpdesk
 ```
  * Import 'certs/${env}/helpdesk-root.pem' file into the POD. You can make it in the AC Portal -> Manage Certificates
 
