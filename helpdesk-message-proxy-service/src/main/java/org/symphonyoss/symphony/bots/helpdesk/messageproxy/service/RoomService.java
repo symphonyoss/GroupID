@@ -16,6 +16,12 @@ public class RoomService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RoomService.class);
 
+  private static final int MAX_TAGS_SIZE = 21;
+
+  private static final int MAX_PODNAME_SIZE = 11;
+
+  private static final int MAX_GROUPID_SIZE = 24;
+
   private final SymphonyClient symphonyClient;
 
   public RoomService(SymphonyClient symphonyClient) {
@@ -59,17 +65,13 @@ public class RoomService {
    * @return the built Room Name
    */
   private String buildRoomName(String podName, String groupId, String ticketId) {
-    int availableChars = 50 - ("[] Ticket Room #" + ticketId).length();
-
     if (podName != null) {
-      availableChars -= "[] ".length();
+      String podNameNormalized = truncate(podName, MAX_PODNAME_SIZE);
+      String groupIdNormalized = truncate(groupId, MAX_TAGS_SIZE - podNameNormalized.length());
 
-      podName = truncate(podName, Math.max(availableChars / 2, availableChars - groupId.length()));
-      groupId = truncate(groupId, availableChars - podName.length());
-
-      return "[" + podName + "] [" + groupId + "] Ticket Room #" + ticketId;
+      return "[" + podNameNormalized + "] [" + groupIdNormalized + "] Ticket Room #" + ticketId;
     } else {
-      groupId = truncate(groupId, availableChars);
+      groupId = truncate(groupId, MAX_GROUPID_SIZE);
 
       return "[" + groupId + "] Ticket Room #" + ticketId;
     }
@@ -77,15 +79,15 @@ public class RoomService {
 
   /**
    * Truncates a string with a given length
-   * @param string the string to be truncated
+   * @param value the string to be truncated
    * @param length the maximum length
    * @return the truncated string
    */
-  private String truncate(String string, int length) {
-    if (string.length() > length) {
-      return string.substring(0, length);
+  private String truncate(String value, int length) {
+    if (value.length() > length) {
+      return value.substring(0, length).trim();
     } else {
-      return string;
+      return value;
     }
   }
 

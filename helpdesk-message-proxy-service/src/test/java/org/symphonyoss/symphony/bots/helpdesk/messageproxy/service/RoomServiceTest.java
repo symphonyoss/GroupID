@@ -27,7 +27,7 @@ public class RoomServiceTest {
 
   private static final String GROUP_ID = "unitTest";
 
-  private static final String TICKET_ID = "WBG23VD1";
+  private static final String TICKET_ID = "WBG23VD1A6";
 
   private static final long USER_ID = 23011987l;
 
@@ -41,7 +41,7 @@ public class RoomServiceTest {
 
   private static final String LONG_GROUP_ID = "exceedinglyLongGroupId";
 
-  private static final String EXPECTED_LONG_NAME = "[EXCEEDINGLY] [exceedinglyL] Ticket Room #WBG23VD1";
+  private static final String EXPECTED_LONG_NAME = "[EXCEEDINGLY] [exceedingl] Ticket Room #WBG23VD1A6";
 
   private RoomService service;
 
