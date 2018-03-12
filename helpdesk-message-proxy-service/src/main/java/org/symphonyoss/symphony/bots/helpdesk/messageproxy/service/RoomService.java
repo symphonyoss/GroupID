@@ -24,7 +24,6 @@ public class RoomService {
 
   /**
    * Creates a new service stream for a ticket.
-   *
    * @param ticketId the ticket ID to create the service stream for
    * @param groupId group Id
    * @param podName Pod Name
@@ -35,18 +34,12 @@ public class RoomService {
       Boolean viewHistory)
       throws RoomException {
     SymRoomAttributes roomAttributes = new SymRoomAttributes();
-    roomAttributes.setCreatorUser(symphonyClient.getLocalUser());
 
+    roomAttributes.setCreatorUser(symphonyClient.getLocalUser());
     roomAttributes.setDescription("Service room for ticket " + ticketId + ".");
     roomAttributes.setDiscoverable(false);
     roomAttributes.setMembersCanInvite(true);
-
-    if (podName != null) {
-      roomAttributes.setName("[" + podName + "] [" + groupId + "] Ticket Room #" + ticketId);
-    } else {
-      roomAttributes.setName("[" + groupId + "] Ticket Room #" + ticketId);
-    }
-
+    roomAttributes.setName(buildRoomName(podName, groupId, ticketId));
     roomAttributes.setReadOnly(false);
     roomAttributes.setPublic(false);
     roomAttributes.setViewHistory(viewHistory);
@@ -56,6 +49,44 @@ public class RoomService {
     LOGGER.info("Created new room: " + roomAttributes.getName());
 
     return room;
+  }
+
+  /**
+   * Builds a valid room name within the maximum number of characters
+   * @param podName the Pod name to be displayed
+   * @param groupId the GroupId
+   * @param ticketId the TicketId
+   * @return the built Room Name
+   */
+  private String buildRoomName(String podName, String groupId, String ticketId) {
+    int availableChars = 50 - ("[] Ticket Room #" + ticketId).length();
+
+    if (podName != null) {
+      availableChars -= "[] ".length();
+
+      podName = truncate(podName, Math.max(availableChars / 2, availableChars - groupId.length()));
+      groupId = truncate(groupId, availableChars - podName.length());
+
+      return "[" + podName + "] [" + groupId + "] Ticket Room #" + ticketId;
+    } else {
+      groupId = truncate(groupId, availableChars);
+
+      return "[" + groupId + "] Ticket Room #" + ticketId;
+    }
+  }
+
+  /**
+   * Truncates a string with a given length
+   * @param string the string to be truncated
+   * @param length the maximum length
+   * @return the truncated string
+   */
+  private String truncate(String string, int length) {
+    if (string.length() > length) {
+      return string.substring(0, length);
+    } else {
+      return string;
+    }
   }
 
   /**
