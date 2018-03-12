@@ -392,10 +392,11 @@ public class TicketSteps {
   public void verifyAgentInTicketRoom(String agent) throws SymException {
     List<MemberInfo> membershipList = getMembershipList();
     Long botId = userHelper.getBotUser().getId();
+    Long agentId = userHelper.getUser(agent.toUpperCase()).getId();
 
     assertEquals(2, membershipList.size());
-    assertEquals(botId, membershipList.get(1).getId());
-    assertEquals(userHelper.getUser(agent.toUpperCase()).getId(), membershipList.get(0).getId());
+    assertTrue(membershipList.stream().anyMatch(memberInfo -> memberInfo.getId().equals(botId)));
+    assertTrue(membershipList.stream().anyMatch(memberInfo -> memberInfo.getId().equals(agentId)));
   }
 
   private List<MemberInfo> getMembershipList() throws SymException {
