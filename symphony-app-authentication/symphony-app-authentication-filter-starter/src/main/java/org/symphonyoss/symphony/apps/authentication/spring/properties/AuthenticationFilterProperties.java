@@ -1,5 +1,8 @@
 package org.symphonyoss.symphony.apps.authentication.spring.properties;
 
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,11 +11,15 @@ import java.util.List;
  *
  * Created by rsanchez on 10/01/18.
  */
+@Configuration
+@ConfigurationProperties(prefix = "app-authentication.filter")
 public class AuthenticationFilterProperties {
 
   private boolean enabled;
 
   private List<String> urlPatterns = new ArrayList<>();
+
+  private List<String> excludedPaths = new ArrayList<>();
 
   public boolean isEnabled() {
     return enabled;
@@ -30,4 +37,11 @@ public class AuthenticationFilterProperties {
     this.urlPatterns = urlPatterns;
   }
 
+  public List<String> getExcludedPaths() {
+    return excludedPaths;
+  }
+
+  public void setExcludedPaths(List<String> excludedPaths) {
+    this.excludedPaths = excludedPaths;
+  }
 }
