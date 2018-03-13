@@ -16,6 +16,12 @@ public class RoomService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(RoomService.class);
 
+  private static final int MAX_TAGS_SIZE = 21;
+
+  private static final int MAX_PODNAME_SIZE = 11;
+
+  private static final int MAX_GROUPID_SIZE = 24;
+
   private final SymphonyClient symphonyClient;
 
   public RoomService(SymphonyClient symphonyClient) {
@@ -24,7 +30,6 @@ public class RoomService {
 
   /**
    * Creates a new service stream for a ticket.
-   *
    * @param ticketId the ticket ID to create the service stream for
    * @param groupId group Id
    * @param podName Pod Name
@@ -35,18 +40,12 @@ public class RoomService {
       Boolean viewHistory)
       throws RoomException {
     SymRoomAttributes roomAttributes = new SymRoomAttributes();
-    roomAttributes.setCreatorUser(symphonyClient.getLocalUser());
 
+    roomAttributes.setCreatorUser(symphonyClient.getLocalUser());
     roomAttributes.setDescription("Service room for ticket " + ticketId + ".");
     roomAttributes.setDiscoverable(false);
     roomAttributes.setMembersCanInvite(true);
-
-    if (podName != null) {
-      roomAttributes.setName("[" + podName + "] [" + groupId + "] Ticket Room #" + ticketId);
-    } else {
-      roomAttributes.setName("[" + groupId + "] Ticket Room #" + ticketId);
-    }
-
+    roomAttributes.setName(buildRoomName(podName, groupId, ticketId));
     roomAttributes.setReadOnly(false);
     roomAttributes.setPublic(false);
     roomAttributes.setViewHistory(viewHistory);
@@ -56,6 +55,40 @@ public class RoomService {
     LOGGER.info("Created new room: " + roomAttributes.getName());
 
     return room;
+  }
+
+  /**
+   * Builds a valid room name within the maximum number of characters
+   * @param podName the Pod name to be displayed
+   * @param groupId the GroupId
+   * @param ticketId the TicketId
+   * @return the built Room Name
+   */
+  private String buildRoomName(String podName, String groupId, String ticketId) {
+    if (podName != null) {
+      String podNameNormalized = truncate(podName, MAX_PODNAME_SIZE);
+      String groupIdNormalized = truncate(groupId, MAX_TAGS_SIZE - podNameNormalized.length());
+
+      return "[" + podNameNormalized + "] [" + groupIdNormalized + "] Ticket Room #" + ticketId;
+    } else {
+      groupId = truncate(groupId, MAX_GROUPID_SIZE);
+
+      return "[" + groupId + "] Ticket Room #" + ticketId;
+    }
+  }
+
+  /**
+   * Truncates a string with a given length
+   * @param value the string to be truncated
+   * @param length the maximum length
+   * @return the truncated string
+   */
+  private String truncate(String value, int length) {
+    if (value.length() > length) {
+      return value.substring(0, length).trim();
+    } else {
+      return value;
+    }
   }
 
   /**
