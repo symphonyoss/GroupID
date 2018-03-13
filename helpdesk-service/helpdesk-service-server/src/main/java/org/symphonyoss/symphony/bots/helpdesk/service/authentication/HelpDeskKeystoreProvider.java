@@ -13,7 +13,9 @@ import java.security.KeyStore;
 import java.util.Optional;
 
 /**
- *
+ * Implementation class to retrieve the keystore used to perform authentication on the POD. This
+ * class get the keystore path and keystore password from YAML config file.
+ * <p>
  * Created by rsanchez on 12/03/18.
  */
 @Component

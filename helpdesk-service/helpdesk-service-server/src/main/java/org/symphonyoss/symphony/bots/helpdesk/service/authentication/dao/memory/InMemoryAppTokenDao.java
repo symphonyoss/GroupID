@@ -2,7 +2,6 @@ package org.symphonyoss.symphony.bots.helpdesk.service.authentication.dao.memory
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.stereotype.Component;
-import org.symphonyoss.symphony.apps.authentication.spring.tokens.LocalStoreTokensProvider;
 import org.symphonyoss.symphony.bots.helpdesk.service.authentication.dao.AppTokenDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.authentication.dao.mongo.MongoAppTokenDao;
 import org.symphonyoss.symphony.bots.helpdesk.service.authentication.model.HelpDeskAppToken;
@@ -20,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Component
 @ConditionalOnMissingBean(MongoAppTokenDao.class)
-public class InMemoryAppTokenDao extends LocalStoreTokensProvider implements AppTokenDao {
+public class InMemoryAppTokenDao implements AppTokenDao {
 
   private final Map<String, HelpDeskAppToken> tokens = new ConcurrentHashMap<>();
 
