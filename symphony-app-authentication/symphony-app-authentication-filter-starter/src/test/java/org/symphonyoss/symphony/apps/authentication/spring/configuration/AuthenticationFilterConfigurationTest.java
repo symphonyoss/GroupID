@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.symphonyoss.symphony.apps.authentication.AuthenticationFilter.EXCLUDED_PATHS;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,8 +24,10 @@ import org.symphonyoss.symphony.apps.authentication.spring.properties
 import org.symphonyoss.symphony.apps.authentication.spring.properties.AuthenticationProperties;
 import org.symphonyoss.symphony.apps.authentication.spring.properties.CacheProperties;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 
 /**
  * Unit tests for {@link AuthenticationFilterConfiguration}
@@ -43,6 +46,10 @@ public class AuthenticationFilterConfigurationTest {
   private static final Integer MOCK_CACHE_SIZE = 100;
 
   private static final String MOCK_URL_PATTERN = "/v1/*";
+
+  private static final String MOCK_PATH1 = "/servlet/path1";
+
+  private static final String MOCK_PATH2 = "/servlet/path2";
 
   @Mock
   private JsonParserFactory parserFactory;
@@ -75,7 +82,7 @@ public class AuthenticationFilterConfigurationTest {
   public void testNullCacheInfo() {
     FilterRegistrationBean registrationBean =
         configuration.authenticationFilter(jsonParser, certificateClient, servicesInfoProvider,
-            new AuthenticationProperties());
+            new AuthenticationProperties(), null);
 
     verify(parserFactory, times(1)).setComponent(jsonParser);
     verify(certificateClientFactory, times(1)).setComponent(certificateClient);
@@ -94,7 +101,7 @@ public class AuthenticationFilterConfigurationTest {
 
     FilterRegistrationBean registrationBean =
         configuration.authenticationFilter(jsonParser, certificateClient, servicesInfoProvider,
-            properties);
+            properties, null);
 
     verify(parserFactory, times(1)).setComponent(jsonParser);
     verify(certificateClientFactory, times(1)).setComponent(certificateClient);
@@ -117,7 +124,7 @@ public class AuthenticationFilterConfigurationTest {
 
     FilterRegistrationBean registrationBean =
         configuration.authenticationFilter(jsonParser, certificateClient, servicesInfoProvider,
-            properties);
+            properties, null);
 
     verify(parserFactory, times(1)).setComponent(jsonParser);
     verify(certificateClientFactory, times(1)).setComponent(certificateClient);
@@ -138,11 +145,9 @@ public class AuthenticationFilterConfigurationTest {
     AuthenticationProperties properties = new AuthenticationProperties();
     properties.setCache(cacheProperties);
 
-    properties.setFilter(new AuthenticationFilterProperties());
-
     FilterRegistrationBean registrationBean =
         configuration.authenticationFilter(jsonParser, certificateClient, servicesInfoProvider,
-            properties);
+            properties, new AuthenticationFilterProperties());
 
     verify(parserFactory, times(1)).setComponent(jsonParser);
     verify(certificateClientFactory, times(1)).setComponent(certificateClient);
@@ -166,11 +171,9 @@ public class AuthenticationFilterConfigurationTest {
     AuthenticationFilterProperties filterProperties = new AuthenticationFilterProperties();
     filterProperties.setUrlPatterns(Collections.singletonList(MOCK_URL_PATTERN));
 
-    properties.setFilter(filterProperties);
-
     FilterRegistrationBean registrationBean =
         configuration.authenticationFilter(jsonParser, certificateClient, servicesInfoProvider,
-            properties);
+            properties, filterProperties);
 
     verify(parserFactory, times(1)).setComponent(jsonParser);
     verify(certificateClientFactory, times(1)).setComponent(certificateClient);
@@ -184,4 +187,31 @@ public class AuthenticationFilterConfigurationTest {
     assertEquals(1, urlPatterns.size());
     assertEquals(MOCK_URL_PATTERN, urlPatterns.iterator().next());
   }
+
+  @Test
+  public void testExcludedPaths() {
+    CacheProperties cacheProperties = new CacheProperties();
+    cacheProperties.setSize(MOCK_CACHE_SIZE);
+    cacheProperties.setTimeout(MOCK_CACHE_TIMEOUT);
+
+    AuthenticationProperties properties = new AuthenticationProperties();
+    properties.setCache(cacheProperties);
+
+    AuthenticationFilterProperties filterProperties = new AuthenticationFilterProperties();
+    filterProperties.setUrlPatterns(Collections.singletonList(MOCK_URL_PATTERN));
+    filterProperties.setExcludedPaths(Arrays.asList(MOCK_PATH1, MOCK_PATH2));
+
+    FilterRegistrationBean registrationBean =
+        configuration.authenticationFilter(jsonParser, certificateClient, servicesInfoProvider,
+            properties, filterProperties);
+
+    Collection<String> urlPatterns = registrationBean.getUrlPatterns();
+    Map<String, String> initParameters = registrationBean.getInitParameters();
+
+    assertEquals(1, urlPatterns.size());
+    assertEquals(MOCK_URL_PATTERN, urlPatterns.iterator().next());
+    assertTrue(initParameters.containsKey(EXCLUDED_PATHS));
+    assertEquals(MOCK_PATH1 + "," + MOCK_PATH2, initParameters.get(EXCLUDED_PATHS));
+  }
+
 }

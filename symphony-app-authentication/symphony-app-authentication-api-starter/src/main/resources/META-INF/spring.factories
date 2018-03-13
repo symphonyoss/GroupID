@@ -1,0 +1,4 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  org.symphonyoss.symphony.apps.authentication.spring.configuration.AuthenticationServletConfiguration,\
+  org.symphonyoss.symphony.apps.authentication.spring.configuration.KeystoreProviderConfiguration,\
+  org.symphonyoss.symphony.apps.authentication.spring.configuration.StoreTokensProviderConfiguration

@@ -18,6 +18,9 @@ import org.symphonyoss.symphony.apps.authentication.jwt.model.JwtPayload;
 import org.symphonyoss.symphony.apps.authentication.utils.PropertiesReader;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -67,11 +70,15 @@ public class AuthenticationFilter implements Filter {
 
   public static final String USER_INFO_ATTRIBUTE = "user_info";
 
+  public static final String EXCLUDED_PATHS = "excluded_paths";
+
   private final JsonParserFactory parserFactory = JsonParserFactory.getInstance();
 
   private final PodCertificateClientFactory certificateClientFactory = PodCertificateClientFactory.getInstance();
 
   private final ServicesInfoProviderFactory providerFactory = ServicesInfoProviderFactory.getInstance();
+
+  private List<String> excludedPaths = new ArrayList<>();
 
   private JwtService service;
 
@@ -95,6 +102,12 @@ public class AuthenticationFilter implements Filter {
     }
 
     this.service = new JwtService(cacheTimeout, cacheSize);
+
+    String excluded = config.getInitParameter(EXCLUDED_PATHS);
+
+    if (excluded != null) {
+      this.excludedPaths = Arrays.asList(excluded.split(","));
+    }
   }
 
   private Integer readParameter(String paramName, Integer defaultValue) {
@@ -117,6 +130,11 @@ public class AuthenticationFilter implements Filter {
       FilterChain chain) throws IOException, ServletException {
     HttpServletRequest request = (HttpServletRequest) servletRequest;
     HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+    if (this.excludedPaths.contains(request.getServletPath())) {
+      chain.doFilter(request, servletResponse);
+      return;
+    }
 
     String jwt = getJwt(request);
 
