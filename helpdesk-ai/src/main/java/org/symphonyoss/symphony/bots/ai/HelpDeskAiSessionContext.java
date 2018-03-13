@@ -1,4 +1,5 @@
 package org.symphonyoss.symphony.bots.ai;
+import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
 import org.symphonyoss.symphony.bots.ai.menu.AgentCommandMenu;
 import org.symphonyoss.symphony.bots.ai.menu.ClientCommandMenu;
 import org.symphonyoss.symphony.bots.ai.menu.ServiceCommandMenu;
@@ -9,6 +10,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
  * Created by nick.tarsillo on 10/9/17.
  */
 public class HelpDeskAiSessionContext extends AiSessionContext {
+
   public enum SessionType {
     AGENT_SERVICE,
     AGENT,
@@ -18,6 +20,7 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
   protected String groupId;
   protected SessionType sessionType;
   protected HelpDeskAiSession helpDeskAiSession;
+  private ProxyConversation proxyConversation;
 
   public HelpDeskAiSession getHelpDeskAiSession() {
     return helpDeskAiSession;
@@ -59,5 +62,12 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
     this.groupId = groupId;
   }
 
+  public ProxyConversation getProxyConversation() {
+    return proxyConversation;
+  }
 
+  public void setProxyConversation(
+      ProxyConversation proxyConversation) {
+    this.proxyConversation = proxyConversation;
+  }
 }

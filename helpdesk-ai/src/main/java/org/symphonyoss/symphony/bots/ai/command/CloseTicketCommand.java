@@ -71,6 +71,8 @@ public class CloseTicketCommand extends AiCommand {
           }
 
           responder.addResponse(sessionContext, successResponse(helpDeskAiConfig, ticket));
+
+          aiSessionContext.getProxyConversation().stopProxyIdleTimer();
         } catch (SymException e) {
           responder.addResponse(sessionContext, internalErrorResponse(aiSessionKey));
           updateTicket(ticketClient, ticket, currentState);
