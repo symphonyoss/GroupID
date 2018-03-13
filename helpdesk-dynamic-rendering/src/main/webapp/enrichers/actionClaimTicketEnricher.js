@@ -28,7 +28,7 @@ export default class ActionClaimTicketEnricher extends MessageEnricherBase {
           type: 'joinConversation',
           label: 'Join the conversation',
           enricherInstanceId: entity.ticketId,
-          show: entity.state === 'UNSERVICED',
+          show: entity.state === 'UNRESOLVED',
           userName: entity.agent.displayName,
           streamId: entity.streamId,
           userId,

@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.apps.authentication.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -13,6 +14,10 @@ import java.io.IOException;
 public class JacksonParser implements JsonParser {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
+
+  public JacksonParser() {
+    MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+  }
 
   public String writeToString(Object obj) throws JsonProcessingException {
     return MAPPER.writeValueAsString(obj);
