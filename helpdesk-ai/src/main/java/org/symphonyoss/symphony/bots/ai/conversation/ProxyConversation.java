@@ -26,6 +26,11 @@ public class ProxyConversation extends AiConversation {
 
   private MakerCheckerService makerCheckerService;
 
+  /**
+   * Constructor for class ProxyConversation
+   * @param allowCommands flag to allow commands
+   * @param makerCheckerService the MakerCheckerService
+   */
   public ProxyConversation(boolean allowCommands, MakerCheckerService makerCheckerService) {
     super(allowCommands);
     this.makerCheckerService = makerCheckerService;
@@ -53,12 +58,21 @@ public class ProxyConversation extends AiConversation {
     }
   }
 
+  /**
+   * Build a new AI Response with the message and send it in the AI Session context
+   * @param responder the AI responder, used to respond to users.
+   * @param symphonyAiMessage the message to be sent by the AI
+   */
   private void dispatchMessage(AiResponder responder, SymphonyAiMessage symphonyAiMessage) {
     AiResponse aiResponse = new AiResponse(symphonyAiMessage, proxyToIds);
     responder.addResponse(aiSessionContext, aiResponse);
     responder.respond(aiSessionContext);
   }
 
+  /**
+   * Build a MakerCheckerMessage and send it via the MakerCheckerService
+   * @param symphonyAiMessage the SymphonyAiMessage to be sent
+   */
   private void dispatchMakerCheckerMessage(SymphonyAiMessage symphonyAiMessage) {
     Set<String> proxyToIds = this.proxyToIds.stream()
         .map(item -> item.getResponseIdentifier())
@@ -80,8 +94,10 @@ public class ProxyConversation extends AiConversation {
     proxyToIds.add(new AiResponseIdentifierImpl(streamId));
   }
 
-  public ProxyIdleTimer getProxyIdleTimer() {
-    return proxyIdleTimer;
+  public void stopProxyIdleTimer() {
+    if (proxyIdleTimer != null) {
+      proxyIdleTimer.stop();
+    }
   }
 
   public void setProxyIdleTimer(ProxyIdleTimer proxyIdleTimer) {

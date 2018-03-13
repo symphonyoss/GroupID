@@ -1,6 +1,5 @@
 agent:
-  host: sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com
-  port: 9445
+  host: nexus3-2.symphony.com
 
 session_auth:
   host: sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com

@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Command run when accepting a ticket in queue room
  * Created by nick.tarsillo on 10/10/17.
  */
 public class AcceptTicketCommand extends AiCommand {
@@ -38,6 +39,12 @@ public class AcceptTicketCommand extends AiCommand {
   }
 
   class AcceptAction implements AiAction {
+    /**
+     * Fire the AcceptTicket command action
+     * @param sessionContext current session context
+     * @param responder object used to perform message answering
+     * @param aiArgumentMap arguments passed to execute this action
+     */
     @Override
     public void doAction(AiSessionContext sessionContext, AiResponder responder,
         AiArgumentMap aiArgumentMap) {
@@ -68,18 +75,40 @@ public class AcceptTicketCommand extends AiCommand {
       responder.respond(sessionContext);
     }
 
+    /**
+     * The success response
+     * @param helpDeskAiConfig The HelpDesk AI Configurations
+     * @param ticket The ticket just accepted
+     * @return The built AI response
+     */
     private AiResponse successResponseClient(HelpDeskAiConfig helpDeskAiConfig, Ticket ticket) {
       return response(helpDeskAiConfig.getAcceptTicketClientSuccessResponse(), ticket.getClientStreamId());
     }
 
+    /**
+     * Response in case the ticket was not found
+     * @param aiSessionKey the AI Session Key of this AI Session Context
+     * @return The built AI response
+     */
     private AiResponse ticketNotFoundResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.TICKET_NOT_FOUND, aiSessionKey.getStreamId());
     }
 
+    /**
+     * Response in case of fail to add agent to service room
+     * @param aiSessionKey the AI Session Key of this AI Session Context
+     * @return The built AI response
+     */
     private AiResponse failedToAddAgentToService(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.INTERNAL_ERROR, aiSessionKey.getStreamId());
     }
 
+    /**
+     * Build an AI response
+     * @param message The string that will compose the AI Message
+     * @param stream The stream where to send the response
+     * @return the built AI response
+     */
     private AiResponse response(String message, String stream) {
       AiMessage aiMessage = new AiMessage(message);
       Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();

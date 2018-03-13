@@ -30,6 +30,10 @@ public class HelpDeskAi extends SymphonyAi {
     this.helpDeskAiSession = helpDeskAiSession;
   }
 
+  /**
+   * Initializes the HelpDeskAi based in configurations present in the HelpDeskAiConfig and
+   * HelpDeskAiSession
+   */
   public void init() {
     AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(
         helpDeskAiSession.getSymphonyClient().getLocalUser());
@@ -45,6 +49,11 @@ public class HelpDeskAi extends SymphonyAi {
         new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
   }
 
+  /**
+   * Creates a new AiSessionContext
+   * @param aiSessionKey The key for the session
+   * @return the HelpDeskAiSessionContext created
+   */
   @Override
   public AiSessionContext newAiSessionContext(AiSessionKey aiSessionKey) {
     HelpDeskAiConfig config = helpDeskAiSession.getHelpDeskAiConfig();
