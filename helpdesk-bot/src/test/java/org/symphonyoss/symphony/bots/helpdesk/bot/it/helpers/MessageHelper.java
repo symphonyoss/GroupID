@@ -66,7 +66,7 @@ public class MessageHelper {
     SymphonyClient userAgent = userHelper.getUserContext(username);
     SymUser agentUser = userAgent.getLocalUser();
 
-    Optional<SymStream> stream = streamHelper.getTicketStream(agentUser.getId());
+    Optional<SymStream> stream = streamHelper.getTicketStream();
 
     if (!stream.isPresent()) {
       throw new TicketRoomNotFoundException("Ticket room not found");

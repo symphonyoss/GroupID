@@ -59,6 +59,13 @@ public class TicketSteps {
           + "<span><b>Question:</b>  Hi bot, what are you doing?</span>            </div>        "
           + "</div>    </div></div>";
 
+  private static final String TICKET_CLAIMED_BY_AGENT_MESSAGE = "<div data-format"
+      + "=\"PresentationML\" data-version=\"V4\">    <div class=\"entity\" "
+      + "data-entity-id=\"helpdesk\">        <div class=\"card barStyle\">            <div "
+      + "class=\"cardBody\">                <span>Ticket <b>%s</b> has been claimed      "
+      + "              by <b>%s</b></span>            "
+      + "</div>        </div>    </div></div>";
+
   private static final String AGENT_TICKET_CREATION_HELP_MESSAGE =
       "<div data-format=\"PresentationML"
           + "\" data-version=\"V4\">    <div class=\"entity\" data-entity-id=\"helpdesk\">        "
@@ -146,7 +153,7 @@ public class TicketSteps {
   }
 
   @Then("bot can verify a new idle message was created in the queue room")
-  public void verifyIdleMessage() throws StreamsException, MessagesException, InterruptedException {
+  public void verifyIdleMessage() throws MessagesException, InterruptedException {
 
     // Waiting message be processed
     Thread.sleep(61000L);
@@ -163,23 +170,28 @@ public class TicketSteps {
 
   }
 
-  @Then("bot can verify there is no question message created in the queue room")
-  public void verifyNoneMessage() throws StreamsException, MessagesException, InterruptedException {
+  @Then("bot can verify that ticket still claimed by $agent")
+  public void verifyNoneMessage(String agent) throws MessagesException {
 
     Optional<SymMessage> message = messageHelper.getLatestQueueRoomMessage(initialTime);
 
-    Optional<Ticket> ticket = ticketHelper.getUnservicedTicket();
+    assertTrue(message.isPresent());
+
+    Optional<Ticket> ticket = ticketHelper.getClaimedTicket();
+
+    assertTrue(ticket.isPresent());
 
     String expectedString =
-        String.format(AGENT_TICKET_CREATION_PERSONAL_MESSAGE, ticket.get().getId());
+        String.format(TICKET_CLAIMED_BY_AGENT_MESSAGE, ticket.get().getId(),
+            userHelper.getUser(agent.toUpperCase()).getUsername());
 
-    assertNotEquals(expectedString, message.get().getMessage());
+    assertEquals(expectedString, message.get().getMessage());
 
   }
 
   @Then("bot can verify a new ticket was created in the queue room with $question question")
   public void verifyInitialQuestion(String question)
-      throws MessagesException, InterruptedException {
+      throws MessagesException {
     Optional<SymMessage> message =
         messageHelper.getLatestQueueRoomMessage(initialTime);
 
@@ -211,7 +223,7 @@ public class TicketSteps {
 
   @When("$user user claims the latest ticket created")
   public void claimTicket(String username)
-      throws StreamsException, MessagesException, InterruptedException {
+      throws InterruptedException {
     // Waiting message be processed
     Thread.sleep(5000L);
 
@@ -291,7 +303,7 @@ public class TicketSteps {
 
   @When("$user answer the client question")
   public void answerQuestion(String username)
-      throws MessagesException, StreamsException, InterruptedException {
+      throws MessagesException, InterruptedException {
     SymMessage message = new SymMessage();
     message.setMessageText("Hi customer, I'm fine.");
 
@@ -305,7 +317,7 @@ public class TicketSteps {
 
   @When("$user answer the first client question")
   public void answerFirstQuestion(String username)
-      throws MessagesException, StreamsException, InterruptedException {
+      throws MessagesException, InterruptedException {
     SymMessage message = new SymMessage();
     message.setMessageText("Hi customer, I'm good, and you?");
 
@@ -339,7 +351,7 @@ public class TicketSteps {
   }
 
   @When("$user user join the conversation")
-  public void joinConversation(String user) throws SymException {
+  public void joinConversation(String user) {
     Long agentId = userHelper.getUser(user.toUpperCase()).getId();
 
     ticketHelper.joinTicketRoom(claimedTicket.getId(), agentId);
@@ -347,7 +359,7 @@ public class TicketSteps {
 
   @When("$user user sends a message to close the ticket")
   public void closeTicket(String username)
-      throws InterruptedException, MessagesException, StreamsException {
+      throws InterruptedException, MessagesException {
     SymUser botUser = userHelper.getBotUser();
 
     String closeMessage =
@@ -364,7 +376,7 @@ public class TicketSteps {
 
   @When("$user user sends a message to close the other ticket")
   public void closeOtherTicket(String username)
-      throws InterruptedException, MessagesException, StreamsException {
+      throws InterruptedException, MessagesException {
     SymUser botUser = userHelper.getBotUser();
 
     String closeMessage =
