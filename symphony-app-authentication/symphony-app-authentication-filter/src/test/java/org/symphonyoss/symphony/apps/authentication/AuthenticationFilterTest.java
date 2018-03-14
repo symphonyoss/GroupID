@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.apps.authentication;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.symphonyoss.symphony.apps.authentication.AuthenticationFilter
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.apps.authentication.AuthenticationFilter;
 import org.symphonyoss.symphony.apps.authentication.jwt.exception.JwtProcessingException;
@@ -21,6 +23,8 @@ import org.symphonyoss.symphony.apps.authentication.jwt.model.JwtPayload;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -48,6 +52,8 @@ public class AuthenticationFilterTest {
       + "NLis4EZsHeY559a4DFOd50_OqgHGuERTqYZyuhtF39yxJPAjUESwxk2J5k_4zM3O-vtd1G"
       + "hyo4IbqKKSy6J9mTniYJPenn5-HIirE";
 
+  private static final String MOCK_SERVLET_PATH = "/servlet/path";
+
   @Mock
   private HttpServletRequest request;
 
@@ -65,6 +71,9 @@ public class AuthenticationFilterTest {
 
   @Mock
   private FilterConfig config;
+
+  @Spy
+  private List<String> excludedPaths = new ArrayList<>();
 
   @InjectMocks
   private AuthenticationFilter filter;
@@ -130,5 +139,17 @@ public class AuthenticationFilterTest {
 
     verify(request, times(1)).setAttribute(USER_INFO_ATTRIBUTE, payload);
     verify(chain, times(1)).doFilter(request, response);
+  }
+
+  @Test
+  public void testExcludedPaths() throws IOException, ServletException {
+    doReturn(MOCK_SERVLET_PATH).when(request).getServletPath();
+
+    this.excludedPaths.add(MOCK_SERVLET_PATH);
+
+    filter.doFilter(request, response, chain);
+
+    verify(chain, times(1)).doFilter(request, response);
+    verify(request, never()).getHeader(AUTHORIZATION_HEADER);
   }
 }

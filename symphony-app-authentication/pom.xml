@@ -17,11 +17,15 @@
 
     <name>Symphony third-party app authentication</name>
     <description>Components for third-party apps authentication</description>
-    <url>https://github.com/symphonyoss/GroupID/symphony-app-authentication</url>
+    <url>https://github.com/symphonyoss/symphony-app-authentication</url>
 
     <modules>
+        <module>symphony-app-authentication-common</module>
         <module>symphony-app-authentication-filter</module>
         <module>symphony-app-authentication-filter-starter</module>
+        <module>symphony-app-authentication-api</module>
+        <module>symphony-app-authentication-api-starter</module>
+        <module>symphony-app-authentication-starter</module>
     </modules>
 
     <inceptionYear>2018</inceptionYear>
@@ -94,9 +98,9 @@
     </ciManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:symphonyoss/GroupID.git</connection>
-        <developerConnection>scm:git:git@github.com:symphonyoss/GroupID.git</developerConnection>
-        <url>https://github.com/symphonyoss/GroupID</url>
+        <connection>scm:git:git@github.com:symphonyoss/symphony-app-authentication.git</connection>
+        <developerConnection>scm:git:git@github.com:symphonyoss/symphony-app-authentication.git</developerConnection>
+        <url>https://github.com/symphonyoss/symphony-app-authentication</url>
     </scm>
 
     <properties>
@@ -107,7 +111,7 @@
         <!-- libs -->
         <commons-codec.version>1.4</commons-codec.version>
         <guava.version>20.0</guava.version>
-        <jersey.version>2.26</jersey.version>
+        <jersey.version>2.25.1</jersey.version>
         <jjwt.version>0.9.0</jjwt.version>
         <junit.version>4.12</junit.version>
         <servlet.version>3.1.0</servlet.version>
@@ -139,6 +143,11 @@
             <dependency>
                 <groupId>org.glassfish.jersey.core</groupId>
                 <artifactId>jersey-client</artifactId>
+                <version>${jersey.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jersey.media</groupId>
+                <artifactId>jersey-media-json-jackson</artifactId>
                 <version>${jersey.version}</version>
             </dependency>
             <dependency>
