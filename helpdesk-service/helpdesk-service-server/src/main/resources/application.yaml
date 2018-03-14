@@ -15,7 +15,21 @@ mongo:
   writeConcern: majority
 
 app-authentication:
-  enabled: false
+  enabled: true
+  pod:
+    host: ${pod.host}
+    port: ${pod.port}
+  session_auth:
+    host: ${session_auth.host}
+    port: ${session_auth.port}
   filter:
+    enabled: false
     url-patterns:
       - "/v1/*"
+    excluded-paths:
+      - "/v1/application/authenticate"
+      - "/v1/application/tokens/validate"
+      - "/v1/application/jwt/validate"
+  api:
+    enabled: true
+    base-path: "/v1/application"
