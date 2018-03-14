@@ -327,4 +327,32 @@ public class HelpDeskBotConfig {
   public void setWelcomeMessage(String welcomeMessage) {
     this.welcomeMessage = welcomeMessage;
   }
+
+  @Override
+  public String toString() {
+    return "HelpDeskBotConfig{" +
+        "email='" + email + '\'' +
+        ", sessionAuth=" + sessionAuth +
+        ", keyAuth=" + keyAuth +
+        ", agent=" + agent +
+        ", pod=" + pod +
+        ", helpdeskBot=" + helpdeskBot +
+        ", helpdeskService=" + helpdeskService +
+        ", authentication=" + authentication +
+        ", httpClient=" + httpClient +
+        ", groupId='" + groupId + '\'' +
+        ", agentStreamId='" + agentStreamId + '\'' +
+        ", aiServicePrefix='" + aiServicePrefix + '\'' +
+        ", aiDefaultPrefix='" + aiDefaultPrefix + '\'' +
+        ", closeTicketCommand='" + closeTicketCommand + '\'' +
+        ", acceptTicketCommand='" + acceptTicketCommand + '\'' +
+        ", addMemberCommand='" + addMemberCommand + '\'' +
+        ", acceptTicketClientSuccessResponse='" + acceptTicketClientSuccessResponse + '\'' +
+        ", closeTicketSuccessResponse='" + closeTicketSuccessResponse + '\'' +
+        ", addMemberAgentSuccessResponse='" + addMemberAgentSuccessResponse + '\'' +
+        ", addMemberClientSuccessResponse='" + addMemberClientSuccessResponse + '\'' +
+        ", claimEntityHeader='" + claimEntityHeader + '\'' +
+        ", welcomeMessage='" + welcomeMessage + '\'' +
+        '}';
+  }
 }

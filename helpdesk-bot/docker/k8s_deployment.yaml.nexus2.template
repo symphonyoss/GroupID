@@ -1,0 +1,58 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: helpdesk-bot
+  namespace: default
+  labels:
+    run: helpdesk-bot
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: helpdesk-bot
+    spec:
+      containers:
+        - name: helpdesk-bot
+          image: gcr.io/sym-dev-plat/helpdesk-bot:<VERSION>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SERVER_PORT
+              value: '8080'
+            - name: HELPDESK_BOT_HOST
+              value: helpdesk-bot-service
+            - name: HELPDESK_BOT_PORT
+              value: '80'
+            - name: HELPDESK_SERVICE_HOST
+              value: helpdesk-api-service
+            - name: HELPDESK_SERVICE_PORT
+              value: '80'
+            - name: AGENT_HOST
+              value: nexus2-2.symphony.com
+            - name: AGENT_PORT
+              value: '443'
+            - name: SESSION_AUTH_HOST
+              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com/sessionauth
+            - name: SESSION_AUTH_PORT
+              value: '8444'
+            - name: KEY_AUTH_HOST
+              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com/keyauth
+            - name: KEY_AUTH_PORT
+              value: '8444'
+            - name: POD_HOST
+              value: nexus2-2.symphony.com
+            - name: POD_PORT
+              value: '443'
+            - name: APP_AUTHENTICATION_ENABLED
+              value: true
+            - name: APP_AUTHENTICATION_POD_HOST
+              value: nexus2-2.symphony.com
+            - name: APP_AUTHENTICATION_POD_PORT
+              value: '443'
+            - name: APP_AUTHENTICATION_SESSION_AUTH_HOST
+              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com/sessionauth
+            - name: APP_AUTHENTICATION_SESSION_AUTH_PORT
+              value: '8444'

@@ -71,6 +71,26 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- REMOVE after cryptoLib becomes open-source **** START **** -->
+        <dependency>
+            <groupId>com.symphony</groupId>
+            <artifactId>crypto</artifactId>
+            <version>1.48.2.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/crypto-1.48.2.1.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpg-jdk15on</artifactId>
+            <version>1.58</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.58</version>
+        </dependency>
+        <!-- REMOVE after cryptoLib becomes open-source **** END **** -->
+
         <!-- Authentication -->
         <dependency>
             <groupId>org.symphonyoss.symphony.apps</groupId>
@@ -101,6 +121,29 @@
     <build>
         <finalName>helpdesk-bot</finalName>
         <plugins>
+            <!-- REMOVE after cryptoLib becomes open-source **** START **** -->
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>prepare-crypto</id>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <tasks>
+                                <echo message="Preparing Symphony CryptoLib..." />
+                                <unzip src="${project.build.outputDirectory}/lib/crypto-1.48.2.1.jar"
+                                       dest="${project.build.outputDirectory}" />
+                                <delete dir="${project.build.outputDirectory}/lib"/>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- REMOVE after cryptoLib becomes open-source **** END **** -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>

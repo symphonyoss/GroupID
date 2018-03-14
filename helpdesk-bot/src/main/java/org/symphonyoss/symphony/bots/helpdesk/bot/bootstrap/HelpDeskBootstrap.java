@@ -2,6 +2,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -17,6 +18,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.HelpDeskRoomEventListener;
+import org.symphonyoss.symphony.bots.helpdesk.bot.provisioning.HelpDeskProvisioningService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.utility.function.FunctionExecutor;
@@ -29,6 +31,9 @@ import org.symphonyoss.symphony.bots.utility.function.FunctionExecutor;
 public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEvent> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HelpDeskBootstrap.class);
+
+  HelpDeskBotConfig config;
+  HelpDeskProvisioningService provisioningService;
 
   @Override
   public void onApplicationEvent(ApplicationReadyEvent event) {
@@ -47,6 +52,22 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * @param applicationContext Spring Application context
    */
   public void execute(ApplicationContext applicationContext) {
+
+    config = applicationContext.getBean(HelpDeskBotConfig.class);
+    provisioningService = applicationContext.getBean(HelpDeskProvisioningService.class);
+
+    provisioningService.login();
+
+    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
+    System.out.println("\nCONFIG:\n");
+    System.out.println(config);
+
+    System.out.println("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+
+
     FunctionExecutor<ApplicationContext, HelpDeskHttpClient> functionHttpClient = new FunctionExecutor<>();
     functionHttpClient
         .function(context -> setupHttpClient(context))
