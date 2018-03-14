@@ -41,7 +41,7 @@ public class RoomServiceTest {
 
   private static final String LONG_GROUP_ID = "exceedinglyLongGroupId";
 
-  private static final String EXPECTED_LONG_NAME = "[EXCEEDINGLY] [exceedingl] Ticket Room #WBG23VD1A6";
+  private static final String EXPECTED_LONG_NAME = "[EXCEEDINGL…] [exceeding…] Ticket Room #WBG23VD1A6";
 
   private RoomService service;
 
