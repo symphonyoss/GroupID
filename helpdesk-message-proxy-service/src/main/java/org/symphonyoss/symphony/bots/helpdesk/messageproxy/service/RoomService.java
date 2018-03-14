@@ -78,14 +78,14 @@ public class RoomService {
   }
 
   /**
-   * Truncates a string with a given length
+   * Truncates a string with a given length, placing an ellipsis character at the end of it
    * @param value the string to be truncated
    * @param length the maximum length
    * @return the truncated string
    */
   private String truncate(String value, int length) {
     if (value.length() > length) {
-      return value.substring(0, length).trim();
+      return value.substring(0, length - 1) + "…";
     } else {
       return value;
     }
