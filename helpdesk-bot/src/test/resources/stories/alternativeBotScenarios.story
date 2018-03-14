@@ -60,7 +60,7 @@ Scenario: Agent leaves the room and the ticket can not be closed
 When agent1 agent authenticates using a certificate
 Then agent1 leaves the ticket room
 And bot can verify only user agent2 is in the ticket room
-And bot can verify there is no question message created in the queue room
+And bot can verify that ticket still claimed by agent1
 
 Scenario: Remaining agent closes the ticket
 When agent2 agent authenticates using a certificate
