@@ -11,7 +11,7 @@ import java.util.Set;
  */
 public class MessageProxy {
   private Set<ProxyConversation> proxyConversations;
-  private ProxyIdleTimer agentProxyTimer;
+  private ProxyIdleTimer proxyIdleTimer;
 
   public MessageProxy() {
     proxyConversations = new HashSet<>();
@@ -21,12 +21,12 @@ public class MessageProxy {
     proxyConversations.add(proxyConversation);
   }
 
-  public ProxyIdleTimer getAgentProxyTimer() {
-    return agentProxyTimer;
+  public ProxyIdleTimer getProxyIdleTimer() {
+    return proxyIdleTimer;
   }
 
-  public void setAgentProxyTimer(
-      ProxyIdleTimer agentProxyTimer) {
-    this.agentProxyTimer = agentProxyTimer;
+  public void setProxyIdleTimer(
+      ProxyIdleTimer proxyIdleTimer) {
+    this.proxyIdleTimer = proxyIdleTimer;
   }
 }

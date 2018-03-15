@@ -7,10 +7,13 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
+import org.symphonyoss.symphony.bots.ai.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.filter.HelpDeskApiFilter;
+import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.IdleMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -38,11 +41,13 @@ public class HelpDeskServiceConfiguration {
 
   @Bean(name = "makercheckerClient")
   public MakercheckerClient getMakercheckerClient(HelpDeskBotConfig configuration) {
-    return new MakercheckerClient(configuration.getGroupId(), configuration.getHelpDeskServiceUrl());
+    return new MakercheckerClient(configuration.getGroupId(),
+        configuration.getHelpDeskServiceUrl());
   }
 
   @Bean(name = "helpdeskAi")
-  public HelpDeskAi initHelpDeskAi(HelpDeskBotConfig configuration, MembershipClient membershipClient,
+  public HelpDeskAi initHelpDeskAi(HelpDeskBotConfig configuration,
+      MembershipClient membershipClient,
       TicketClient ticketClient, SymphonyClient symphonyClient) {
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
     helpDeskAiSession.setMembershipClient(membershipClient);
@@ -53,9 +58,12 @@ public class HelpDeskServiceConfiguration {
     helpDeskAiConfig.setGroupId(configuration.getGroupId());
     helpDeskAiConfig.setAgentStreamId(configuration.getAgentStreamId());
     helpDeskAiConfig.setCloseTicketSuccessResponse(configuration.getCloseTicketSuccessResponse());
-    helpDeskAiConfig.setAddMemberAgentSuccessResponse(configuration.getAddMemberAgentSuccessResponse());
-    helpDeskAiConfig.setAddMemberClientSuccessResponse(configuration.getAddMemberClientSuccessResponse());
-    helpDeskAiConfig.setAcceptTicketClientSuccessResponse(configuration.getAcceptTicketClientSuccessResponse());
+    helpDeskAiConfig.setAddMemberAgentSuccessResponse(
+        configuration.getAddMemberAgentSuccessResponse());
+    helpDeskAiConfig.setAddMemberClientSuccessResponse(
+        configuration.getAddMemberClientSuccessResponse());
+    helpDeskAiConfig.setAcceptTicketClientSuccessResponse(
+        configuration.getAcceptTicketClientSuccessResponse());
     helpDeskAiConfig.setAcceptTicketCommand(configuration.getAcceptTicketCommand());
     helpDeskAiConfig.setCloseTicketCommand(configuration.getCloseTicketCommand());
     helpDeskAiConfig.setAddMemberCommand(configuration.getAddMemberCommand());
@@ -78,11 +86,12 @@ public class HelpDeskServiceConfiguration {
 
     AgentExternalCheck agentExternalCheck =
         new AgentExternalCheck(configuration.getHelpDeskBotUrl(),
-            configuration.getHelpDeskServiceUrl(), configuration.getGroupId(), ticketClient, symphonyClient, symphonyValidationUtil);
+            configuration.getHelpDeskServiceUrl(), configuration.getGroupId(), ticketClient,
+            symphonyClient, symphonyValidationUtil);
 
     agentMakerCheckerService.addCheck(agentExternalCheck);
 
-    return  agentMakerCheckerService;
+    return agentMakerCheckerService;
   }
 
   @Bean(name = "clientMakerCheckerService")
@@ -94,6 +103,11 @@ public class HelpDeskServiceConfiguration {
   @Bean(name = "validationUtil")
   public SymphonyValidationUtil getValidationUtil(SymphonyClient symphonyClient) {
     return new SymphonyValidationUtil(symphonyClient);
+  }
+
+  @Bean(name = "IdleTimerManager", destroyMethod = "shutdown")
+  public IdleTimerManager getIdleTimerManager() {
+    return new IdleTimerManager();
   }
 
   /**

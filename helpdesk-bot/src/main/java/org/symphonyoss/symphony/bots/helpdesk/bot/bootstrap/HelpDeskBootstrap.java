@@ -9,6 +9,8 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.conversation.IdleTimerManager;
+import org.symphonyoss.symphony.bots.ai.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
@@ -18,7 +20,11 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.HelpDeskRoomEventListener;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.IdleMessage;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.function.FunctionExecutor;
 
 /**
@@ -43,11 +49,11 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * - Create Symphony client
    * - Register bot as member of the group (if required)
    * - Initialize AI
-   *
    * @param applicationContext Spring Application context
    */
   public void execute(ApplicationContext applicationContext) {
-    FunctionExecutor<ApplicationContext, HelpDeskHttpClient> functionHttpClient = new FunctionExecutor<>();
+    FunctionExecutor<ApplicationContext, HelpDeskHttpClient> functionHttpClient =
+        new FunctionExecutor<>();
     functionHttpClient
         .function(context -> setupHttpClient(context))
         .onError(e -> LOGGER.error("Fail to create HTTP client", e));
@@ -72,17 +78,42 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
         .function(context -> initializeAi(context))
         .onError(e -> LOGGER.error("Fail to initilize Helpdesk Ai", e));
 
+    FunctionExecutor<ApplicationContext, IdleTimerManager> functionIdleTimeManager =
+        new FunctionExecutor<>();
+    functionIdleTimeManager
+        .function(context -> initializeIdleTimeManager(context))
+        .onError(e -> LOGGER.error("Fail to initialize Idle Timer Manager", e));
+
     try {
       functionHttpClient.executeBackoffExponential(applicationContext);
       SymAuth symAuth = functionAuth.executeBackoffExponential(applicationContext);
       functionClient.executeBackoffExponential(symAuth);
       functionRegisterBot.executeBackoffExponential(applicationContext);
       functionAi.executeBackoffExponential(applicationContext);
+      functionIdleTimeManager.executeBackoffExponential(applicationContext);
 
       ready(applicationContext);
     } catch (InterruptedException e) {
       LOGGER.error("Fail to start helpdesk bot", e);
     }
+  }
+
+  private IdleTimerManager initializeIdleTimeManager(ApplicationContext context) {
+    IdleTimerManager timerManager = context.getBean(IdleTimerManager.class);
+    TicketClient ticketClient = context.getBean(TicketClient.class);
+    IdleTicketConfig idleTicketConfig = context.getBean(IdleTicketConfig.class);
+    IdleMessage idleMessage = context.getBean(IdleMessage.class);
+
+    for (Ticket ticket : ticketClient.getUnresolvedTickets()) {
+      timerManager.put(ticket.getId(),
+          new ProxyIdleTimer(idleTicketConfig.getTimeout(), idleTicketConfig.getUnit()) {
+            @Override
+            public void onIdleTimeout() {
+              idleMessage.sendIdleMessage(ticket);
+            }
+          });
+    }
+    return timerManager;
   }
 
   /**
@@ -105,7 +136,8 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * @return Symphony authentication
    */
   private SymAuth authenticateUser(ApplicationContext applicationContext) {
-    HelpDeskAuthenticationService authService = applicationContext.getBean(HelpDeskAuthenticationService.class);
+    HelpDeskAuthenticationService authService =
+        applicationContext.getBean(HelpDeskAuthenticationService.class);
     return authService.authenticate();
   }
 
@@ -114,9 +146,11 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * from external users.
    * @param applicationContext Spring application context
    */
-  private HelpDeskSymphonyClient initSymphonyClient(ApplicationContext applicationContext, SymAuth symAuth) {
+  private HelpDeskSymphonyClient initSymphonyClient(ApplicationContext applicationContext,
+      SymAuth symAuth) {
     try {
-      HelpDeskSymphonyClient symphonyClient = applicationContext.getBean(HelpDeskSymphonyClient.class);
+      HelpDeskSymphonyClient symphonyClient =
+          applicationContext.getBean(HelpDeskSymphonyClient.class);
       HelpDeskBotConfig config = applicationContext.getBean(HelpDeskBotConfig.class);
 
       symphonyClient.init(symAuth, config.getEmail(), config.getAgentUrl(), config.getPodUrl());
@@ -136,10 +170,13 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * @param symphonyClient Symphony client
    * @param applicationContext Spring application context
    */
-  private void registerListeners(HelpDeskSymphonyClient symphonyClient, ApplicationContext applicationContext) {
+  private void registerListeners(HelpDeskSymphonyClient symphonyClient,
+      ApplicationContext applicationContext) {
     ChatListener chatListener = applicationContext.getBean(ChatListener.class);
-    HelpDeskRoomEventListener roomEventListener = applicationContext.getBean(HelpDeskRoomEventListener.class);
-    AutoConnectionAcceptListener connectionListener = applicationContext.getBean(AutoConnectionAcceptListener.class);
+    HelpDeskRoomEventListener roomEventListener =
+        applicationContext.getBean(HelpDeskRoomEventListener.class);
+    AutoConnectionAcceptListener connectionListener =
+        applicationContext.getBean(AutoConnectionAcceptListener.class);
 
     symphonyClient.getMessageService().addRoomServiceEventListener(roomEventListener);
     symphonyClient.getMessageService().addConnectionsEventListener(connectionListener);
@@ -151,7 +188,8 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * @param applicationContext Spring application context
    */
   private void acceptIncomingRequests(ApplicationContext applicationContext) {
-    AutoConnectionAcceptListener connectionListener = applicationContext.getBean(AutoConnectionAcceptListener.class);
+    AutoConnectionAcceptListener connectionListener =
+        applicationContext.getBean(AutoConnectionAcceptListener.class);
     connectionListener.acceptAllIncomingRequests();
   }
 
