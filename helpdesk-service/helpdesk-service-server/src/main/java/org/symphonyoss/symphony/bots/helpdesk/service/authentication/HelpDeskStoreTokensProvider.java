@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.authentication;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.apps.authentication.tokens.StoreTokensProvider;
 import org.symphonyoss.symphony.apps.authentication.tokens.model.AppToken;
@@ -12,6 +13,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.authentication.model.HelpD
  * Created by rsanchez on 12/03/18.
  */
 @Component
+@Lazy
 public class HelpDeskStoreTokensProvider implements StoreTokensProvider {
 
   private final AppTokenDao dao;
