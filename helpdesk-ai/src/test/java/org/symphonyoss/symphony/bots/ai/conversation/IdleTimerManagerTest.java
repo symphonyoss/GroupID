@@ -8,9 +8,9 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import static org.mockito.Mockito.verify;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,6 +21,7 @@ public class IdleTimerManagerTest {
 
   private static final String TICKET_ID = "TICKET_ID";
   private static final String UNEXISTENT_TICKET_ID = "UNEXISTENT_TICKET_ID";
+
 
   @InjectMocks
   private IdleTimerManager idleTimerManager;

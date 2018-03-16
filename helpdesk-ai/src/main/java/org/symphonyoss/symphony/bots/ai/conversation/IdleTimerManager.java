@@ -65,7 +65,10 @@ public class IdleTimerManager {
     return ticketId != null ? proxyIdleTimerMap.get(ticketId) : null;
   }
 
-  private void shutdown() {
+  /**
+   * Method to stop the idle service when bot is shutdown
+   */
+  public void shutdown() {
     executorService.shutdown();
   }
 }
