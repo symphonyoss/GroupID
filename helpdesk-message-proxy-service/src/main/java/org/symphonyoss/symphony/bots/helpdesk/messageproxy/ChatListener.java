@@ -2,7 +2,7 @@ package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.services.MessageListener;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**
