@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.utility.validation;
 
-import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.StreamsException;
 import org.symphonyoss.client.exceptions.UsersClientException;
@@ -14,7 +13,6 @@ import javax.ws.rs.BadRequestException;
  * <p>
  * Created by nick.tarsillo on 11/16/17.
  */
-@Component
 public class SymphonyValidationUtil {
 
   private static final String INVALID = " is invalid.";
