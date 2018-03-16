@@ -8,6 +8,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.client.Configuration;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -126,8 +127,8 @@ public class TicketClient {
   }
 
   /**
-   * Gets a unresolved ticket list
-   * @return the ticket
+   * Gets an unresolved ticket list
+   * @return ticket list or an empty list
    */
   public List<Ticket> getUnresolvedTickets() {
     try {
@@ -138,7 +139,7 @@ public class TicketClient {
             .filter((ticket) -> !ticket.getState().equals(TicketStateType.RESOLVED.getState()))
             .collect(Collectors.toList());
       }
-      return null;
+      return Collections.emptyList();
     } catch (ApiException e) {
       throw new HelpDeskApiException("Failed to search for tickets", e);
     }
