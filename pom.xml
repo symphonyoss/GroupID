@@ -6,10 +6,9 @@
 
     <modules>
         <module>helpdesk-service</module>
-        <module>symphony-ai</module>
         <module>helpdesk-utility</module>
-        <module>helpdesk-bot</module>
         <module>helpdesk-ai</module>
+        <module>helpdesk-bot</module>
         <module>helpdesk-dynamic-rendering</module>
         <module>helpdesk-application</module>
         <module>helpdesk-maker-checker-service</module>

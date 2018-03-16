@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationListener;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.model.SymAuth;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
