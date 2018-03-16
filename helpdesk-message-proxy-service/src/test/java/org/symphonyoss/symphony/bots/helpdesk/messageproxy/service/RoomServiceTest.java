@@ -3,11 +3,13 @@ package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
@@ -25,7 +27,7 @@ public class RoomServiceTest {
 
   private static final String GROUP_ID = "unitTest";
 
-  private static final String TICKET_ID = "WBG23VD1";
+  private static final String TICKET_ID = "WBG23VD1A6";
 
   private static final long USER_ID = 23011987l;
 
@@ -34,6 +36,12 @@ public class RoomServiceTest {
   private static final String ROOM_ID = "2541793";
 
   private static final String PODNAME = "PODNAME";
+
+  private static final String LONG_PODNAME = "EXCEEDINGLY LONG PODNAME";
+
+  private static final String LONG_GROUP_ID = "exceedinglyLongGroupId";
+
+  private static final String EXPECTED_LONG_NAME = "[EXCEEDINGL…] [exceeding…] Ticket Room #WBG23VD1A6";
 
   private RoomService service;
 
@@ -69,6 +77,18 @@ public class RoomServiceTest {
 
     assertEquals(ROOM_ID, room.getId());
     assertEquals(Boolean.FALSE, room.getRoomDetail().getRoomAttributes().getViewHistory());
+  }
+
+  @Test
+  public void createRoomWithLongTags() throws RoomException {
+    doReturn(mockRoom()).when(roomService).createRoom(any(SymRoomAttributes.class));
+
+    Room room = service.createServiceStream(TICKET_ID, LONG_GROUP_ID, LONG_PODNAME);
+
+    assertEquals(ROOM_ID, room.getId());
+    ArgumentCaptor<SymRoomAttributes> captor = ArgumentCaptor.forClass(SymRoomAttributes.class);
+    verify(roomService).createRoom(captor.capture());
+    assertEquals(EXPECTED_LONG_NAME, captor.getValue().getName());
   }
 
   private void mockGetLocalUser() {

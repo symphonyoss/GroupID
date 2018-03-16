@@ -152,8 +152,6 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/Membership'
-      consumes:
-        - application/json
       produces:
         - application/json
       responses:

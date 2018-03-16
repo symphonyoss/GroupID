@@ -19,6 +19,7 @@
         <swagger.source.bot>${swagger.source}/helpdesk-bot-api.yaml</swagger.source.bot>
         <templates.source.server>${swagger.source}/templates</templates.source.server>
         <helpdesk.api.bot.package>org.symphonyoss.symphony.bots.helpdesk.bot</helpdesk.api.bot.package>
+        <skipBotBddTests>true</skipBotBddTests>
     </properties>
 
     <dependencies>
@@ -116,6 +117,17 @@
             <groupId>org.jbehave</groupId>
             <artifactId>jbehave-spring</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.58</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+            <version>1.51</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -197,6 +209,7 @@
                             <additionalClasspathElements>
                                 <additionalClasspathElement>${project.build.outputDirectory}</additionalClasspathElement>
                             </additionalClasspathElements>
+                            <skipITs>${skipBotBddTests}</skipITs>
                         </configuration>
                     </execution>
                 </executions>

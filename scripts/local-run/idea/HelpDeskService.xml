@@ -8,6 +8,7 @@
     <envs>
       <env name="LOG4J2_BASE_DIR" value="$PROJECT_DIR$/scripts/local-run/service" />
       <env name="LOG4J2_OUTPUT_CONSOLE" value="true" />
+      <env name="CERTS_DIR" value="$PROJECT_DIR$/scripts/local-run/certs" />
       <env name="SERVER_SSL_ENABLED" value="true" />
       <env name="SERVER_SSL_KEY_STORE" value="$PROJECT_DIR$/scripts/local-run/server.jks" />
       <env name="SERVER_SSL_KEY_STORE_PASSWORD" value="changeit" />

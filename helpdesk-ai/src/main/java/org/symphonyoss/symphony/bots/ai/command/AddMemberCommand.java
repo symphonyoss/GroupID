@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
+ * Command when adding a member to a service room
  * Created by nick.tarsillo on 10/12/17.
  */
 public class AddMemberCommand extends AiCommand {
@@ -41,6 +42,12 @@ public class AddMemberCommand extends AiCommand {
   }
 
   class AddMemberAction implements AiAction {
+    /**
+     * Fire the AddMember command action
+     * @param sessionContext current session context
+     * @param responder object used to perform message answering
+     * @param aiArgumentMap arguments passed to execute this action
+     */
     @Override
     public void doAction(AiSessionContext sessionContext, AiResponder responder,
         AiArgumentMap aiArgumentMap) {
@@ -101,6 +108,11 @@ public class AddMemberCommand extends AiCommand {
       responder.respond(sessionContext);
     }
 
+    /**
+     * Checks if input value is a valid MembershipType
+     * @param val the input value
+     * @return true if input is a valid MembershipType, false otherwise
+     */
     private boolean isMembershipEnumIgnoreCase(String val) {
       for(MembershipClient.MembershipType membershipType : MembershipClient.MembershipType.values()) {
         if(membershipType.getType().equalsIgnoreCase(val)) {
@@ -111,39 +123,89 @@ public class AddMemberCommand extends AiCommand {
       return false;
     }
 
+
+    /**
+     * Checks if agent is permitted to become a member of agent room
+     * @param agentMembershipType The agent's MembershipType
+     * @param newMembershipType The MembershipType that agent is trying to have
+     * @return true if permitted, false ortherwise
+     */
     private boolean agentPermitted(String agentMembershipType, String newMembershipType) {
       return MembershipClient.MembershipType.valueOf(agentMembershipType).ordinal() >=
           MembershipClient.MembershipType.valueOf(newMembershipType.toUpperCase()).ordinal();
     }
 
+    /**
+     * Response to the agent room when new agent is successfully added
+     * @param helpDeskAiConfig The HelpDesk AI Configurations
+     * @param aiSessionKey The Key for this AI Session Context
+     * @return the built AI response
+     */
     private AiResponse successResponseAgent(HelpDeskAiConfig helpDeskAiConfig, SymphonyAiSessionKey aiSessionKey) {
       return response(helpDeskAiConfig.getAddMemberAgentSuccessResponse(), aiSessionKey.getStreamId());
     }
 
+    /**
+     * Response to the agent when he is successfully added to agent room
+     * @param helpDeskAiConfig The HelpDesk AI Configurations
+     * @param stream The stream where to send the response
+     * @return the built AI response
+     */
     private AiResponse successResponseClient(HelpDeskAiConfig helpDeskAiConfig, SymStream stream) {
       return response(helpDeskAiConfig.getAddMemberClientSuccessResponse(), stream.getStreamId());
     }
 
+    /**
+     * Response when the MembershipType of the agent is invalid
+     * @param aiSessionKey The Key for this AI Session Context
+     * @return the built AI response
+     */
     private AiResponse invalidMembershipTypeResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.INVALID_MEMBERSHIP_TYPE, aiSessionKey.getStreamId());
     }
 
+    /**
+     * Response when the agent cannot be promoted
+     * @param aiSessionKey The Key for this AI Session Context
+     * @return the built AI response
+     */
     private AiResponse cannotPromoteSelf(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.CANNOT_PROMOTE_SELF, aiSessionKey.getStreamId());
     }
 
+    /**
+     * Response when agent MembershipType is not permitted
+     * @param aiSessionKey The Key for this AI Session Context
+     * @return the built AI response
+     */
     private AiResponse agentNotPermitted(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.NO_MEMBERSHIP_PERMISSION, aiSessionKey.getStreamId());
     }
 
+    /**
+     * Response when the user is not found
+     * @param aiSessionKey The Key for this AI Session Context
+     * @return the built AI response
+     */
     private AiResponse userNotFoundResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.USER_NOT_FOUND, aiSessionKey.getStreamId());
     }
 
+    /**
+     * Response when the server returns an internal error
+     * @param aiSessionKey The Key for this AI Session Context
+     * @return the built AI response
+     */
     private AiResponse internalErrorResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.INTERNAL_ERROR, aiSessionKey.getStreamId());
     }
 
+    /**
+     * Build an AI response
+     * @param message The string that will compose the AI Message
+     * @param stream The stream where to send the response
+     * @return the built AI response
+     */
     private AiResponse response(String message, String stream) {
       AiMessage aiMessage = new AiMessage(message);
       Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();

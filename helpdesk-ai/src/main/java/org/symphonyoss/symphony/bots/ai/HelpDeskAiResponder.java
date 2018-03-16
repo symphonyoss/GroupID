@@ -22,6 +22,11 @@ public class HelpDeskAiResponder extends SymphonyAiResponder {
     this.messageProducer = new MessageProducer(membershipClient, symphonyClient);
   }
 
+  /**
+   * Publish a message via a SymStream
+   * @param respond responder object to identify to where the message should be sent
+   * @param symphonyAiMessage message to be sent
+   */
   @Override
   protected void publishMessage(AiResponseIdentifier respond, SymphonyAiMessage symphonyAiMessage) {
     messageProducer.publishMessage(symphonyAiMessage, respond.getResponseIdentifier());

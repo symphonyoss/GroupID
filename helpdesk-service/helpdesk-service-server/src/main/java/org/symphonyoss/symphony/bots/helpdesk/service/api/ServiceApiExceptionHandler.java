@@ -12,7 +12,13 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.symphonyoss.symphony.bots.helpdesk.service.exception.BadRequestException;
+import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.exception.DuplicateMakercheckerException;
+
+import org.symphonyoss.symphony.bots.helpdesk.service.membership.exception
+    .DuplicateMembershipException;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Error;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.DuplicateTicketException;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.exception.TicketNotFoundException;
 
 /**
  * Global exception handler for web resources.
@@ -30,7 +36,9 @@ public class ServiceApiExceptionHandler {
    * @return HTTP 400 (Bad Request)
    */
   @ResponseBody
-  @ExceptionHandler({ MissingServletRequestParameterException.class, BadRequestException.class})
+  @ExceptionHandler({MissingServletRequestParameterException.class, BadRequestException.class,
+      DuplicateMakercheckerException.class, DuplicateMembershipException.class,
+      DuplicateTicketException.class, TicketNotFoundException.class})
   public ResponseEntity<Error> handleMissingRequiredParameterException(Exception ex) {
     Error response = new Error().code(HttpStatus.BAD_REQUEST.value()).message(ex.getMessage());
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);

@@ -7,11 +7,11 @@ authentication:
   keystore-password: changeit
 
 helpdesk-bot:
-  host: localhost.symphony.com
+  host: localhost
   port: 8090
 
 helpdesk-service:
-  host: localhost.symphony.com
+  host: localhost
   port: 8081
 
 agent:
@@ -29,3 +29,8 @@ key_auth:
 pod:
   host: nexus1-2.symphony.com
   port: 443
+
+app-authentication:
+  api:
+    keystore-file: ${CERTS_DIR}/nexus1/helpdesk-app.p12
+    keystore-password: changeit

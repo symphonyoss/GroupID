@@ -21,6 +21,7 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.events.SymUserJoinedRoom;
 import org.symphonyoss.client.events.SymUserLeftRoom;
 import org.symphonyoss.client.exceptions.MessagesException;
+import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.client.services.MessageService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
@@ -28,9 +29,12 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.MessagesClient;
+import org.symphonyoss.symphony.clients.RoomMembershipClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
+import org.symphonyoss.symphony.pod.model.MemberInfo;
+import org.symphonyoss.symphony.pod.model.MembershipList;
 
 import java.util.Arrays;
 
@@ -70,19 +74,29 @@ public class HelpDeskRoomEventListenerTest {
   private TicketClient ticketClient;
 
   @Mock
+  private RoomMembershipClient roomMembershipClient;
+
+  @Mock
   private TicketService ticketService;
 
   @Mock
   private MessageService messageService;
 
+  @Mock
+  private MembershipList mockMembershipList;
+
   private HelpDeskRoomEventListener listener;
 
   @Before
-  public void init() {
+  public void init() throws SymException {
     doReturn(WELCOME_MESSAGE).when(config).getWelcomeMessage();
     doReturn(MOCK_BOT_STREAM).when(config).getAgentStreamId();
 
     doReturn(messageService).when(symphonyClient).getMessageService();
+    doReturn(roomMembershipClient).when(symphonyClient).getRoomMembershipClient();
+
+    doReturn(mockMembershipList).when(roomMembershipClient).getRoomMembership(anyString());
+    doReturn(1).when(mockMembershipList).size();
 
     SymUser symUser = new SymUser();
     symUser.setId(MOCK_BOT_USER);
@@ -122,10 +136,12 @@ public class HelpDeskRoomEventListenerTest {
   }
 
   @Test
-  public void testUserLeftWhenTicketIsResolved() throws MessagesException {
+  public void testUserLeftWhenTicketIsResolved() {
     SymUserLeftRoom symUserLeftRoom = mockLeaveEvent(MOCK_ANY_USER, MOCK_STREAM);
 
     Ticket mockTicket = new Ticket();
+    MembershipList mockMembershipList = new MembershipList();
+    mockMembershipList.add(new MemberInfo());
     mockTicket.setAgent(new UserInfo());
     mockTicket.setState(TicketClient.TicketStateType.RESOLVED.toString());
 

@@ -1,8 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.message;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
@@ -21,9 +18,10 @@ import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.io.File;
-import java.util.List;
 
 /**
+ * The message producer will process messages into the MessageML format and send them via a
+ * SymStream.
  * Created by rsanchez on 30/11/17.
  */
 public class MessageProducer {
@@ -146,7 +144,7 @@ public class MessageProducer {
   private SymMessage buildChimeMessage(SymphonyAiMessage symphonyAiMessage) {
     StringBuilder message = new StringBuilder("<messageML>");
     SymMessage symMessage = new SymMessage();
-    message.append(parseMessage(symphonyAiMessage));
+    message.append(SymMessageUtil.parseMessage(symphonyAiMessage.toSymMessage()));
     message.append("</messageML>");
 
     symMessage.setMessage(message.toString());
@@ -198,7 +196,7 @@ public class MessageProducer {
 
     message.append(header);
     if (symphonyAiMessage.getMessageData() != null) {
-      message.append(parseMessage(symphonyAiMessage));
+      message.append(SymMessageUtil.parseMessage(symphonyAiMessage.toSymMessage()));
     } else {
       message.append(symphonyAiMessage.getAiMessage());
     }
@@ -226,36 +224,6 @@ public class MessageProducer {
     attachmentMessage.setStreamId(symphonyAiMessage.getStreamId());
 
     return symphonyClientUtil.getFileAttachment(attachmentInfo, attachmentMessage);
-  }
-  
-  /**
-   * Parse a message into valid MessageML format
-   * @param message SymphonyAiMessage with the message contents
-   * @return StringBuilder with the output message in MessageML format
-   */
-  private String parseMessage(SymphonyAiMessage message) {
-    Element elementMessageML;
-    StringBuilder textDoc = new StringBuilder("");
-
-    Document doc = Jsoup.parse(message.getMessageData());
-
-    doc.select("errors").remove();
-    elementMessageML = doc.select("messageML").first();
-    if (elementMessageML == null) {
-      elementMessageML = doc.select("div").first();
-    }
-
-    if (elementMessageML != null) {
-      elementMessageML.childNodes().forEach(node -> {
-        if (node.toString().equalsIgnoreCase("<br>")) {
-          textDoc.append("<br/>");
-        } else {
-          textDoc.append(node.toString());
-        }
-      });
-    }
-
-    return textDoc.toString();
   }
 
   /**

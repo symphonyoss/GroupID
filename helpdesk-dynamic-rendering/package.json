@@ -57,6 +57,7 @@
   "dependencies": {
     "axios": "^0.15.3",
     "babel-polyfill": "^6.23.0",
+    "base64-url": "^2.2.0",
     "handlebars-loader": "^1.5.0",
     "symphony-integration-commons": "0.1.30"
   },

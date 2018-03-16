@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * Command when closing a ticket
  * Created by nick.tarsillo on 10/9/17.
  */
 public class CloseTicketCommand extends AiCommand {
@@ -35,6 +36,12 @@ public class CloseTicketCommand extends AiCommand {
   }
 
   class ExitAction implements AiAction {
+    /**
+     * Fire the CloseTicket command action
+     * @param sessionContext current session context
+     * @param responder object used to perform message answering
+     * @param aiArgumentMap arguments passed to execute this action
+     */
     @Override
     public void doAction(AiSessionContext sessionContext, AiResponder responder,
         AiArgumentMap aiArgumentMap) {
@@ -64,6 +71,8 @@ public class CloseTicketCommand extends AiCommand {
           }
 
           responder.addResponse(sessionContext, successResponse(helpDeskAiConfig, ticket));
+
+          aiSessionContext.getProxyConversation().stopProxyIdleTimer();
         } catch (SymException e) {
           responder.addResponse(sessionContext, internalErrorResponse(aiSessionKey));
           updateTicket(ticketClient, ticket, currentState);
@@ -73,19 +82,43 @@ public class CloseTicketCommand extends AiCommand {
       }
     }
 
+    /**
+     * Updates the ticket to a new state
+     * @param client the TicketClient
+     * @param ticket the Ticket itself
+     * @param state the new state
+     * @return the updated ticket
+     */
     private Ticket updateTicket(TicketClient client, Ticket ticket, String state) {
       ticket.setState(state);
       return client.updateTicket(ticket);
     }
 
+    /**
+     * Response when ticket is closed successfully
+     * @param helpDeskAiConfig The HelpDesk AI Configurations
+     * @param ticket the closed ticket
+     * @return the built AI response
+     */
     private AiResponse successResponse(HelpDeskAiConfig helpDeskAiConfig, Ticket ticket) {
       return response(helpDeskAiConfig.getCloseTicketSuccessResponse(), ticket.getClientStreamId());
     }
 
+    /**
+     * Response when the server returns an internal error
+     * @param aiSessionKey The Key for this AI Session Context
+     * @return the built AI response
+     */
     private AiResponse internalErrorResponse(SymphonyAiSessionKey aiSessionKey) {
       return response(HelpDeskAiConstants.INTERNAL_ERROR, aiSessionKey.getStreamId());
     }
 
+    /**
+     * Build an AI response
+     * @param message The string that will compose the AI Message
+     * @param stream The stream where to send the response
+     * @return the built AI response
+     */
     private AiResponse response(String message, String stream) {
       AiMessage aiMessage = new AiMessage(message);
       Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();

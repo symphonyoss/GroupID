@@ -122,6 +122,8 @@ public class MessageProxyService {
 
     helpDeskAi.startConversation(aiSessionContext.getAiSessionKey(), aiConversation);
 
+    aiSessionContext.setProxyConversation(aiConversation);
+
     MessageProxy messageProxy = new MessageProxy();
     messageProxy.setAgentProxyTimer(new ProxyIdleTimer(idleTicketConfig.getTimeout(),
         idleTicketConfig.getUnit()) {
@@ -133,8 +135,12 @@ public class MessageProxyService {
     messageProxy.getAgentProxyTimer().start();
 
     agentProxy.put(ticket.getId(), messageProxy);
+
     aiConversation.setProxyIdleTimer(messageProxy.getAgentProxyTimer());
     messageProxy.addProxyConversation(aiConversation);
+
+    ProxyIdleTimer clientProxyIdleTimer = clientProxy.get(ticket.getId()).getAgentProxyTimer();
+    clientProxyIdleTimer.stop();
   }
 
   /**

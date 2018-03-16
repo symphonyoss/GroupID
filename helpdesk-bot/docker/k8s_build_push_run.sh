@@ -8,7 +8,13 @@ VERSION=$(grep -Po -m 1 '<version>\K[^<]*' pom.xml)
 cd -
 printf "Project version: $(printf $VERSION)\n\n"
 
-cp k8s_deployment.yaml.template k8s_deployment.yaml
+DEPLOYMENT_TEMPLATE_FILE=$1
+if [ -z "$DEPLOYMENT_TEMPLATE_FILE" ]
+then
+  DEPLOYMENT_TEMPLATE_FILE = "k8s_deployment.yaml.template"
+fi
+printf "Using template file [$DEPLOYMENT_TEMPLATE_FILE].\n"
+cp $DEPLOYMENT_TEMPLATE_FILE k8s_deployment.yaml
 sed -i -- "s/<VERSION>/$(printf $VERSION)/g" k8s_deployment.yaml
 
 printf "Pulling Docker Java8 base image\n\n"

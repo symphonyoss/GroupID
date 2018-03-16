@@ -19,28 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.symphonyoss.client.exceptions.InitException;
-import org.symphonyoss.client.exceptions.RoomException;
-import org.symphonyoss.client.exceptions.SymException;
-import org.symphonyoss.client.exceptions.UsersClientException;
-import org.symphonyoss.client.model.Room;
-import org.symphonyoss.client.model.SymAuth;
-import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
 import org.symphonyoss.symphony.bots.helpdesk.bot.bootstrap.HelpDeskBootstrap;
-import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskHttpClient;
-import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
-import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.init.SpringHelpDeskBotInit;
-import org.symphonyoss.symphony.clients.model.SymRoomAttributes;
-import org.symphonyoss.symphony.clients.model.SymUser;
-import org.symphonyoss.symphony.pod.model.UserAttributes;
-import org.symphonyoss.symphony.pod.model.UserCreate;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * Created by rsanchez on 15/02/18.
@@ -50,23 +32,8 @@ import java.util.UUID;
     classes = SpringHelpDeskBotInit.class)
 public class HelpDeskBotStories extends JUnitStories {
 
-  private static final String[] SUPPORTED_ENVS = { "nexus1", "nexus2", "nexus3", "nexus4" };
-
-  private static final String ROLE_INDIVIDUAL = "INDIVIDUAL";
-
-  private static final String AGENT = "Agent";
-
-  private static final String CERTS_DIR = "certs";
-
   @Autowired
   private ApplicationContext applicationContext;
-
-  @Autowired
-  private HelpDeskBotConfig config;
-
-  private HelpDeskSymphonyClient helpDeskSymphonyClient;
-
-  private TestContext testContext = TestContext.getInstance();
 
   public HelpDeskBotStories() {
     initJBehaveConfiguration();
@@ -89,34 +56,7 @@ public class HelpDeskBotStories extends JUnitStories {
 
   @Before
   public void bootstrap() {
-    String[] activeProfiles = applicationContext.getEnvironment().getActiveProfiles();
-
-    long count = Arrays.stream(activeProfiles)
-        .filter(profile -> Arrays.asList(SUPPORTED_ENVS).contains(profile))
-        .count();
-
-    if (count == 0) {
-      throw new IllegalStateException("You must setup environment");
-    }
-
-    prepareEnvironment();
-
     new HelpDeskBootstrap().execute(applicationContext);
-  }
-
-  private void prepareEnvironment() {
-    String certsDir = System.getProperty("java.io.tmpdir") + File.separator + CERTS_DIR;
-    testContext.setCertsDir(certsDir);
-
-    initSymphonyClient();
-
-    createQueueRoom();
-    createUsersAndAddToQueueRoom();
-    createBotCertificate();
-  }
-
-  private void createBotCertificate() {
-    // TODO APP-1629
   }
 
   @Override
@@ -128,136 +68,6 @@ public class HelpDeskBotStories extends JUnitStories {
   protected List<String> storyPaths() {
     return new StoryFinder().findPaths(CodeLocations.codeLocationFromClass(this.getClass()),
         "**/*.story", "**/excluded*.story");
-  }
-
-  /**
-   * Create queue room. There is a retry behavior to avoid errors when
-   * the POD doesn't support to create private room with the view history flag set to TRUE.
-   * @return the created stream
-   */
-  private Room createQueueRoom() {
-    try {
-      return createRoom(Boolean.TRUE);
-    } catch (RoomException e) {
-      try {
-        return createRoom(Boolean.FALSE);
-      } catch (RoomException e1) {
-        throw new IllegalStateException("Couldn't create queue room.", e1);
-      }
-    }
-  }
-
-  /**
-   * Creates a new stream for Queue Room and set on TestContext.
-   * @param showHistory Show History
-   * @return the created stream
-   */
-  private Room createRoom(Boolean showHistory) throws RoomException {
-    SymRoomAttributes symRoomAttributes = new SymRoomAttributes();
-    symRoomAttributes.setViewHistory(showHistory);
-
-    String randomId = UUID.randomUUID().toString();
-    symRoomAttributes.setName("Queue Room " + randomId);
-    symRoomAttributes.setDescription("Queue Room " + randomId);
-
-    Room queueRoom = helpDeskSymphonyClient.getRoomService().createRoom(symRoomAttributes);
-    testContext.setQueueRoom(queueRoom);
-
-    return queueRoom;
-  }
-
-  /**
-   * Create HTTP client, Authenticates bot user and starts Help desk symphony client.
-   */
-  private void initSymphonyClient() {
-    HelpDeskHttpClient httpClient = new HelpDeskHttpClient();
-    httpClient.setupClient(config);
-
-    HelpDeskAuthenticationService authService = new HelpDeskAuthenticationService(config, httpClient);
-    SymAuth symAuth = authService.authenticate();
-
-    helpDeskSymphonyClient = new HelpDeskSymphonyClient(httpClient);
-
-    try {
-      helpDeskSymphonyClient.init(symAuth, config.getEmail(), config.getAgentUrl(), config.getPodUrl());
-    } catch (InitException e) {
-      throw new IllegalStateException("Cannot instantiate symphony client.", e);
-    }
-  }
-
-  /**
-   * Creates a new user on POD
-   * @param user user
-   * @param userType type of account
-   * @param roles list of permissions
-   * @return the SymUser
-   */
-  private SymUser createUser(String user, UserAttributes.AccountTypeEnum userType, List<String> roles) {
-    UserCreate userCreate = new UserCreate();
-
-    UserAttributes userAttributes = buildUserAttributes(user, userType);
-    userCreate.setUserAttributes(userAttributes);
-
-    userCreate.setRoles(roles);
-
-    try {
-      return helpDeskSymphonyClient.getUsersClient().createUser(userCreate);
-    } catch (UsersClientException e) {
-      throw new IllegalStateException("Cannot create user.", e);
-    }
-  }
-
-  /**
-   * Build user attributes
-   * @param user user
-   * @param userType type of account
-   * @return the SymUser
-   */
-  private UserAttributes buildUserAttributes(String user, UserAttributes.AccountTypeEnum userType) {
-    String rnd = UUID.randomUUID().toString();
-    String userName = user + "." + rnd;
-
-    UserAttributes userAttrs = new UserAttributes();
-    userAttrs.setFirstName(user);
-    userAttrs.setLastName(rnd);
-    userAttrs.setEmailAddress(userName + "@example.com");
-    userAttrs.setDisplayName(userName);
-    userAttrs.setUserName(userName);
-    userAttrs.setAccountType(userType);
-
-    return userAttrs;
-  }
-
-  /**
-   * Add user on queue room.
-   * @return userId the id of user
-   */
-  private void addUserOnQueueRoom(Long userId) {
-    try {
-      helpDeskSymphonyClient.getRoomMembershipClient().addMemberToRoom(testContext.getQueueRoom().getStreamId(), userId);
-    } catch (SymException e) {
-      throw new IllegalStateException("Couldn't add user on this room.", e);
-    }
-  }
-
-  /**
-   * Method responsible to create user, add on queue room and set users on the testContext.
-   */
-  private void createUsersAndAddToQueueRoom() {
-    List<String> roles = new ArrayList<>();
-    roles.add(ROLE_INDIVIDUAL);
-
-    SymUser agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
-    addUserOnQueueRoom(agent.getId());
-    testContext.setUsers(UsersEnum.AGENT_1, agent);
-
-    agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
-    addUserOnQueueRoom(agent.getId());
-    testContext.setUsers(UsersEnum.AGENT_2, agent);
-
-    agent = createUser(AGENT, UserAttributes.AccountTypeEnum.NORMAL, roles);
-    addUserOnQueueRoom(agent.getId());
-    testContext.setUsers(UsersEnum.AGENT_3, agent);
   }
 
 }

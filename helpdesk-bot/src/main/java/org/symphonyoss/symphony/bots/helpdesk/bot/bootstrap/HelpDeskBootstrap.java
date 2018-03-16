@@ -54,9 +54,6 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
   public void execute(ApplicationContext applicationContext) {
 
     config = applicationContext.getBean(HelpDeskBotConfig.class);
-    provisioningService = applicationContext.getBean(HelpDeskProvisioningService.class);
-
-    provisioningService.login();
 
     System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
@@ -94,6 +91,7 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
         .onError(e -> LOGGER.error("Fail to initilize Helpdesk Ai", e));
 
     try {
+      executeProvisioning(applicationContext);
       functionHttpClient.executeBackoffExponential(applicationContext);
       SymAuth symAuth = functionAuth.executeBackoffExponential(applicationContext);
       functionClient.executeBackoffExponential(symAuth);
@@ -207,6 +205,15 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
     helpDeskBot.ready();
 
     LOGGER.info("Help Desk Bot startup complete for groupId: " + configuration.getGroupId());
+  }
+
+  /**
+   * Executes the provisioning process.
+   * @param applicationContext Spring application context
+   */
+  private void executeProvisioning(ApplicationContext applicationContext) {
+    provisioningService = applicationContext.getBean(HelpDeskProvisioningService.class);
+    provisioningService.execute();
   }
 
 }

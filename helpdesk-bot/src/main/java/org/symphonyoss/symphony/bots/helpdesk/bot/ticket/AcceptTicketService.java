@@ -137,6 +137,8 @@ public class AcceptTicketService extends TicketService {
     SymMessage acceptMessage = new AcceptMessageBuilder()
         .agent(userInfo)
         .ticketState(ticketState.getState())
+        .streamId(ticket.getServiceStreamId())
+        .botHost(helpDeskBotConfig.getHelpDeskBotUrl())
         .ticketId(ticket.getId())
         .build();
 

@@ -48,3 +48,13 @@ app-authentication:
 http-client:
   connect-timeout: 45000
   read-timeout: 45000
+
+provisioning:
+  execute: false
+  user:
+    name: <user_with_provisioning_role>
+    password: <its_pawssword>
+  generate-ca: false
+  service-account:
+    name: <user_of_a_service_account>
+    generate-p12: false

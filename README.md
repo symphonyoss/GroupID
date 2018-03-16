@@ -24,6 +24,7 @@ You’ll build the three java applications described above.
 * Webpack (globally installed)
 * A service user on the pod that will act as the HelpDesk bot
 * A cert for the HelpDesk bot user
+* A cert for the HelpDesk application
 * HelpDesk App installed on pod ([Bundle File](/helpdesk-dynamic-rendering/src/main/webapp/bundle.json))
 * OpenSSL
 * jq (https://stedolan.github.io/jq/)
@@ -71,9 +72,9 @@ This process should be executed to create the required artifacts to run the appl
 If you're an admin user in the POD, please follow these steps:
  * Go to AC Portal
  * Create new service account for your bot
- * Run **generate_bot_keystore.sh** script to generate bot p12 file. You must provide service account username and environment as script parameters
+ * Run **generate_keystores.sh** script to generate bot and application p12 files. You must provide service account username and environment as script parameters
 ```
-./generate_bot_keystore.sh --env nexus1 --user helpdesk
+./generate_keystores.sh --env nexus1 --user helpdesk
 ```
  * Import 'certs/${env}/helpdesk-root.pem' file into the POD. You can make it in the AC Portal -> Manage Certificates
 
@@ -103,14 +104,22 @@ After that, you must run the **create_agent_room.sh** script providing the envir
 - Execute HelpDeskBot configuration
 - Execute HelpDeskRenderer configuration
 
+### Command Line
+- It's possible to run the Helpdesk Renderer app in watch mode:
+1. Go to the 'helpdesk-dynamic-rendering' directory.
+2. Execute ```npm run watch```.
+3. Access the helpdesk-renderer URL to validate if it's served properly as described below.
+
 ### Validate applications
 
-- Access URL: 'https://localhost.symphony.com:8100/helpdesk-renderer/bundle.json'. Make sure this URL is reachable
+- Access this in your Chrome browser: 'chrome://flags/#allow-insecure-localhost'. You should see highlighted
+text saying: Allow invalid certificates for resources loaded from localhost. Click 'Enable'
+- Access URL: 'https://localhost:8100/helpdesk-renderer/bundle.json'. Make sure this URL is reachable
 - Access Symphony Client providing the bundle JSON as query string.
 
 Example:
 ```
-https://nexus4-2.symphony.com/client/?bundle=https://localhost.symphony.com:8100/helpdesk-renderer/bundle.json
+https://nexus4-2.symphony.com/client/?bundle=https://localhost:8100/helpdesk-renderer/bundle.json
 ```
 
 - Make sure your user is member of the queue room
@@ -118,3 +127,61 @@ https://nexus4-2.symphony.com/client/?bundle=https://localhost.symphony.com:8100
 - Open a new browser and sign in with a different user (ask the administrator if required). Start a direct chat
 between you and the bot
 - New ticket should be created and posted in the queue. Your user should be able to claim this ticket
+
+## Running integration tests
+
+In order to validate provided endpoints, we have created a set of BDD tests using JBehave. The integration tests for
+HelpDesk API are always executed during the build process (in the integration-test phase) because we don't need
+external dependencies (there is an embedded mongo to validate Mongo DAO's).
+
+To run the integration tests for HelpDesk bot you must follow above instructions in order to know how to setup the
+dependencies the application requires.
+
+**Important**: You must have a trusted certificate that have already imported on POD (see POD provisioning).
+
+### Nexus environments
+
+You should execute the build process using the parameters:
+
+```
+mvn -DcaKeyPath=./scripts/local-run/certs/${env}/helpdesk-root-key.pem -DcaCertPath=
+./scripts/local-run/certs/${env}/helpdesk-root.pem -Dspring.profiles.active=${env} clean install
+```
+
+You must replace ${env} variable with the environment name you wish.
+
+### Other POD's
+
+You should create a new YAML file to specify the service endpoint URLs.
+
+Example:
+
+```
+agent:
+  host: foundation-dev.symphony.com
+  port: 443
+
+session_auth:
+  host: foundation-dev-api.symphony.com
+  port: 443
+
+key_auth:
+  host: foundation-dev-api.symphony.com
+  port: 443
+
+pod:
+  host: foundation-dev.symphony.com
+  port: 443
+
+helpdesk-service:
+  host: localhost
+  port: 8081
+```
+
+Then you should execute the build process using the parameters:
+
+```
+mvn -DcaKeyPath=${PATH_TO_CERTS}/helpdesk-root-key.pem -DcaCertPath=${PATH_TO_CERTS}/helpdesk-root.pem -Dspring.config.location=${PATH_TO_YAML} clean install
+```
+
+You must replace ${PATH_TO_CERTS} variable with the certificate directory and ${PATH_TO_YAML} with the YAML absolute path.

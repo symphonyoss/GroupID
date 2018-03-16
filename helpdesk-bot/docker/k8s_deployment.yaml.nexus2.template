@@ -35,11 +35,11 @@ spec:
             - name: AGENT_PORT
               value: '443'
             - name: SESSION_AUTH_HOST
-              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com/sessionauth
+              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com
             - name: SESSION_AUTH_PORT
               value: '8444'
             - name: KEY_AUTH_HOST
-              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com/keyauth
+              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com
             - name: KEY_AUTH_PORT
               value: '8444'
             - name: POD_HOST
@@ -47,12 +47,34 @@ spec:
             - name: POD_PORT
               value: '443'
             - name: APP_AUTHENTICATION_ENABLED
-              value: true
+              value: 'false'
             - name: APP_AUTHENTICATION_POD_HOST
               value: nexus2-2.symphony.com
             - name: APP_AUTHENTICATION_POD_PORT
               value: '443'
             - name: APP_AUTHENTICATION_SESSION_AUTH_HOST
-              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com/sessionauth
+              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com
             - name: APP_AUTHENTICATION_SESSION_AUTH_PORT
               value: '8444'
+            - name: PROVISIONING_EXECUTE
+              value: 'true'
+            - name: PROVISIONING_USER_NAME
+              value: rsanchez
+            - name: PROVISIONING_USER_PASSWORD
+              value: Symphony!123456
+            - name: PROVISIONING_GENERATE_CA
+              value: 'true'
+            - name: PROVISIONING_SERVICE_ACCOUNT_NAME
+              value: zezao
+            - name: PROVISIONING_SERVICE_ACCOUNT_GENERATE_P12
+              value: 'true'
+            - name: CERTS_DIR
+              value: /opt/symphony/helpdesk-bot/certs
+            - name: AUTHENTICATION_KEYSTORE_FILE
+              value: /opt/symphony/helpdesk-bot/certs/zezao.p12
+            - name: AUTHENTICATION_KEYSTORE_PASSWORD
+              value: changeit
+            - name: GROUP_ID
+              value: campidelli
+            - name: AGENT_STREAM_ID
+              value: abc
