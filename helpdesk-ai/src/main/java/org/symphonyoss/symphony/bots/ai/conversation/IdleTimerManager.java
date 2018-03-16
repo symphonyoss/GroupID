@@ -7,8 +7,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Class to manage Idles
- * created by alexandre-silva-daitan
+ * Class to manage idles from all created tickets, exists a service that check for each 5 seconds
+ * if there is any ticket idle timer in the list and if it is valid.
+ * If not, the service will send a message that a ticket has been idle and reset the time.
+ * Close tickets are removed from idle list.
+ *
+ * Created by alexandre-silva-daitan on 16/3/17.
  */
 public class IdleTimerManager {
 
@@ -20,6 +24,12 @@ public class IdleTimerManager {
     init();
   }
 
+  /**
+   * This service executes even 5 seconds and check if there is a idle in the list
+   * if exists, compare the time of the idle with the configuration idle time and
+   * if the time pass, a message will be sent to bot warning that ticket has been idle and the idle
+   * time will be reset
+   */
   private void init() {
     executorService.scheduleAtFixedRate(() -> {
       proxyIdleTimerMap.values().stream()
