@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.model.SymAuth;
@@ -27,7 +26,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.HelpDeskRoomEventListener;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.IdleMessage;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.IdleMessageService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -90,7 +89,7 @@ public class HelpDeskBootstrapTest {
   private IdleTicketConfig idleTicketConfig;
 
   @Mock
-  private IdleMessage idleMessage;
+  private IdleMessageService idleMessageService;
 
   @Before
   public void init() {
@@ -110,7 +109,7 @@ public class HelpDeskBootstrapTest {
     doReturn(idleTimerManager).when(applicationContext).getBean(IdleTimerManager.class);
     doReturn(ticketClient).when(applicationContext).getBean(TicketClient.class);
     doReturn(idleTicketConfig).when(applicationContext).getBean(IdleTicketConfig.class);
-    doReturn(idleMessage).when(applicationContext).getBean(IdleMessage.class);
+    doReturn(idleMessageService).when(applicationContext).getBean(IdleMessageService.class);
   }
 
   @Test

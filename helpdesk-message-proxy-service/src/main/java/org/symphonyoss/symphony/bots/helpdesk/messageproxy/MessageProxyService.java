@@ -1,8 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
@@ -12,11 +10,7 @@ import org.symphonyoss.symphony.bots.ai.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.model.MessageProxy;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -39,20 +33,20 @@ public class MessageProxyService {
 
   private final IdleTimerManager idleTimerManager;
 
-  private final IdleMessage idleMessage;
+  private final IdleMessageService idleMessageService;
 
   public MessageProxyService(HelpDeskAi helpDeskAi,
       @Qualifier("agentMakerCheckerService") MakerCheckerService agentMakerCheckerService,
       @Qualifier("clientMakerCheckerService") MakerCheckerService clientMakerCheckerService,
       IdleTicketConfig idleTicketConfig,
       IdleTimerManager idleTimerManager,
-      IdleMessage idleMessage) {
+      IdleMessageService idleMessageService) {
     this.helpDeskAi = helpDeskAi;
     this.agentMakerCheckerService = agentMakerCheckerService;
     this.clientMakerCheckerService = clientMakerCheckerService;
     this.idleTicketConfig = idleTicketConfig;
     this.idleTimerManager = idleTimerManager;
-    this.idleMessage = idleMessage;
+    this.idleMessageService = idleMessageService;
   }
 
   /**
@@ -111,22 +105,13 @@ public class MessageProxyService {
 
     aiSessionContext.setIdleTimerManager(idleTimerManager);
 
-    MessageProxy messageProxy = new MessageProxy();
-    messageProxy.setProxyIdleTimer(new ProxyIdleTimer(idleTicketConfig.getTimeout(),
+    idleTimerManager.put(ticket.getId(), (new ProxyIdleTimer(idleTicketConfig.getTimeout(),
         idleTicketConfig.getUnit()) {
       @Override
       public void onIdleTimeout() {
-        idleMessage.sendIdleMessage(ticket);
+        idleMessageService.sendIdleMessage(ticket);
       }
-    });
-
-    idleTimerManager.put(ticket.getId(), messageProxy.getProxyIdleTimer());
-
-    aiConversation.setProxyIdleTimer(messageProxy.getProxyIdleTimer());
-    messageProxy.addProxyConversation(aiConversation);
-
-//    ProxyIdleTimer clientProxyIdleTimer = clientProxy.get(ticket.getId()).getProxyIdleTimer();
-//    clientProxyIdleTimer.stop();
+    }));
   }
 
   /**
@@ -160,16 +145,12 @@ public class MessageProxyService {
 
     aiSessionContext.setIdleTimerManager(idleTimerManager);
 
-    MessageProxy messageProxy = new MessageProxy();
-    messageProxy.setProxyIdleTimer(new ProxyIdleTimer(idleTicketConfig.getTimeout(),
+    idleTimerManager.put(ticket.getId(), (new ProxyIdleTimer(idleTicketConfig.getTimeout(),
         idleTicketConfig.getUnit()) {
       @Override
       public void onIdleTimeout() {
-        idleMessage.sendIdleMessage(ticket);
+        idleMessageService.sendIdleMessage(ticket);
       }
-    });
-
-    idleTimerManager.put(ticket.getId(), messageProxy.getProxyIdleTimer());
-    messageProxy.addProxyConversation(aiConversation);
+    }));
   }
 }

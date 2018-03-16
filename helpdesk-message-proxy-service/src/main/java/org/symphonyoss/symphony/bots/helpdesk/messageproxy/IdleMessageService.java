@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.symphonyoss.symphony.bots.ai.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
@@ -12,7 +13,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 @Component
-public class IdleMessage {
+public class IdleMessageService {
 
   private final TicketService ticketService;
 
@@ -24,10 +25,11 @@ public class IdleMessage {
 
   private final IdleTicketConfig idleTicketConfig;
 
-  public IdleMessage(
+  public IdleMessageService (
       TicketService ticketService,
       HelpDeskBotInfo helpDeskBotInfo,
-      HelpDeskServiceInfo helpDeskServiceInfo, @Value("${agentStreamId}") String agentStreamId,
+      HelpDeskServiceInfo helpDeskServiceInfo,
+      @Value("${agentStreamId}") String agentStreamId,
       IdleTicketConfig idleTicketConfig) {
     this.ticketService = ticketService;
     this.helpDeskBotInfo = helpDeskBotInfo;
@@ -50,4 +52,5 @@ public class IdleMessage {
 
     ticketService.sendIdleMessageToAgentStreamId(message);
   }
+
 }

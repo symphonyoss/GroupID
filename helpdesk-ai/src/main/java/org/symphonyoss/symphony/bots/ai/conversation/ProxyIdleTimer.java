@@ -22,6 +22,7 @@ public abstract class ProxyIdleTimer {
     this.idleTime = idleTime;
     this.timeUnit = timeUnit;
   }
+
   public void reset() {
     time = 0;
   }

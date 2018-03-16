@@ -20,12 +20,13 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.HelpDeskRoomEventListener;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
-import org.symphonyoss.symphony.bots.helpdesk.messageproxy.IdleMessage;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.IdleMessageService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
-import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.function.FunctionExecutor;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Listener to indicate the application is ready to service requests.
@@ -108,17 +109,21 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
     IdleTimerManager timerManager = context.getBean(IdleTimerManager.class);
     TicketClient ticketClient = context.getBean(TicketClient.class);
     IdleTicketConfig idleTicketConfig = context.getBean(IdleTicketConfig.class);
-    IdleMessage idleMessage = context.getBean(IdleMessage.class);
+    IdleMessageService idleMessageService = context.getBean(IdleMessageService.class);
 
-    for (Ticket ticket : ticketClient.getUnresolvedTickets()) {
-      timerManager.put(ticket.getId(),
-          new ProxyIdleTimer(idleTicketConfig.getTimeout(), idleTicketConfig.getUnit()) {
-            @Override
-            public void onIdleTimeout() {
-              idleMessage.sendIdleMessage(ticket);
-            }
-          });
-    }
+    Long timeout = idleTicketConfig.getTimeout();
+    TimeUnit timeUnit = idleTicketConfig.getUnit();
+
+
+    ticketClient.getUnresolvedTickets().stream()
+        .forEach((ticket)-> timerManager.put(ticket.getId(),
+        new ProxyIdleTimer(timeout, timeUnit ) {
+          @Override
+          public void onIdleTimeout() {
+            idleMessageService.sendIdleMessage(ticket);
+          }
+        }));
+
     return timerManager;
   }
 
