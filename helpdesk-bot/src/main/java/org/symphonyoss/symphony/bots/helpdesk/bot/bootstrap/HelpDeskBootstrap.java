@@ -98,6 +98,12 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
     }
   }
 
+  /**
+   * Initialize a time manager to get all unserviced ticket and set idle timer on them.
+   * @param context Spring application context
+   * @return IdleTimeManager
+   */
+
   private IdleTimerManager initializeIdleTimeManager(ApplicationContext context) {
     IdleTimerManager timerManager = context.getBean(IdleTimerManager.class);
     TicketClient ticketClient = context.getBean(TicketClient.class);

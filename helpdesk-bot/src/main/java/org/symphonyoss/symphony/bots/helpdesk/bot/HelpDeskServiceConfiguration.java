@@ -105,7 +105,7 @@ public class HelpDeskServiceConfiguration {
     return new SymphonyValidationUtil(symphonyClient);
   }
 
-  @Bean(name = "IdleTimerManager", destroyMethod = "shutdown")
+  @Bean(name = "idleTimerManager", destroyMethod = "shutdown")
   public IdleTimerManager getIdleTimerManager() {
     return new IdleTimerManager();
   }
