@@ -136,9 +136,45 @@ function createCertificate {
     rm -rf $CERTS_DIR/$ENV/$BOT_CERT_FILENAME
 }
 
+function createAppCertificate {
+    echo "Generating certificate for the helpdesk application"
+
+    APP_KEY_FILENAME=helpdesk-app-key.pem
+    APP_REQ_FILENAME=helpdesk-app-req.pem
+    APP_CERT_FILENAME=helpdesk-app.pem
+    APP_P12_FILENAME=helpdesk-app.p12
+
+    openssl genrsa -aes256 -passout pass:changeit \
+      -out $CERTS_DIR/$ENV/$APP_KEY_FILENAME 2048
+    checkResult "Failed to create app private key."
+
+    openssl req -new -key $CERTS_DIR/$ENV/$APP_KEY_FILENAME \
+      -passin pass:changeit \
+      -subj "/CN=helpdesk/O=Symphony Communications LLC/OU=NOT FOR PRODUCTION USE/C=US" \
+      -out $CERTS_DIR/$ENV/$APP_REQ_FILENAME
+    checkResult "Failed to create app certificate request."
+
+    openssl x509 -req -sha256 -days 2922 -in $CERTS_DIR/$ENV/$APP_REQ_FILENAME \
+      -CA $ROOT_CERT_PATH -CAkey $ROOT_KEY_PATH -passin pass:changeit \
+      -out $CERTS_DIR/$ENV/$APP_CERT_FILENAME -set_serial 0x1
+    checkResult "Failed to create app certificate."
+
+    openssl pkcs12 -export -out $CERTS_DIR/$ENV/$APP_P12_FILENAME \
+      -aes256 -in $CERTS_DIR/$ENV/$APP_CERT_FILENAME -inkey $CERTS_DIR/$ENV/$APP_KEY_FILENAME \
+      -passin pass:changeit -passout pass:changeit
+    checkResult "Failed to create app p12 file."
+
+    echo "Cert generated at $CERTS_DIR/$ENV/."
+
+    rm -rf $CERTS_DIR/$ENV/$APP_KEY_FILENAME
+    rm -rf $CERTS_DIR/$ENV/$APP_REQ_FILENAME
+    rm -rf $CERTS_DIR/$ENV/$APP_CERT_FILENAME
+}
+
 SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)
 CERTS_DIR=$SCRIPT_DIRECTORY/certs
 
 parseInput "$@"
 setupRootKeyAndCert
 createCertificate
+createAppCertificate
