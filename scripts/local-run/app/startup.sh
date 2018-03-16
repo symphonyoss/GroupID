@@ -45,7 +45,7 @@ function execApplication {
 
 function main {
     SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)
-    APP_BINARY_FILE=${SCRIPT_DIRECTORY}/../../../helpdesk-application/target/helpdesk-renderer.jar
+    APP_BINARY_FILE=${SCRIPT_DIRECTORY}/../../../helpdesk-dynamic-rendering/target/helpdesk-renderer.jar
 
     copyAppBinary
     createLogsDirectory

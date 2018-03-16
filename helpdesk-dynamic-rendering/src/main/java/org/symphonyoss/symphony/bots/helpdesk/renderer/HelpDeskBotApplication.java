@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk;
+package org.symphonyoss.symphony.bots.helpdesk.renderer;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

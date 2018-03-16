@@ -15,7 +15,7 @@
             <includes>
                 <include>org.symphonyoss.symphony.bots:helpdesk-service-server</include>
                 <include>org.symphonyoss.symphony.bots:helpdesk-bot</include>
-                <include>org.symphonyoss.symphony.bots:helpdesk-application</include>
+                <include>org.symphonyoss.symphony.bots:helpdesk-dynamic-rendering</include>
             </includes>
             <sources>
                 <includeModuleDirectory>false</includeModuleDirectory>
