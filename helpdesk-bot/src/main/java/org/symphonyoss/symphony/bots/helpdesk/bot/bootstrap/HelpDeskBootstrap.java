@@ -32,9 +32,6 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HelpDeskBootstrap.class);
 
-  HelpDeskBotConfig config;
-  HelpDeskProvisioningService provisioningService;
-
   @Override
   public void onApplicationEvent(ApplicationReadyEvent event) {
     ApplicationContext applicationContext = event.getApplicationContext();
@@ -52,19 +49,6 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * @param applicationContext Spring Application context
    */
   public void execute(ApplicationContext applicationContext) {
-
-    config = applicationContext.getBean(HelpDeskBotConfig.class);
-
-    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-
-    System.out.println("\nCONFIG:\n");
-    System.out.println(config);
-
-    System.out.println("\n+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-    System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-
-
     FunctionExecutor<ApplicationContext, HelpDeskHttpClient> functionHttpClient = new FunctionExecutor<>();
     functionHttpClient
         .function(context -> setupHttpClient(context))
@@ -212,7 +196,8 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * @param applicationContext Spring application context
    */
   private void executeProvisioning(ApplicationContext applicationContext) {
-    provisioningService = applicationContext.getBean(HelpDeskProvisioningService.class);
+    HelpDeskProvisioningService provisioningService = applicationContext.getBean(
+        HelpDeskProvisioningService.class);
     provisioningService.execute();
   }
 

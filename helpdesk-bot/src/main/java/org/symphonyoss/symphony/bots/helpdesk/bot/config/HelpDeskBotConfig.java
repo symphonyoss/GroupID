@@ -341,32 +341,4 @@ public class HelpDeskBotConfig {
   public void setCreateTicketMessage(String createTicketMessage) {
     this.createTicketMessage = createTicketMessage;
   }
-
-  @Override
-  public String toString() {
-    return "HelpDeskBotConfig{" +
-        "email='" + email + '\'' +
-        ", sessionAuth=" + sessionAuth +
-        ", keyAuth=" + keyAuth +
-        ", agent=" + agent +
-        ", pod=" + pod +
-        ", helpdeskBot=" + helpdeskBot +
-        ", helpdeskService=" + helpdeskService +
-        ", authentication=" + authentication +
-        ", httpClient=" + httpClient +
-        ", groupId='" + groupId + '\'' +
-        ", agentStreamId='" + agentStreamId + '\'' +
-        ", aiServicePrefix='" + aiServicePrefix + '\'' +
-        ", aiDefaultPrefix='" + aiDefaultPrefix + '\'' +
-        ", closeTicketCommand='" + closeTicketCommand + '\'' +
-        ", acceptTicketCommand='" + acceptTicketCommand + '\'' +
-        ", addMemberCommand='" + addMemberCommand + '\'' +
-        ", acceptTicketClientSuccessResponse='" + acceptTicketClientSuccessResponse + '\'' +
-        ", closeTicketSuccessResponse='" + closeTicketSuccessResponse + '\'' +
-        ", addMemberAgentSuccessResponse='" + addMemberAgentSuccessResponse + '\'' +
-        ", addMemberClientSuccessResponse='" + addMemberClientSuccessResponse + '\'' +
-        ", claimEntityHeader='" + claimEntityHeader + '\'' +
-        ", welcomeMessage='" + welcomeMessage + '\'' +
-        '}';
-  }
 }
