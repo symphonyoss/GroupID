@@ -86,7 +86,13 @@ public class HelpDeskPublicApiClient {
     return sKeyCookie.getValue();
   }
 
-  public CompanyCertDetail createCompanyCert(String sessionToken, CompanyCert certificate){
+  /**
+   * Uploads a certificate as trusted in the configured POD.
+   * @param sessionToken Session token to authorize this upload.
+   * @param certificate Generated certificate.
+   * @return Certificate's detail.
+   */
+  public CompanyCertDetail createCompanyCert(String sessionToken, CompanyCert certificate) {
 
     if (sessionToken == null) {
       throw new IllegalStateException("[sessionToken] must be informed.");
