@@ -139,7 +139,11 @@ public class TicketService {
       SymUser symUser = symphonyClient.getUsersClient().getUserFromId(message.getFromUserId());
       String username = symUser.getDisplayName();
       builder.username(username);
-      builder.company(symUser.getCompany());
+      if (symUser.getCompany() != null) {
+        builder.company(symUser.getCompany());
+      } else {
+        builder.company("N/A");
+      }
       builder.question(getQuestionFromMessage(message, username));
     } catch (UsersClientException e) {
       LOGGER.error("Could not get user info: ", e);
