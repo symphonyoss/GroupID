@@ -8,9 +8,13 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -22,6 +26,8 @@ public class IdleTimerManagerTest {
   private static final String TICKET_ID = "TICKET_ID";
   private static final String UNEXISTENT_TICKET_ID = "UNEXISTENT_TICKET_ID";
 
+  @Mock
+  private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
   @InjectMocks
   private IdleTimerManager idleTimerManager;
@@ -76,5 +82,11 @@ public class IdleTimerManagerTest {
   public void getWithNullTicketId() {
     ProxyIdleTimer proxyIdleTimer = idleTimerManager.get(null);
     assertEquals(null, proxyIdleTimer);
+  }
+
+  @Test
+  public void shutdown() {
+    idleTimerManager.shutdown();
+    verify(executorService, times(1)).shutdown();
   }
 }

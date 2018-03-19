@@ -12,6 +12,9 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
+/**
+ * Service to create an idle message for each
+ */
 @Component
 public class IdleMessageService {
 
