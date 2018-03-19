@@ -1,7 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy.model;
 
-import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
-import org.symphonyoss.symphony.bots.ai.conversation.ProxyIdleTimer;
+import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyConversation;
+import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyIdleTimer;
 
 import java.util.HashSet;
 import java.util.Set;
