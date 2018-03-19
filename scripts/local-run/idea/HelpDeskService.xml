@@ -4,7 +4,7 @@
     <option name="SPRING_BOOT_MAIN_CLASS" value="org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskServiceInit" />
     <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
     <option name="ALTERNATIVE_JRE_PATH" />
-    <module name="helpdesk-service-server" />
+    <module name="helpdesk-service-api" />
     <envs>
       <env name="LOG4J2_BASE_DIR" value="$PROJECT_DIR$/scripts/local-run/service" />
       <env name="LOG4J2_OUTPUT_CONSOLE" value="true" />
