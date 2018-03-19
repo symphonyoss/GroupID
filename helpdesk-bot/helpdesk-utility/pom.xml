@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>org.symphonyoss.symphony.bots</groupId>
-        <artifactId>symphony-helpdesk</artifactId>
+        <artifactId>helpdesk-bot</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>helpdesk-utility</artifactId>
