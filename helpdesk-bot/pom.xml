@@ -80,6 +80,8 @@
             <scope>system</scope>
             <systemPath>${project.basedir}/src/main/resources/lib/crypto-1.48.2.1.jar</systemPath>
         </dependency>
+        <!-- REMOVE after cryptoLib becomes open-source **** END **** -->
+
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpg-jdk15on</artifactId>
@@ -90,7 +92,6 @@
             <artifactId>bcpkix-jdk15on</artifactId>
             <version>1.58</version>
         </dependency>
-        <!-- REMOVE after cryptoLib becomes open-source **** END **** -->
 
         <!-- Authentication -->
         <dependency>
@@ -116,17 +117,6 @@
         <dependency>
             <groupId>org.jbehave</groupId>
             <artifactId>jbehave-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.58</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.51</version>
         </dependency>
     </dependencies>
 

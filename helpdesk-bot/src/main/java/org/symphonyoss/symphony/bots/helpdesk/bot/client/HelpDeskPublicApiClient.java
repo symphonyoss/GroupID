@@ -26,9 +26,6 @@ import java.util.List;
 @Service
 public class HelpDeskPublicApiClient {
 
-  @Autowired
-  HelpDeskBotConfig config;
-
   private static final String GET_SALT_ENDPOINT = "login/salt?userName=%s";
 
   private static final String LOGIN_ENDPOINT = "login/username_password";
@@ -37,7 +34,11 @@ public class HelpDeskPublicApiClient {
 
   private static final String SESSION_KEY = "skey";
 
-  private RestTemplate restTemplate = new RestTemplate();
+  @Autowired
+  private HelpDeskBotConfig config;
+
+  @Autowired
+  private RestTemplate restTemplate;
 
   /**
    * Gets a generated salt for a given userName.
@@ -52,16 +53,14 @@ public class HelpDeskPublicApiClient {
 
     String json = response.getBody();
     ObjectMapper mapper = new ObjectMapper();
-    JsonNode node = null;
 
     try {
-      node = mapper.readTree(json);
+      JsonNode node = mapper.readTree(json);
+      return node.get("salt").asText();
     } catch (IOException e) {
       String msg = String.format("[%s] is not a valid JSON.", json);
       throw new IllegalStateException(msg, e);
     }
-
-    return node.get("salt").asText();
   }
 
   /**

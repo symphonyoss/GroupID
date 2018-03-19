@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
@@ -110,4 +111,9 @@ public class HelpDeskServiceConfiguration {
     return registration;
   }
 
+  @Bean
+  public RestTemplate restTemplate() {
+    RestTemplate template = new RestTemplate();
+    return template;
+  }
 }

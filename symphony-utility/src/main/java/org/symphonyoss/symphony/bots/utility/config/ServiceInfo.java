@@ -46,4 +46,12 @@ public class ServiceInfo {
       return String.format("https://%s/%s", host, context);
     }
   }
+
+  @Override
+  public String toString() {
+    return "ServiceInfo{" +
+        "host='" + host + '\'' +
+        ", port=" + port +
+        "}\n";
+  }
 }

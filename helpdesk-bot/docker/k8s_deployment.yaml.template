@@ -59,13 +59,13 @@ spec:
             - name: PROVISIONING_EXECUTE
               value: 'true'
             - name: PROVISIONING_USER_NAME
-              value: usernamewithprovisioningrole
+              value: adrian1
             - name: PROVISIONING_USER_PASSWORD
               value: Symphony!123456
             - name: PROVISIONING_GENERATE_CA
               value: 'true'
             - name: PROVISIONING_SERVICE_ACCOUNT_NAME
-              value: someserviceaccount
+              value: zezao
             - name: PROVISIONING_SERVICE_ACCOUNT_GENERATE_P12
               value: 'true'
             - name: CERTS_DIR
@@ -75,6 +75,6 @@ spec:
             - name: AUTHENTICATION_KEYSTORE_PASSWORD
               value: changeit
             - name: GROUP_ID
-              value: groupidname
+              value: mygroupid
             - name: AGENT_STREAM_ID
               value: 7xUD+mAOCfLBJ63wX2d4VH///p3PhqCfdA==

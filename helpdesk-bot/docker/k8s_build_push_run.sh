@@ -11,7 +11,7 @@ printf "Project version: $(printf $VERSION)\n\n"
 DEPLOYMENT_TEMPLATE_FILE=$1
 if [ -z "$DEPLOYMENT_TEMPLATE_FILE" ]
 then
-  DEPLOYMENT_TEMPLATE_FILE = "k8s_deployment.yaml.template"
+  DEPLOYMENT_TEMPLATE_FILE="k8s_deployment.yaml.template"
 fi
 printf "Using template file [$DEPLOYMENT_TEMPLATE_FILE].\n"
 cp $DEPLOYMENT_TEMPLATE_FILE k8s_deployment.yaml

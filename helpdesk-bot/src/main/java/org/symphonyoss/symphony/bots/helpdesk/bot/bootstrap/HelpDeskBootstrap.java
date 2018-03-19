@@ -2,7 +2,6 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.bootstrap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -49,6 +48,12 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * @param applicationContext Spring Application context
    */
   public void execute(ApplicationContext applicationContext) {
+    FunctionExecutor<ApplicationContext, HelpDeskProvisioningService> functionProvisioning =
+        new FunctionExecutor<>();
+    functionProvisioning
+        .function(context -> executeProvisioning(context))
+        .onError(e -> LOGGER.error("Fail to execute provisioning process", e));
+
     FunctionExecutor<ApplicationContext, HelpDeskHttpClient> functionHttpClient = new FunctionExecutor<>();
     functionHttpClient
         .function(context -> setupHttpClient(context))
@@ -75,7 +80,6 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
         .onError(e -> LOGGER.error("Fail to initilize Helpdesk Ai", e));
 
     try {
-      executeProvisioning(applicationContext);
       functionHttpClient.executeBackoffExponential(applicationContext);
       SymAuth symAuth = functionAuth.executeBackoffExponential(applicationContext);
       functionClient.executeBackoffExponential(symAuth);
@@ -195,10 +199,12 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * Executes the provisioning process.
    * @param applicationContext Spring application context
    */
-  private void executeProvisioning(ApplicationContext applicationContext) {
+  private HelpDeskProvisioningService executeProvisioning(ApplicationContext applicationContext) {
     HelpDeskProvisioningService provisioningService = applicationContext.getBean(
         HelpDeskProvisioningService.class);
     provisioningService.execute();
+
+    return provisioningService;
   }
 
 }

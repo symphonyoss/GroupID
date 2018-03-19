@@ -2,7 +2,7 @@
 printf "\n\n******** Bulding Java Projects of GroupID ********\n\n"
 pwd
 cd ..
-#mvn clean install
+mvn clean install
 pwd
 
 printf "\n\n******** Bulding Helpdesk MongoDB ********\n\n"
