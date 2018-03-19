@@ -28,7 +28,7 @@ public class HelpDeskKeystoreProviderTest {
 
   private static final String APP_ID = "ID";
 
-  private static final String DEFAULT_KEYSTORE_FILE = "test.p12";
+  private static final String DEFAULT_KEYSTORE_FILE = "root.p12";
 
   private static final String INVALID_KEYSTORE_FILE = "invalid.p12";
 
