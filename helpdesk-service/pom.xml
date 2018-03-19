@@ -15,9 +15,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>helpdesk-service-api</module>
         <module>helpdesk-service-client</module>
-        <module>helpdesk-service-server</module>
+        <module>helpdesk-service-api</module>
     </modules>
 
 </project>

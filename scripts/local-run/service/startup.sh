@@ -88,7 +88,7 @@ function execApplication {
 
 function main {
     SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)
-    APP_BINARY_FILE=${SCRIPT_DIRECTORY}/../../../helpdesk-service/helpdesk-service-server/target/helpdesk-api.jar
+    APP_BINARY_FILE=${SCRIPT_DIRECTORY}/../../../helpdesk-service/helpdesk-service-api/target/helpdesk-api.jar
 
     if [[ $# -lt 1 ]]
     then

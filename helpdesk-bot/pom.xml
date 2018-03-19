@@ -2,171 +2,24 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-
     <parent>
-        <groupId>org.symphonyoss.symphony.bots</groupId>
         <artifactId>symphony-helpdesk</artifactId>
+        <groupId>org.symphonyoss.symphony.bots</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.symphonyoss.symphony.bots</groupId>
     <artifactId>helpdesk-bot</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-    <name>Symphony Help Desk Bot</name>
-    <description>The Help Desk Bot</description>
+    <modules>
+        <module>helpdesk-utility</module>
+        <module>helpdesk-ai</module>
+        <module>helpdesk-message-proxy-service</module>
+        <module>helpdesk-maker-checker-service</module>
+        <module>helpdesk-bot-core</module>
+    </modules>
 
-    <properties>
-        <swagger.source>${basedir}/src/main/swagger</swagger.source>
-        <swagger.source.bot>${swagger.source}/helpdesk-bot-api.yaml</swagger.source.bot>
-        <templates.source.server>${swagger.source}/templates</templates.source.server>
-        <helpdesk.api.bot.package>org.symphonyoss.symphony.bots.helpdesk.bot</helpdesk.api.bot.package>
-        <skipBotBddTests>true</skipBotBddTests>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-annotations</artifactId>
-            <version>${swagger-annotations-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>2.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-log4j2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.lmax</groupId>
-            <artifactId>disruptor</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.symphonyoss.symphony.bots</groupId>
-            <artifactId>helpdesk-ai</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.symphonyoss.symphony.bots</groupId>
-            <artifactId>helpdesk-maker-checker-service</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.symphonyoss.symphony.bots</groupId>
-            <artifactId>helpdesk-message-proxy-service</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>1.9.5</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Authentication -->
-        <dependency>
-            <groupId>org.symphonyoss.symphony.apps</groupId>
-            <artifactId>symphony-app-authentication-filter-starter</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-consul-config</artifactId>
-        </dependency>
-
-        <!-- Integration Tests -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-test</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jbehave</groupId>
-            <artifactId>jbehave-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jbehave</groupId>
-            <artifactId>jbehave-spring</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <version>1.58</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <finalName>helpdesk-bot</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring.boot.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>io.swagger</groupId>
-                <artifactId>swagger-codegen-maven-plugin</artifactId>
-                <version>${swagger-codegen-plugin-version}</version>
-                <executions>
-                    <execution>
-                        <id>server-bot</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${swagger.source.bot}</inputSpec>
-                            <language>spring</language>
-                            <templateDirectory>${templates.source.server}</templateDirectory>
-                            <configOptions>
-                                <sourceFolder>src/main/java</sourceFolder>
-                                <apiPackage>${helpdesk.api.bot.package}.api</apiPackage>
-                                <modelPackage>${helpdesk.api.bot.package}.model</modelPackage>
-                                <library>spring-mvc</library>
-                            </configOptions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.19.1</version>
-                <executions>
-                    <execution>
-                        <id>integration-test</id>
-                        <goals>
-                            <goal>integration-test</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>**/HelpDeskBotStories.java</include>
-                            </includes>
-                            <additionalClasspathElements>
-                                <additionalClasspathElement>${project.build.outputDirectory}</additionalClasspathElement>
-                            </additionalClasspathElements>
-                            <skipITs>${skipBotBddTests}</skipITs>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    
 </project>

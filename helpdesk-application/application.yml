@@ -1,5 +1,0 @@
-server:
-  ssl:
-    enabled: true
-    key-store: ${CERTS_DIR}/server.keystore
-    key-store-password: HQKQvJszAgKtgtRjtsR23KdYstMff6

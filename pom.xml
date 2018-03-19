@@ -6,14 +6,8 @@
 
     <modules>
         <module>helpdesk-service</module>
-        <module>symphony-ai</module>
-        <module>symphony-utility</module>
         <module>helpdesk-bot</module>
-        <module>helpdesk-ai</module>
         <module>helpdesk-dynamic-rendering</module>
-        <module>helpdesk-application</module>
-        <module>helpdesk-maker-checker-service</module>
-        <module>helpdesk-message-proxy-service</module>
         <module>helpdesk-distribution</module>
     </modules>
 
@@ -48,7 +42,7 @@
 
     <name>Symphony HelpDesk Bot</name>
     <description>Symphony HelpDesk Bot</description>
-    <url>https://github.com/symphonyoss/symphony-helpdesk-bot</url>
+    <url>https://github.com/symphonyoss/GroupID</url>
     <inceptionYear>2017</inceptionYear>
     <organization>
         <name>Symphony</name>
@@ -101,9 +95,9 @@
     </ciManagement>
 
     <scm>
-        <connection>scm:git:git@github.com:symphonyoss/symphony-helpdesk-bot.git</connection>
-        <developerConnection>scm:git:git@github.com:symphonyoss/symphony-helpdesk-bot.git</developerConnection>
-        <url>https://github.com/symphonyoss/symphony-helpdesk-bot</url>
+        <connection>scm:git:git@github.com:symphonyoss/GroupID.git</connection>
+        <developerConnection>scm:git:git@github.com:symphonyoss/GroupID.git</developerConnection>
+        <url>https://github.com/symphonyoss/GroupID</url>
     </scm>
 
     <properties>

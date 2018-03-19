@@ -62,7 +62,7 @@
             <directoryMode>755</directoryMode>
         </fileSet>
         <fileSet>
-            <directory>${project.parent.basedir}/helpdesk-application/src/main/scripts</directory>
+            <directory>${project.parent.basedir}/helpdesk-dynamic-rendering/src/main/scripts</directory>
             <outputDirectory>${helpdesk.renderer.dist}</outputDirectory>
             <includes>
                 <include>**/*</include>

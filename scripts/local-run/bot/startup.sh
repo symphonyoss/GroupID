@@ -112,7 +112,7 @@ function execApplication {
 
 function main {
     SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)
-    APP_BINARY_FILE=${SCRIPT_DIRECTORY}/../../../helpdesk-bot/target/helpdesk-bot.jar
+    APP_BINARY_FILE=${SCRIPT_DIRECTORY}/../../../helpdesk-bot/helpdesk-bot-core/target/helpdesk-bot.jar
     CERTS_DIR=${SCRIPT_DIRECTORY}/../certs
 
     if [[ $# -lt 1 ]]

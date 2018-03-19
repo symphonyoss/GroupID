@@ -1,9 +1,10 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="HelpDeskRenderer" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+  <configuration default="false" name="HelpDeskRenderer" type="JarApplication" factoryName="JAR Application">
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
-    <option name="SPRING_BOOT_MAIN_CLASS" value="org.symphonyoss.symphony.bots.helpdesk.HelpDeskBotApplication" />
+    <option name="JAR_PATH" value="$PROJECT_DIR$/helpdesk-dynamic-rendering/target/helpdesk-renderer.jar" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="ALTERNATIVE_JRE_PATH" />
-    <module name="helpdesk-application" />
+    <module name="helpdesk-dynamic-rendering" />
     <envs>
       <env name="LOG4J2_BASE_DIR" value="$PROJECT_DIR$/scripts/local-run/app" />
       <env name="LOG4J2_OUTPUT_CONSOLE" value="true" />

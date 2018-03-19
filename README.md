@@ -36,7 +36,7 @@ To start from scratch, do the following:
 
 1. Clone the source repository using Git: `git clone git@github.com:symphonyoss/GroupId.git`
 2. cd into _GroupId_
-3. Build using maven: `mvn clean install -P symphony-app-auth`
+3. Build using maven: `mvn clean install`
 
 ### On-premise deployment
 
@@ -90,7 +90,7 @@ After that, you must run the **create_agent_room.sh** script providing the envir
 
 ### Scripts
 
-- Build project using maven: `mvn clean install -P symphony-app-auth`
+- Build project using maven: `mvn clean install`
 - Go to 'scripts/local-run/service' directory. Executes the **startup.sh** script to run the helpdesk service application
 - Go to 'scripts/local-run/bot' directory. Executes the **startup.sh** script to run the helpdesk bot application
 - Go to 'scripts/local-run/app' directory. Executes the **startup.sh** script to run the helpdesk renderer application
