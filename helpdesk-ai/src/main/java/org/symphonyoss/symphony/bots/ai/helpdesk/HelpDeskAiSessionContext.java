@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.helpdesk;
-import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyConversation;
+
+import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.ai.helpdesk.menu.AgentCommandMenu;
 import org.symphonyoss.symphony.bots.ai.helpdesk.menu.ClientCommandMenu;
 import org.symphonyoss.symphony.bots.ai.helpdesk.menu.ServiceCommandMenu;
@@ -20,7 +21,7 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
   protected String groupId;
   protected SessionType sessionType;
   protected HelpDeskAiSession helpDeskAiSession;
-  private ProxyConversation proxyConversation;
+  protected IdleTimerManager idleTimerManager;
 
   public HelpDeskAiSession getHelpDeskAiSession() {
     return helpDeskAiSession;
@@ -62,12 +63,11 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
     this.groupId = groupId;
   }
 
-  public ProxyConversation getProxyConversation() {
-    return proxyConversation;
+  public IdleTimerManager getIdleTimerManager() {
+    return idleTimerManager;
   }
 
-  public void setProxyConversation(
-      ProxyConversation proxyConversation) {
-    this.proxyConversation = proxyConversation;
+  public void setIdleTimerManager(IdleTimerManager idleTimerManager) {
+    this.idleTimerManager = idleTimerManager;
   }
 }

@@ -94,12 +94,6 @@ public class ProxyConversation extends AiConversation {
     proxyToIds.add(new AiResponseIdentifierImpl(streamId));
   }
 
-  public void stopProxyIdleTimer() {
-    if (proxyIdleTimer != null) {
-      proxyIdleTimer.stop();
-    }
-  }
-
   public void setProxyIdleTimer(ProxyIdleTimer proxyIdleTimer) {
     this.proxyIdleTimer = proxyIdleTimer;
   }
