@@ -30,13 +30,13 @@ public class HelpDeskProvisioningService {
   private static final Logger LOGGER = LoggerFactory.getLogger(HelpDeskProvisioningService.class);
 
   @Autowired
-  ProvisioningConfig config;
+  private ProvisioningConfig config;
 
   @Autowired
-  HelpDeskPublicApiClient publicApiClient;
+  private HelpDeskPublicApiClient publicApiClient;
 
   @Autowired
-  CertificateUtils certificateUtils;
+  private CertificateUtils certificateUtils;
 
   public void execute() {
     if (!config.isExecute()) {

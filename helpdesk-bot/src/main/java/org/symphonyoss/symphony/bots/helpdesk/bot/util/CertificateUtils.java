@@ -155,8 +155,6 @@ public class CertificateUtils {
    * @param userName user name
    */
   public void createUserCertificate(String caKeyPath, String caCertPath, String userName) {
-    URI certsDir = new File(CONTEXT.getCertsDir()).toURI();
-
     try {
       KeyPair keys = generateKeys();
 
