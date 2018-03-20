@@ -2,11 +2,11 @@ package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAiSessionContext;
-import org.symphonyoss.symphony.bots.ai.conversation.IdleTimerManager;
-import org.symphonyoss.symphony.bots.ai.conversation.ProxyConversation;
-import org.symphonyoss.symphony.bots.ai.conversation.ProxyIdleTimer;
+import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSessionContext;
+import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
+import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyConversation;
+import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;

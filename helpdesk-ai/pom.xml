@@ -19,7 +19,7 @@
     <dependencies>
         <dependency>
             <groupId>org.symphonyoss.symphony.bots</groupId>
-            <artifactId>symphony-ai</artifactId>
+            <artifactId>helpdesk-utility</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
