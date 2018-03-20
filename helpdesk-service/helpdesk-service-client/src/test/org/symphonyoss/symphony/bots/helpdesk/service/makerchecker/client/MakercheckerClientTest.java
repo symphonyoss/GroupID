@@ -12,7 +12,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskApiException;
-import org.symphonyoss.symphony.bots.helpdesk.service.api.MakercheckerApi;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiException;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.Configuration;
@@ -27,6 +26,10 @@ public class MakercheckerClientTest {
   private static final Long MOCK_MAKER_ID = 123L;
   private static final String DISPLAY_NAME = "DISPLAY_NAME";
   private static final Long MOCK_USER_ID = 456L;
+  private static final String ATTACHMENT_ID = "ATTACHMENT_ID";
+  private static final String ATTACHMENT_NAME = "ATTACHMENT_NAME";
+  private static final String MESSAGE_ID = "MESSAGE_ID";
+  private static final Long TIMESTAMP = 1L;
 
   private final String groupId = "GROUP_ID";
 
@@ -65,11 +68,41 @@ public class MakercheckerClientTest {
   }
 
   @Test
-  public void createMakerchecker() {
+  public void createMakerchecker() throws ApiException {
+
+    doReturn(makercheckerMock()).when(apiClient)
+        .invokeAPI(any(), eq("POST"), any(), any(), any(), any(), any(), any(), any(), any());
+
+    Makerchecker makerchecker =
+        makercheckerClient.createMakerchecker(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID,
+            MOCK_SERVICE_STREAM_ID, ATTACHMENT_ID, ATTACHMENT_NAME, MESSAGE_ID, TIMESTAMP, null);
+
+    assertNotNull(makerchecker);
+    assertEquals(makercheckerMock(), makerchecker);
   }
 
   @Test
-  public void updateMakerchecker() {
+  public void updateMakerchecker() throws ApiException {
+
+    doReturn(MOCK_MAKERCHECKER_ID).when(apiClient).escapeString(any());
+
+    Makerchecker makerchecker = makercheckerMock();
+    makerchecker.setChecker(null);
+
+    doReturn(makerchecker).when(apiClient).invokeAPI(any(),eq("PUT"),any(),any(),any(),any(),any(),any(),any(),any());
+
+    Makerchecker updatedMakerchecker = makercheckerClient.updateMakerchecker(makerchecker);
+
+    assertNotNull(updatedMakerchecker);
+    assertEquals(makerchecker,updatedMakerchecker);
+
+  }
+
+  @Test(expected = HelpDeskApiException.class)
+  public void updateMakercheckerWithError() throws ApiException {
+
+    Makerchecker updatedMakerchecker = makercheckerClient.updateMakerchecker(new Makerchecker());
+
   }
 
   private Makerchecker makercheckerMock() {
