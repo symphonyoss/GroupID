@@ -1,10 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.helpdesk.conversation;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -13,29 +8,6 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class ProxyIdleTimer {
 
-  private static Timer timer = new Timer();
-  private static Set<ProxyIdleTimer> proxyIdleTimers = Collections.synchronizedSet(new HashSet<>());
-
-  static {
-    timer.scheduleAtFixedRate(new TimerTask() {
-      @Override
-      public void run() {
-        for(ProxyIdleTimer proxyIdleTimer: proxyIdleTimers) {
-          proxyIdleTimer.setTime(proxyIdleTimer.getTime() + 5);
-
-          long idle = proxyIdleTimer.getIdleTime();
-          int current = proxyIdleTimer.getTime();
-
-          TimeUnit type = proxyIdleTimer.getTimeUnit();
-          if(type.toSeconds(idle) < current) {
-            proxyIdleTimer.onIdleTimeout();
-            proxyIdleTimer.reset();
-          }
-        }
-      }
-    }, 1000, 5000);
-  }
-
   private int time;
   private long idleTime;
   private TimeUnit timeUnit;
@@ -43,14 +15,6 @@ public abstract class ProxyIdleTimer {
   public ProxyIdleTimer(long idleTime, TimeUnit timeUnit) {
     this.idleTime = idleTime;
     this.timeUnit = timeUnit;
-  }
-
-  public void start() {
-    ProxyIdleTimer.proxyIdleTimers.add(this);
-  }
-
-  public void stop() {
-    ProxyIdleTimer.proxyIdleTimers.remove(this);
   }
 
   public void reset() {

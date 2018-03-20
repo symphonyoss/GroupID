@@ -8,7 +8,10 @@ import org.symphonyoss.symphony.bots.helpdesk.service.client.Configuration;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by nick.tarsillo on 9/26/17.
@@ -120,6 +123,25 @@ public class TicketClient {
       return null;
     } catch (ApiException e) {
       throw new HelpDeskApiException("Failed to search for room: " + clientStreamId, e);
+    }
+  }
+
+  /**
+   * Gets an unresolved ticket list
+   * @return ticket list or an empty list
+   */
+  public List<Ticket> getUnresolvedTickets() {
+    try {
+      List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, null);
+
+      if ((ticketList != null) && (!ticketList.isEmpty())) {
+        return ticketList.stream()
+            .filter((ticket) -> !ticket.getState().equals(TicketStateType.RESOLVED.getState()))
+            .collect(Collectors.toList());
+      }
+      return Collections.emptyList();
+    } catch (ApiException e) {
+      throw new HelpDeskApiException("Failed to search for tickets", e);
     }
   }
 
