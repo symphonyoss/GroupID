@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.conversation;
 
+import static junit.framework.Assert.assertNull;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
 
@@ -24,10 +25,11 @@ import java.util.concurrent.TimeUnit;
 public class IdleTimerManagerTest {
 
   private static final String TICKET_ID = "TICKET_ID";
+
   private static final String UNEXISTENT_TICKET_ID = "UNEXISTENT_TICKET_ID";
 
   @Mock
-  private ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
+  private ScheduledExecutorService executorService;
 
   @InjectMocks
   private IdleTimerManager idleTimerManager;
@@ -37,24 +39,30 @@ public class IdleTimerManagerTest {
     idleTimerManager.put(TICKET_ID, new ProxyIdleTimer(5000L, TimeUnit.MILLISECONDS) {
       @Override
       public void onIdleTimeout() {
+        // Do nothing
       }
     });
 
     ProxyIdleTimer proxyIdleTimer = idleTimerManager.get(TICKET_ID);
+
     assertEquals(new Long(5000), proxyIdleTimer.getIdleTime());
     assertEquals(TimeUnit.MILLISECONDS, proxyIdleTimer.getTimeUnit());
   }
 
   @Test
   public void remove() {
+    put();
+
     idleTimerManager.remove(TICKET_ID);
+
     ProxyIdleTimer proxyIdleTimer = idleTimerManager.get(TICKET_ID);
-    assertEquals(null, proxyIdleTimer);
+    assertNull(proxyIdleTimer);
   }
 
   @Test
   public void containsKey() {
     put();
+
     boolean response = idleTimerManager.containsKey(TICKET_ID);
     assertEquals(true, response);
   }
@@ -74,6 +82,7 @@ public class IdleTimerManagerTest {
   @Test
   public void get() {
     put();
+
     ProxyIdleTimer proxyIdleTimer = idleTimerManager.get(TICKET_ID);
     assertNotNull(proxyIdleTimer);
   }
@@ -87,6 +96,7 @@ public class IdleTimerManagerTest {
   @Test
   public void shutdown() {
     idleTimerManager.shutdown();
+    
     verify(executorService, times(1)).shutdown();
   }
 }

@@ -39,14 +39,12 @@ public class HelpDeskServiceConfiguration {
 
   @Bean(name = "makercheckerClient")
   public MakercheckerClient getMakercheckerClient(HelpDeskBotConfig configuration) {
-    return new MakercheckerClient(configuration.getGroupId(),
-        configuration.getHelpDeskServiceUrl());
+    return new MakercheckerClient(configuration.getGroupId(), configuration.getHelpDeskServiceUrl());
   }
 
   @Bean(name = "helpdeskAi")
   public HelpDeskAi initHelpDeskAi(HelpDeskBotConfig configuration,
-      MembershipClient membershipClient,
-      TicketClient ticketClient, SymphonyClient symphonyClient) {
+      MembershipClient membershipClient, TicketClient ticketClient, SymphonyClient symphonyClient) {
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
     helpDeskAiSession.setMembershipClient(membershipClient);
     helpDeskAiSession.setTicketClient(ticketClient);
@@ -56,12 +54,9 @@ public class HelpDeskServiceConfiguration {
     helpDeskAiConfig.setGroupId(configuration.getGroupId());
     helpDeskAiConfig.setAgentStreamId(configuration.getAgentStreamId());
     helpDeskAiConfig.setCloseTicketSuccessResponse(configuration.getCloseTicketSuccessResponse());
-    helpDeskAiConfig.setAddMemberAgentSuccessResponse(
-        configuration.getAddMemberAgentSuccessResponse());
-    helpDeskAiConfig.setAddMemberClientSuccessResponse(
-        configuration.getAddMemberClientSuccessResponse());
-    helpDeskAiConfig.setAcceptTicketClientSuccessResponse(
-        configuration.getAcceptTicketClientSuccessResponse());
+    helpDeskAiConfig.setAddMemberAgentSuccessResponse(configuration.getAddMemberAgentSuccessResponse());
+    helpDeskAiConfig.setAddMemberClientSuccessResponse(configuration.getAddMemberClientSuccessResponse());
+    helpDeskAiConfig.setAcceptTicketClientSuccessResponse(configuration.getAcceptTicketClientSuccessResponse());
     helpDeskAiConfig.setAcceptTicketCommand(configuration.getAcceptTicketCommand());
     helpDeskAiConfig.setCloseTicketCommand(configuration.getCloseTicketCommand());
     helpDeskAiConfig.setAddMemberCommand(configuration.getAddMemberCommand());

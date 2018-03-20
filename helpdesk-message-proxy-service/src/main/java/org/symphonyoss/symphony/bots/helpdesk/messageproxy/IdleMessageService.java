@@ -13,7 +13,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**
- * Service to create an idle message for each
+ * Component responsible for sending idle message.
  */
 @Component
 public class IdleMessageService {
@@ -28,11 +28,8 @@ public class IdleMessageService {
 
   private final IdleTicketConfig idleTicketConfig;
 
-  public IdleMessageService (
-      TicketService ticketService,
-      HelpDeskBotInfo helpDeskBotInfo,
-      HelpDeskServiceInfo helpDeskServiceInfo,
-      @Value("${agentStreamId}") String agentStreamId,
+  public IdleMessageService(TicketService ticketService, HelpDeskBotInfo helpDeskBotInfo,
+      HelpDeskServiceInfo helpDeskServiceInfo, @Value("${agentStreamId}") String agentStreamId,
       IdleTicketConfig idleTicketConfig) {
     this.ticketService = ticketService;
     this.helpDeskBotInfo = helpDeskBotInfo;
@@ -41,6 +38,10 @@ public class IdleMessageService {
     this.idleTicketConfig = idleTicketConfig;
   }
 
+  /**
+   * Builds and send idle message.
+   * @param ticket Ticket data
+   */
   public void sendIdleMessage(Ticket ticket) {
     String safeAgentStreamId = Base64.encodeBase64String(Base64.decodeBase64(agentStreamId));
 
