@@ -18,7 +18,6 @@ import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 
 /**
@@ -44,9 +43,9 @@ public class AiEventListenerImplTest {
 
   private AiSessionContext sessionContext = new AiSessionContext();
 
-  private AiMessage message = new SymphonyAiMessage("");
+  private SymphonyAiMessage message = new SymphonyAiMessage("");
 
-  private AiEventListenerImpl eventListener;
+  private SymphonyAiEventListenerImpl eventListener;
 
   @Before
   public void init() {
@@ -55,13 +54,13 @@ public class AiEventListenerImplTest {
     this.commandMenu.setCommandPrefix(PREFIX);
     this.sessionContext.setAiCommandMenu(commandMenu);
 
-    this.eventListener = new AiEventListenerImpl(aiCommandInterpreter, aiResponder, false);
+    this.eventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, false);
   }
 
   @Test
   public void testWithoutPrefix() {
     eventListener.onCommand(message, sessionContext);
-    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(AiMessage.class), anyString());
+    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
   }
 
   @Test
@@ -70,7 +69,7 @@ public class AiEventListenerImplTest {
 
     eventListener.onCommand(message, sessionContext);
 
-    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(AiMessage.class), anyString());
+    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
     verify(aiResponder, times(1)).respondWithUseMenu(sessionContext, message);
     verify(aiResponder, never()).respondWithSuggestion(sessionContext, aiCommandInterpreter, message);
   }
@@ -80,7 +79,7 @@ public class AiEventListenerImplTest {
     AiCommand command = new AiCommand(MOCK_COMMAND, MOCK_COMMAND);
     this.commandMenu.addCommand(command);
 
-    this.eventListener = new AiEventListenerImpl(aiCommandInterpreter, aiResponder, true);
+    this.eventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, true);
 
     doReturn(true).when(aiCommandInterpreter).hasPrefix(message, PREFIX);
 

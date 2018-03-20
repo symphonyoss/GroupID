@@ -1,10 +1,18 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.client.services.MessageListener;
+import org.symphonyoss.symphony.bots.ai.Ai;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
+import org.symphonyoss.symphony.bots.ai.AiEventListener;
+import org.symphonyoss.symphony.bots.ai.AiResponder;
+import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
+import org.symphonyoss.symphony.bots.ai.model.AiConversation;
+import org.symphonyoss.symphony.bots.ai.model.AiResponse;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+
+import java.util.Set;
 
 /**
  * Main entry point for the <i>Agent Interface</i> messages. This class works as both session context manager and
@@ -12,20 +20,125 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
  * <p>
  * Created by nick.tarsillo on 8/20/17.
  */
-public class SymphonyAi extends AiImpl implements MessageListener {
+public class SymphonyAi implements Ai {
+
+  protected AiEventListener aiEventListener;
+
+  protected SymphonyAiSessionContextManager aiSessionContextManager;
+
+  protected SymphonyAiConversationManager aiConversationManager;
+
+  protected AiResponder aiResponder;
 
   public SymphonyAi(SymphonyClient symphonyClient, boolean suggestCommand) {
-    super(suggestCommand);
-    AiCommandInterpreter aiCommandInterpreter =
-        new SymphonyAiCommandInterpreter(symphonyClient.getLocalUser());
+    AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(symphonyClient.getLocalUser());
     aiResponder = new SymphonyAiResponder(symphonyClient.getMessagesClient());
-    aiEventListener = new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommand);
+    aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommand);
+    aiSessionContextManager = new SymphonyAiSessionContextManager();
+    aiConversationManager = new SymphonyAiConversationManager();
   }
 
-  @Override
   public void onMessage(SymMessage symMessage) {
     AiSessionKey aiSessionKey = getSessionKey(symMessage.getFromUserId(), symMessage.getStreamId());
     onAiMessage(aiSessionKey, new SymphonyAiMessage(symMessage));
+  }
+
+  /**
+   *  Proxy a message event to the corresponding event listener: <br>
+   *  <ul>
+   *    <li>A command event listener if the message is a command and the conversation allows it</li>
+   *    <li>A conversation message event listener if the message is a simple message</li>
+   *  </ul>
+   *  And then add it to the context
+   * @param aiSessionKey The key for a session context
+   * @param message The received message
+   */
+  @Override
+  public void onAiMessage(AiSessionKey aiSessionKey, SymphonyAiMessage message) {
+    AiSessionContext sessionContext =  getSessionContext(aiSessionKey);
+    AiConversation aiConversation = aiConversationManager.getConversation(sessionContext);
+
+    if(sessionContext.getLastMessage() == null || !sessionContext.getLastMessage().equals(message)) {
+      if ((aiConversation == null || aiConversation.isAllowCommands()) &&
+          sessionContext.getAiCommandMenu() != null) {
+        aiEventListener.onCommand(message, sessionContext);
+      }
+
+      if (aiConversation != null) {
+        aiEventListener.onConversation(message, aiConversation);
+      }
+
+      sessionContext.setLastMessage(message);
+    }
+  }
+
+  @Override
+  public void startConversation(AiSessionKey aiSessionKey, AiConversation aiConversation) {
+    AiSessionContext aiSessionContext = getSessionContext(aiSessionKey);
+    aiConversation.setAiSessionContext(aiSessionContext);
+
+    aiConversationManager.registerConversation(aiSessionContext, aiConversation);
+  }
+
+  /**
+   * Retrieves a conversation in the given session context
+   * @param aiSessionKey a session context key
+   * @return The conversation in the given session context, if it exists
+   */
+  @Override
+  public AiConversation getConversation(AiSessionKey aiSessionKey) {
+    AiSessionContext aiSessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
+    return aiConversationManager.getConversation(aiSessionContext);
+  }
+
+  /**
+   * Removes the a conversation from the given session context
+   * @param aiSessionKey a session context key
+   */
+  @Override
+  public void endConversation(AiSessionKey aiSessionKey) {
+    AiSessionContext aiSessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
+    aiConversationManager.removeConversation(aiSessionContext);
+  }
+
+  /**
+   * Sends the given message to the session context with the given {@link AiSessionKey session key}
+   * @param aiMessage message to send
+   * @param responseIdentifierSet set with the ids to where the message should be sent
+   * @param aiSessionKey a session context key
+   */
+  @Override
+  public void sendMessage(SymphonyAiMessage aiMessage, Set<AiResponseIdentifier> responseIdentifierSet, AiSessionKey aiSessionKey) {
+    AiSessionContext aiSessionContext = getSessionContext(aiSessionKey);
+
+    AiResponse aiResponse = new AiResponse(aiMessage, responseIdentifierSet);
+    aiResponder.addResponse(aiSessionContext, aiResponse);
+    aiResponder.respond(aiSessionContext);
+  }
+
+  /**
+   * Retrieve the session context with the given {@link AiSessionKey session key}
+   * @param aiSessionKey a session context key
+   * @return session context with the given key
+   */
+  @Override
+  public AiSessionContext getSessionContext(AiSessionKey aiSessionKey) {
+    AiSessionContext sessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
+
+    if(sessionContext == null) {
+      sessionContext = newAiSessionContext(aiSessionKey);
+      aiSessionContextManager.putSessionContext(aiSessionKey, sessionContext);
+    }
+
+    return sessionContext;
+  }
+
+  @Override
+  public AiSessionContext newAiSessionContext(AiSessionKey aiSessionKey) {
+    AiSessionContext aiSessionContext = new AiSessionContext();
+    aiSessionContext.setAiSessionKey(aiSessionKey);
+
+    return aiSessionContext;
   }
 
   /**

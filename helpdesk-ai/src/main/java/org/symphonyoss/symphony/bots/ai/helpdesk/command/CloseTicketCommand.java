@@ -9,11 +9,11 @@ import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.helpdesk.common.HelpDeskAiConstants;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
-import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskApiException;
@@ -120,9 +120,9 @@ public class CloseTicketCommand extends AiCommand {
      * @return the built AI response
      */
     private AiResponse response(String message, String stream) {
-      AiMessage aiMessage = new AiMessage(message);
+      SymphonyAiMessage aiMessage = new SymphonyAiMessage(message);
       Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
-      responseIdentifiers.add(new AiResponseIdentifierImpl(stream));
+      responseIdentifiers.add(new SymphonyAiResponseIdentifierImpl(stream));
       return new AiResponse(aiMessage, responseIdentifiers);
     }
   }
