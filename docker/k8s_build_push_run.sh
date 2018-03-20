@@ -16,7 +16,7 @@ pwd
 ./k8s_build_push_run.sh
 
 printf "\n\n******** Bulding Helpdesk Renderer ********\n\n"
-cd ../../helpdesk-dynamic-rendering/docker
+cd ../../helpdesk-application/docker
 pwd
 ./k8s_build_push_run.sh
 

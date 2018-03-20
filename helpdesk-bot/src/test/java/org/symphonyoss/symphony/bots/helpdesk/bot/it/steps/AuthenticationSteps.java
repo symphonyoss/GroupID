@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.client.exceptions.AuthenticationException;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
-import org.symphonyoss.symphony.bots.helpdesk.bot.util.TestContext;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.TempVariablesContext;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers.UserHelper;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.AuthenticationUtils;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -28,7 +28,7 @@ public class AuthenticationSteps {
 
   private final UserHelper userHelper;
 
-  private final TestContext context = TestContext.getInstance();
+  private final TempVariablesContext context = TempVariablesContext.getInstance();
 
   public AuthenticationSteps(HelpDeskBotConfig config, UserHelper userHelper) {
     this.config = config;

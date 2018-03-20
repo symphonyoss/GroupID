@@ -103,7 +103,7 @@ public class CertificateUtils {
 
   private static final String PKCS_12 = "PKCS12";
 
-  private static final TestContext CONTEXT = TestContext.getInstance();
+  private static final TempVariablesContext CONTEXT = TempVariablesContext.getInstance();
 
   private static final String COUNTRY = "US";
 
@@ -132,14 +132,14 @@ public class CertificateUtils {
 
     if (StringUtils.isEmpty(certsDir)) {
       certsDir = System.getProperty("java.io.tmpdir") + File.separator + CERTS_DIR;
-      File directory = new File(certsDir);
+    }
 
-      if (!directory.exists()) {
-        LOGGER.info("Creating certificate directory: " + directory.getAbsolutePath());
-        directory.mkdirs();
-      } else {
-        LOGGER.info("Certificate directory already exists");
-      }
+    File directory = new File(certsDir);
+    if (!directory.exists()) {
+      LOGGER.info("Creating certificate directory: " + directory.getAbsolutePath());
+      directory.mkdirs();
+    } else {
+      LOGGER.info("Certificate directory already exists");
     }
 
     System.setProperty("CERTS_DIR", certsDir);

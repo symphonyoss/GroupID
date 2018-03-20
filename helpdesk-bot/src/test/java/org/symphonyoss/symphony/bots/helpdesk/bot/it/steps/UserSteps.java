@@ -3,7 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.it.steps;
 import org.jbehave.core.annotations.Given;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.symphony.bots.helpdesk.bot.util.TestContext;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.TempVariablesContext;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.CertificateUtils;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.UserUtils;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -25,7 +25,7 @@ public class UserSteps {
 
   private static final String CA_CERT_PATH = "caCertPath";
 
-  private final TestContext context = TestContext.getInstance();
+  private final TempVariablesContext context = TempVariablesContext.getInstance();
 
   private CertificateUtils certificateUtils = new CertificateUtils();
 

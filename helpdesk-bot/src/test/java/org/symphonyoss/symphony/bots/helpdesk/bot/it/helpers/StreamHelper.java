@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.StreamsException;
 import org.symphonyoss.client.exceptions.SymException;
-import org.symphonyoss.symphony.bots.helpdesk.bot.util.TestContext;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.TempVariablesContext;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -22,7 +22,7 @@ import java.util.Optional;
 @Component
 public class StreamHelper {
 
-  private final TestContext context = TestContext.getInstance();
+  private final TempVariablesContext context = TempVariablesContext.getInstance();
 
   private final UserHelper userHelper;
 

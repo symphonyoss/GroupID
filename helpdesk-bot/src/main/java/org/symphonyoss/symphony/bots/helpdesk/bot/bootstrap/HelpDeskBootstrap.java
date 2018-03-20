@@ -80,6 +80,7 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
         .onError(e -> LOGGER.error("Fail to initilize Helpdesk Ai", e));
 
     try {
+      functionProvisioning.executeBackoffExponential(applicationContext);
       functionHttpClient.executeBackoffExponential(applicationContext);
       SymAuth symAuth = functionAuth.executeBackoffExponential(applicationContext);
       functionClient.executeBackoffExponential(symAuth);

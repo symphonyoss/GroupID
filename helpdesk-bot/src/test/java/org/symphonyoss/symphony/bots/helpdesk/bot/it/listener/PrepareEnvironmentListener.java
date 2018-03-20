@@ -14,6 +14,7 @@ import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.UsersEnum;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.AuthenticationUtils;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.TempVariablesContext;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.CertificateUtils;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.StreamUtils;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.UserUtils;
@@ -39,8 +40,8 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
   private static final String AGENT_STREAM_ID = "agentStreamId";
   private static final String GROUP_ID = "groupId";
 
-  private static final org.symphonyoss.symphony.bots.helpdesk.bot.util.TestContext
-      CONTEXT = org.symphonyoss.symphony.bots.helpdesk.bot.util.TestContext.getInstance();
+  private static final TempVariablesContext
+      CONTEXT = TempVariablesContext.getInstance();
 
   private CertificateUtils certificateUtils = new CertificateUtils();
 

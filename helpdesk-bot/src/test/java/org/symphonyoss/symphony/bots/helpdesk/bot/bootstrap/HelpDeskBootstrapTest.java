@@ -92,6 +92,7 @@ public class HelpDeskBootstrapTest {
     doReturn(helpDeskBot).when(applicationContext).getBean(HelpDeskBot.class);
     doReturn(helpDeskAi).when(applicationContext).getBean(HelpDeskAi.class);
     doReturn(httpClient).when(applicationContext).getBean(HelpDeskHttpClient.class);
+    doReturn(provisioningService).when(applicationContext).getBean(HelpDeskProvisioningService.class);
 
     doReturn(messageService).when(symphonyClient).getMessageService();
   }

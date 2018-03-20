@@ -18,10 +18,7 @@ import java.io.File;
 import java.security.cert.X509Certificate;
 
 /**
- * Performs the provisioning process of a bot. It consists of:
- *
- * - Generate a self-signed certificate and submit it to a POD;
- *
+ * Performs the provisioning process of a bot.
  * Created by campidelli on 3/9/18.
  */
 @Service
@@ -38,6 +35,11 @@ public class HelpDeskProvisioningService {
   @Autowired
   private CertificateUtils certificateUtils;
 
+  /**
+   * Executes the provisioning process:
+   *  - Generates a self-signed certificate and upload it to a POD
+   *  - Generates a p12 keystore file signed by the above certificate
+   */
   public void execute() {
     if (!config.isExecute()) {
       LOGGER.info("Provisioning process will not be executed.");
@@ -46,6 +48,13 @@ public class HelpDeskProvisioningService {
     LOGGER.info("Provisioning is being executed.");
 
     // Root certificate
+    generateRootCertificate();
+
+    // Service account
+    generateServiceAccount();
+  }
+
+  private void generateRootCertificate() {
     if (config.isGenerateCACert()) {
       LOGGER.info("Generating a Self signed CA ROOT certificate.");
       CompanyCert cert = getSelfSignedCertificate();
@@ -57,8 +66,9 @@ public class HelpDeskProvisioningService {
         LOGGER.info("Certificate successfully uploaded.");
       }
     }
+  }
 
-    // Service account
+  private void generateServiceAccount() {
     if (config.isGenerateServiceAccountP12()) {
       LOGGER.info("Generating p12 file for a service account.");
       String serviceAccountUserName = config.getServiceAccountUserName();

@@ -3,7 +3,7 @@ printf "Building java project [helpdesk-renderer]\n\n"
 
 printf "Get current project version and replace it inside the build manifest file\n"
 cd ..
-cp target/helpdesk-dynamic-rendering*.jar docker/helpdesk-renderer.jar
+cp target/helpdesk-renderer.jar docker/helpdesk-renderer.jar
 VERSION=$(grep -Po -m 1 '<version>\K[^<]*' pom.xml)
 cd -
 printf "Project version: $(printf $VERSION)\n\n"

@@ -34,6 +34,8 @@ public class HelpDeskPublicApiClient {
 
   private static final String SESSION_KEY = "skey";
 
+  private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
+
   @Autowired
   private HelpDeskBotConfig config;
 
@@ -50,12 +52,10 @@ public class HelpDeskPublicApiClient {
     endpoint = String.format(endpoint, userName);
 
     ResponseEntity<String> response = restTemplate.getForEntity(endpoint, String.class);
-
     String json = response.getBody();
-    ObjectMapper mapper = new ObjectMapper();
 
     try {
-      JsonNode node = mapper.readTree(json);
+      JsonNode node = JSON_MAPPER.readTree(json);
       return node.get("salt").asText();
     } catch (IOException e) {
       String msg = String.format("[%s] is not a valid JSON.", json);
@@ -76,13 +76,16 @@ public class HelpDeskPublicApiClient {
     formData.add("userName", userName);
     formData.add("hPassword", encryptedPassword);
 
+    String sessionKey = null;
+
     ResponseEntity<String> response = restTemplate.postForEntity(endpoint, formData, String.class);
-    List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
-    String cookie = cookies.stream().filter(c -> c.startsWith(SESSION_KEY)).findFirst().get();
-
-    HttpCookie sKeyCookie = HttpCookie.parse(cookie).get(0);
-
-    return sKeyCookie.getValue();
+    if (response.getHeaders().containsKey(HttpHeaders.SET_COOKIE)) {
+      List<String> cookies = response.getHeaders().get(HttpHeaders.SET_COOKIE);
+      String cookie = cookies.stream().filter(c -> c.startsWith(SESSION_KEY)).findFirst().get();
+      HttpCookie sKeyCookie = HttpCookie.parse(cookie).get(0);
+      sessionKey = sKeyCookie.getValue();
+    }
+    return sessionKey;
   }
 
   /**
