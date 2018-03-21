@@ -8,7 +8,7 @@ const messageByCode = {
     401: messages.UNAUTHORIZED_ERROR,
     404: messages.PERFORM_ACTION_ERROR,
     500: messages.GENERIC_ERROR,
-}
+};
 
 describe('Error Messages', () => {
     describe('Get Message by Code', () => {
