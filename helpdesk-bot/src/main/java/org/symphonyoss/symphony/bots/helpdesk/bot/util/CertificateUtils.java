@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.DERBMPString;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -44,9 +45,7 @@ import org.symphonyoss.symphony.pod.model.CompanyCert;
 import org.symphonyoss.symphony.pod.model.CompanyCertAttributes;
 import org.symphonyoss.symphony.pod.model.CompanyCertStatus;
 import org.symphonyoss.symphony.pod.model.CompanyCertType;
-import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -71,8 +70,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Utility class to deal with certificate stuff.
