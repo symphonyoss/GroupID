@@ -3,15 +3,6 @@ import axios from 'axios';
 
 jest.mock('axios');
 
-const mockError = {
-    response: {
-        message: 'intentional test error!',
-        status: 100
-    }
-};
-
-const mockEmptyError = {};
-
 const mockUserId = 123456789;
 
 const mockTicket = {
@@ -29,12 +20,17 @@ const mockAttachment = {
     denyUrl: mockTicket.url + '98789/deny'
 };
 
-const error = new Promise((resolve, reject) => {
-    throw mockError;
+const mockError = new Promise(() => {
+    throw {
+        response: {
+            message: 'intentional test error!',
+            status: 100
+        }
+    };
 });
 
-const emptyError = new Promise((resolve, reject) => {
-    throw mockEmptyError;
+const mockEmptyError = new Promise(() => {
+    throw {};
 });
 
 describe('API Calls', () => {
@@ -111,7 +107,7 @@ describe('API Calls', () => {
     describe('Failing scenarios:', () => {
         it('Should return error 100', async () => {
             axios.mockClear();
-            axios.mockResolvedValue(error);
+            axios.mockResolvedValue(mockError);
             expect.assertions(6);
 
             await expect(apiCalls.claimTicket(mockTicket).catch(rsp => { return rsp.message })).resolves.toEqual('100');
@@ -123,7 +119,7 @@ describe('API Calls', () => {
         });
         it('Should return default error 500', async () => {
             axios.mockClear();
-            axios.mockResolvedValue(emptyError);
+            axios.mockResolvedValue(mockEmptyError);
             expect.assertions(1);
 
             await expect(apiCalls.claimTicket(mockTicket).catch(rsp => { return rsp.message })).resolves.toEqual('500');
