@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 
 /**
  * Manages all sessions in the Ai.
@@ -15,18 +15,19 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
  * Created by nick.tarsillo on 8/20/17.
  */
 public class SymphonyAiSessionContextManager {
+
   private static final Logger LOG = LoggerFactory.getLogger(SymphonyAiSessionContextManager.class);
 
-  protected LoadingCache<AiSessionKey, AiSessionContext> sessionCache;
+  protected LoadingCache<SymphonyAiSessionKey, AiSessionContext> sessionCache;
 
   public SymphonyAiSessionContextManager() {
     sessionCache = CacheBuilder.newBuilder()
         .concurrencyLevel(4)
         .maximumSize(10000)
         .expireAfterWrite(AiConstants.EXPIRE_TIME, AiConstants.EXPIRE_TIME_UNIT)
-        .build(new CacheLoader<AiSessionKey, AiSessionContext>() {
+        .build(new CacheLoader<SymphonyAiSessionKey, AiSessionContext>() {
           @Override
-          public AiSessionContext load(AiSessionKey key) throws Exception {
+          public AiSessionContext load(SymphonyAiSessionKey key) throws Exception {
             return null;
           }
         });
@@ -37,11 +38,11 @@ public class SymphonyAiSessionContextManager {
    * @param aiSessionKey session context key
    * @param aiSessionContext session context itself
    */
-  public void putSessionContext(AiSessionKey aiSessionKey, AiSessionContext aiSessionContext) {
+  public void putSessionContext(SymphonyAiSessionKey aiSessionKey, AiSessionContext aiSessionContext) {
     sessionCache.put(aiSessionKey, aiSessionContext);
   }
 
-  public AiSessionContext getSessionContext(AiSessionKey aiSessionKey) {
+  public AiSessionContext getSessionContext(SymphonyAiSessionKey aiSessionKey) {
     AiSessionContext aiSessionContext = null;
     try {
       aiSessionContext = sessionCache.asMap().get(aiSessionKey);

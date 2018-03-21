@@ -14,7 +14,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
@@ -65,7 +65,7 @@ public class MessageProxyServiceTest {
 
   @Test
   public void onMessageCreateAgentProxy() {
-    AiSessionKey aiSessionKey = new AiSessionKey(SESSION_KEY);
+    SymphonyAiSessionKey aiSessionKey = new SymphonyAiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
     doReturn(aiSessionKey).when(helpDeskAi).getSessionKey(USER_ID,STREAM_ID);
 
     HelpDeskAiSessionContext helpDeskAiSessionContext = new HelpDeskAiSessionContext();
@@ -78,7 +78,7 @@ public class MessageProxyServiceTest {
 
   @Test
   public void onMessageAddAgentToProxy() {
-    AiSessionKey aiSessionKey = new AiSessionKey(SESSION_KEY);
+    SymphonyAiSessionKey aiSessionKey = new SymphonyAiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
     doReturn(aiSessionKey).when(helpDeskAi).getSessionKey(USER_ID,STREAM_ID);
 
     HelpDeskAiSessionContext helpDeskAiSessionContext = new HelpDeskAiSessionContext();
@@ -97,7 +97,7 @@ public class MessageProxyServiceTest {
     Membership membership = getMembershipAgent();
     membership.setType(MembershipClient.MembershipType.CLIENT.getType());
 
-    AiSessionKey aiSessionKey = new AiSessionKey(SESSION_KEY);
+    SymphonyAiSessionKey aiSessionKey = new SymphonyAiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
     doReturn(aiSessionKey).when(helpDeskAi).getSessionKey(USER_ID,STREAM_ID);
 
     HelpDeskAiSessionContext helpDeskAiSessionContext = new HelpDeskAiSessionContext();
