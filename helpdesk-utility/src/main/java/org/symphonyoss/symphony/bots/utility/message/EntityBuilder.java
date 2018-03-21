@@ -11,7 +11,7 @@ import java.util.Map;
  * <p>
  * Created by rsanchez on 12/01/17.
  */
-public class EntityBuilder {
+public class  EntityBuilder {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 

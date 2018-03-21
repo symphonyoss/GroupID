@@ -19,7 +19,7 @@ public class SymMessageBuilder {
 
   private List<SymAttachmentInfo> attachments = new ArrayList<>();
 
-  private SymMessageBuilder(String message) {
+  protected SymMessageBuilder(String message) {
     this.message = message;
   }
 
