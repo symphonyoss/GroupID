@@ -12,7 +12,7 @@ import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HttpClientConfig;
-import org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.TempVariablesContext;
 import org.symphonyoss.symphony.clients.AuthenticationClient;
 import org.symphonyoss.symphony.pod.invoker.JSON;
 
@@ -40,7 +40,7 @@ public class AuthenticationUtils {
 
   private final HelpDeskBotConfig config;
 
-  private final TestContext context = TestContext.getInstance();
+  private final TempVariablesContext context = TempVariablesContext.getInstance();
 
   public AuthenticationUtils(HelpDeskBotConfig config) {
     this.config = config;

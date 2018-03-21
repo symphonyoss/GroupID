@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: helpdesk-bot-service
+  labels:
+    run: helpdesk-bot
+spec:
+  selector:
+    run: helpdesk-bot
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080

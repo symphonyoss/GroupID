@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.config;
 
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.symphonyoss.symphony.bots.utility.config.ServiceInfo;
@@ -235,7 +236,10 @@ public class HelpDeskBotConfig {
   }
 
   public String getAgentStreamId() {
-    return agentStreamId;
+    if (agentStreamId != null) {
+      return Base64.encodeBase64URLSafeString(Base64.decodeBase64(agentStreamId));
+    }
+    return null;
   }
 
   public void setAgentStreamId(String agentStreamId) {
