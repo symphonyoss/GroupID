@@ -7,7 +7,6 @@ import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 
 import java.util.List;
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
  * <p>
  * Created by nick.tarsillo on 8/20/17.
  */
-public class AiEventListenerImpl implements AiEventListener {
+public class SymphonyAiEventListenerImpl implements AiEventListener {
 
   private AiCommandInterpreter aiCommandInterpreter;
 
@@ -26,7 +25,7 @@ public class AiEventListenerImpl implements AiEventListener {
 
   private boolean suggestCommands;
 
-  public AiEventListenerImpl(AiCommandInterpreter aiCommandInterpreter, AiResponder aiResponder,
+  public SymphonyAiEventListenerImpl(AiCommandInterpreter aiCommandInterpreter, AiResponder aiResponder,
       boolean suggestCommands) {
     this.aiCommandInterpreter = aiCommandInterpreter;
     this.aiResponder = aiResponder;
@@ -34,7 +33,7 @@ public class AiEventListenerImpl implements AiEventListener {
   }
 
   @Override
-  public void onCommand(AiMessage command, AiSessionContext sessionContext) {
+  public void onCommand(SymphonyAiMessage command, AiSessionContext sessionContext) {
     AiCommandMenu commandMenu = sessionContext.getAiCommandMenu();
     String prefix = commandMenu.getCommandPrefix();
 
@@ -62,9 +61,9 @@ public class AiEventListenerImpl implements AiEventListener {
   }
 
   @Override
-  public void onConversation(AiMessage message, AiConversation aiConversation) {
+  public void onConversation(SymphonyAiMessage message, AiConversation aiConversation) {
     String prefix = aiConversation.getAiSessionContext().getAiCommandMenu().getCommandPrefix();
-    AiMessage lastMessage = aiConversation.getLastMessage();
+    SymphonyAiMessage lastMessage = aiConversation.getLastMessage();
     if ((!aiConversation.isAllowCommands() || !aiCommandInterpreter.hasPrefix(message, prefix)) &&
         (lastMessage == null || !lastMessage.equals(message))) {
       aiConversation.onMessage(aiResponder, message);

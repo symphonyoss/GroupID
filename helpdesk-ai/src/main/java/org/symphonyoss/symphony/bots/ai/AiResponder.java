@@ -1,6 +1,6 @@
 package org.symphonyoss.symphony.bots.ai;
 
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 
@@ -27,12 +27,12 @@ public interface AiResponder {
    * Send response menu.
    * @param sessionContext the session context to base the response menu on.
    */
-  void respondWithUseMenu(AiSessionContext sessionContext, AiMessage message);
+  void respondWithUseMenu(AiSessionContext sessionContext, SymphonyAiMessage message);
 
   /**
    * Send suggestion message based on menu.
    * @param sessionContext the session context to add the response to.
    * @param command the incorrect menu.
    */
-  void respondWithSuggestion(AiSessionContext sessionContext, AiCommandInterpreter aiCommandInterpreter, AiMessage command);
+  void respondWithSuggestion(AiSessionContext sessionContext, AiCommandInterpreter aiCommandInterpreter, SymphonyAiMessage command);
 }

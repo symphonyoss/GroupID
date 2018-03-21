@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.ai.model;
+package org.symphonyoss.symphony.bots.ai.impl;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -6,18 +6,20 @@ import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 /**
  * Manages all sessions in the Ai.
  * <p>
  * Created by nick.tarsillo on 8/20/17.
  */
-public class AiSessionContextManager {
-  private static final Logger LOG = LoggerFactory.getLogger(AiSessionContextManager.class);
+public class SymphonyAiSessionContextManager {
+  private static final Logger LOG = LoggerFactory.getLogger(SymphonyAiSessionContextManager.class);
 
   protected LoadingCache<AiSessionKey, AiSessionContext> sessionCache;
 
-  public AiSessionContextManager() {
+  public SymphonyAiSessionContextManager() {
     sessionCache = CacheBuilder.newBuilder()
         .concurrencyLevel(4)
         .maximumSize(10000)

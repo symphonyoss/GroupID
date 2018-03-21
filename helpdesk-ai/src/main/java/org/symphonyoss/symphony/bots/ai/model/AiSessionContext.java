@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
 import org.symphonyoss.symphony.bots.ai.AiAction;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 
 /**
  * Class representing the context for a session in the Ai.<br>
@@ -11,11 +12,16 @@ import org.symphonyoss.symphony.bots.ai.AiAction;
  * Created by nick.tarsillo on 8/20/17.
  */
 public class AiSessionContext {
+
   private String sessionName;
+
   private AiSessionKey aiSessionKey;
+
   private AiCommandMenu aiCommandMenu;
+
   private AiAction lastCommand;
-  private AiMessage lastMessage;
+
+  private SymphonyAiMessage lastMessage;
 
   public AiSessionKey getAiSessionKey() {
     return aiSessionKey;
@@ -49,11 +55,11 @@ public class AiSessionContext {
     this.lastCommand = lastCommand;
   }
 
-  public AiMessage getLastMessage() {
+  public SymphonyAiMessage getLastMessage() {
     return lastMessage;
   }
 
-  public void setLastMessage(AiMessage lastMessage) {
+  public void setLastMessage(SymphonyAiMessage lastMessage) {
     this.lastMessage = lastMessage;
   }
 }

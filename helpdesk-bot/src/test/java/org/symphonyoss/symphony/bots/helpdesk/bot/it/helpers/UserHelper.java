@@ -2,7 +2,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers;
 
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.TempVariablesContext;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.exception.UserNotFoundException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.exception.UserNotAuthenticatedException;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -15,7 +15,7 @@ import org.symphonyoss.symphony.clients.model.SymUser;
 @Component
 public class UserHelper {
 
-  private final TestContext context = TestContext.getInstance();
+  private final TempVariablesContext context = TempVariablesContext.getInstance();
 
   private final SymphonyClient symphonyClient;
 

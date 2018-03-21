@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.helpdesk.bot.it;
+package org.symphonyoss.symphony.bots.helpdesk.bot.util;
 
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.model.Room;
@@ -11,9 +11,9 @@ import java.util.Map;
  * Created by crepache on 22/02/18.
  * Class to store the variables to use on any part of tests.
  */
-public class TestContext {
+public class TempVariablesContext {
 
-  private static final TestContext INSTANCE = new TestContext();
+  private static final TempVariablesContext INSTANCE = new TempVariablesContext();
 
   private Map<String, SymUser> users = new HashMap<>();
 
@@ -23,10 +23,10 @@ public class TestContext {
 
   private String certsDir;
 
-  private TestContext() {
+  private TempVariablesContext() {
   }
 
-  public static TestContext getInstance() {
+  public static TempVariablesContext getInstance() {
     return INSTANCE;
   }
 

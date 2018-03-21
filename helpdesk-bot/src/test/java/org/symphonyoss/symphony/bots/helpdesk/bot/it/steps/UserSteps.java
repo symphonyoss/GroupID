@@ -3,8 +3,8 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.it.steps;
 import org.jbehave.core.annotations.Given;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext;
-import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.CertificateUtils;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.TempVariablesContext;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.CertificateUtils;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.UserUtils;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
@@ -25,7 +25,9 @@ public class UserSteps {
 
   private static final String CA_CERT_PATH = "caCertPath";
 
-  private final TestContext context = TestContext.getInstance();
+  private final TempVariablesContext context = TempVariablesContext.getInstance();
+
+  private CertificateUtils certificateUtils = new CertificateUtils();
 
   @Given("a new user account $user with roles $roles")
   public void createEndUser(String user, List<String> roles) {
@@ -46,7 +48,7 @@ public class UserSteps {
     String caKeyPath = System.getProperty(CA_KEY_PATH);
     String caCertPath = System.getProperty(CA_CERT_PATH);
 
-    CertificateUtils.createUserCertificate(caKeyPath, caCertPath, username);
+    certificateUtils.createUserCertificate(caKeyPath, caCertPath, username);
   }
 
 }
