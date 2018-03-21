@@ -17,21 +17,21 @@ public class SymphonyAiMessage {
 
   private String aiMessage;
 
-  protected String entityData;
+  private String entityData;
 
-  protected String messageData;
+  private String messageData;
 
-  protected Long fromUserId;
+  private Long fromUserId;
 
-  protected String messageId;
+  private String messageId;
 
-  protected String streamId;
+  private String streamId;
 
-  protected String timestamp;
+  private String timestamp;
 
-  protected File attachment;
+  private File attachment;
 
-  protected List<SymAttachmentInfo> attachments;
+  private List<SymAttachmentInfo> attachments;
 
   public SymphonyAiMessage(String message) {
     this.aiMessage = message;
