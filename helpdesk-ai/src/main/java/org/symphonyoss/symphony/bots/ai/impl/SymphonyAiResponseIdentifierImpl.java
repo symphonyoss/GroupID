@@ -1,0 +1,32 @@
+package org.symphonyoss.symphony.bots.ai.impl;
+
+import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
+
+/**
+ * Created by nick.tarsillo on 8/23/17.
+ */
+public class SymphonyAiResponseIdentifierImpl implements AiResponseIdentifier {
+
+  private String name;
+
+  private String id;
+
+  public SymphonyAiResponseIdentifierImpl(String id) {
+    this.id = id;
+  }
+
+  public SymphonyAiResponseIdentifierImpl(String name, String id) {
+    this.name = name;
+    this.id = id;
+  }
+
+  @Override
+  public String getIdentityName() {
+    return name;
+  }
+
+  @Override
+  public String getResponseIdentifier() {
+    return id;
+  }
+}

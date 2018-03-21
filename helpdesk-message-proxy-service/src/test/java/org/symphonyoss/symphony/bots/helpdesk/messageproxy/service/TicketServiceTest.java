@@ -42,6 +42,8 @@ import java.util.List;
  * Created by nick.tarsillo on 12/14/17.
  */
 public class TicketServiceTest {
+  private static final String DEFAULT_COMPANY_NAME = "N/A";
+
   private static final String TEST_TICKET_ID = "TEST_TICKET_ID";
 
   private static final String TEST_SERVICE_STREAM_ID = "TEST_SERVICE_STREAM";
@@ -53,6 +55,9 @@ public class TicketServiceTest {
   private static final String TEST_CREATE_TICKET_MESSAGE = "TEST_CREATE";
 
   private static final String TEST_AGENT_STREAM = "TEST_AGENT_STREAM";
+
+  private static final String TEST_MESSAGE = "<div data-format=\"PresentationML\" "
+      + "data-version=\"2.0\">Hello World!</div>";
 
   private static final String CHIME_MESSAGE =
       "<div data-format=\"PresentationML\"data-version=\"2.0\"><audio src=\""
@@ -196,6 +201,22 @@ public class TicketServiceTest {
     Ticket ticket = ticketService.createTicket(TEST_TICKET_ID, testSym, serviceStream);
 
     assertEquals("Ticket return", mockTicket, ticket);
+  }
+
+  @Test
+  public void testSendTicketMessageWithNoCompany () throws UsersClientException, MessagesException {
+    getTestUser();
+
+    SymMessage testSym = getTestSymMessage();
+    testSym.setMessage(TEST_MESSAGE);
+
+    ticketService.sendTicketMessageToAgentStreamId(mock(Ticket.class), testSym);
+
+    ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
+    verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
+    SymMessage sentMessage = captor.getValue();
+
+    assertTrue(sentMessage.getEntityData().contains("\"company\":\"" + DEFAULT_COMPANY_NAME + "\""));
   }
 
   @Test

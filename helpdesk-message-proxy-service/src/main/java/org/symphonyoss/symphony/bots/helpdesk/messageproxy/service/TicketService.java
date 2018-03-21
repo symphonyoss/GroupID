@@ -34,7 +34,9 @@ public class TicketService {
   private static final String SERVICE_ROOM_WAS_NOT_CREATED =
       "There was a problem trying to create the service room. Please try again.";
 
-  private static final String DEFAULT_CLIENT_NAME = "Client";
+  private static final String DEFAULT_CLIENT_NAME = "N/A";
+
+  private static final String DEFAULT_COMPANY_NAME = "N/A";
 
   private static final String CHIME_MESSAGE = "%s sent a chime!";
 
@@ -139,7 +141,11 @@ public class TicketService {
       SymUser symUser = symphonyClient.getUsersClient().getUserFromId(message.getFromUserId());
       String username = symUser.getDisplayName();
       builder.username(username);
-      builder.company(symUser.getCompany());
+      if (!StringUtils.isEmpty(symUser.getCompany())) {
+        builder.company(symUser.getCompany());
+      } else {
+        builder.company(DEFAULT_COMPANY_NAME);
+      }
       builder.question(getQuestionFromMessage(message, username));
     } catch (UsersClientException e) {
       LOGGER.error("Could not get user info: ", e);

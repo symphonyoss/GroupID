@@ -23,3 +23,7 @@ spring:
   data:
     mongodb:
       port: 17017
+
+app-authentication:
+  api:
+    base-path: "/v1/application"

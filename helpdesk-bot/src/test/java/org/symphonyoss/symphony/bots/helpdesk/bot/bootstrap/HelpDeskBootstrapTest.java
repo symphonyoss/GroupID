@@ -11,11 +11,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.client.services.MessageService;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationService;
@@ -26,7 +28,10 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptL
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.HelpDeskRoomEventListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.provisioning.HelpDeskProvisioningService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.IdleMessageService;
+import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 
 /**
  * Created by rsanchez on 18/12/17.
@@ -77,6 +82,18 @@ public class HelpDeskBootstrapTest {
   private HelpDeskHttpClient httpClient;
 
   @Mock
+  private IdleTimerManager idleTimerManager;
+
+  @Mock
+  private TicketClient ticketClient;
+
+  @Mock
+  private IdleTicketConfig idleTicketConfig;
+
+  @Mock
+  private IdleMessageService idleMessageService;
+
+  @Mock
   private HelpDeskProvisioningService provisioningService;
 
   @Before
@@ -95,6 +112,10 @@ public class HelpDeskBootstrapTest {
     doReturn(provisioningService).when(applicationContext).getBean(HelpDeskProvisioningService.class);
 
     doReturn(messageService).when(symphonyClient).getMessageService();
+    doReturn(idleTimerManager).when(applicationContext).getBean(IdleTimerManager.class);
+    doReturn(ticketClient).when(applicationContext).getBean(TicketClient.class);
+    doReturn(idleTicketConfig).when(applicationContext).getBean(IdleTicketConfig.class);
+    doReturn(idleMessageService).when(applicationContext).getBean(IdleMessageService.class);
   }
 
   @Test

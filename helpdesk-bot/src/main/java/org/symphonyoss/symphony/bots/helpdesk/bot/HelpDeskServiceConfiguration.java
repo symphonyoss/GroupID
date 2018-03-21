@@ -5,9 +5,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import org.symphonyoss.client.SymphonyClient;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAiSession;
-import org.symphonyoss.symphony.bots.ai.config.HelpDeskAiConfig;
+import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSession;
+import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
+import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.filter.HelpDeskApiFilter;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
@@ -43,8 +44,8 @@ public class HelpDeskServiceConfiguration {
   }
 
   @Bean(name = "helpdeskAi")
-  public HelpDeskAi initHelpDeskAi(HelpDeskBotConfig configuration, MembershipClient membershipClient,
-      TicketClient ticketClient, SymphonyClient symphonyClient) {
+  public HelpDeskAi initHelpDeskAi(HelpDeskBotConfig configuration,
+      MembershipClient membershipClient, TicketClient ticketClient, SymphonyClient symphonyClient) {
     HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
     helpDeskAiSession.setMembershipClient(membershipClient);
     helpDeskAiSession.setTicketClient(ticketClient);
@@ -79,11 +80,12 @@ public class HelpDeskServiceConfiguration {
 
     AgentExternalCheck agentExternalCheck =
         new AgentExternalCheck(configuration.getHelpDeskBotUrl(),
-            configuration.getHelpDeskServiceUrl(), configuration.getGroupId(), ticketClient, symphonyClient, symphonyValidationUtil);
+            configuration.getHelpDeskServiceUrl(), configuration.getGroupId(), ticketClient,
+            symphonyClient, symphonyValidationUtil);
 
     agentMakerCheckerService.addCheck(agentExternalCheck);
 
-    return  agentMakerCheckerService;
+    return agentMakerCheckerService;
   }
 
   @Bean(name = "clientMakerCheckerService")
@@ -95,6 +97,11 @@ public class HelpDeskServiceConfiguration {
   @Bean(name = "validationUtil")
   public SymphonyValidationUtil getValidationUtil(SymphonyClient symphonyClient) {
     return new SymphonyValidationUtil(symphonyClient);
+  }
+
+  @Bean(name = "idleTimerManager", destroyMethod = "shutdown")
+  public IdleTimerManager getIdleTimerManager() {
+    return new IdleTimerManager();
   }
 
   /**

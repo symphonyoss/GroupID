@@ -7,8 +7,8 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
-import org.symphonyoss.symphony.bots.ai.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
@@ -110,7 +110,7 @@ public class AcceptTicketService extends TicketService {
             new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
 
     Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
-    responseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
+    responseIdentifierSet.add(new SymphonyAiResponseIdentifierImpl(ticket.getClientStreamId()));
 
     helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
   }
@@ -175,7 +175,7 @@ public class AcceptTicketService extends TicketService {
     SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
 
     Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
-    responseIdentifierSet.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+    responseIdentifierSet.add(new SymphonyAiResponseIdentifierImpl(symMessage.getStreamId()));
 
     helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
   }
