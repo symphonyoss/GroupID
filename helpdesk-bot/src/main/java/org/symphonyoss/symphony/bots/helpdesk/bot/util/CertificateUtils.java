@@ -46,6 +46,7 @@ import org.symphonyoss.symphony.pod.model.CompanyCertStatus;
 import org.symphonyoss.symphony.pod.model.CompanyCertType;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -300,7 +301,7 @@ public class CertificateUtils {
 
     Object keyInfo = parser.readObject();
     if (keyInfo instanceof PKCS8EncryptedPrivateKeyInfo) {
-      PKCS8EncryptedPrivateKeyInfo pair = (PKCS8EncryptedPrivateKeyInfo) parser.readObject();
+      PKCS8EncryptedPrivateKeyInfo pair = (PKCS8EncryptedPrivateKeyInfo) keyInfo;
       JceOpenSSLPKCS8DecryptorProviderBuilder jce = new JceOpenSSLPKCS8DecryptorProviderBuilder();
       InputDecryptorProvider decryptorProvider = jce.build(getP12FilePassword().toCharArray());
       return converter.getPrivateKey(pair.decryptPrivateKeyInfo(decryptorProvider));
