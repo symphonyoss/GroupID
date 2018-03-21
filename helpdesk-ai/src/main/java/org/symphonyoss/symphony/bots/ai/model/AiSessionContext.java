@@ -15,7 +15,7 @@ public class AiSessionContext {
 
   private String sessionName;
 
-  private AiSessionKey aiSessionKey;
+  private SymphonyAiSessionKey aiSessionKey;
 
   private AiCommandMenu aiCommandMenu;
 
@@ -23,11 +23,11 @@ public class AiSessionContext {
 
   private SymphonyAiMessage lastMessage;
 
-  public AiSessionKey getAiSessionKey() {
+  public SymphonyAiSessionKey getAiSessionKey() {
     return aiSessionKey;
   }
 
-  public void setAiSessionKey(AiSessionKey aiSessionKey) {
+  public void setAiSessionKey(SymphonyAiSessionKey aiSessionKey) {
     this.aiSessionKey = aiSessionKey;
   }
 
