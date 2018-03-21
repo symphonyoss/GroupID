@@ -17,7 +17,7 @@ public class EntityBuilder {
 
   private Map<String, Object> content = new LinkedHashMap<>();
 
-  private EntityBuilder() {
+  protected EntityBuilder() {
   }
 
   private EntityBuilder(String type, String version) {

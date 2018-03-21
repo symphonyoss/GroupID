@@ -25,6 +25,9 @@ public class SymphonyValidationUtilTest {
   private static final Long USER_ID = 123L;
   private static final String DISPLAY_NAME = "DISPLAY_NAME";
   private static final String STREAM_ID = "STREAM_ID";
+  private static final String INVALID = " is invalid.";
+  private static final Long INVALID_ID = 001L;
+  private static final String INVALID_STREAM_ID = "INVALID_STREAM_ID";
 
   @Mock
   private SymphonyClient symphonyClient;
@@ -40,27 +43,27 @@ public class SymphonyValidationUtilTest {
   @Before
   public void setUp() throws Exception {
     symphonyValidationUtil = new SymphonyValidationUtil(symphonyClient);
-
   }
 
   @Test
   public void validateUserId() throws UsersClientException {
-
     doReturn(usersClient).when(symphonyClient).getUsersClient();
     doReturn(getSymUser()).when(usersClient).getUserFromId(USER_ID);
     SymUser symUser = symphonyValidationUtil.validateUserId(USER_ID);
-
     assertNotNull(symUser);
-    assertEquals(getSymUser(),symUser);
-
+    assertEquals(getSymUser(), symUser);
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void validateUserIdThrowsException() throws UsersClientException {
-
     doReturn(usersClient).when(symphonyClient).getUsersClient();
-    doThrow(UsersClientException.class).when(usersClient).getUserFromId(null);
-    symphonyValidationUtil.validateUserId(null);
+    doThrow(UsersClientException.class).when(usersClient).getUserFromId(INVALID_ID);
+    try {
+      symphonyValidationUtil.validateUserId(INVALID_ID);
+      fail();
+    } catch (BadRequestException e) {
+      assertEquals("The user id " + INVALID_ID + INVALID, e.getMessage());
+    }
 
   }
 
@@ -76,12 +79,17 @@ public class SymphonyValidationUtilTest {
 
   }
 
-  @Test(expected = BadRequestException.class)
+  @Test
   public void validateStreamThrowsError() throws StreamsException {
     doReturn(streamsClient).when(symphonyClient).getStreamsClient();
-    doThrow(StreamsException.class).when(streamsClient).getStreamAttributes(STREAM_ID);
-    symphonyValidationUtil.validateStream(STREAM_ID);
+    doThrow(StreamsException.class).when(streamsClient).getStreamAttributes(INVALID_STREAM_ID);
 
+    try {
+      symphonyValidationUtil.validateStream(INVALID_STREAM_ID);
+      fail();
+    } catch (BadRequestException e) {
+      assertEquals("The stream " + INVALID_STREAM_ID + INVALID, e.getMessage());
+    }
   }
 
   private SymUser getSymUser() {
