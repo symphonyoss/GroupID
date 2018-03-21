@@ -126,8 +126,7 @@ public class CertificateUtils {
    * Adds BouncyCastle as a Security Provider.
    * Creates certificate directory and set it into the test context.
    */
-  @PostConstruct
-  public void init() {
+  public CertificateUtils() {
     Security.addProvider(new BouncyCastleProvider());
 
     if (StringUtils.isEmpty(certsDir)) {
