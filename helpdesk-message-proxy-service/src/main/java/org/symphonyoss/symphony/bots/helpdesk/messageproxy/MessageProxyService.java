@@ -16,12 +16,19 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by nick.tarsillo on 9/26/17.
  * The message proxy service handles the proxying of messages between clients and agents.
  */
 @Service
 public class MessageProxyService {
+
+  private final Set<String> clientConversations = new HashSet<>();
+
+  private final Set<String> agentConversations = new HashSet<>();
 
   private final HelpDeskAi helpDeskAi;
 
@@ -79,12 +86,12 @@ public class MessageProxyService {
       HelpDeskAiSessionContext aiSessionContext =
           (HelpDeskAiSessionContext) helpDeskAi.getSessionContext(aiSessionKey);
 
-      if (ticket != null && !idleTimerManager.containsKey(ticket.getId())) {
+      if (ticket != null && !agentConversations.contains(ticket.getId())) {
         createAgentProxy(ticket, aiSessionContext);
       } else if (ticket != null && aiConversation == null) {
         addAgentToProxy(ticket, aiSessionContext);
       }
-    } else if ((ticket != null) && (!idleTimerManager.containsKey(ticket.getId()))) {
+    } else if ((ticket != null) && (!clientConversations.contains(ticket.getId()))) {
       HelpDeskAiSessionContext aiSessionContext =
           (HelpDeskAiSessionContext) helpDeskAi.getSessionContext(aiSessionKey);
       createClientProxy(ticket, aiSessionContext);
@@ -112,6 +119,8 @@ public class MessageProxyService {
         idleMessageService.sendIdleMessage(ticket);
       }
     }));
+
+    agentConversations.add(ticket.getId());
   }
 
   /**
@@ -152,5 +161,7 @@ public class MessageProxyService {
         idleMessageService.sendIdleMessage(ticket);
       }
     }));
+
+    clientConversations.add(ticket.getId());
   }
 }
