@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -10,29 +9,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A Symphony version of an Ai message.
- * Allows the Ai to send and receive entity data and attachments.
+ * This class represents a message sent or received by the Ai.
  * <p>
  * Created by nick.tarsillo on 10/2/17.
  */
-public class SymphonyAiMessage extends AiMessage {
-  protected String entityData;
-  protected String messageData;
-  protected Long fromUserId;
-  protected String messageId;
-  protected String streamId;
-  protected String timestamp;
-  protected File attachment;
-  protected List<SymAttachmentInfo> attachments;
+public class SymphonyAiMessage {
+
+  private String aiMessage;
+
+  private String entityData;
+
+  private String messageData;
+
+  private Long fromUserId;
+
+  private String messageId;
+
+  private String streamId;
+
+  private String timestamp;
+
+  private File attachment;
+
+  private List<SymAttachmentInfo> attachments;
 
   public SymphonyAiMessage(String message) {
-    super(message);
+    this.aiMessage = message;
     this.entityData = "";
     this.attachments = new ArrayList<>();
   }
 
   public SymphonyAiMessage(SymMessage symMessage) {
-    super(symMessage.getMessageText());
+    this.aiMessage = symMessage.getMessageText();
     this.messageData = symMessage.getMessage();
     this.entityData = symMessage.getEntityData();
     this.attachments = symMessage.getAttachments();
@@ -41,6 +49,14 @@ public class SymphonyAiMessage extends AiMessage {
     this.streamId = symMessage.getStreamId();
     this.attachment = symMessage.getAttachment();
     this.fromUserId = symMessage.getFromUserId();
+  }
+
+  public String getAiMessage() {
+    return aiMessage;
+  }
+
+  public void setAiMessage(String aiMessage) {
+    this.aiMessage = aiMessage;
   }
 
   public File getAttachment() {
@@ -103,10 +119,10 @@ public class SymphonyAiMessage extends AiMessage {
     return messageData;
   }
 
+
   public void setMessageData(String messageData) {
     this.messageData = messageData;
   }
-
 
   public SymMessage toSymMessage() {
     SymMessage symMessage = new SymMessage();
@@ -173,5 +189,4 @@ public class SymphonyAiMessage extends AiMessage {
 
     return result;
   }
-
 }

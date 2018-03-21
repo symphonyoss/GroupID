@@ -19,6 +19,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.HelpDeskRoomEventListener;
+import org.symphonyoss.symphony.bots.helpdesk.bot.provisioning.HelpDeskProvisioningService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.IdleMessageService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
@@ -53,6 +54,12 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
    * @param applicationContext Spring Application context
    */
   public void execute(ApplicationContext applicationContext) {
+    FunctionExecutor<ApplicationContext, HelpDeskProvisioningService> functionProvisioning =
+        new FunctionExecutor<>();
+    functionProvisioning
+        .function(context -> executeProvisioning(context))
+        .onError(e -> LOGGER.error("Fail to execute provisioning process", e));
+
     FunctionExecutor<ApplicationContext, HelpDeskHttpClient> functionHttpClient = new FunctionExecutor<>();
     functionHttpClient
         .function(context -> setupHttpClient(context))
@@ -84,6 +91,7 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
         .onError(e -> LOGGER.error("Fail to initialize Idle Timer Manager", e));
 
     try {
+      functionProvisioning.executeBackoffExponential(applicationContext);
       functionHttpClient.executeBackoffExponential(applicationContext);
       SymAuth symAuth = functionAuth.executeBackoffExponential(applicationContext);
       functionClient.executeBackoffExponential(symAuth);
@@ -227,6 +235,18 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
     helpDeskBot.ready();
 
     LOGGER.info("Help Desk Bot startup complete for groupId: " + configuration.getGroupId());
+  }
+
+  /**
+   * Executes the provisioning process.
+   * @param applicationContext Spring application context
+   */
+  private HelpDeskProvisioningService executeProvisioning(ApplicationContext applicationContext) {
+    HelpDeskProvisioningService provisioningService = applicationContext.getBean(
+        HelpDeskProvisioningService.class);
+    provisioningService.execute();
+
+    return provisioningService;
   }
 
 }

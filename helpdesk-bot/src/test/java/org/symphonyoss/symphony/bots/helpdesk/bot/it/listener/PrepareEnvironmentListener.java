@@ -14,7 +14,8 @@ import org.symphonyoss.client.model.Room;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.UsersEnum;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.AuthenticationUtils;
-import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.CertificateUtils;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.TempVariablesContext;
+import org.symphonyoss.symphony.bots.helpdesk.bot.util.CertificateUtils;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.StreamUtils;
 import org.symphonyoss.symphony.bots.helpdesk.bot.it.utils.UserUtils;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -39,17 +40,17 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
   private static final String AGENT_STREAM_ID = "agentStreamId";
   private static final String GROUP_ID = "groupId";
 
-  private static final org.symphonyoss.symphony.bots.helpdesk.bot.it.TestContext CONTEXT = org
-      .symphonyoss.symphony.bots.helpdesk.bot.it.TestContext.getInstance();
+  private static final TempVariablesContext
+      CONTEXT = TempVariablesContext.getInstance();
 
+  private CertificateUtils certificateUtils = new CertificateUtils();
 
   @Override
   public void beforeTestClass(TestContext testContext) throws Exception {
     String caKeyPath = System.getProperty(CA_KEY_PATH);
     String caCertPath = System.getProperty(CA_CERT_PATH);
 
-    CertificateUtils.createCertsDir();
-    CertificateUtils.createUserCertificate(caKeyPath, caCertPath, USER_PROVISIONING);
+    certificateUtils.createUserCertificate(caKeyPath, caCertPath, USER_PROVISIONING);
 
     setGroupId();
 
@@ -105,7 +106,7 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
     String caCertPath = System.getProperty(CA_CERT_PATH);
 
     String botUsername = BOT_USER + UUID.randomUUID();
-    CertificateUtils.createUserCertificate(caKeyPath, caCertPath, botUsername);
+    certificateUtils.createUserCertificate(caKeyPath, caCertPath, botUsername);
 
     System.setProperty("BOT_USER", botUsername);
 
@@ -120,9 +121,9 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
     CONTEXT.setUsers(UsersEnum.AGENT2.name(), agent2);
     CONTEXT.setUsers(UsersEnum.AGENT3.name(), agent3);
 
-    CertificateUtils.createUserCertificate(caKeyPath, caCertPath, agent1.getUsername());
-    CertificateUtils.createUserCertificate(caKeyPath, caCertPath, agent2.getUsername());
-    CertificateUtils.createUserCertificate(caKeyPath, caCertPath, agent3.getUsername());
+    certificateUtils.createUserCertificate(caKeyPath, caCertPath, agent1.getUsername());
+    certificateUtils.createUserCertificate(caKeyPath, caCertPath, agent2.getUsername());
+    certificateUtils.createUserCertificate(caKeyPath, caCertPath, agent3.getUsername());
 
     StreamUtils streamUtils = new StreamUtils(symphonyClient);
     String streamId = queueRoom.getStreamId();

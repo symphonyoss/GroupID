@@ -3,19 +3,19 @@ package org.symphonyoss.symphony.bots.ai.helpdesk;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
-import org.symphonyoss.symphony.bots.ai.impl.AiEventListenerImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAi;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiCommandInterpreter;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiEventListenerImpl;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 
 /**
+ * An extension of the Symphony AI, that supports help desk functions.
+ * <p>
  * Created by nick.tarsillo on 9/28/17.
- * An extension of the Symphony Ai, that supports help desk functions.
  */
 public class HelpDeskAi extends SymphonyAi {
 
@@ -43,24 +43,23 @@ public class HelpDeskAi extends SymphonyAi {
     this.aiResponder =
         new HelpDeskAiResponder(symphonyClient, membershipClient);
     this.aiEventListener =
-        new AiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
+        new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
   }
 
   /**
    * Creates a new AiSessionContext
-   * @param aiSessionKey The key for the session
+   * @param sessionKey The key for the session
    * @return the HelpDeskAiSessionContext created
    */
   @Override
-  public AiSessionContext newAiSessionContext(AiSessionKey aiSessionKey) {
+  public AiSessionContext newAiSessionContext(SymphonyAiSessionKey sessionKey) {
     HelpDeskAiConfig config = helpDeskAiSession.getHelpDeskAiConfig();
 
     HelpDeskAiSessionContext sessionContext = new HelpDeskAiSessionContext();
     sessionContext.setHelpDeskAiSession(helpDeskAiSession);
-    sessionContext.setAiSessionKey(aiSessionKey);
+    sessionContext.setAiSessionKey(sessionKey);
     sessionContext.setGroupId(config.getGroupId());
 
-    SymphonyAiSessionKey sessionKey = (SymphonyAiSessionKey) aiSessionKey;
     Membership membership =
         helpDeskAiSession.getMembershipClient().getMembership(sessionKey.getUid());
 

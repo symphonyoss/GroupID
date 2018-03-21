@@ -2,10 +2,9 @@ package org.symphonyoss.symphony.bots.ai.helpdesk.conversation;
 
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
-import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -44,13 +43,11 @@ public class ProxyConversation extends AiConversation {
    * @param message the message received by the AI
    */
   @Override
-  public void onMessage(AiResponder responder, AiMessage message) {
-    SymphonyAiMessage symphonyAiMessage = (SymphonyAiMessage) message;
-
-    if(makerCheckerService.allChecksPass(symphonyAiMessage.toSymMessage())) {
-      dispatchMessage(responder, symphonyAiMessage);
+  public void onMessage(AiResponder responder, SymphonyAiMessage message) {
+    if(makerCheckerService.allChecksPass(message.toSymMessage())) {
+      dispatchMessage(responder, message);
     } else {
-      dispatchMakerCheckerMessage(symphonyAiMessage);
+      dispatchMakerCheckerMessage(message);
     }
 
     if (proxyIdleTimer != null) {
@@ -91,7 +88,7 @@ public class ProxyConversation extends AiConversation {
    * @param streamId the stream to proxy to.
    */
   public void addProxyId(String streamId) {
-    proxyToIds.add(new AiResponseIdentifierImpl(streamId));
+    proxyToIds.add(new SymphonyAiResponseIdentifierImpl(streamId));
   }
 
   public void setProxyIdleTimer(ProxyIdleTimer proxyIdleTimer) {

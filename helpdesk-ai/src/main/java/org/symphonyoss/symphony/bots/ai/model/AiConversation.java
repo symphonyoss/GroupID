@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
 import org.symphonyoss.symphony.bots.ai.AiResponder;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,10 +12,12 @@ import java.util.Set;
  * Created by nick.tarsillo on 8/27/17.
  */
 public abstract class AiConversation {
+
   protected AiSessionContext aiSessionContext;
-  protected Set<String> previousMessages = new HashSet<>();
+
   protected boolean allowCommands;
-  protected AiMessage lastMessage;
+
+  protected SymphonyAiMessage lastMessage;
 
   public AiConversation(boolean allowCommands) {
     this.allowCommands = allowCommands;
@@ -25,15 +28,7 @@ public abstract class AiConversation {
    * @param responder object used to respond the message
    * @param message the message itself
    */
-  public abstract void onMessage(AiResponder responder, AiMessage message);
-
-  /**
-   * Retrieve the previous messages in the conversation
-   * @return {@link Set<String> containing the previous conversations}
-   */
-  public Set<String> getPreviousMessages() {
-    return previousMessages;
-  }
+  public abstract void onMessage(AiResponder responder, SymphonyAiMessage message);
 
   /**
    * Check if this conversation allow commands
@@ -41,14 +36,6 @@ public abstract class AiConversation {
    */
   public boolean isAllowCommands() {
     return allowCommands;
-  }
-
-  /**
-   * Turn on/off the flag to accept commands in this conversation
-   * @param allowCommands true if this conversation can have command messages, false otherwise
-   */
-  public void setAllowCommands(boolean allowCommands) {
-    this.allowCommands = allowCommands;
   }
 
   /**
@@ -71,7 +58,7 @@ public abstract class AiConversation {
    * Retrieve the conversation last message
    * @return last message
    */
-  public AiMessage getLastMessage() {
+  public SymphonyAiMessage getLastMessage() {
     return lastMessage;
   }
 
@@ -79,7 +66,7 @@ public abstract class AiConversation {
    * Set this conversation last message
    * @param lastMessage last message
    */
-  public void setLastMessage(AiMessage lastMessage) {
+  public void setLastMessage(SymphonyAiMessage lastMessage) {
     this.lastMessage = lastMessage;
   }
 }

@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -196,7 +196,7 @@ public class V1HelpDeskController extends V1ApiController {
     checkerMessage.setTimeStamp(makerchecker.getTimeStamp());
     checkerMessage.setType(ATTACHMENT_TYPE);
 
-    AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(checkerId, makerchecker.getStreamId());
+    SymphonyAiSessionKey aiSessionKey = helpDeskAi.getSessionKey(checkerId, makerchecker.getStreamId());
 
     Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
 
@@ -204,7 +204,7 @@ public class V1HelpDeskController extends V1ApiController {
       SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
 
       Set<AiResponseIdentifier> identifiers = new HashSet<>();
-      identifiers.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+      identifiers.add(new SymphonyAiResponseIdentifierImpl(symMessage.getStreamId()));
 
       helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
 

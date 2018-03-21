@@ -1,0 +1,38 @@
+kind: Deployment
+apiVersion: extensions/v1beta1
+metadata:
+  name: helpdesk-api
+  namespace: default
+  labels:
+    run: helpdesk-api
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: helpdesk-api
+    spec:
+      containers:
+        - name: helpdesk-api
+          image: gcr.io/sym-dev-plat/helpdesk-api:<VERSION>
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: SERVER_PORT
+              value: '8080'
+            - name: MONGO_HOST
+              value: helpdesk-mongodb-service
+            - name: MONGO_PORT
+              value: '80'
+            - name: APP_AUTHENTICATION_ENABLED
+              value: 'false'
+            - name: APP_AUTHENTICATION_POD_HOST
+              value: nexus2-2.symphony.com
+            - name: APP_AUTHENTICATION_POD_PORT
+              value: '443'
+            - name: APP_AUTHENTICATION_SESSION_AUTH_HOST
+              value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com
+            - name: APP_AUTHENTICATION_SESSION_AUTH_PORT
+              value: '8444'

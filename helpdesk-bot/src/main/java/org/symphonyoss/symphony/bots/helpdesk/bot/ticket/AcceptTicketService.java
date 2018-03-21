@@ -8,9 +8,9 @@ import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.impl.AiResponseIdentifierImpl;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
@@ -105,12 +105,12 @@ public class AcceptTicketService extends TicketService {
    * @param agentId Agent user id
    */
   private void sendAcceptMessageToClient(Ticket ticket, Long agentId) {
-    AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
+    SymphonyAiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
     SymphonyAiMessage symphonyAiMessage =
             new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
 
     Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
-    responseIdentifierSet.add(new AiResponseIdentifierImpl(ticket.getClientStreamId()));
+    responseIdentifierSet.add(new SymphonyAiResponseIdentifierImpl(ticket.getClientStreamId()));
 
     helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
   }
@@ -171,11 +171,11 @@ public class AcceptTicketService extends TicketService {
   }
 
   private void sendMessage(SymMessage symMessage, Long agentId) {
-    AiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, symMessage.getStreamId());
+    SymphonyAiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, symMessage.getStreamId());
     SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
 
     Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
-    responseIdentifierSet.add(new AiResponseIdentifierImpl(symMessage.getStreamId()));
+    responseIdentifierSet.add(new SymphonyAiResponseIdentifierImpl(symMessage.getStreamId()));
 
     helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
   }

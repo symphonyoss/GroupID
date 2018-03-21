@@ -11,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.model.SymAuth;
@@ -25,6 +26,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskSymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.AutoConnectionAcceptListener;
 import org.symphonyoss.symphony.bots.helpdesk.bot.listener.HelpDeskRoomEventListener;
+import org.symphonyoss.symphony.bots.helpdesk.bot.provisioning.HelpDeskProvisioningService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.IdleMessageService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
@@ -91,6 +93,9 @@ public class HelpDeskBootstrapTest {
   @Mock
   private IdleMessageService idleMessageService;
 
+  @Mock
+  private HelpDeskProvisioningService provisioningService;
+
   @Before
   public void init() {
     doReturn(applicationContext).when(event).getApplicationContext();
@@ -104,6 +109,7 @@ public class HelpDeskBootstrapTest {
     doReturn(helpDeskBot).when(applicationContext).getBean(HelpDeskBot.class);
     doReturn(helpDeskAi).when(applicationContext).getBean(HelpDeskAi.class);
     doReturn(httpClient).when(applicationContext).getBean(HelpDeskHttpClient.class);
+    doReturn(provisioningService).when(applicationContext).getBean(HelpDeskProvisioningService.class);
 
     doReturn(messageService).when(symphonyClient).getMessageService();
     doReturn(idleTimerManager).when(applicationContext).getBean(IdleTimerManager.class);

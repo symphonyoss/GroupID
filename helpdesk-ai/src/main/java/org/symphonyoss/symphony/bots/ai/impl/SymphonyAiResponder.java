@@ -1,15 +1,17 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
+import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -20,10 +22,16 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Concrete implementation of {@link AiResponder}.
+ * <p>
  * Created by nick.tarsillo on 8/21/17.
  */
-public class SymphonyAiResponder extends AiResponderImpl {
+public class SymphonyAiResponder implements AiResponder {
+
   private static final Logger LOG = LoggerFactory.getLogger(SymphonyAiResponder.class);
+
+  protected Map<AiSessionContext, Set<AiResponse>> responseMap = new HashMap<>();
+
   private MessagesClient messagesClient;
 
   public SymphonyAiResponder(MessagesClient messagesClient) {
@@ -40,22 +48,13 @@ public class SymphonyAiResponder extends AiResponderImpl {
     for (AiResponse aiResponse : responseMap.get(sessionContext)) {
       for (AiResponseIdentifier responseIdentifier : aiResponse.getRespondTo()) {
         if (!response.containsKey(responseIdentifier)) {
-          if (aiResponse.getMessage() instanceof SymphonyAiMessage) {
-            response.put(responseIdentifier, (SymphonyAiMessage) aiResponse.getMessage());
-          } else {
-            response.put(responseIdentifier,
-                new SymphonyAiMessage(aiResponse.getMessage().getAiMessage()));
-          }
+          response.put(responseIdentifier, aiResponse.getMessage());
         } else {
           SymphonyAiMessage message = response.get(responseIdentifier);
           message.setAiMessage(message.getAiMessage() + aiResponse.getMessage());
 
-          if (aiResponse.getMessage() instanceof SymphonyAiMessage) {
-            message.setEntityData(message.getEntityData()
-                + ((SymphonyAiMessage) aiResponse.getMessage()).getEntityData());
-            message.getAttachments()
-                .addAll(((SymphonyAiMessage) aiResponse.getMessage()).getAttachments());
-          }
+          message.setEntityData(message.getEntityData() + (aiResponse.getMessage()).getEntityData());
+          message.getAttachments().addAll((aiResponse.getMessage()).getAttachments());
         }
       }
     }
@@ -66,6 +65,15 @@ public class SymphonyAiResponder extends AiResponderImpl {
     }
 
     responseMap.put(sessionContext, new HashSet<>());
+  }
+
+  @Override
+  public void addResponse(AiSessionContext sessionContext, AiResponse aiResponse) {
+    if (!responseMap.containsKey(sessionContext)) {
+      responseMap.put(sessionContext, new HashSet<>());
+    }
+
+    responseMap.get(sessionContext).add(aiResponse);
   }
 
   /**
@@ -94,7 +102,7 @@ public class SymphonyAiResponder extends AiResponderImpl {
    * @param sessionContext the session context to base the response on.
    */
   @Override
-  public void respondWithUseMenu(AiSessionContext sessionContext, AiMessage message) {
+  public void respondWithUseMenu(AiSessionContext sessionContext, SymphonyAiMessage message) {
     String response = "<body>" + String.format(AiConstants.NOT_COMMAND, message.getAiMessage()) +
         "<br/><hr/><b>" + AiConstants.MENU_TITLE + "</b><ul><li>" +
         sessionContext.getAiCommandMenu().toString().replace(
@@ -105,12 +113,12 @@ public class SymphonyAiResponder extends AiResponderImpl {
         (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
-    AiResponseIdentifierImpl aiResponseIdentifier =
-        new AiResponseIdentifierImpl(sessionContext.getSessionName(),
+    SymphonyAiResponseIdentifierImpl aiResponseIdentifier =
+        new SymphonyAiResponseIdentifierImpl(sessionContext.getSessionName(),
             symphonyAiSessionKey.getStreamId());
     responseIdentifiers.add(aiResponseIdentifier);
 
-    AiResponse aiResponse = new AiResponse(new AiMessage(response), responseIdentifiers);
+    AiResponse aiResponse = new AiResponse(new SymphonyAiMessage(response), responseIdentifiers);
     addResponse(sessionContext, aiResponse);
     respond(sessionContext);
   }
@@ -124,7 +132,7 @@ public class SymphonyAiResponder extends AiResponderImpl {
    */
   @Override
   public void respondWithSuggestion(AiSessionContext sessionContext,
-      AiCommandInterpreter aiCommandInterpreter, AiMessage command) {
+      AiCommandInterpreter aiCommandInterpreter, SymphonyAiMessage command) {
     SymphonyAiSessionKey symphonyAiSessionKey =
         (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
 
@@ -132,16 +140,40 @@ public class SymphonyAiResponder extends AiResponderImpl {
         getBestCommand(sessionContext, aiCommandInterpreter, command.getAiMessage());
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
-    AiResponseIdentifierImpl aiResponseIdentifier =
-        new AiResponseIdentifierImpl(sessionContext.getSessionName(),
+    SymphonyAiResponseIdentifierImpl aiResponseIdentifier =
+        new SymphonyAiResponseIdentifierImpl(sessionContext.getSessionName(),
             symphonyAiSessionKey.getStreamId());
     responseIdentifiers.add(aiResponseIdentifier);
 
     AiResponse aiResponse = new AiResponse(
-        new AiMessage(
+        new SymphonyAiMessage(
             AiConstants.SUGGEST + bestOption.getCommand() + "? (Type <b>/last</b> to run menu.)"),
         responseIdentifiers);
     addResponse(sessionContext, aiResponse);
     respond(sessionContext);
   }
+
+  /**
+   * Retrieve the best command option according to the given command text
+   * @param sessionContext current session context
+   * @param aiCommandInterpreter command interpreter
+   * @param command command text
+   * @return best selected option for the command
+   */
+  protected AiCommand getBestCommand(AiSessionContext sessionContext,
+      AiCommandInterpreter aiCommandInterpreter, String command) {
+    AiCommand bestOption = null;
+    int least = Integer.MAX_VALUE;
+    for (AiCommand aiCommand : sessionContext.getAiCommandMenu().getCommandSet()) {
+      int current = StringUtils.getLevenshteinDistance(
+          aiCommandInterpreter.readCommandWithoutArguments(aiCommand), command);
+      if (current < least) {
+        bestOption = aiCommand;
+        least = current;
+      }
+    }
+
+    return bestOption;
+  }
+
 }

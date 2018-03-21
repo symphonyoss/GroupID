@@ -47,4 +47,11 @@ public class ServiceInfo {
     }
   }
 
+  @Override
+  public String toString() {
+    return "ServiceInfo{" +
+        "host='" + host + '\'' +
+        ", port=" + port +
+        "}\n";
+  }
 }
