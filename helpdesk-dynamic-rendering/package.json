@@ -19,7 +19,8 @@
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "./src/test/webapp/__mocks__/fileMock.js",
       "\\.(css|less)$": "identity-obj-proxy"
     },
-    "coverageDirectory": "./target/coverage"
+    "coverageDirectory": "./target/coverage",
+    "testEnvironment": "jest-environment-jsdom-global"
   },
   "license": "Apache-2.0",
   "author": "Symphony",
