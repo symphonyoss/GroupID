@@ -64,10 +64,10 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
   public void onConversation(SymphonyAiMessage message, AiConversation aiConversation) {
     String prefix = aiConversation.getAiSessionContext().getAiCommandMenu().getCommandPrefix();
     SymphonyAiMessage lastMessage = aiConversation.getLastMessage();
+
     if ((!aiConversation.isAllowCommands() || !aiCommandInterpreter.hasPrefix(message, prefix)) &&
         (lastMessage == null || !lastMessage.equals(message))) {
       aiConversation.onMessage(aiResponder, message);
-      aiConversation.getPreviousMessages().add(message.getAiMessage());
       aiConversation.setLastMessage(message);
     }
   }

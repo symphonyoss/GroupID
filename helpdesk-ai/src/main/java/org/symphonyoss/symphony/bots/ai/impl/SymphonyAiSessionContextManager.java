@@ -15,6 +15,7 @@ import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
  * Created by nick.tarsillo on 8/20/17.
  */
 public class SymphonyAiSessionContextManager {
+
   private static final Logger LOG = LoggerFactory.getLogger(SymphonyAiSessionContextManager.class);
 
   protected LoadingCache<SymphonyAiSessionKey, AiSessionContext> sessionCache;

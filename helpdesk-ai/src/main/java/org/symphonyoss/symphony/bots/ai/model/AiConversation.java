@@ -15,8 +15,6 @@ public abstract class AiConversation {
 
   protected AiSessionContext aiSessionContext;
 
-  protected Set<String> previousMessages = new HashSet<>();
-
   protected boolean allowCommands;
 
   protected SymphonyAiMessage lastMessage;
@@ -33,27 +31,11 @@ public abstract class AiConversation {
   public abstract void onMessage(AiResponder responder, SymphonyAiMessage message);
 
   /**
-   * Retrieve the previous messages in the conversation
-   * @return {@link Set<String> containing the previous conversations}
-   */
-  public Set<String> getPreviousMessages() {
-    return previousMessages;
-  }
-
-  /**
    * Check if this conversation allow commands
    * @return true if the conversation allows commands, false otherwise
    */
   public boolean isAllowCommands() {
     return allowCommands;
-  }
-
-  /**
-   * Turn on/off the flag to accept commands in this conversation
-   * @param allowCommands true if this conversation can have command messages, false otherwise
-   */
-  public void setAllowCommands(boolean allowCommands) {
-    this.allowCommands = allowCommands;
   }
 
   /**

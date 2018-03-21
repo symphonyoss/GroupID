@@ -1,6 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
-import org.symphonyoss.symphony.bots.ai.AiAction;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 
 /**
@@ -13,15 +12,11 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
  */
 public class AiSessionContext {
 
-  private String sessionName;
-
   private SymphonyAiSessionKey aiSessionKey;
 
   private AiCommandMenu aiCommandMenu;
 
-  private AiAction lastCommand;
-
-  private SymphonyAiMessage lastMessage;
+  private String lastMessageId;
 
   public SymphonyAiSessionKey getAiSessionKey() {
     return aiSessionKey;
@@ -40,26 +35,14 @@ public class AiSessionContext {
   }
 
   public String getSessionName() {
-    return sessionName;
+    return aiSessionKey.getSessionKey();
   }
 
-  public void setSessionName(String sessionName) {
-    this.sessionName = sessionName;
+  public String getLastMessageId() {
+    return lastMessageId;
   }
 
-  public AiAction getLastCommand() {
-    return lastCommand;
-  }
-
-  public void setLastCommand(AiAction lastCommand) {
-    this.lastCommand = lastCommand;
-  }
-
-  public SymphonyAiMessage getLastMessage() {
-    return lastMessage;
-  }
-
-  public void setLastMessage(SymphonyAiMessage lastMessage) {
-    this.lastMessage = lastMessage;
+  public void setLastMessageId(String lastMessageId) {
+    this.lastMessageId = lastMessageId;
   }
 }

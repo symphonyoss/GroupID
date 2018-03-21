@@ -58,9 +58,9 @@ public class SymphonyAi implements Ai {
     AiSessionContext sessionContext =  getSessionContext(aiSessionKey);
     AiConversation aiConversation = aiConversationManager.getConversation(sessionContext);
 
-    if(sessionContext.getLastMessage() == null || !sessionContext.getLastMessage().equals(message)) {
-      if ((aiConversation == null || aiConversation.isAllowCommands()) &&
-          sessionContext.getAiCommandMenu() != null) {
+    if (isNewMessage(message, sessionContext)) {
+
+      if (allowCommands(aiConversation, sessionContext)) {
         aiEventListener.onCommand(message, sessionContext);
       }
 
@@ -68,8 +68,17 @@ public class SymphonyAi implements Ai {
         aiEventListener.onConversation(message, aiConversation);
       }
 
-      sessionContext.setLastMessage(message);
+      sessionContext.setLastMessageId(message.getMessageId());
     }
+  }
+
+  private boolean isNewMessage(SymphonyAiMessage message, AiSessionContext sessionContext) {
+    return !message.getMessageId().equals(sessionContext.getLastMessageId());
+  }
+
+  private boolean allowCommands(AiConversation aiConversation, AiSessionContext sessionContext) {
+    return sessionContext.getAiCommandMenu() != null && (aiConversation == null
+        || aiConversation.isAllowCommands());
   }
 
   @Override
