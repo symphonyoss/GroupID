@@ -14,7 +14,6 @@ import org.symphonyoss.client.exceptions.StreamsException;
 import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.symphony.clients.StreamsClient;
 import org.symphonyoss.symphony.clients.UsersClient;
-import org.symphonyoss.symphony.clients.impl.UsersClientImpl;
 import org.symphonyoss.symphony.clients.model.SymStreamAttributes;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
@@ -69,8 +68,19 @@ public class SymphonyValidationUtilTest {
   public void validateStream() throws StreamsException {
 
     doReturn(streamsClient).when(symphonyClient).getStreamsClient();
-    doReturn(streamAttributes()).when(streamsClient).getStreamAttributes(STREAM_ID);
+    doReturn(getStream()).when(streamsClient).getStreamAttributes(STREAM_ID);
     SymStreamAttributes streamAttributes = symphonyValidationUtil.validateStream(STREAM_ID);
+
+    assertNotNull(streamAttributes);
+    assertEquals(getStream().getId(), streamAttributes.getId());
+
+  }
+
+  @Test(expected = BadRequestException.class)
+  public void validateStreamThrowsError() throws StreamsException {
+    doReturn(streamsClient).when(symphonyClient).getStreamsClient();
+    doThrow(StreamsException.class).when(streamsClient).getStreamAttributes(STREAM_ID);
+    symphonyValidationUtil.validateStream(STREAM_ID);
 
   }
 
@@ -81,9 +91,10 @@ public class SymphonyValidationUtilTest {
     return user;
   }
 
-  private SymStreamAttributes streamAttributes() {
+  private SymStreamAttributes getStream() {
     SymStreamAttributes attributes = new SymStreamAttributes();
     attributes.setId(STREAM_ID);
-    return attributes
+    return attributes;
+
   }
 }
