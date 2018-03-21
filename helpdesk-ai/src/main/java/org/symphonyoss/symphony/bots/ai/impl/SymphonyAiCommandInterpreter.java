@@ -3,9 +3,11 @@ package org.symphonyoss.symphony.bots.ai.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
+import org.symphonyoss.symphony.bots.ai.common.AiConstants;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
+import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
@@ -18,13 +20,24 @@ import java.util.Set;
  * <p>
  * Created by nick.tarsillo on 11/21/17.
  */
-public class SymphonyAiCommandInterpreter extends AiCommandInterpreterImpl {
+public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
+
   private static final ObjectMapper objectMapper = new ObjectMapper();
+
+  private static final String PATTERN_ARGUMENT_START = "\\{";
+
+  private static final String PATTERN_ARGUMENT_END = "\\}";
+
   private static final String MENTION = "@";
+
   private static final String MENTION_START = "mention";
+
   private static final String MENTION_ENTITY_START = "<span class=\"entity\"";
+
   private static final String MENTION_ENTITY_END = "</span>";
+
   private static final String USER_ID = "id";
+
   private static final String VALUE = "value";
 
   private SymUser aiSymUser;
@@ -34,30 +47,121 @@ public class SymphonyAiCommandInterpreter extends AiCommandInterpreterImpl {
   }
 
   @Override
-  public boolean isCommand(AiCommand aiCommand, AiMessage command, String commandPrefix) {
-    AiMessage aiMessage = parseMentions(command);
+  public boolean isCommand(AiCommand aiCommand, SymphonyAiMessage command, String commandPrefix) {
+    SymphonyAiMessage aiMessage = parseMentions(command);
+    String prefixNormalized = parsePrefix(commandPrefix);
 
-    return super.isCommand(aiCommand, aiMessage, parsePrefix(commandPrefix));
+    String commandNormalized = aiMessage.getAiMessage().toLowerCase();
+    String aiCommandNormalized = aiCommand.getCommand().toLowerCase();
+
+    String potentialCommand = commandNormalized.substring(prefixNormalized.length()).trim();
+
+    if (StringUtils.isEmpty(potentialCommand)) {
+      return false;
+    }
+
+    String actualCommand = aiCommandNormalized.split(" ")[0];
+    String[] commandAndArgs = potentialCommand.split(" ");
+
+    ArgumentType[] argumentTypes = aiCommand.getArgumentTypes();
+
+    if ((argumentTypes != null) && (commandAndArgs.length <= aiCommand.getArgumentTypes().length)) {
+      return false;
+    }
+
+    return checkCommand(aiCommand, commandAndArgs, actualCommand);
+  }
+
+  private boolean checkCommand(AiCommand command, String[] potentialCommand, String actualCommand) {
+    ArgumentType[] argumentTypes = command.getArgumentTypes();
+
+    if ((argumentTypes == null) || (argumentTypes.length == 0)) {
+      return actualCommand.equals(potentialCommand[0]);
+    }
+
+    return actualCommand.equals(potentialCommand[0]) && checkArguments(command, potentialCommand);
+  }
+
+  private boolean checkArguments(AiCommand command, String[] potentialCommand) {
+    for (int i = 0; i < command.getArgumentTypes().length; i++) {
+      int argumentIndex = i + 1;
+      if (argumentIndex <= potentialCommand.length - 1) {
+        String commandArg = potentialCommand[argumentIndex];
+
+        if (!isValidArgument(command, commandArg, i)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  private boolean isValidArgument(AiCommand command, String commandArg, int index) {
+    return isArgumentType(command.getArgumentTypes()[index], commandArg);
+  }
+
+  private boolean isArgumentType(ArgumentType argumentType, String argVal) {
+    return argumentType.checkArgument(argVal);
   }
 
   @Override
-  public AiArgumentMap readCommandArguments(AiCommand aiCommand, AiMessage command,
+  public boolean hasPrefix(SymphonyAiMessage command, String commandPrefix) {
+    SymphonyAiMessage aiMessage = parseMentions(command);
+    String prefixNormalized = parsePrefix(commandPrefix);
+
+    return StringUtils.isNotBlank(commandPrefix) && aiMessage.getAiMessage()
+        .startsWith(prefixNormalized);
+  }
+
+  @Override
+  public AiArgumentMap readCommandArguments(AiCommand aiCommand, SymphonyAiMessage command,
       String commandPrefix) {
-    AiMessage aiMessage = parseMentions(command);
+    SymphonyAiMessage aiMessage = parseMentions(command);
+    String prefixNormalized = parsePrefix(commandPrefix);
 
-    return super.readCommandArguments(aiCommand, aiMessage, parsePrefix(commandPrefix));
+    AiArgumentMap aiArgumentMap = new AiArgumentMap();
+
+    String potentialCommand = aiMessage.getAiMessage().substring(prefixNormalized.length()).trim();
+
+    String[] actualCommand = aiCommand.getCommand().toLowerCase().split(" ");
+    String[] commandAndArgs = potentialCommand.split(" ");
+
+    ArgumentType[] argumentTypes = aiCommand.getArgumentTypes();
+
+    if ((argumentTypes == null) || (argumentTypes.length == 0)) {
+      return aiArgumentMap;
+    }
+
+    for (int i = 0; i < argumentTypes.length; i++) {
+      int index = i + 1;
+      String argName = actualCommand[index].replaceAll(PATTERN_ARGUMENT_START, StringUtils.EMPTY)
+          .replaceAll(PATTERN_ARGUMENT_END, StringUtils.EMPTY);
+      String commandArg = commandAndArgs[index];
+
+      aiArgumentMap.addArgument(argName, commandArg);
+    }
+
+    return aiArgumentMap;
   }
 
   @Override
-  public boolean hasPrefix(AiMessage command, String commandPrefix) {
-    AiMessage aiMessage = parseMentions(command);
+  public String readCommandWithoutArguments(AiCommand aiCommand) {
+    String[] actualCommand = aiCommand.getCommand().split(" ");
+    String command = aiCommand.getCommand();
 
-    return super.hasPrefix(aiMessage, parsePrefix(commandPrefix));
+    for (String potentialArg : actualCommand) {
+      if (potentialArg.contains(AiConstants.ARGUMENT_START_CHAR) &&
+          potentialArg.contains(AiConstants.ARGUMENT_END_CHAR)) {
+        command = command.replace(potentialArg, "");
+      }
+    }
+
+    return command.trim();
   }
 
-  private AiMessage parseMentions(AiMessage command) {
+  private SymphonyAiMessage parseMentions(SymphonyAiMessage aiMessage) {
     try {
-      SymphonyAiMessage aiMessage = (SymphonyAiMessage) command;
       if (StringUtils.isNotBlank(aiMessage.getEntityData())) {
         JsonNode jsonNode = objectMapper.readTree(aiMessage.getEntityData());
         Set<String> uids = new HashSet<>();
@@ -93,7 +197,7 @@ public class SymphonyAiCommandInterpreter extends AiCommandInterpreterImpl {
       e.printStackTrace();
     }
 
-    return command;
+    return aiMessage;
   }
 
   private String parsePrefix(String commandPrefix) {

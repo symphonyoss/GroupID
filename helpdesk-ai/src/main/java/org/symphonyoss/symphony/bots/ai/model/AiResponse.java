@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
+import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 
 import java.util.Set;
 
@@ -10,7 +11,8 @@ import java.util.Set;
  * Created by nick.tarsillo on 8/20/17.
  */
 public class AiResponse {
-  private AiMessage message;
+
+  private SymphonyAiMessage message;
   private Set<AiResponseIdentifier> respondTo;
 
   /**
@@ -19,12 +21,12 @@ public class AiResponse {
    * @param message the message text
    * @param respondTo who should receive the message
    */
-  public AiResponse(AiMessage message, Set<AiResponseIdentifier> respondTo) {
+  public AiResponse(SymphonyAiMessage message, Set<AiResponseIdentifier> respondTo) {
     this.message = message;
     this.respondTo = respondTo;
   }
 
-  public AiMessage getMessage() {
+  public SymphonyAiMessage getMessage() {
     return message;
   }
 

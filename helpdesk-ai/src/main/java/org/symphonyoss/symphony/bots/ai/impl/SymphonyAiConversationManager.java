@@ -1,19 +1,21 @@
-package org.symphonyoss.symphony.bots.ai.model;
+package org.symphonyoss.symphony.bots.ai.impl;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
+import org.symphonyoss.symphony.bots.ai.model.AiConversation;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 
 /**
  * Manages all current Ai conversations.
  * <p>
  * Created by nick.tarsillo on 8/27/17.
  */
-public class AiConversationManager {
+public class SymphonyAiConversationManager {
   private LoadingCache<AiSessionContext, AiConversation> conversationCache;
 
-  public AiConversationManager() {
+  public SymphonyAiConversationManager() {
     conversationCache = CacheBuilder.newBuilder()
         .concurrencyLevel(4)
         .maximumSize(10000)
