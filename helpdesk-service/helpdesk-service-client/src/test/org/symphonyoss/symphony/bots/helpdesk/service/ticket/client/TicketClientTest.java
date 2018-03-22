@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,8 +19,6 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.TicketSearchResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class TicketClientTest {
 
@@ -29,10 +28,10 @@ public class TicketClientTest {
   private static final Long USER_ID = 123L;
   private static final String DISPLAY_NAME = "DISPLAY_NAME";
   private static final String CONVERSATION_ID = "CONVERSATION_ID";
-  private String MOCK_SERVICE_STREAM_ID = "MOCK_SERVICE_STREAM_ID";
-  private final String groupId = "GROUP_ID";
+  private static final String MOCK_SERVICE_STREAM_ID = "MOCK_SERVICE_STREAM_ID";
+  private static final String GROUP_ID = "GROUP_ID";
 
-  private final String TICKET_SERVICE_URL = "https://localhost/helpdesk-service";
+  private static final String TICKET_SERVICE_URL = "https://localhost/helpdesk-service";
 
   @Mock
   private ApiClient apiClient;
@@ -43,29 +42,34 @@ public class TicketClientTest {
   @Before
   public void setUp() throws Exception {
     Configuration.setDefaultApiClient(apiClient);
-    ticketClient = new TicketClient(groupId, TICKET_SERVICE_URL);
+    ticketClient = new TicketClient(GROUP_ID, TICKET_SERVICE_URL);
   }
 
   @Test
   public void getTicket() throws ApiException {
     doReturn(TICKET_ID).when(apiClient).escapeString(TICKET_ID);
     doReturn(getMockTicket()).when(apiClient)
-        .invokeAPI(any(), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/ticket/TICKET_ID"), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
     Ticket ticket = ticketClient.getTicket(TICKET_ID);
     assertNotNull(ticket);
     assertEquals(getMockTicket(), ticket);
   }
 
-  @Test(expected = HelpDeskApiException.class)
+  @Test
   public void getTicketWithError() {
-    ticketClient.getTicket(null);
+    try {
+      ticketClient.getTicket(null);
+      fail();
+    } catch (HelpDeskApiException e) {
+      assertEquals("Get ticket failed: " + null, e.getMessage());
+    }
   }
 
   @Test
   public void createTicket() throws ApiException {
 
     doReturn(getMockTicket()).when(apiClient)
-        .invokeAPI(any(), eq("POST"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/ticket"), eq("POST"), any(), any(), any(), any(), any(), any(), any(), any());
     Ticket createdTicket =
         ticketClient.createTicket(TICKET_ID, MOCK_CLIENT_STREAM_ID, MOCK_SERVICE_STREAM_ID,
             TIMESTAMP, mockClient(), Boolean.FALSE, CONVERSATION_ID);
@@ -75,12 +79,25 @@ public class TicketClientTest {
   }
 
   @Test
+  public void createTicketFail() throws ApiException {
+    doThrow(ApiException.class).when(apiClient)
+        .invokeAPI(eq("/v1/ticket"), eq("POST"), any(), any(), any(), any(), any(), any(), any(), any());
+    try {
+      ticketClient.createTicket(TICKET_ID, MOCK_CLIENT_STREAM_ID, MOCK_SERVICE_STREAM_ID,
+          TIMESTAMP, mockClient(), Boolean.FALSE, CONVERSATION_ID);
+      fail();
+    } catch (HelpDeskApiException e) {
+      assertEquals("Creating ticket failed: " + TICKET_ID, e.getMessage());
+    }
+  }
+
+  @Test
   public void getTicketByServiceStreamId() throws ApiException {
     TicketSearchResponse response = getTicketSearchResponse();
 
     doReturn(response)
         .when(apiClient)
-        .invokeAPI(any(), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/ticket/search"), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
 
     Ticket ticket = ticketClient.getTicketByServiceStreamId(MOCK_SERVICE_STREAM_ID);
 
@@ -92,11 +109,25 @@ public class TicketClientTest {
   public void getNoTicketByServiceStreamId() throws ApiException {
     doReturn(null)
         .when(apiClient)
-        .invokeAPI(any(), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/ticket/search"), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
 
     Ticket ticket = ticketClient.getTicketByServiceStreamId(MOCK_SERVICE_STREAM_ID);
 
-    assertEquals(ticket,null);
+    assertNull(ticket);
+  }
+
+  @Test
+  public void getTicketByServiceStreamIdFail() throws ApiException {
+    doThrow(ApiException.class)
+        .when(apiClient)
+        .invokeAPI(eq("/v1/ticket/search"), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
+
+    try {
+      ticketClient.getTicketByServiceStreamId(MOCK_SERVICE_STREAM_ID);
+      fail();
+    } catch (HelpDeskApiException e) {
+      assertEquals("Failed to search for room: " + MOCK_SERVICE_STREAM_ID, e.getMessage());
+    }
   }
 
   @Test
@@ -105,7 +136,7 @@ public class TicketClientTest {
 
     doReturn(response)
         .when(apiClient)
-        .invokeAPI(any(), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/ticket/search"), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
 
      Ticket ticket =  ticketClient.getUnresolvedTicketByClientStreamId(MOCK_CLIENT_STREAM_ID);
 
@@ -114,7 +145,7 @@ public class TicketClientTest {
   }
 
   @Test
-  public void getNOTUnresolvedTicketByClientStreamId() throws ApiException {
+  public void getNotUnresolvedTicketByClientStreamId() throws ApiException {
     Ticket ticket = getMockTicket();
     ticket.setState(TicketClient.TicketStateType.RESOLVED.getState());
 
@@ -123,11 +154,25 @@ public class TicketClientTest {
 
     doReturn(response)
         .when(apiClient)
-        .invokeAPI(any(), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/ticket/search"), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
 
     ticket =  ticketClient.getUnresolvedTicketByClientStreamId(MOCK_CLIENT_STREAM_ID);
 
-    assertEquals(null,ticket);
+    assertNull(ticket);
+  }
+
+  @Test
+  public void getUnresolvedTicketByServiceStreamIdFail() throws ApiException {
+    doThrow(ApiException.class)
+        .when(apiClient)
+        .invokeAPI(eq("/v1/ticket/search"), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
+
+    try {
+      ticketClient.getUnresolvedTicketByClientStreamId(MOCK_CLIENT_STREAM_ID);
+      fail();
+    } catch (HelpDeskApiException e) {
+      assertEquals("Failed to search for room: " + MOCK_CLIENT_STREAM_ID, e.getMessage());
+    }
   }
 
   @Test
@@ -138,19 +183,22 @@ public class TicketClientTest {
     doReturn(TICKET_ID).when(apiClient).escapeString(TICKET_ID);
 
     doReturn(ticket).when(apiClient)
-        .invokeAPI(any(), eq("PUT"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/ticket/TICKET_ID"), eq("PUT"), any(), any(), any(), any(), any(), any(), any(), any());
 
     Ticket updatedTicket = ticketClient.updateTicket(ticket);
 
     assertNotNull(updatedTicket);
-    assertFalse(getMockTicket().equals(updatedTicket));
+    assertNotEquals(getMockTicket().getState(),updatedTicket.getState());
   }
 
-  @Test(expected = HelpDeskApiException.class)
+  @Test
   public void updateTicketWithError() {
-    Ticket ticket = getMockTicket();
-    ticket.setId(null);
-    ticketClient.updateTicket(ticket);
+    try {
+      ticketClient.updateTicket(new Ticket());
+      fail();
+    } catch (HelpDeskApiException e) {
+      assertEquals("Updating ticket failed: " + null, e.getMessage());
+    }
   }
 
   private Ticket getMockTicket() {
