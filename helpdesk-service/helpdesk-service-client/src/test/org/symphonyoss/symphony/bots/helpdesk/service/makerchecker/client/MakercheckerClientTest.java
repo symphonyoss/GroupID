@@ -6,6 +6,7 @@ import static junit.framework.TestCase.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -77,7 +78,8 @@ public class MakercheckerClientTest {
   public void createMakerchecker() throws ApiException {
 
     doReturn(makercheckerMock()).when(apiClient)
-        .invokeAPI(any(), eq("POST"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/makerchecker"), eq("POST"), any(), any(), any(), any(), any(), any(),
+            any(), any());
 
     Makerchecker makerchecker =
         makercheckerClient.createMakerchecker(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID,
@@ -88,15 +90,30 @@ public class MakercheckerClientTest {
   }
 
   @Test
+  public void createMakerCheckerFail() throws ApiException {
+    doThrow(ApiException.class).when(apiClient)
+        .invokeAPI(eq("/v1/makerchecker"), eq("POST"), any(), any(), any(), any(), any(), any(),
+            any(), any());
+
+    try {
+      makercheckerClient.createMakerchecker(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID,
+          MOCK_SERVICE_STREAM_ID, ATTACHMENT_ID, ATTACHMENT_NAME, MESSAGE_ID, TIMESTAMP, null);
+      fail();
+    } catch (HelpDeskApiException e) {
+      assertEquals("Creating makerchecker failed: " + MOCK_MAKERCHECKER_ID, e.getMessage());
+    }
+  }
+
+  @Test
   public void updateMakerchecker() throws ApiException {
 
-    doReturn(MOCK_MAKERCHECKER_ID).when(apiClient).escapeString(any());
+    doReturn(MOCK_MAKERCHECKER_ID).when(apiClient).escapeString(MOCK_MAKERCHECKER_ID);
 
     Makerchecker makerchecker = makercheckerMock();
     makerchecker.setChecker(null);
 
     doReturn(makerchecker).when(apiClient)
-        .invokeAPI(any(), eq("PUT"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/makerchecker/MOCK_MAKERCHECKER_ID"), eq("PUT"), any(), any(), any(), any(), any(), any(), any(), any());
 
     Makerchecker updatedMakerchecker = makercheckerClient.updateMakerchecker(makerchecker);
 
@@ -105,11 +122,15 @@ public class MakercheckerClientTest {
 
   }
 
-  @Test(expected = HelpDeskApiException.class)
+  @Test
   public void updateMakercheckerWithError() throws ApiException {
 
-    Makerchecker updatedMakerchecker = makercheckerClient.updateMakerchecker(new Makerchecker());
-
+    try {
+      makercheckerClient.updateMakerchecker(new Makerchecker());
+      fail();
+    } catch(HelpDeskApiException e) {
+      assertEquals("Missing the required parameter 'id' when calling updateMakerchecker", e.getCause().getMessage());
+    }
   }
 
   private Makerchecker makercheckerMock() {
