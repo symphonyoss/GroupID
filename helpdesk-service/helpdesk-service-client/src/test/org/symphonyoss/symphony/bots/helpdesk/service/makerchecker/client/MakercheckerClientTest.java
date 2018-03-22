@@ -2,6 +2,7 @@ package org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -31,9 +32,9 @@ public class MakercheckerClientTest {
   private static final String MESSAGE_ID = "MESSAGE_ID";
   private static final Long TIMESTAMP = 1L;
 
-  private final String groupId = "GROUP_ID";
+  private static final String GROUP_ID = "GROUP_ID";
 
-  private final String TICKET_SERVICE_URL = "https://localhost/helpdesk-service";
+  private static final String TICKET_SERVICE_URL = "https://localhost/helpdesk-service";
 
   @Mock
   private ApiClient apiClient;
@@ -43,28 +44,33 @@ public class MakercheckerClientTest {
   @Before
   public void setUp() throws Exception {
     Configuration.setDefaultApiClient(apiClient);
-    makercheckerClient = new MakercheckerClient(groupId, TICKET_SERVICE_URL);
+    makercheckerClient = new MakercheckerClient(GROUP_ID, TICKET_SERVICE_URL);
   }
 
   @Test
   public void getMakerchecker() throws ApiException {
     doReturn(makercheckerMock()).when(apiClient)
-        .invokeAPI(any(), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/makerchecker/MOCK_MAKERCHECKER_ID"), eq("GET"), any(), any(), any(),
+            any(), any(), any(), any(), any());
 
-    doReturn(MOCK_MAKERCHECKER_ID).when(apiClient).escapeString(any());
+    doReturn(MOCK_MAKERCHECKER_ID).when(apiClient).escapeString(MOCK_MAKERCHECKER_ID);
 
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(groupId);
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(MOCK_MAKERCHECKER_ID);
 
     assertNotNull(makerchecker);
     assertEquals(makercheckerMock(), makerchecker);
 
   }
 
-  @Test(expected = HelpDeskApiException.class)
+  @Test
   public void getMakercheckerWithNullId() throws ApiException {
-
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(null);
-
+    try {
+      makercheckerClient.getMakerchecker(null);
+      fail();
+    } catch (HelpDeskApiException e) {
+      assertEquals("Missing the required parameter 'id' when calling getMakerchecker",
+          e.getCause().getMessage());
+    }
   }
 
   @Test
@@ -89,12 +95,13 @@ public class MakercheckerClientTest {
     Makerchecker makerchecker = makercheckerMock();
     makerchecker.setChecker(null);
 
-    doReturn(makerchecker).when(apiClient).invokeAPI(any(),eq("PUT"),any(),any(),any(),any(),any(),any(),any(),any());
+    doReturn(makerchecker).when(apiClient)
+        .invokeAPI(any(), eq("PUT"), any(), any(), any(), any(), any(), any(), any(), any());
 
     Makerchecker updatedMakerchecker = makercheckerClient.updateMakerchecker(makerchecker);
 
     assertNotNull(updatedMakerchecker);
-    assertEquals(makerchecker,updatedMakerchecker);
+    assertEquals(makerchecker, updatedMakerchecker);
 
   }
 
