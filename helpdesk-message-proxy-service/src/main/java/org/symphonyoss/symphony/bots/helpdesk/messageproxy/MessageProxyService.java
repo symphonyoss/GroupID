@@ -8,7 +8,7 @@ import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyConversation;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
@@ -72,7 +72,7 @@ public class MessageProxyService {
     Long userId = symMessage.getFromUserId();
     String streamId = symMessage.getStreamId();
 
-    AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(userId, streamId);
+    SymphonyAiSessionKey aiSessionKey = helpDeskAi.getSessionKey(userId, streamId);
 
     if (MembershipClient.MembershipType.AGENT.name().equals(membership.getType())) {
       AiConversation aiConversation = helpDeskAi.getConversation(aiSessionKey);

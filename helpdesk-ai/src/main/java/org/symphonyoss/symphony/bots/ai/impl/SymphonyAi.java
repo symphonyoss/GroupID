@@ -9,7 +9,7 @@ import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.Set;
@@ -39,7 +39,7 @@ public class SymphonyAi implements Ai {
   }
 
   public void onMessage(SymMessage symMessage) {
-    AiSessionKey aiSessionKey = getSessionKey(symMessage.getFromUserId(), symMessage.getStreamId());
+    SymphonyAiSessionKey aiSessionKey = getSessionKey(symMessage.getFromUserId(), symMessage.getStreamId());
     onAiMessage(aiSessionKey, new SymphonyAiMessage(symMessage));
   }
 
@@ -54,13 +54,13 @@ public class SymphonyAi implements Ai {
    * @param message The received message
    */
   @Override
-  public void onAiMessage(AiSessionKey aiSessionKey, SymphonyAiMessage message) {
+  public void onAiMessage(SymphonyAiSessionKey aiSessionKey, SymphonyAiMessage message) {
     AiSessionContext sessionContext =  getSessionContext(aiSessionKey);
     AiConversation aiConversation = aiConversationManager.getConversation(sessionContext);
 
-    if(sessionContext.getLastMessage() == null || !sessionContext.getLastMessage().equals(message)) {
-      if ((aiConversation == null || aiConversation.isAllowCommands()) &&
-          sessionContext.getAiCommandMenu() != null) {
+    if (isNewMessage(message, sessionContext)) {
+
+      if (allowCommands(aiConversation, sessionContext)) {
         aiEventListener.onCommand(message, sessionContext);
       }
 
@@ -68,12 +68,21 @@ public class SymphonyAi implements Ai {
         aiEventListener.onConversation(message, aiConversation);
       }
 
-      sessionContext.setLastMessage(message);
+      sessionContext.setLastMessageId(message.getMessageId());
     }
   }
 
+  private boolean isNewMessage(SymphonyAiMessage message, AiSessionContext sessionContext) {
+    return !message.getMessageId().equals(sessionContext.getLastMessageId());
+  }
+
+  private boolean allowCommands(AiConversation aiConversation, AiSessionContext sessionContext) {
+    return sessionContext.getAiCommandMenu() != null && (aiConversation == null
+        || aiConversation.isAllowCommands());
+  }
+
   @Override
-  public void startConversation(AiSessionKey aiSessionKey, AiConversation aiConversation) {
+  public void startConversation(SymphonyAiSessionKey aiSessionKey, AiConversation aiConversation) {
     AiSessionContext aiSessionContext = getSessionContext(aiSessionKey);
     aiConversation.setAiSessionContext(aiSessionContext);
 
@@ -86,7 +95,7 @@ public class SymphonyAi implements Ai {
    * @return The conversation in the given session context, if it exists
    */
   @Override
-  public AiConversation getConversation(AiSessionKey aiSessionKey) {
+  public AiConversation getConversation(SymphonyAiSessionKey aiSessionKey) {
     AiSessionContext aiSessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
     return aiConversationManager.getConversation(aiSessionContext);
   }
@@ -96,19 +105,20 @@ public class SymphonyAi implements Ai {
    * @param aiSessionKey a session context key
    */
   @Override
-  public void endConversation(AiSessionKey aiSessionKey) {
+  public void endConversation(SymphonyAiSessionKey aiSessionKey) {
     AiSessionContext aiSessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
     aiConversationManager.removeConversation(aiSessionContext);
   }
 
   /**
-   * Sends the given message to the session context with the given {@link AiSessionKey session key}
+   * Sends the given message to the session context with the given {@link SymphonyAiSessionKey session key}
    * @param aiMessage message to send
    * @param responseIdentifierSet set with the ids to where the message should be sent
    * @param aiSessionKey a session context key
    */
   @Override
-  public void sendMessage(SymphonyAiMessage aiMessage, Set<AiResponseIdentifier> responseIdentifierSet, AiSessionKey aiSessionKey) {
+  public void sendMessage(SymphonyAiMessage aiMessage,
+      Set<AiResponseIdentifier> responseIdentifierSet, SymphonyAiSessionKey aiSessionKey) {
     AiSessionContext aiSessionContext = getSessionContext(aiSessionKey);
 
     AiResponse aiResponse = new AiResponse(aiMessage, responseIdentifierSet);
@@ -117,12 +127,12 @@ public class SymphonyAi implements Ai {
   }
 
   /**
-   * Retrieve the session context with the given {@link AiSessionKey session key}
+   * Retrieve the session context with the given {@link SymphonyAiSessionKey session key}
    * @param aiSessionKey a session context key
    * @return session context with the given key
    */
   @Override
-  public AiSessionContext getSessionContext(AiSessionKey aiSessionKey) {
+  public AiSessionContext getSessionContext(SymphonyAiSessionKey aiSessionKey) {
     AiSessionContext sessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
 
     if(sessionContext == null) {
@@ -134,7 +144,7 @@ public class SymphonyAi implements Ai {
   }
 
   @Override
-  public AiSessionContext newAiSessionContext(AiSessionKey aiSessionKey) {
+  public AiSessionContext newAiSessionContext(SymphonyAiSessionKey aiSessionKey) {
     AiSessionContext aiSessionContext = new AiSessionContext();
     aiSessionContext.setAiSessionKey(aiSessionKey);
 
@@ -142,12 +152,12 @@ public class SymphonyAi implements Ai {
   }
 
   /**
-   * Retrieve a new {@link AiSessionKey AI session key} using the userId and streamId as the key
+   * Retrieve a new {@link SymphonyAiSessionKey AI session key} using the userId and streamId as the key
    * @param userId user id used to build the session key
    * @param streamId stream id used to build the session key
-   * @return a new instance of a {@link AiSessionKey AI session key}
+   * @return a new instance of a {@link SymphonyAiSessionKey AI session key}
    */
-  public AiSessionKey getSessionKey(Long userId, String streamId) {
+  public SymphonyAiSessionKey getSessionKey(Long userId, String streamId) {
     return new SymphonyAiSessionKey(userId + ":" + streamId, userId, streamId);
   }
 

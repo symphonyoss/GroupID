@@ -11,7 +11,7 @@ import org.symphonyoss.symphony.bots.ai.helpdesk.common.HelpDeskAiConstants;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;

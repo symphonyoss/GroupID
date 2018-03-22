@@ -1,5 +1,6 @@
 mongo:
   host: sym-nexus1-dev-chat-glb-3-ause1-all.symphony.com
+  ignoreSSL: false
 
 groupId: testgroup
 authentication:
