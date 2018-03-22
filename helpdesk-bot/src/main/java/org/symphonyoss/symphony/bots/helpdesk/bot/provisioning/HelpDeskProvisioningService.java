@@ -7,6 +7,7 @@ import org.glassfish.jersey.internal.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskPublicApiClient;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.ProvisioningConfig;
@@ -22,6 +23,7 @@ import java.security.cert.X509Certificate;
  * Created by campidelli on 3/9/18.
  */
 @Service
+@Lazy
 public class HelpDeskProvisioningService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HelpDeskProvisioningService.class);

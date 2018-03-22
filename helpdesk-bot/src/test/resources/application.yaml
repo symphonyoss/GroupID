@@ -36,3 +36,9 @@ addMemberClientSuccessResponse: "Your membership to the help desk has been updat
 welcomeMessage: "Thanks for contacting the Equity Team at JPM. All messages sent in this chat will be delivered to the JPM Equity Team."
 noAgentsMessage: "There are no available agents to attend your ticket right now. Please wait for a moment while we connect you to a new agent."
 serviceRoomWasNotCreated: "There was a problem trying to create the service room. Please try again."
+
+provisioning:
+  execute: false
+  generate-ca: false
+  service-account:
+    generate-p12: false

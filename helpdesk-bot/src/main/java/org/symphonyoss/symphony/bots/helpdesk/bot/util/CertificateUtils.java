@@ -40,6 +40,7 @@ import org.bouncycastle.pkcs.PKCSException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.pod.model.CompanyCert;
 import org.symphonyoss.symphony.pod.model.CompanyCertAttributes;
@@ -71,12 +72,15 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
+import javax.annotation.PostConstruct;
+
 /**
  * Utility class to deal with certificate stuff.
  *
  * Created by crepache on 01/03/18.
  */
 @Component
+@Lazy
 public class CertificateUtils {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CertificateUtils.class);
