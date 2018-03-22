@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -73,23 +74,16 @@ public class MessageProxyServiceTest {
 
     messageProxyService.onMessage(getMembershipAgent(), getTicket(), getTestSymMessage());
 
-    verify(idleTimerManager, times(1)).put(any(),any());
+    verify(idleTimerManager, times(1)).put(eq(MOCK_TICKET_ID), any());
   }
 
   @Test
   public void onMessageAddAgentToProxy() {
-    SymphonyAiSessionKey aiSessionKey = new SymphonyAiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
-    doReturn(aiSessionKey).when(helpDeskAi).getSessionKey(USER_ID,STREAM_ID);
-
-    HelpDeskAiSessionContext helpDeskAiSessionContext = new HelpDeskAiSessionContext();
-    doReturn(helpDeskAiSessionContext).when(helpDeskAi).getSessionContext(aiSessionKey);
-
-    doReturn(true).when(idleTimerManager).containsKey(any());
+    onMessageCreateAgentProxy();
 
     messageProxyService.onMessage(getMembershipAgent(), getTicket(), getTestSymMessage());
 
-    verify(idleTimerManager, never()).put(any(),any());
-    verify(idleTimerManager, times(1)).get(any());
+    verify(idleTimerManager, times(1)).get(MOCK_TICKET_ID);
   }
 
   @Test
@@ -103,12 +97,23 @@ public class MessageProxyServiceTest {
     HelpDeskAiSessionContext helpDeskAiSessionContext = new HelpDeskAiSessionContext();
     doReturn(helpDeskAiSessionContext).when(helpDeskAi).getSessionContext(aiSessionKey);
 
-    doReturn(false).when(idleTimerManager).containsKey(any());
+    messageProxyService.onMessage(membership, getTicket(), getTestSymMessage());
+
+    verify(idleTimerManager, never()).get(MOCK_TICKET_ID);
+    verify(idleTimerManager, times(1)).put(eq(MOCK_TICKET_ID), any());
+  }
+
+  @Test
+  public void onMessageCreateClientProxyTicketAlreadyExists() {
+    onMessageCreateClientProxy();
+
+    Membership membership = getMembershipAgent();
+    membership.setType(MembershipClient.MembershipType.CLIENT.getType());
 
     messageProxyService.onMessage(membership, getTicket(), getTestSymMessage());
 
-    verify(idleTimerManager, never()).get(any());
-    verify(idleTimerManager, times(1)).put(any(),any());
+    verify(idleTimerManager, never()).get(MOCK_TICKET_ID);
+    verify(idleTimerManager, times(1)).put(eq(MOCK_TICKET_ID), any());
   }
 
   private Membership getMembershipAgent() {
