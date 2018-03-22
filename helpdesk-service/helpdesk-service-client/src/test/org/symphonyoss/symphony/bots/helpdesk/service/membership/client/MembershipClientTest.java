@@ -119,6 +119,7 @@ public class MembershipClientTest {
 
     try {
       membershipClient.updateMembership(new Membership());
+      fail();
     } catch (HelpDeskApiException e) {
       assertEquals("Could not update membership", e.getMessage());
     }
