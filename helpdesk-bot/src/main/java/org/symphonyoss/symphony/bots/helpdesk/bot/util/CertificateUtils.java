@@ -275,7 +275,7 @@ public class CertificateUtils {
     attributes.setName(certName);
 
     CompanyCertType certType = new CompanyCertType();
-    certType.setType(CompanyCertType.TypeEnum.USER);
+    certType.setType(CompanyCertType.TypeEnum.USERSIGNING);
     attributes.setType(certType);
 
     CompanyCertStatus status = new CompanyCertStatus();

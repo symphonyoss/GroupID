@@ -22,14 +22,20 @@ public class ProvisioningConfig {
   @Value("${provisioning.user.password}")
   private String userPassword;
 
-  @Value("${provisioning.generate-ca}")
+  @Value("${provisioning.ca.generate-keystore}")
   private boolean generateCACert;
+
+  @Value("${provisioning.ca.overwrite}")
+  private boolean overwriteCACert;
 
   @Value("${provisioning.service-account.name}")
   private String serviceAccountUserName;
 
-  @Value("${provisioning.service-account.generate-p12}")
-  private boolean generateServiceAccountP12;
+  @Value("${provisioning.service-account.generate-keystore}")
+  private boolean generateServiceAccountKeystore;
+
+  @Value("${provisioning.service-account.overwrite}")
+  private boolean overwriteServiceAccountKeystore;
 
   public String getUserName() {
     return userName;
@@ -63,6 +69,14 @@ public class ProvisioningConfig {
     this.generateCACert = generateCACert;
   }
 
+  public boolean isOverwriteCACert() {
+    return overwriteCACert;
+  }
+
+  public void setOverwriteCACert(boolean overwriteCACert) {
+    this.overwriteCACert = overwriteCACert;
+  }
+
   public String getServiceAccountUserName() {
     return serviceAccountUserName;
   }
@@ -71,11 +85,19 @@ public class ProvisioningConfig {
     this.serviceAccountUserName = serviceAccountUserName;
   }
 
-  public boolean isGenerateServiceAccountP12() {
-    return generateServiceAccountP12;
+  public boolean isGenerateServiceAccountKeystore() {
+    return generateServiceAccountKeystore;
   }
 
-  public void setGenerateServiceAccountP12(boolean generateServiceAccountP12) {
-    this.generateServiceAccountP12 = generateServiceAccountP12;
+  public void setGenerateServiceAccountKeystore(boolean generateServiceAccountKeystore) {
+    this.generateServiceAccountKeystore = generateServiceAccountKeystore;
+  }
+
+  public boolean isOverwriteServiceAccountKeystore() {
+    return overwriteServiceAccountKeystore;
+  }
+
+  public void setOverwriteServiceAccountKeystore(boolean overwriteServiceAccountKeystore) {
+    this.overwriteServiceAccountKeystore = overwriteServiceAccountKeystore;
   }
 }

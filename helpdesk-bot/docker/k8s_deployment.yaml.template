@@ -62,11 +62,15 @@ spec:
               value: adrian1
             - name: PROVISIONING_USER_PASSWORD
               value: Symphony!123456
-            - name: PROVISIONING_GENERATE_CA
+            - name: PROVISIONING_CA_GENERATE_KEYSTORE
+              value: 'true'
+            - name: PROVISIONING_CA_OVERWRITE
               value: 'true'
             - name: PROVISIONING_SERVICE_ACCOUNT_NAME
               value: zezao
-            - name: PROVISIONING_SERVICE_ACCOUNT_GENERATE_P12
+            - name: PROVISIONING_SERVICE_ACCOUNT_GENERATE_KEYSTORE
+              value: 'true'
+            - name: PROVISIONING_SERVICE_ACCOUNT_OVERWRITE
               value: 'true'
             - name: CERTS_DIR
               value: /opt/symphony/helpdesk-bot/certs

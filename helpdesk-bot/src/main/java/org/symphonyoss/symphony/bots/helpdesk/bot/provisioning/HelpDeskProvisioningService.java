@@ -32,6 +32,8 @@ public class HelpDeskProvisioningService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HelpDeskProvisioningService.class);
 
+  private static final String SELF_SIGNED_CERT_NAME = "helpdesk-root";
+
   private final ProvisioningConfig config;
 
   private final HelpDeskPublicApiClient publicApiClient;
@@ -79,6 +81,14 @@ public class HelpDeskProvisioningService {
 
   private void generateRootCertificate() {
     if (config.isGenerateCACert()) {
+      String certificatePath = certificateUtils.getSelfSignedRootCertificatePath();
+      File certFile = new File(certificatePath);
+
+      if (certFile.exists() && !config.isOverwriteCACert()) {
+        LOGGER.info("Self Signed CA ROOT certificate already exists.");
+        return;
+      }
+
       LOGGER.info("Generating a Self signed CA ROOT certificate.");
       CompanyCert cert = getSelfSignedCertificate();
       if (cert != null) {
@@ -92,13 +102,21 @@ public class HelpDeskProvisioningService {
   }
 
   private void generateServiceAccount() {
-    if (config.isGenerateServiceAccountP12()) {
+    if (config.isGenerateServiceAccountKeystore()) {
       LOGGER.info("Generating p12 file for a service account.");
+
       String serviceAccountUserName = config.getServiceAccountUserName();
       String caCertPath = certificateUtils.getSelfSignedRootCertificatePath();
       String caKeyPath = certificateUtils.getSelfSignedRootKeyPath();
 
       if (keystoreFilePath != null) {
+        File certFile = new File(keystoreFilePath.getPath());
+
+        if (certFile.exists() && !config.isOverwriteServiceAccountKeystore()) {
+          LOGGER.info("P12 file for service account already exists.");
+          return;
+        }
+
         certificateUtils.createUserCertificate(caKeyPath, caCertPath, keystorePassword,
             serviceAccountUserName, keystoreFilePath, keystorePassword);
       } else {
@@ -112,10 +130,9 @@ public class HelpDeskProvisioningService {
   private CompanyCert getSelfSignedCertificate() {
     X509Certificate certificate = certificateUtils.createSelfSignedRootCertificate();
     String pem = certificateUtils.getPemAsString(certificate);
-    String fileName = certificateUtils.getSelfSignedRootCertificatePath();
-    File file = new File(fileName);
-    return certificateUtils.buildCompanyCertificate(
-        file.getName(), pem, CompanyCertStatus.TypeEnum.TRUSTED);
+
+    return certificateUtils.buildCompanyCertificate(SELF_SIGNED_CERT_NAME, pem,
+        CompanyCertStatus.TypeEnum.TRUSTED);
   }
 
   private String login() {
