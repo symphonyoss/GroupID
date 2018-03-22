@@ -4,9 +4,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskPublicApiClient;
@@ -15,6 +15,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.util.CertificateUtils;
 import org.symphonyoss.symphony.pod.model.CompanyCert;
 import org.symphonyoss.symphony.pod.model.CompanyCertStatus;
 
+import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 
 /**
@@ -51,8 +52,12 @@ public class HelpDeskProvisioningServiceTest {
   @Mock
   CompanyCert companyCert;
 
-  @InjectMocks
-  private HelpDeskProvisioningService service = new HelpDeskProvisioningService();
+  private HelpDeskProvisioningService service;
+
+  @Before
+  public void init() throws URISyntaxException {
+    this.service = new HelpDeskProvisioningService(config, publicApiClient, certificateUtils, "", "");
+  }
 
   @Test
   public void testExecute() {

@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.config;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
 
@@ -9,6 +10,7 @@ import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
  * Created by campidelli on 3/16/18.
  */
 @Component
+@Lazy
 public class ProvisioningConfig {
 
   @Value("${provisioning.execute}")

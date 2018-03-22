@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ import java.util.List;
  * Created by campidelli on 03/12/17.
  */
 @Service
+@Lazy
 public class HelpDeskPublicApiClient {
 
   private static final String GET_SALT_ENDPOINT = "login/salt?userName=%s";
