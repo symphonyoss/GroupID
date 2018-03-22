@@ -68,7 +68,7 @@ public class MakercheckerClient {
     try {
       return makercheckerApi.createMakerchecker(makerchecker);
     } catch (ApiException e) {
-      throw new HelpDeskApiException("Creating ticket failed: " + id, e);
+      throw new HelpDeskApiException("Creating makerchecker failed: " + id, e);
     }
   }
 
