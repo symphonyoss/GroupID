@@ -21,3 +21,4 @@ helpdesk-service/helpdesk-service-server/application.yaml
 *.log
 *.pid
 application-custom.yaml
+scripts/local-run/**/*.jar
