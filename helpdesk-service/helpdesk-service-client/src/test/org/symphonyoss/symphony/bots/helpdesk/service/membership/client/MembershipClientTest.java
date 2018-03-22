@@ -1,12 +1,13 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.membership.client;
 
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
+import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,9 +25,9 @@ public class MembershipClientTest {
 
   private static final Long USER_ID = 123L;
   private static final Long NOVO_ID = 345L;
-  private final String groupId = "GROUP_ID";
+  private static final String GROUP_ID = "GROUP_ID";
 
-  private final String TICKET_SERVICE_URL = "https://localhost/helpdesk-service";
+  private static final String TICKET_SERVICE_URL = "https://localhost/helpdesk-service";
 
   @Mock
   private ApiClient apiClient;
@@ -36,17 +37,18 @@ public class MembershipClientTest {
   @Before
   public void setUp() throws Exception {
     Configuration.setDefaultApiClient(apiClient);
-    membershipClient = new MembershipClient(groupId, TICKET_SERVICE_URL);
+    membershipClient = new MembershipClient(GROUP_ID, TICKET_SERVICE_URL);
   }
 
   @Test
   public void getMembership() throws ApiException {
 
-    doReturn(groupId).when(apiClient).escapeString(groupId);
+    doReturn(GROUP_ID).when(apiClient).escapeString(GROUP_ID);
     doReturn(USER_ID.toString()).when(apiClient).escapeString(USER_ID.toString());
 
     doReturn(getMembership("agent")).when(apiClient)
-        .invokeAPI(any(), eq("GET"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/membership/GROUP_ID/123"), eq("GET"), any(), any(), any(), any(), any(),
+            any(), any(), any());
 
     Membership membership = membershipClient.getMembership(USER_ID);
 
@@ -54,17 +56,23 @@ public class MembershipClientTest {
     assertEquals(getMembership("agent"), membership);
   }
 
-  @Test(expected = HelpDeskApiException.class)
+  @Test
   public void getMembershipWithError() throws ApiException {
 
-    membershipClient.getMembership(null);
+    try {
+      membershipClient.getMembership(null);
+      fail();
+    } catch (HelpDeskApiException e) {
+      assertEquals("Failed to get membership: " + null, e.getMessage());
+    }
 
   }
 
   @Test
   public void newMembership() throws ApiException {
     doReturn(getMembership("client")).when(apiClient)
-        .invokeAPI(any(), eq("POST"), any(), any(), any(), any(), any(), any(), any(), any());
+        .invokeAPI(eq("/v1/membership"), eq("POST"), any(), any(), any(), any(), any(), any(),
+            any(), any());
 
     Membership membership =
         membershipClient.newMembership(USER_ID, MembershipClient.MembershipType.CLIENT);
@@ -73,29 +81,47 @@ public class MembershipClientTest {
   }
 
   @Test
+  public void newMembershipFail() throws ApiException {
+    doThrow(ApiException.class).when(apiClient)
+        .invokeAPI(eq("/v1/membership"), eq("POST"), any(), any(), any(), any(), any(), any(),
+            any(), any());
+
+    try {
+      membershipClient.newMembership(USER_ID, MembershipClient.MembershipType.CLIENT);
+      fail();
+    } catch (HelpDeskApiException e) {
+      assertEquals("Failed to create new membership for user: " + USER_ID,
+          e.getMessage());
+    }
+
+  }
+
+  @Test
   public void updateMembership() throws ApiException {
 
-    doReturn(groupId).when(apiClient).escapeString(groupId);
+    doReturn(GROUP_ID).when(apiClient).escapeString(GROUP_ID);
     doReturn(NOVO_ID.toString()).when(apiClient).escapeString(NOVO_ID.toString());
 
     Membership membership = getMembership("agent");
     membership.setId(NOVO_ID);
 
-    doReturn(membership).when(apiClient).invokeAPI(any(),eq("PUT"),any(),any(),any(),any(),any(),any(),any(),any());
+    doReturn(membership).when(apiClient)
+        .invokeAPI(eq("/v1/membership/GROUP_ID/345"), eq("PUT"), any(), any(), any(), any(), any(),
+            any(), any(), any());
     Membership updatedMembership = membershipClient.updateMembership(membership);
 
     assertNotNull(updatedMembership);
-    assertFalse(updatedMembership.equals(getMembership("agent")));
+    assertNotEquals(getMembership("agent").getId(), updatedMembership.getId());
   }
 
-  @Test(expected = HelpDeskApiException.class)
+  @Test
   public void updateMembershipWithError() throws ApiException {
 
-
-    Membership membership = getMembership("agent");
-    membership.setId(null);
-
-    membershipClient.updateMembership(membership);
+    try {
+      membershipClient.updateMembership(new Membership());
+    } catch (HelpDeskApiException e) {
+      assertEquals("Could not update membership", e.getMessage());
+    }
   }
 
   private Membership getMembership(String type) {
@@ -105,7 +131,7 @@ public class MembershipClientTest {
     } else {
       membership.setType(MembershipClient.MembershipType.CLIENT.getType());
     }
-    membership.setGroupId(groupId);
+    membership.setGroupId(GROUP_ID);
     membership.setId(USER_ID);
 
     return membership;
