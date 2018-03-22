@@ -21,48 +21,40 @@ public class EntityBuilderTest {
   private static final String TYPE = "TYPE";
   private static final String VERSION = "VERSION";
 
-  private EntityBuilder entityBuilder;
-
-  @Before
-  public void setUp() throws Exception {
-    entityBuilder = new EntityBuilder();
-  }
-
   @Test
   public void createEntity() {
-    EntityBuilder entity = entityBuilder.createEntity();
+    EntityBuilder entity = EntityBuilder.createEntity();
     Map<String, Object> object = entity.toObject();
     assertTrue(object.isEmpty());
-    assertEquals(0, object.size());
   }
 
   @Test
   public void createEntityWithValues() {
-    EntityBuilder builder = entityBuilder.createEntity(TYPE,VERSION);
+    EntityBuilder builder = EntityBuilder.createEntity();
     Map<String, Object> object = builder.toObject();
-    assertNotNull(object.get("type"));
-    assertNotNull(object.get("version"));
-    assertEquals(2, object.size());
+    assertEquals(null,object.get("type"));
+    assertEquals(null, object.get("version"));
   }
 
   @Test
   public void addField() {
-    EntityBuilder builder = entityBuilder.addField(FIELD, FIELD);
+    EntityBuilder builder = EntityBuilder.createEntity();
+    builder.addField(FIELD, FIELD);
     Map<String, Object> object = builder.toObject();
-    assertNotNull(object.get(FIELD));
+    assertEquals(FIELD,object.get(FIELD));
     assertEquals(1, object.size());
   }
 
   @Test
   public void toObject() {
-    EntityBuilder builder = entityBuilder.createEntity(TYPE,VERSION);
+    EntityBuilder builder = EntityBuilder.createEntity(TYPE,VERSION);
     Map<String, Object> object = builder.toObject();
     assertEquals(2, object.size());
   }
 
   @Test
   public void build() throws JsonProcessingException {
-    EntityBuilder builder = entityBuilder.createEntity(TYPE,VERSION);
+    EntityBuilder builder = EntityBuilder.createEntity(TYPE,VERSION);
     builder.addField(FIELD,FIELD);
 
     String result = builder.build();

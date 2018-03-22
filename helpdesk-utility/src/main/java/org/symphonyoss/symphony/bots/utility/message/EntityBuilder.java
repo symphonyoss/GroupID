@@ -11,13 +11,13 @@ import java.util.Map;
  * <p>
  * Created by rsanchez on 12/01/17.
  */
-public class  EntityBuilder {
+public class EntityBuilder {
 
   private static final ObjectMapper MAPPER = new ObjectMapper();
 
   private Map<String, Object> content = new LinkedHashMap<>();
 
-  protected EntityBuilder() {
+  private EntityBuilder() {
   }
 
   private EntityBuilder(String type, String version) {

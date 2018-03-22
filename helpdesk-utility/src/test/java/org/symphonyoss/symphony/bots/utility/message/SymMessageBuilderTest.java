@@ -5,7 +5,6 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -16,7 +15,7 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public class SymMessageBuilderTest {
 
-  private static final String NEW_MESSAGE = "NEW_MESSAGE";
+  private static final String MESSAGE = "MESSAGE";
   private static final String ATTACHMENT_ID = "ATTACHMENT_ID";
   private static final String NAME = "NAME";
 
@@ -29,12 +28,12 @@ public class SymMessageBuilderTest {
 
   @Before
   public void setUp() throws Exception {
-    symMessageBuilder = new SymMessageBuilder(NEW_MESSAGE);
+    symMessageBuilder = SymMessageBuilder.message(MESSAGE);
   }
 
   @Test
   public void message() {
-    symMessageBuilder.message(NEW_MESSAGE);
+    symMessageBuilder.message(MESSAGE);
   }
 
   @Test
@@ -51,7 +50,7 @@ public class SymMessageBuilderTest {
 
   @Test
   public void build() {
-    symMessageBuilder.message(NEW_MESSAGE);
+    symMessageBuilder.message(MESSAGE);
     symMessageBuilder.entityData(ENTITY_DATA);
     symMessageBuilder.addAttachment(getAttachmentList().get(0));
 

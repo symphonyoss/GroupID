@@ -19,13 +19,12 @@ public class SymMessageBuilder {
 
   private List<SymAttachmentInfo> attachments = new ArrayList<>();
 
-  protected SymMessageBuilder(String message) {
+  private SymMessageBuilder(String message) {
     this.message = message;
   }
 
   /**
    * Define message content. It should follow the MessageML v2 spec.
-   *
    * @param message Message content
    * @return Builder class
    */
@@ -36,7 +35,6 @@ public class SymMessageBuilder {
 
   /**
    * Define entity data. It should be a serialized JSON entity
-   *
    * @param entityData Entity JSON
    * @return Builder class
    */
@@ -47,7 +45,6 @@ public class SymMessageBuilder {
 
   /**
    * Add new attachment.
-   *
    * @param attachmentInfo Attachment info
    * @return Builder class
    */

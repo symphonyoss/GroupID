@@ -26,8 +26,6 @@ public class SymphonyValidationUtilTest {
   private static final String DISPLAY_NAME = "DISPLAY_NAME";
   private static final String STREAM_ID = "STREAM_ID";
   private static final String INVALID = " is invalid.";
-  private static final Long INVALID_ID = 001L;
-  private static final String INVALID_STREAM_ID = "INVALID_STREAM_ID";
 
   @Mock
   private SymphonyClient symphonyClient;
@@ -57,12 +55,12 @@ public class SymphonyValidationUtilTest {
   @Test
   public void validateUserIdThrowsException() throws UsersClientException {
     doReturn(usersClient).when(symphonyClient).getUsersClient();
-    doThrow(UsersClientException.class).when(usersClient).getUserFromId(INVALID_ID);
+    doThrow(UsersClientException.class).when(usersClient).getUserFromId(USER_ID);
     try {
-      symphonyValidationUtil.validateUserId(INVALID_ID);
+      symphonyValidationUtil.validateUserId(USER_ID);
       fail();
     } catch (BadRequestException e) {
-      assertEquals("The user id " + INVALID_ID + INVALID, e.getMessage());
+      assertEquals("The user id " + USER_ID + INVALID, e.getMessage());
     }
 
   }
@@ -82,13 +80,13 @@ public class SymphonyValidationUtilTest {
   @Test
   public void validateStreamThrowsError() throws StreamsException {
     doReturn(streamsClient).when(symphonyClient).getStreamsClient();
-    doThrow(StreamsException.class).when(streamsClient).getStreamAttributes(INVALID_STREAM_ID);
+    doThrow(StreamsException.class).when(streamsClient).getStreamAttributes(STREAM_ID);
 
     try {
-      symphonyValidationUtil.validateStream(INVALID_STREAM_ID);
+      symphonyValidationUtil.validateStream(STREAM_ID);
       fail();
     } catch (BadRequestException e) {
-      assertEquals("The stream " + INVALID_STREAM_ID + INVALID, e.getMessage());
+      assertEquals("The stream " + STREAM_ID + INVALID, e.getMessage());
     }
   }
 
