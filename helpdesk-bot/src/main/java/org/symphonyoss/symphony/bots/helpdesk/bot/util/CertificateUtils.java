@@ -72,8 +72,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Utility class to deal with certificate stuff.
  *
@@ -118,12 +116,6 @@ public class CertificateUtils {
   @Value("${certs.dir}")
   private String certsDir;
 
-  @Value("${authentication.keystore-file}")
-  private String p12FilePath;
-
-  @Value("${authentication.keystore-password}")
-  private String p12FilePassword;
-
   /**
    * Adds BouncyCastle as a Security Provider.
    * Creates certificate directory and set it into the test context.
@@ -148,19 +140,43 @@ public class CertificateUtils {
   }
 
   /**
-   * Creates p12 certificate file. This method generates a key pair, creates a certificate
-   * and save it on the filesystem.
+   * Creates p12 certificate file using default directory. This method generates a key pair, creates
+   * a certificate and save it on the filesystem.
    *
    * @param caKeyPath Path to CA private key
    * @param caCertPath Path to CA certificate
    * @param userName user name
    */
   public void createUserCertificate(String caKeyPath, String caCertPath, String userName) {
+    URI certsDir = new File(CONTEXT.getCertsDir()).toURI();
+    URI certificateURI = certsDir.resolve(userName.replace(WHITE_SPACES, "") + ".p12");
+
+    createUserCertificate(caKeyPath, caCertPath, DEFAULT_PASSWORD, userName, certificateURI,
+        DEFAULT_PASSWORD);
+  }
+
+  /**
+   * Creates p12 certificate file. This method generates a key pair, creates a certificate
+   * and save it on the filesystem.
+   *
+   * @param caKeyPath Path to CA private key
+   * @param caCertPath Path to CA certificate
+   * @param caKeyPassword CA private key password
+   * @param userName user name
+   * @param keystorePath Path to save certificate file
+   * @param keystorePassword P12 file password
+   */
+  public void createUserCertificate(String caKeyPath, String caCertPath, String caKeyPassword,
+      String userName, URI keystorePath, String keystorePassword) {
+    if (StringUtils.isEmpty(caKeyPassword)) {
+      caKeyPassword = DEFAULT_PASSWORD;
+    }
+
     try {
       KeyPair keys = generateKeys();
 
       File caKeyFile = new File(caKeyPath);
-      PrivateKey caKey = getPrivateKey(caKeyFile);
+      PrivateKey caKey = getPrivateKey(caKeyFile, caKeyPassword);
 
       File caCertFile = new File(caCertPath);
       X509Certificate caCert = getX509Certificate(caCertFile);
@@ -169,8 +185,7 @@ public class CertificateUtils {
 
       Certificate[] chain = new Certificate[] { userCert, caCert };
 
-      URI certificateP12 = new URI(getP12FilePath(userName.replace(WHITE_SPACES, "")));
-      writeKeystore(certificateP12, getP12FilePassword(), chain, userName, keys);
+      writeKeystore(keystorePath, keystorePassword, chain, userName, keys);
     } catch (Exception e) {
       throw new IllegalStateException("Couldn't create certificate.", e);
     }
@@ -291,9 +306,10 @@ public class CertificateUtils {
   /**
    * Convert the File object into PrivateKey object.
    * @param privateKey private key file
+   * @param password private key password
    * @return PrivateKey object
    */
-  private PrivateKey getPrivateKey(File privateKey)
+  private PrivateKey getPrivateKey(File privateKey, String password)
       throws IOException, PKCSException, OperatorCreationException {
 
     FileReader fileReader = new FileReader(privateKey);
@@ -304,12 +320,12 @@ public class CertificateUtils {
     if (keyInfo instanceof PKCS8EncryptedPrivateKeyInfo) {
       PKCS8EncryptedPrivateKeyInfo pair = (PKCS8EncryptedPrivateKeyInfo) keyInfo;
       JceOpenSSLPKCS8DecryptorProviderBuilder jce = new JceOpenSSLPKCS8DecryptorProviderBuilder();
-      InputDecryptorProvider decryptorProvider = jce.build(getP12FilePassword().toCharArray());
+      InputDecryptorProvider decryptorProvider = jce.build(password.toCharArray());
       return converter.getPrivateKey(pair.decryptPrivateKeyInfo(decryptorProvider));
 
     } else if (keyInfo instanceof PEMEncryptedKeyPair) {
       PEMDecryptorProvider decProv =
-          new JcePEMDecryptorProviderBuilder().build(getP12FilePassword().toCharArray());
+          new JcePEMDecryptorProviderBuilder().build(password.toCharArray());
       KeyPair pair = converter.getKeyPair(((PEMEncryptedKeyPair) keyInfo).decryptKeyPair(decProv));
       return pair.getPrivate();
     }
@@ -431,18 +447,4 @@ public class CertificateUtils {
     pemWriter.flush();
   }
 
-  private String getP12FilePath(String user) {
-    if (StringUtils.isEmpty(p12FilePath)) {
-      URI certsDir = new File(CONTEXT.getCertsDir()).toURI();
-      p12FilePath = certsDir.resolve(user + ".p12").getPath();
-    }
-    return p12FilePath;
-  }
-
-  private String getP12FilePassword() {
-    if (StringUtils.isEmpty(p12FilePassword)) {
-      p12FilePassword = DEFAULT_PASSWORD;
-    }
-    return p12FilePassword;
-  }
 }

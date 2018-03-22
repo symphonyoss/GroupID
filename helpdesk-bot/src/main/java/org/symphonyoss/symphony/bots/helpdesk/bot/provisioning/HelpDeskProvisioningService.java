@@ -3,10 +3,12 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.provisioning;
 import com.gs.ti.wpt.lc.security.cryptolib.PBKDF;
 
 import com.google.common.io.BaseEncoding;
+import org.apache.commons.lang3.StringUtils;
 import org.glassfish.jersey.internal.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.helpdesk.bot.client.HelpDeskPublicApiClient;
@@ -16,6 +18,8 @@ import org.symphonyoss.symphony.pod.model.CompanyCert;
 import org.symphonyoss.symphony.pod.model.CompanyCertStatus;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 
 /**
@@ -28,14 +32,31 @@ public class HelpDeskProvisioningService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(HelpDeskProvisioningService.class);
 
-  @Autowired
-  private ProvisioningConfig config;
+  private final ProvisioningConfig config;
 
-  @Autowired
-  private HelpDeskPublicApiClient publicApiClient;
+  private final HelpDeskPublicApiClient publicApiClient;
 
-  @Autowired
-  private CertificateUtils certificateUtils;
+  private final CertificateUtils certificateUtils;
+
+  private URI keystoreFilePath;
+
+  private String keystorePassword;
+
+  public HelpDeskProvisioningService(ProvisioningConfig config,
+      HelpDeskPublicApiClient publicApiClient, CertificateUtils certificateUtils,
+      @Value("${authentication.keystore-file}") String keystoreFilePath,
+      @Value("${authentication.keystore-password}") String keystorePassword)
+      throws URISyntaxException {
+    this.config = config;
+    this.publicApiClient = publicApiClient;
+    this.certificateUtils = certificateUtils;
+
+    if (StringUtils.isNotEmpty(keystoreFilePath)) {
+      this.keystoreFilePath = new URI(keystoreFilePath);
+    }
+
+    this.keystorePassword = keystorePassword;
+  }
 
   /**
    * Executes the provisioning process:
@@ -76,7 +97,14 @@ public class HelpDeskProvisioningService {
       String serviceAccountUserName = config.getServiceAccountUserName();
       String caCertPath = certificateUtils.getSelfSignedRootCertificatePath();
       String caKeyPath = certificateUtils.getSelfSignedRootKeyPath();
-      certificateUtils.createUserCertificate(caKeyPath, caCertPath, serviceAccountUserName);
+
+      if (keystoreFilePath != null) {
+        certificateUtils.createUserCertificate(caKeyPath, caCertPath, keystorePassword,
+            serviceAccountUserName, keystoreFilePath, keystorePassword);
+      } else {
+        certificateUtils.createUserCertificate(caKeyPath, caCertPath, serviceAccountUserName);
+      }
+
       LOGGER.info("p12 file successfully generated.");
     }
   }

@@ -15,6 +15,7 @@ import org.symphonyoss.symphony.pod.model.CompanyCert;
 import org.symphonyoss.symphony.pod.model.CompanyCertStatus;
 
 import java.io.File;
+import java.net.URI;
 import java.security.cert.X509Certificate;
 
 /**
@@ -23,7 +24,6 @@ import java.security.cert.X509Certificate;
 @RunWith(MockitoJUnitRunner.class)
 public class CertificateUtilsTest {
 
-  private static final String PROVIDER_NAME = "BC";
   private static final String CERTS_DIR_PROPERTY = "CERTS_DIR";
 
   private static final String CA_CERT_FILENAME = "root-cert.pem";
@@ -31,6 +31,7 @@ public class CertificateUtilsTest {
 
   private static final String USERNAME = "username";
   private static final String P12_FILENAME = USERNAME + ".p12";
+  private static final String P12_PASSWORD = "changeit";
 
   private static final String BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----";
   private static final String END_CERTIFICATE = "-----END CERTIFICATE-----" + System.lineSeparator();
@@ -77,7 +78,8 @@ public class CertificateUtilsTest {
     assertTrue(caCertFile.exists());
     assertTrue(caKeyFile.exists());
 
-    utils.createUserCertificate(caKeyFile.getPath(), caCertFile.getPath(), USERNAME);
+    utils.createUserCertificate(caKeyFile.getPath(), caCertFile.getPath(), P12_PASSWORD, USERNAME,
+        p12File.toURI(), P12_PASSWORD);
     assertTrue(p12File.exists());
   }
 
