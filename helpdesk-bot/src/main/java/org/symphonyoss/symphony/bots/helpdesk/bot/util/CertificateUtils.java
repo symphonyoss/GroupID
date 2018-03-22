@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.util;
 
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.DERBMPString;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -44,7 +45,6 @@ import org.symphonyoss.symphony.pod.model.CompanyCert;
 import org.symphonyoss.symphony.pod.model.CompanyCertAttributes;
 import org.symphonyoss.symphony.pod.model.CompanyCertStatus;
 import org.symphonyoss.symphony.pod.model.CompanyCertType;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -70,8 +70,6 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Date;
-
-import javax.annotation.PostConstruct;
 
 /**
  * Utility class to deal with certificate stuff.
@@ -126,8 +124,7 @@ public class CertificateUtils {
    * Adds BouncyCastle as a Security Provider.
    * Creates certificate directory and set it into the test context.
    */
-  @PostConstruct
-  public void init() {
+  public CertificateUtils() {
     Security.addProvider(new BouncyCastleProvider());
 
     if (StringUtils.isEmpty(certsDir)) {
@@ -301,7 +298,7 @@ public class CertificateUtils {
 
     Object keyInfo = parser.readObject();
     if (keyInfo instanceof PKCS8EncryptedPrivateKeyInfo) {
-      PKCS8EncryptedPrivateKeyInfo pair = (PKCS8EncryptedPrivateKeyInfo) parser.readObject();
+      PKCS8EncryptedPrivateKeyInfo pair = (PKCS8EncryptedPrivateKeyInfo) keyInfo;
       JceOpenSSLPKCS8DecryptorProviderBuilder jce = new JceOpenSSLPKCS8DecryptorProviderBuilder();
       InputDecryptorProvider decryptorProvider = jce.build(getP12FilePassword().toCharArray());
       return converter.getPrivateKey(pair.decryptPrivateKeyInfo(decryptorProvider));

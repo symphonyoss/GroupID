@@ -36,3 +36,5 @@ spec:
               value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com
             - name: APP_AUTHENTICATION_SESSION_AUTH_PORT
               value: '8444'
+            - name: MONGO_IGNORESSL
+              value: 'true'

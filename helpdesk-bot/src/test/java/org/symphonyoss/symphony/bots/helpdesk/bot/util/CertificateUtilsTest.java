@@ -3,10 +3,8 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.util;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,9 +15,6 @@ import org.symphonyoss.symphony.pod.model.CompanyCert;
 import org.symphonyoss.symphony.pod.model.CompanyCertStatus;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.security.Provider;
-import java.security.Security;
 import java.security.cert.X509Certificate;
 
 /**
@@ -51,7 +46,6 @@ public class CertificateUtilsTest {
   @Before
   public void init() throws Exception {
     utils = new CertificateUtils();
-    utils.init();
 
     certsDir = new File(System.getProperty(CERTS_DIR_PROPERTY));
     caCertFile = new File(certsDir.getPath() + File.separator + CA_CERT_FILENAME);
@@ -64,32 +58,6 @@ public class CertificateUtilsTest {
     caCertFile.delete();
     caKeyFile.delete();
     p12File.delete();
-  }
-
-  @Test
-  public void testInit() throws Exception {
-    try {
-      FileUtils.forceDelete(certsDir);
-    } catch (FileNotFoundException e) {
-      // OK, directory is already deleted
-    }
-    Security.removeProvider(PROVIDER_NAME);
-    System.clearProperty(CERTS_DIR_PROPERTY);
-    utils = new CertificateUtils();
-
-    Provider provider = Security.getProvider(PROVIDER_NAME);
-    assertNull(provider);
-    String certsDirProperty = System.getProperty(CERTS_DIR_PROPERTY);
-    assertNull(certsDirProperty);
-    assertFalse(certsDir.exists());
-
-    utils.init();
-
-    provider = Security.getProvider(PROVIDER_NAME);
-    assertNotNull(provider);
-    certsDirProperty = System.getProperty(CERTS_DIR_PROPERTY);
-    assertNotNull(certsDirProperty);
-    assertTrue(certsDir.exists());
   }
 
   @Test

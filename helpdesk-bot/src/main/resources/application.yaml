@@ -48,3 +48,9 @@ app-authentication:
 http-client:
   connect-timeout: 45000
   read-timeout: 45000
+
+provisioning:
+  execute: false
+  generate-ca: false
+  service-account:
+    generate-p12: false
