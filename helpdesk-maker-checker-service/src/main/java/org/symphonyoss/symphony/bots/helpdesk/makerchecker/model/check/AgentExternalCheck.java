@@ -98,14 +98,13 @@ public class AgentExternalCheck implements Checker {
   }
 
   @Override
-  public Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage, Object opaque) {
+  public Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage, Set<String> proxyToIds) {
     Set<SymMessage> symCheckerMessages = new HashSet<>();
 
     String streamId = Base64.encodeBase64String(Base64.decodeBase64(symMessage.getStreamId()));
     Long makerId = symMessage.getFromUserId();
     Long timestamp = Long.valueOf(symMessage.getTimestamp());
     String messageId = symMessage.getId();
-    Set<String> proxyToIds = (Set<String>) opaque;
 
 
     for (SymAttachmentInfo attachmentInfo : symMessage.getAttachments()) {
@@ -122,7 +121,7 @@ public class AgentExternalCheck implements Checker {
       makerCheckerMessageBuilder.groupId(groupId);
       makerCheckerMessageBuilder.attachmentId(attachmentInfo.getId());
 
-      proxyToIds.stream().forEach(id -> makerCheckerMessageBuilder.addProxyToStreamId(id));
+      proxyToIds.stream().forEach(makerCheckerMessageBuilder::addProxyToStreamId);
 
       SymMessage checkerMessage = makerCheckerMessageBuilder.build();
       checkerMessage.setId(makerCheckerId);
