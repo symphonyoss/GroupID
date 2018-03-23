@@ -34,7 +34,6 @@ export default class ActionClaimTicketEnricher extends MessageEnricherBase {
           streamId: entity.streamId,
           userId,
         };
-        console.log('wtf?');
 
         getRooms().then((userRooms) => {
           let isTicketRoomMember = false;
