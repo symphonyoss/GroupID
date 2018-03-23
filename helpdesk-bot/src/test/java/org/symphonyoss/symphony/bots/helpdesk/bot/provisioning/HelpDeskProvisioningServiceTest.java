@@ -29,6 +29,7 @@ public class HelpDeskProvisioningServiceTest {
   private static final String CA_CERT_PATH = CERTS_PATH + CA_CERT_FILENAME;
   private static final String CA_KEY_FILENAME = "root-key.pem";
   private static final String CA_KEY_PATH = CERTS_PATH + CA_KEY_FILENAME;
+  private static final String SELF_SIGNED_CERT_NAME = "helpdesk-root";
 
   private static final String USERNAME = "username";
   private static final String CERT_PEM = "pem";
@@ -63,7 +64,9 @@ public class HelpDeskProvisioningServiceTest {
   public void testExecute() {
     doReturn(true).when(config).isExecute();
     doReturn(true).when(config).isGenerateCACert();
-    doReturn(true).when(config).isGenerateServiceAccountP12();
+    doReturn(true).when(config).isOverwriteCACert();
+    doReturn(true).when(config).isGenerateServiceAccountKeystore();
+    doReturn(true).when(config).isOverwriteServiceAccountKeystore();
     doReturn(USERNAME).when(config).getServiceAccountUserName();
     doReturn(USERNAME).when(config).getUserName();
     doReturn(PASSWORD).when(config).getUserPassword();
@@ -71,7 +74,7 @@ public class HelpDeskProvisioningServiceTest {
     doReturn(certificate).when(certificateUtils).createSelfSignedRootCertificate();
     doReturn(CERT_PEM).when(certificateUtils).getPemAsString(certificate);
     doReturn(CA_CERT_PATH).when(certificateUtils).getSelfSignedRootCertificatePath();
-    doReturn(companyCert).when(certificateUtils).buildCompanyCertificate(CA_CERT_FILENAME,
+    doReturn(companyCert).when(certificateUtils).buildCompanyCertificate(SELF_SIGNED_CERT_NAME,
         CERT_PEM, CompanyCertStatus.TypeEnum.TRUSTED);
 
     doReturn(SALT_VALUE).when(publicApiClient).getSalt(USERNAME);
@@ -82,7 +85,7 @@ public class HelpDeskProvisioningServiceTest {
 
     service.execute();
 
-    verify(certificateUtils, times(1)).buildCompanyCertificate(CA_CERT_FILENAME,
+    verify(certificateUtils, times(1)).buildCompanyCertificate(SELF_SIGNED_CERT_NAME,
         CERT_PEM, CompanyCertStatus.TypeEnum.TRUSTED);
     verify(publicApiClient, times(1)).login(USERNAME, SALTED_PASSWORD);
     verify(publicApiClient, times(1)).createCompanyCert(SKEY_VALUE, companyCert);

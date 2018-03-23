@@ -6,18 +6,15 @@ import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cert.CertIOException;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509v1CertificateBuilder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.crypto.util.PrivateKeyFactory;
 import org.bouncycastle.jce.interfaces.PKCS12BagAttributeCarrier;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.openssl.PEMDecryptorProvider;
@@ -29,11 +26,8 @@ import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
 import org.bouncycastle.openssl.jcajce.JceOpenSSLPKCS8DecryptorProviderBuilder;
 import org.bouncycastle.openssl.jcajce.JcePEMDecryptorProviderBuilder;
 import org.bouncycastle.operator.ContentSigner;
-import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder;
-import org.bouncycastle.operator.DefaultSignatureAlgorithmIdentifierFinder;
 import org.bouncycastle.operator.InputDecryptorProvider;
 import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.operator.bc.BcRSAContentSignerBuilder;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS8EncryptedPrivateKeyInfo;
 import org.bouncycastle.pkcs.PKCSException;
@@ -108,6 +102,8 @@ public class CertificateUtils {
   private static final String COUNTRY = "US";
 
   private static final String SUBJECT = "Symphony";
+
+  private static final String COMMON_NAME = "helpdesk-root";
 
   private static final String ROOT_CERT_FILENAME = "root-cert.pem";
 
@@ -202,23 +198,23 @@ public class CertificateUtils {
       X500NameBuilder subjectBuilder = new X500NameBuilder();
       subjectBuilder.addRDN(BCStyle.C, COUNTRY);
       subjectBuilder.addRDN(BCStyle.O, SUBJECT);
-      subjectBuilder.addRDN(BCStyle.CN, ROOT_CERT_FILENAME);
+      subjectBuilder.addRDN(BCStyle.CN, COMMON_NAME);
       X500Name name = subjectBuilder.build();
 
-      X509v1CertificateBuilder builder = new X509v1CertificateBuilder(
+      X509v3CertificateBuilder builder = new JcaX509v3CertificateBuilder(
           name,
           BigInteger.valueOf(System.currentTimeMillis()),
           new Date(System.currentTimeMillis() - THIRTY_DAYS),
           new Date(System.currentTimeMillis() + THIRTY_DAYS),
           name,
-          SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded()));
+          keyPair.getPublic());
 
-      AlgorithmIdentifier sigAlgId = new DefaultSignatureAlgorithmIdentifierFinder().find(
-          SIGNATURE_ALGORITHM);
-      AlgorithmIdentifier digAlgId = new DefaultDigestAlgorithmIdentifierFinder().find(sigAlgId);
+      ContentSigner signer =
+          new JcaContentSignerBuilder(SIGNATURE_ALGORITHM).build(keyPair.getPrivate());
 
-      ContentSigner signer = new BcRSAContentSignerBuilder(sigAlgId, digAlgId)
-          .build(PrivateKeyFactory.createKey(keyPair.getPrivate().getEncoded()));
+      BasicConstraints basicConstraints = new BasicConstraints(true);
+      builder.addExtension(Extension.basicConstraints, true, basicConstraints);
+
       X509CertificateHolder holder = builder.build(signer);
 
       X509Certificate certificate = new JcaX509CertificateConverter().getCertificate(holder);
@@ -279,7 +275,7 @@ public class CertificateUtils {
     attributes.setName(certName);
 
     CompanyCertType certType = new CompanyCertType();
-    certType.setType(CompanyCertType.TypeEnum.USER);
+    certType.setType(CompanyCertType.TypeEnum.USERSIGNING);
     attributes.setType(certType);
 
     CompanyCertStatus status = new CompanyCertStatus();
