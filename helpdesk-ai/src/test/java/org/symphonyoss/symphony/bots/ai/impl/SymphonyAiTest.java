@@ -110,7 +110,7 @@ public class SymphonyAiTest {
 
     doReturn(sessionContext).when(aiSessionContextManager).getSessionContext(sessionKey);
     doReturn(true).when(sessionContext).allowCommands();
-    doReturn(aiConversation).when(aiConversationManager).getConversation(sessionContext);
+    doReturn(aiConversation).when(aiConversationManager).getConversation(sessionKey);
 
     symphonyAi.onMessage(symMessage);
 
@@ -128,7 +128,7 @@ public class SymphonyAiTest {
 
     doReturn(sessionContext).when(aiSessionContextManager).getSessionContext(sessionKey);
     doReturn(true).when(sessionContext).allowCommands();
-    doReturn(nullConversation).when(aiConversationManager).getConversation(sessionContext);
+    doReturn(nullConversation).when(aiConversationManager).getConversation(sessionKey);
 
     symphonyAi.onMessage(symMessage);
 
@@ -167,7 +167,7 @@ public class SymphonyAiTest {
 
     symphonyAi.startConversation(sessionKey, aiConversation);
 
-    verify(aiConversationManager, times(1)).registerConversation(sessionContext, aiConversation);
+    verify(aiConversationManager, times(1)).registerConversation(aiConversation);
   }
 
   @Test
@@ -175,7 +175,7 @@ public class SymphonyAiTest {
     SymphonyAiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
 
     doReturn(sessionContext).when(aiSessionContextManager).getSessionContext(sessionKey);
-    doReturn(aiConversation).when(aiConversationManager).getConversation(sessionContext);
+    doReturn(aiConversation).when(aiConversationManager).getConversation(sessionKey);
 
     assertEquals(aiConversation, symphonyAi.getConversation(sessionKey));
   }
@@ -188,7 +188,7 @@ public class SymphonyAiTest {
 
     symphonyAi.endConversation(sessionKey);
 
-    verify(aiConversationManager, times(1)).removeConversation(sessionContext);
+    verify(aiConversationManager, times(1)).removeConversation(sessionKey);
   }
 
   @Test

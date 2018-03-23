@@ -9,7 +9,9 @@ import java.util.concurrent.TimeUnit;
 public abstract class ProxyIdleTimer {
 
   private int time;
+
   private long idleTime;
+
   private TimeUnit timeUnit;
 
   public ProxyIdleTimer(long idleTime, TimeUnit timeUnit) {

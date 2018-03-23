@@ -59,7 +59,7 @@ public class AiEventListenerImplTest {
 
   @Test
   public void testWithoutPrefix() {
-    eventListener.onCommand(message, sessionContext);
+//    eventListener.onCommand(message, sessionContext);
     verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
   }
 
@@ -67,7 +67,7 @@ public class AiEventListenerImplTest {
   public void testEmptyCommandSet() {
     doReturn(true).when(aiCommandInterpreter).hasPrefix(message, PREFIX);
 
-    eventListener.onCommand(message, sessionContext);
+//    eventListener.onCommand(message, sessionContext);
 
     verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
     verify(aiResponder, times(1)).respondWithUseMenu(sessionContext, message);
@@ -83,7 +83,7 @@ public class AiEventListenerImplTest {
 
     doReturn(true).when(aiCommandInterpreter).hasPrefix(message, PREFIX);
 
-    eventListener.onCommand(message, sessionContext);
+//    eventListener.onCommand(message, sessionContext);
 
     verify(aiResponder, times(1)).respondWithUseMenu(sessionContext, message);
     verify(aiResponder, times(1)).respondWithSuggestion(sessionContext, aiCommandInterpreter, message);
@@ -102,7 +102,7 @@ public class AiEventListenerImplTest {
     doReturn(true).when(aiCommandInterpreter).isCommand(command, message, PREFIX);
     doReturn(args).when(aiCommandInterpreter).readCommandArguments(command, message, PREFIX);
 
-    eventListener.onCommand(message, sessionContext);
+//    eventListener.onCommand(message, sessionContext);
 
     verify(aiAction, times(1)).doAction(sessionContext, aiResponder, args);
     verify(aiResponder, times(1)).respond(sessionContext);

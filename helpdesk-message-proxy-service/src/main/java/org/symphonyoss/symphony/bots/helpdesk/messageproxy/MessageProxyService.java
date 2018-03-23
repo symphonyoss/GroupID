@@ -1,5 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
@@ -8,6 +10,7 @@ import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyConversation;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
@@ -25,6 +28,8 @@ import java.util.Set;
  */
 @Service
 public class MessageProxyService {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MessageProxyService.class);
 
   private final Set<String> clientConversations = new HashSet<>();
 
@@ -76,13 +81,25 @@ public class MessageProxyService {
    * @param symMessage the message to proxy.
    */
   public void onMessage(Membership membership, Ticket ticket, SymMessage symMessage) {
+    if (ticket == null) {
+      LOGGER.warn("Ticket was not created");
+      return;
+    }
+
     Long userId = symMessage.getFromUserId();
     String streamId = symMessage.getStreamId();
 
     SymphonyAiSessionKey aiSessionKey = helpDeskAi.getSessionKey(userId, streamId);
+    AiConversation aiConversation = helpDeskAi.getConversation(aiSessionKey);
+
+    if (aiConversation == null) {
+      ProxyConversation conversation = createProxyConversation(membership.getType(), ticket);
+      startConversation(aiSessionKey, conversation);
+      setupTimer(conversation, ticket);
+    }
+
 
     if (MembershipClient.MembershipType.AGENT.name().equals(membership.getType())) {
-      AiConversation aiConversation = helpDeskAi.getConversation(aiSessionKey);
       HelpDeskAiSessionContext aiSessionContext =
           (HelpDeskAiSessionContext) helpDeskAi.getSessionContext(aiSessionKey);
 
@@ -96,6 +113,56 @@ public class MessageProxyService {
           (HelpDeskAiSessionContext) helpDeskAi.getSessionContext(aiSessionKey);
       createClientProxy(ticket, aiSessionContext);
     }
+  }
+
+  private ProxyConversation createProxyConversation(String type, Ticket ticket) {
+    if (MembershipClient.MembershipType.AGENT.name().equals(type)) {
+      return createClientProxyConversation(ticket);
+    }
+
+    return createAgentProxyConversation(ticket);
+  }
+
+  private ProxyConversation createAgentProxyConversation(Ticket ticket) {
+    ProxyConversation aiConversation = new ProxyConversation(true, agentMakerCheckerService);
+    aiConversation.addProxyId(ticket.getClientStreamId());
+
+    return aiConversation;
+  }
+
+  private ProxyConversation createClientProxyConversation(Ticket ticket) {
+    ProxyConversation aiConversation = new ProxyConversation(true, clientMakerCheckerService);
+    aiConversation.addProxyId(ticket.getServiceStreamId());
+
+    return aiConversation;
+  }
+
+  private void startConversation(SymphonyAiSessionKey sessionKey, ProxyConversation conversation) {
+    helpDeskAi.startConversation(sessionKey, conversation);
+
+    HelpDeskAiSessionContext sessionContext = (HelpDeskAiSessionContext) conversation.getAiSessionContext();
+    sessionContext.setIdleTimerManager(idleTimerManager);
+  }
+
+  private void setupTimer(ProxyConversation conversation, Ticket ticket) {
+    ProxyIdleTimer proxyIdleTimer = idleTimerManager.get(ticket.getId());
+
+    if (proxyIdleTimer == null) {
+      proxyIdleTimer = createProxyIdleTimer(ticket);
+    }
+
+    conversation.setProxyIdleTimer(proxyIdleTimer);
+
+    idleTimerManager.put(ticket.getId(), proxyIdleTimer);
+  }
+
+  private ProxyIdleTimer createProxyIdleTimer(Ticket ticket) {
+    return new ProxyIdleTimer(idleTicketConfig.getTimeout(), idleTicketConfig.getUnit()) {
+      @Override
+      public void onIdleTimeout() {
+        idleMessageService.sendIdleMessage(ticket);
+      }
+    };
   }
 
   /**
@@ -164,4 +231,6 @@ public class MessageProxyService {
 
     clientConversations.add(ticket.getId());
   }
+
+
 }

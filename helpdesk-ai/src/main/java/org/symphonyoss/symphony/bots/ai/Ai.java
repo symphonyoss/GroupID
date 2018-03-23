@@ -4,6 +4,7 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.Set;
 
@@ -17,10 +18,9 @@ public interface Ai {
   /**
    * Listener method to deal with AI message.
    *
-   * @param aiSessionKey The key for a session context
    * @param message The received message
    */
-  void onAiMessage(SymphonyAiSessionKey aiSessionKey, SymphonyAiMessage message);
+  void onMessage(SymMessage message);
 
   /**
    * Registers a new conversation in the conversation manager

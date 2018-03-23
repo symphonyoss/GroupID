@@ -17,7 +17,7 @@ public abstract class AiConversation {
 
   protected boolean allowCommands;
 
-  protected SymphonyAiMessage lastMessage;
+  protected String lastMessageId;
 
   public AiConversation(boolean allowCommands) {
     this.allowCommands = allowCommands;
@@ -58,15 +58,15 @@ public abstract class AiConversation {
    * Retrieve the conversation last message
    * @return last message
    */
-  public SymphonyAiMessage getLastMessage() {
-    return lastMessage;
+  public String getLastMessageId() {
+    return lastMessageId;
   }
 
   /**
    * Set this conversation last message
-   * @param lastMessage last message
+   * @param lastMessageId last message
    */
-  public void setLastMessage(SymphonyAiMessage lastMessage) {
-    this.lastMessage = lastMessage;
+  public void setLastMessageId(String lastMessageId) {
+    this.lastMessageId = lastMessageId;
   }
 }

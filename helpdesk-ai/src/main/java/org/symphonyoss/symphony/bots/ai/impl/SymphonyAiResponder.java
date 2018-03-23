@@ -109,8 +109,7 @@ public class SymphonyAiResponder implements AiResponder {
             "\n", "</li><li>") + "</li></ul></body>";
     response = response.replace("<li></li>", "");
 
-    SymphonyAiSessionKey symphonyAiSessionKey =
-        (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
+    SymphonyAiSessionKey symphonyAiSessionKey = sessionContext.getAiSessionKey();
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
     SymphonyAiResponseIdentifierImpl aiResponseIdentifier =
@@ -133,8 +132,7 @@ public class SymphonyAiResponder implements AiResponder {
   @Override
   public void respondWithSuggestion(AiSessionContext sessionContext,
       AiCommandInterpreter aiCommandInterpreter, SymphonyAiMessage command) {
-    SymphonyAiSessionKey symphonyAiSessionKey =
-        (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
+    SymphonyAiSessionKey symphonyAiSessionKey = sessionContext.getAiSessionKey();
 
     AiCommand bestOption =
         getBestCommand(sessionContext, aiCommandInterpreter, command.getAiMessage());
