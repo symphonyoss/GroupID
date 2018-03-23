@@ -27,7 +27,7 @@ spec:
             - name: MONGO_PORT
               value: '80'
             - name: APP_AUTHENTICATION_ENABLED
-              value: 'false'
+              value: 'true'
             - name: APP_AUTHENTICATION_POD_HOST
               value: nexus2-2.symphony.com
             - name: APP_AUTHENTICATION_POD_PORT
@@ -36,5 +36,9 @@ spec:
               value: sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com
             - name: APP_AUTHENTICATION_SESSION_AUTH_PORT
               value: '8444'
+            - name: APP_AUTHENTICATION_API_ENABLED
+              value: 'true'
+            - name: APP_AUTHENTICATION_FILTER_ENABLED
+              value: 'false'
             - name: MONGO_IGNORESSL
               value: 'true'
