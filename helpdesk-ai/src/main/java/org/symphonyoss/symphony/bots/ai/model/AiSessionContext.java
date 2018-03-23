@@ -1,7 +1,5 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-
 /**
  * Class representing the context for a session in the Ai.<br>
  * It's identified by a session key an kepts the last command and the last message in the session.
@@ -45,4 +43,9 @@ public class AiSessionContext {
   public void setLastMessageId(String lastMessageId) {
     this.lastMessageId = lastMessageId;
   }
+
+  public boolean allowCommands() {
+    return aiCommandMenu != null;
+  }
+
 }

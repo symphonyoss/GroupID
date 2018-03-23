@@ -38,6 +38,14 @@ public class SymphonyAi implements Ai {
     aiConversationManager = new SymphonyAiConversationManager();
   }
 
+  public SymphonyAi(AiEventListener aiEventListener, SymphonyAiSessionContextManager aiSessionContextManager,
+      SymphonyAiConversationManager aiConversationManager, AiResponder aiResponder) {
+    this.aiEventListener = aiEventListener;
+    this.aiSessionContextManager = aiSessionContextManager;
+    this.aiConversationManager = aiConversationManager;
+    this.aiResponder = aiResponder;
+  }
+
   public void onMessage(SymMessage symMessage) {
     SymphonyAiSessionKey aiSessionKey = getSessionKey(symMessage.getFromUserId(), symMessage.getStreamId());
     onAiMessage(aiSessionKey, new SymphonyAiMessage(symMessage));
@@ -77,8 +85,7 @@ public class SymphonyAi implements Ai {
   }
 
   private boolean allowCommands(AiConversation aiConversation, AiSessionContext sessionContext) {
-    return sessionContext.getAiCommandMenu() != null && (aiConversation == null
-        || aiConversation.isAllowCommands());
+    return sessionContext.allowCommands() && aiConversation.isAllowCommands();
   }
 
   @Override
