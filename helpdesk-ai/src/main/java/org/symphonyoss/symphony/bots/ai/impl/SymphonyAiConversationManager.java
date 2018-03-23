@@ -1,11 +1,11 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import org.symphonyoss.symphony.bots.ai.common.AiConstants;
+import org.symphonyoss.symphony.bots.ai.conversation.NullConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Manages all current Ai conversations.
@@ -13,20 +13,10 @@ import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
  * Created by nick.tarsillo on 8/27/17.
  */
 public class SymphonyAiConversationManager {
-  private LoadingCache<AiSessionContext, AiConversation> conversationCache;
 
-  public SymphonyAiConversationManager() {
-    conversationCache = CacheBuilder.newBuilder()
-        .concurrencyLevel(4)
-        .maximumSize(10000)
-        .expireAfterWrite(AiConstants.EXPIRE_TIME, AiConstants.EXPIRE_TIME_UNIT)
-        .build(new CacheLoader<AiSessionContext, AiConversation>() {
-          @Override
-          public AiConversation load(AiSessionContext key) throws Exception {
-            return null;
-          }
-        });
-  }
+  private static final AiConversation DEFAULT_CONVERSATION = new NullConversation();
+
+  private Map<AiSessionContext, AiConversation> conversations = new ConcurrentHashMap<>();
 
   /**
    * Register an new Ai Conversation.
@@ -34,7 +24,7 @@ public class SymphonyAiConversationManager {
    * @param aiConversation the conversation to register.
    */
   public void registerConversation(AiSessionContext aiSessionContext, AiConversation aiConversation) {
-    conversationCache.put(aiSessionContext, aiConversation);
+    conversations.put(aiSessionContext, aiConversation);
   }
 
   /**
@@ -42,7 +32,7 @@ public class SymphonyAiConversationManager {
    * @param aiSessionContext
    */
   public void removeConversation(AiSessionContext aiSessionContext) {
-    conversationCache.invalidate(aiSessionContext);
+    conversations.remove(aiSessionContext);
   }
 
   /**
@@ -51,10 +41,10 @@ public class SymphonyAiConversationManager {
    * @return
    */
   public AiConversation getConversation(AiSessionContext aiSessionContext) {
-    try {
-      return conversationCache.get(aiSessionContext);
-    } catch (Exception e) {
-      return null;
+    if (conversations.containsKey(aiSessionContext)) {
+      return conversations.get(aiSessionContext);
     }
+
+    return DEFAULT_CONVERSATION;
   }
 }
