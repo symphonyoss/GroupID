@@ -79,7 +79,7 @@ export default class AttachmentEnricher extends MessageEnricherBase {
     const data = actionFactory([approveAttachmentAction, denyAttachmentAction],
       enricherServiceName, entity);
     const canPerformActions = rsp.state !== 'APPROVED' && rsp.state !== 'DENIED';
-    const displayName = rsp.checker !== null ? rsp.checker.displayName : '';
+    const displayName = rsp.checker !== null && rsp.checker !== undefined ? rsp.checker.displayName : '';
     const result = {
       template: actions({ showActions: canPerformActions,
         showButtons: !show,
