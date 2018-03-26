@@ -30,12 +30,14 @@ import java.util.Set;
  * Created by nick.tarsillo on 10/9/17.
  */
 public class CloseTicketCommand extends AiCommand {
-  public CloseTicketCommand(String command, String usage) {
-    super(command, usage);
+
+  public CloseTicketCommand(HelpDeskAiConfig config) {
+    super(config.getCloseTicketCommand(),
+        config.getAgentServiceRoomPrefix() + config.getCloseTicketCommand());
     addAction(new ExitAction());
   }
 
-  class ExitAction implements AiAction {
+  private class ExitAction implements AiAction {
     /**
      * Fire the CloseTicket command action
      * @param sessionContext current session context
@@ -45,7 +47,7 @@ public class CloseTicketCommand extends AiCommand {
     @Override
     public void doAction(AiSessionContext sessionContext, AiResponder responder,
         AiArgumentMap aiArgumentMap) {
-      SymphonyAiSessionKey aiSessionKey = (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
+      SymphonyAiSessionKey aiSessionKey = sessionContext.getAiSessionKey();
       HelpDeskAiSessionContext aiSessionContext = (HelpDeskAiSessionContext) sessionContext;
       HelpDeskAiSession helpDeskAiSession = aiSessionContext.getHelpDeskAiSession();
       HelpDeskAiConfig helpDeskAiConfig = helpDeskAiSession.getHelpDeskAiConfig();
