@@ -1,10 +1,12 @@
 package org.symphonyoss.symphony.bots.ai.helpdesk;
 
+import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.ai.helpdesk.menu.AgentCommandMenu;
 import org.symphonyoss.symphony.bots.ai.helpdesk.menu.ClientCommandMenu;
 import org.symphonyoss.symphony.bots.ai.helpdesk.menu.ServiceCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 
 /**
  * HelpDesk AI Session Context
@@ -18,21 +20,20 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
     CLIENT
   }
 
-  protected String groupId;
-  protected SessionType sessionType;
-  protected HelpDeskAiSession helpDeskAiSession;
-  protected IdleTimerManager idleTimerManager;
+  private final HelpDeskAiSession helpDeskAiSession;
+
+  private final HelpDeskAiConfig aiConfig;
+
+  private IdleTimerManager idleTimerManager;
+
+  public HelpDeskAiSessionContext(SymphonyAiSessionKey sessionKey, HelpDeskAiSession helpDeskAiSession) {
+    super(sessionKey);
+    this.helpDeskAiSession = helpDeskAiSession;
+    this.aiConfig = helpDeskAiSession.getHelpDeskAiConfig();
+  }
 
   public HelpDeskAiSession getHelpDeskAiSession() {
     return helpDeskAiSession;
-  }
-
-  public void setHelpDeskAiSession(HelpDeskAiSession helpDeskAiSession) {
-    this.helpDeskAiSession = helpDeskAiSession;
-  }
-
-  public SessionType getSessionType() {
-    return sessionType;
   }
 
   /**
@@ -42,25 +43,19 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
   public void setSessionType(SessionType sessionType) {
     switch (sessionType) {
       case AGENT_SERVICE:
-        setAiCommandMenu(new ServiceCommandMenu(helpDeskAiSession.getHelpDeskAiConfig()));
+        setAiCommandMenu(new ServiceCommandMenu(aiConfig));
         break;
       case AGENT:
-        setAiCommandMenu(new AgentCommandMenu(helpDeskAiSession.getHelpDeskAiConfig()));
+        setAiCommandMenu(new AgentCommandMenu(aiConfig));
         break;
       default:
         setAiCommandMenu(new ClientCommandMenu());
         break;
     }
-
-    this.sessionType = sessionType;
   }
 
   public String getGroupId() {
-    return groupId;
-  }
-
-  public void setGroupId(String groupId) {
-    this.groupId = groupId;
+    return aiConfig.getGroupId();
   }
 
   public IdleTimerManager getIdleTimerManager() {
