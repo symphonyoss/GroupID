@@ -104,7 +104,11 @@ public class SymphonyAi implements Ai {
   @Override
   public AiConversation getConversation(SymphonyAiSessionKey aiSessionKey) {
     AiSessionContext aiSessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
-    return aiConversationManager.getConversation(aiSessionContext);
+    if (aiSessionContext != null) {
+      return aiConversationManager.getConversation(aiSessionContext);
+    } else {
+      return null;
+    }
   }
 
   /**
