@@ -21,11 +21,9 @@ const subscribe = jest.fn().mockImplementation((serviceName) => {
 });
 
 global.SYMPHONY = {
-    services: {}
-};
-
-global.SYMPHONY.services = {
-    subscribe: subscribe
+    services: {
+        subscribe: subscribe
+    }
 };
 
 const mockErrorCode = 101;

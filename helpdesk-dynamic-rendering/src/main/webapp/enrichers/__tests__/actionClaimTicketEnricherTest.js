@@ -25,11 +25,9 @@ const subscribe = jest.fn().mockImplementation((serviceName) => {
 });
 
 global.SYMPHONY = {
-    services: {}
-};
-
-global.SYMPHONY.services = {
-    subscribe: subscribe
+    services: {
+        subscribe: subscribe
+    }
 };
 
 const mockInRoomList = [{ threadId: 'krjijasd///12039==1jdfja23' }];
