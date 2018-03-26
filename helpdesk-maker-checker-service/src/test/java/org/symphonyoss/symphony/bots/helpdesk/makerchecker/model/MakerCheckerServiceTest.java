@@ -1,13 +1,18 @@
 package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
+    .TicketStateType.UNRESOLVED;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -20,13 +25,16 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.MessagesClient;
+import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -38,6 +46,8 @@ public class MakerCheckerServiceTest {
   private static final String ATTACHMENT_ID =
       "internal_9826885173254%2FxtpDCplNtIJluaYgvQkfGg%3D%3D";
 
+  private static final String ATTACHMENT_NAME = "ATTACHMENT_OK";
+
   private static final String STREAM_ID = "pT4nMlbsOgqfgPuQTQO9yn___p9c7xwsdA";
 
   private static final Long TIMESTAMP = 545465456465l;
@@ -47,8 +57,6 @@ public class MakerCheckerServiceTest {
   private static final String TYPE = "ATTACHMENT";
 
   private static final String MESSAGE_ID = "1322154564545";
-
-  private static final String TICKET_SERVICE_URL = "https://localhost/helpdesk-service";
 
   private static final String BOT_URL = "https://localhost/helpdesk-bot";
 
@@ -77,11 +85,42 @@ public class MakerCheckerServiceTest {
   @Mock
   private AgentExternalCheck agentExternalCheck;
 
+  @Mock
+  private MakercheckerClient makercheckerClient;
+
   @Before
   public void init() {
     doReturn(messagesClient).when(symphonyClient).getMessagesClient();
 
-    makerCheckerService = new MakerCheckerService(mockMakercheckerClient(), symphonyClient);
+    makerCheckerService = new MakerCheckerService(makercheckerClient, symphonyClient);
+  }
+
+  @Test
+  public void testAllCheckDontPass() {
+    agentExternalCheck =
+        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient,
+            symphonyValidationUtil);
+    makerCheckerService.addCheck(agentExternalCheck);
+
+    Ticket ticket = new Ticket();
+    ticket.setState(UNRESOLVED.getState());
+    when(ticketClient.getTicketByServiceStreamId(STREAM_ID)).thenReturn(ticket);
+
+    SymMessage symMessage = mockSymMessage(true);
+    assertFalse(makerCheckerService.allChecksPass(symMessage));
+  }
+
+  @Test
+  public void testAllCheckPass() {
+    agentExternalCheck =
+        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient,
+            symphonyValidationUtil);
+    makerCheckerService.addCheck(agentExternalCheck);
+
+    when(ticketClient.getTicketByServiceStreamId(STREAM_ID)).thenReturn(null);
+
+    SymMessage symMessage = mockSymMessage(false);
+    assertTrue(makerCheckerService.allChecksPass(symMessage));
   }
 
   @Test
@@ -125,6 +164,40 @@ public class MakerCheckerServiceTest {
     verify(messagesClient, times(1)).sendMessage(any(SymStream.class), any(SymMessage.class));
   }
 
+  @Test
+  public void testGetMakerCheckerMessages() {
+    agentExternalCheck =
+        new AgentExternalCheck(BOT_URL, SERVICE_URL, GROUP_ID, ticketClient, symphonyClient,
+            symphonyValidationUtil);
+    makerCheckerService.addCheck(agentExternalCheck);
+
+    Ticket ticket = new Ticket();
+    ticket.setState(UNRESOLVED.getState());
+    when(ticketClient.getTicketByServiceStreamId(STREAM_ID)).thenReturn(ticket);
+
+    Set<String> ids = new HashSet<>();
+    ids.add(ATTACHMENT_ID);
+    SymMessage symMessage = mockSymMessage(true);
+    Set<SymMessage> messages = makerCheckerService.getMakerCheckerMessages(symMessage, ids);
+
+    assertNotNull(messages);
+    messages.stream().forEach(msg -> assertEquals(STREAM_ID, msg.getStreamId()));
+  }
+
+  @Test
+  public void testSendMarkerCheckerMessage() {
+    SymMessage symMessage = mockSymMessage(true);
+    Set<String> ids = new HashSet<>();
+    ids.add(ATTACHMENT_ID);
+
+    makerCheckerService.sendMakerCheckerMesssage(symMessage, MESSAGE_ID, ids);
+
+    verify(makercheckerClient, times(1)).createMakerchecker(eq(MESSAGE_ID), eq(MOCK_MAKER_ID),
+        eq(STREAM_ID), eq(ATTACHMENT_ID), eq(ATTACHMENT_NAME), eq(MESSAGE_ID), eq(TIMESTAMP),
+        any(ArrayList.class));
+    verify(symphonyClient, times(1)).getMessagesClient();
+  }
+
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {
     AttachmentMakerCheckerMessage attachmentMakerCheckerMessage =
         new AttachmentMakerCheckerMessage();
@@ -141,21 +214,38 @@ public class MakerCheckerServiceTest {
     return attachmentMakerCheckerMessage;
   }
 
-  private MakercheckerClient mockMakercheckerClient() {
-    return new MakercheckerClient(GROUP_ID, TICKET_SERVICE_URL);
-  }
-
-  private List<SymMessage> mockSymMessageList() {
-    List<SymMessage> symMessageList = new ArrayList<>();
-
+  private SymMessage mockSymMessage(boolean addAttachments) {
     SymStream symStream = new SymStream();
     symStream.setStreamId(STREAM_ID);
 
     SymMessage symMessage = new SymMessage();
     symMessage.setId(MESSAGE_ID);
     symMessage.setStreamId(STREAM_ID);
+    symMessage.setFromUserId(MOCK_MAKER_ID);
     symMessage.setTimestamp(TIMESTAMP.toString());
     symMessage.setStream(symStream);
+
+    if (addAttachments) {
+      symMessage.setAttachments(mockSymAttachmentInfoList());
+    }
+    return symMessage;
+  }
+
+  private List<SymAttachmentInfo> mockSymAttachmentInfoList() {
+    List<SymAttachmentInfo> attachmentInfoList = new ArrayList<>();
+
+    SymAttachmentInfo symAttachmentInfo = new SymAttachmentInfo();
+    symAttachmentInfo.setId(ATTACHMENT_ID);
+    symAttachmentInfo.setName(ATTACHMENT_NAME);
+    attachmentInfoList.add(symAttachmentInfo);
+
+    return attachmentInfoList;
+  }
+
+  private List<SymMessage> mockSymMessageList() {
+    List<SymMessage> symMessageList = new ArrayList<>();
+
+    SymMessage symMessage = mockSymMessage(false);
 
     symMessageList.add(symMessage);
 
@@ -163,14 +253,7 @@ public class MakerCheckerServiceTest {
   }
 
   private SymMessage mockActionMessage() {
-    SymStream symStream = new SymStream();
-    symStream.setStreamId(STREAM_ID);
-
-    SymMessage symMessage = new SymMessage();
-    symMessage.setId(MESSAGE_ID);
-    symMessage.setStreamId(STREAM_ID);
-    symMessage.setTimestamp(TIMESTAMP.toString());
-    symMessage.setStream(symStream);
+    SymMessage symMessage = mockSymMessage(false);
 
     return symMessage;
   }

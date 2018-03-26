@@ -24,10 +24,10 @@ public interface Checker {
   /**
    * Builds checker messages.
    * @param symMessage Symphony message received
-   * @param opaque Data used by checker to mount the checker messages
+   * @param proxyToIds Data used by checker to mount the checker messages
    * @return Checker messages
    */
-  Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage, Object opaque);
+  Set<SymMessage> buildSymCheckerMessages(SymMessage symMessage, Set<String> proxyToIds);
 
   boolean isCheckerType(MakerCheckerMessage makerCheckerMessage);
 

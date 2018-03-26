@@ -2,13 +2,17 @@ package org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
-import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
+    .TicketStateType.UNRESOLVED;
+import static org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient
+    .TicketStateType.UNSERVICED;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -17,6 +21,7 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
+import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
@@ -24,9 +29,14 @@ import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AgentExternalCheckTest {
@@ -36,8 +46,6 @@ public class AgentExternalCheckTest {
   private static final String SERVICE_HOST = "https://nexus2.symphony.com/helpdesk-service";
 
   private static final String GROUP_ID = "test";
-
-  private static final String TICKET_SERVICE_URL = "https://localhost/helpdesk-service";
 
   private static final String ATTACHMENT_ID =
       "internal_9826885173254%2FxtpDCplNtIJluaYgvQkfGg%3D%3D";
@@ -63,23 +71,27 @@ public class AgentExternalCheckTest {
 
   private static final String MOCK_ATTACHMENT_NAME = "Symphony.png";
 
-  private static final String ACTION_MESSAGE_APPROVED_ENTITY_DATA = "{\"makerchecker\":{\"type\":\"com"
-      + ".symphony.bots.helpdesk.event.makerchecker.action.performed\",\"version\":\"1.0\","
-      + "\"checker\":{\"userId\":10651518946916,\"displayName\":\"Financial Agent\"},"
-      + "\"makerCheckerId\":\"XJW9H3XPCU\",\"state\":\"APPROVED\",\"messageToAgents\":\"Financial"
-      + " Agent approved Symphony.png attachment. It has been delivered to the client(s).\"}}";
+  private static final String ACTION_MESSAGE_APPROVED_ENTITY_DATA =
+      "{\"makerchecker\":{\"type\":\"com"
+          + ".symphony.bots.helpdesk.event.makerchecker.action.performed\",\"version\":\"1.0\","
+          + "\"checker\":{\"userId\":10651518946916,\"displayName\":\"Financial Agent\"},"
+          + "\"makerCheckerId\":\"XJW9H3XPCU\",\"state\":\"APPROVED\","
+          + "\"messageToAgents\":\"Financial"
+          + " Agent approved Symphony.png attachment. It has been delivered to the client(s).\"}}";
 
   private static final String ACTION_MESSAGE_DENIED_ENTITY_DATA = "{\"makerchecker\":{\"type"
       + "\":\"com.symphony.bots.helpdesk.event.makerchecker.action.performed\","
       + "\"version\":\"1.0\",\"checker\":{\"userId\":10651518946916,\"displayName\":\"Financial "
       + "Agent\"},\"makerCheckerId\":\"XJW9H3XPCU\",\"state\":\"DENIED\","
-      + "\"messageToAgents\":\"Financial Agent denied Symphony.png attachment. It has not been delivered to "
+      + "\"messageToAgents\":\"Financial Agent denied Symphony.png attachment. It has not been "
+      + "delivered to "
       + "the client(s).\"}}";
 
   private static final String ACTION_MESSAGE = "<messageML>    <div class=\"entity\" "
       + "data-entity-id=\"makerchecker\">        <card class=\"barStyle\">            <header>   "
       + "             ${entity['makerchecker'].messageToAgents}            </header>        "
       + "</card>    </div></messageML>";
+  public static final long FROM_USER_ID = 99129L;
 
   private AgentExternalCheck agentExternalCheck;
 
@@ -87,21 +99,27 @@ public class AgentExternalCheckTest {
   private SymphonyClient symphonyClient;
 
   @Mock
+  private TicketClient ticketClient;
+
+  @Mock
   private SymphonyValidationUtil symphonyValidationUtil;
 
   @Before
   public void init() {
-    TicketClient ticketClient = new TicketClient(GROUP_ID, TICKET_SERVICE_URL);
-    agentExternalCheck = new AgentExternalCheck(BOT_HOST, SERVICE_HOST, GROUP_ID, ticketClient, symphonyClient, symphonyValidationUtil);
+    agentExternalCheck =
+        new AgentExternalCheck(BOT_HOST, SERVICE_HOST, GROUP_ID, ticketClient, symphonyClient,
+            symphonyValidationUtil);
   }
 
   @Test
   public void testGetApprovedAttachment() {
-    AttachmentMakerCheckerMessage attachmentMakerCheckerMessage = mockAttachmentMakerCheckerMessage();
+    AttachmentMakerCheckerMessage attachmentMakerCheckerMessage =
+        mockAttachmentMakerCheckerMessage();
     SymMessage symMessage = mockSymMessage();
 
 
-    Optional<SymAttachmentInfo> symAttachmentInfo = agentExternalCheck.getApprovedAttachment(attachmentMakerCheckerMessage, symMessage);
+    Optional<SymAttachmentInfo> symAttachmentInfo =
+        agentExternalCheck.getApprovedAttachment(attachmentMakerCheckerMessage, symMessage);
 
     assertEquals(ATTACHMENT_ID, symAttachmentInfo.get().getId());
     assertEquals(ATTACHMENT_NAME, symAttachmentInfo.get().getName());
@@ -109,11 +127,13 @@ public class AgentExternalCheckTest {
 
   @Test
   public void testGetApprovedAttachmentNull() {
-    AttachmentMakerCheckerMessage attachmentMakerCheckerMessage = mockAttachmentMakerCheckerMessage();
+    AttachmentMakerCheckerMessage attachmentMakerCheckerMessage =
+        mockAttachmentMakerCheckerMessage();
     SymMessage symMessage = new SymMessage();
 
 
-    Optional<SymAttachmentInfo> symAttachmentInfo = agentExternalCheck.getApprovedAttachment(attachmentMakerCheckerMessage, symMessage);
+    Optional<SymAttachmentInfo> symAttachmentInfo =
+        agentExternalCheck.getApprovedAttachment(attachmentMakerCheckerMessage, symMessage);
 
     assertFalse(symAttachmentInfo.isPresent());
   }
@@ -124,7 +144,8 @@ public class AgentExternalCheckTest {
 
     doReturn(mockSymUser()).when(symphonyValidationUtil).validateUserId(any());
 
-    SymMessage symMessage = agentExternalCheck.getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
+    SymMessage symMessage = agentExternalCheck.getActionMessage(makerchecker,
+        MakercheckerClient.AttachmentStateType.APPROVED);
 
     Assert.assertEquals(ACTION_MESSAGE, symMessage.getMessage());
     Assert.assertEquals(ACTION_MESSAGE_APPROVED_ENTITY_DATA, symMessage.getEntityData());
@@ -136,13 +157,75 @@ public class AgentExternalCheckTest {
 
     doReturn(mockSymUser()).when(symphonyValidationUtil).validateUserId(any());
 
-    SymMessage symMessage = agentExternalCheck.getActionMessage(makerchecker, MakercheckerClient.AttachmentStateType.DENIED);
+    SymMessage symMessage = agentExternalCheck.getActionMessage(makerchecker,
+        MakercheckerClient.AttachmentStateType.DENIED);
 
     Assert.assertEquals(ACTION_MESSAGE_DENIED_ENTITY_DATA, symMessage.getEntityData());
   }
 
+  @Test
+  public void testAfterSendApprovedMsg() throws IOException {
+    String tmpDir = System.getProperty("java.io.tmpdir");
+
+    File directory = new File(tmpDir + File.separator + ATTACHMENT_ID);
+    File directory2 = new File(tmpDir + File.separator + INVALID_ATTACHMENT_ID);
+    directory.mkdir();
+    directory2.mkdir();
+
+    agentExternalCheck.afterSendApprovedMessage(mockSymMessage());
+
+    assertFalse(directory.exists());
+    assertFalse(directory2.exists());
+  }
+
+  @Test
+  public void testBuildSymCheckerMessages() {
+    Set<String> ids = new HashSet<>();
+    ids.add(ATTACHMENT_ID);
+
+    String timestamp = String.valueOf(new Date().getTime());
+    SymMessage symMessage = mockSymMessage();
+    symMessage.setFromUserId(FROM_USER_ID);
+    symMessage.setTimestamp(timestamp);
+
+
+    Set<SymMessage> symMessages = agentExternalCheck.buildSymCheckerMessages(symMessage, ids);
+
+    assertEquals(2, symMessages.size());
+    symMessages.stream().forEach(msg -> assertEquals(timestamp, msg.getTimestamp()));
+  }
+
+  @Test
+  public void testCheckHasOpenedTicket() {
+    SymMessage symMessage = mockSymMessage();
+    symMessage.setStreamId(MOCK_SERVICE_STREAM_ID);
+
+    Ticket ticket = new Ticket();
+    ticket.setState(UNRESOLVED.getState());
+
+    when(ticketClient.getTicketByServiceStreamId(MOCK_SERVICE_STREAM_ID)).thenReturn(ticket);
+
+    Set<Object> flagged = agentExternalCheck.check(symMessage);
+    assertEquals(2, flagged.size());
+  }
+
+  @Test
+  public void testCheckHasNoOpenedTicket() {
+    SymMessage symMessage = mockSymMessage();
+    symMessage.setStreamId(MOCK_SERVICE_STREAM_ID);
+
+    Ticket ticket = new Ticket();
+    ticket.setState(UNSERVICED.getState());
+
+    when(ticketClient.getTicketByServiceStreamId(MOCK_SERVICE_STREAM_ID)).thenReturn(ticket);
+
+    Set<Object> flagged = agentExternalCheck.check(symMessage);
+    assertNull(flagged);
+  }
+
   private AttachmentMakerCheckerMessage mockAttachmentMakerCheckerMessage() {
-    AttachmentMakerCheckerMessage attachmentMakerCheckerMessage = new AttachmentMakerCheckerMessage();
+    AttachmentMakerCheckerMessage attachmentMakerCheckerMessage =
+        new AttachmentMakerCheckerMessage();
     attachmentMakerCheckerMessage.setAttachmentId(ATTACHMENT_ID);
     attachmentMakerCheckerMessage.setGroupId(GROUP_ID);
 
