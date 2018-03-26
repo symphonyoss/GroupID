@@ -10,18 +10,18 @@ package org.symphonyoss.symphony.bots.ai.model;
  */
 public class AiSessionContext {
 
-  private SymphonyAiSessionKey aiSessionKey;
+  private final SymphonyAiSessionKey aiSessionKey;
 
   private AiCommandMenu aiCommandMenu;
 
   private String lastMessageId;
 
-  public SymphonyAiSessionKey getAiSessionKey() {
-    return aiSessionKey;
+  public AiSessionContext(SymphonyAiSessionKey aiSessionKey) {
+    this.aiSessionKey = aiSessionKey;
   }
 
-  public void setAiSessionKey(SymphonyAiSessionKey aiSessionKey) {
-    this.aiSessionKey = aiSessionKey;
+  public SymphonyAiSessionKey getAiSessionKey() {
+    return aiSessionKey;
   }
 
   public AiCommandMenu getAiCommandMenu() {
