@@ -22,6 +22,7 @@ export default class ActionClaimTicketEnricher extends MessageEnricherBase {
 
     if (claimedTicket) {
       getUserId().then((userId) => {
+        const displayName = entity.agent !== null && entity.agent !== undefined ? entity.agent.displayName : '';
         const joinConversationAction = {
           id: 'joinConversation',
           service: updatedEnricherServiceName,
@@ -29,7 +30,7 @@ export default class ActionClaimTicketEnricher extends MessageEnricherBase {
           label: 'Join the conversation',
           enricherInstanceId: entity.ticketId,
           show: entity.state === 'UNRESOLVED',
-          userName: entity.agent.displayName,
+          userName: displayName,
           streamId: entity.streamId,
           userId,
         };
@@ -44,7 +45,6 @@ export default class ActionClaimTicketEnricher extends MessageEnricherBase {
 
           const data = actionFactory([joinConversationAction], updatedEnricherServiceName, entity);
           const entityRegistry = SYMPHONY.services.subscribe('entity');
-          const displayName = entity.agent !== null ? entity.agent.displayName : '';
           const template = actions({ showClaim: false,
             resolved: entity.state === 'RESOLVED',
             userName: displayName,
@@ -60,7 +60,7 @@ export default class ActionClaimTicketEnricher extends MessageEnricherBase {
         });
       }).catch((e) => {
         if (e.messageException === undefined) {
-          return renderErrorMessage(entity, 'Could not get rooms for this user.', updatedEnricherServiceName);
+          return renderErrorMessage(entity, 'Could not find this user.', updatedEnricherServiceName);
         }
         return renderErrorMessage(entity, e.messageException, updatedEnricherServiceName);
       });

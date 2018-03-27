@@ -19,7 +19,7 @@ export default class ActionAttachmentEnricher extends MessageEnricherBase {
     if (actionPerformed) {
       const data = actionFactory([], enricherServiceName, entity);
       const entityRegistry = SYMPHONY.services.subscribe('entity');
-      const displayName = entity.checker !== null ? entity.checker.displayName : '';
+      const displayName = entity.checker !== null && entity.checker !== undefined ? entity.checker.displayName : '';
       const template = actions({ showActions: false,
         isApproved: entity.state === 'APPROVED',
         userName: displayName });
