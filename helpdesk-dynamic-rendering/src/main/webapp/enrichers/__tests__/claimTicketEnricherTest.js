@@ -141,8 +141,73 @@ const delay = (duration) => {
     });
 };
 
+const mockTemplate = 'mockTemplate';
+
+const expectedActionsClaim = [ { id: 'claimTicket',
+    service: 'helpdesk-enricher',
+    type: 'claimTicket',
+    label: 'Claim',
+    enricherInstanceId: 'asdf2312sdf',
+    show: true,
+    userName: '',
+    streamId: 'krjijasd___12039__1jdfja23',
+    userId: 12345689 },
+    { id: 'joinConversation',
+        service: 'helpdesk-enricher',
+        type: 'joinConversation',
+        label: 'Join the conversation',
+        enricherInstanceId: 'asdf2312sdf',
+        show: false,
+        userName: '',
+        streamId: 'krjijasd___12039__1jdfja23',
+        userId: 12345689
+    } ];
+
+const expectedActionsJoin = [ { id: 'claimTicket',
+    service: 'helpdesk-enricher',
+    type: 'claimTicket',
+    label: 'Claim',
+    enricherInstanceId: 'asdf2312sdf',
+    show: false,
+    userName: 'mockDisplayName',
+    streamId: 'krjijasd___12039__1jdfja23',
+    userId: 12345689 },
+    { id: 'joinConversation',
+        service: 'helpdesk-enricher',
+        type: 'joinConversation',
+        label: 'Join the conversation',
+        enricherInstanceId: 'asdf2312sdf',
+        show: true,
+        userName: 'mockDisplayName',
+        streamId: 'krjijasd___12039__1jdfja23',
+        userId: 12345689
+    } ];
+
+const expectedActionOnClaim = [{
+    enricherInstanceId: undefined,
+    id: 'claimTicket',
+    label: 'Claim',
+    service: 'helpdesk-enricher',
+    show: false,
+    type: 'claimTicket',
+    userName: undefined
+}];
+
+const expectedActionOnJoin = [{
+    enricherInstanceId: undefined,
+    id: 'joinConversation',
+    label: 'Join the conversation',
+    service: 'helpdesk-enricher',
+    show: false,
+    type: 'joinConversation',
+    userName: undefined
+}];
+
 describe('Claim Ticket Enricher', () => {
     let claimTicketEnricher;
+    beforeAll(() => {
+        claimTicketActions.mockReturnValue(mockTemplate);
+    });
     beforeEach(() => {
         MessageEnricherBase.mockClear();
         getUserId.mockClear();
@@ -197,8 +262,7 @@ describe('Claim Ticket Enricher', () => {
                 }
 
                 expect(actionFactory.mock.calls.length).toBe(1);
-                expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-                expect(actionFactory.mock.calls[0][0].length).toBe(2);
+                expect(actionFactory.mock.calls[0][0]).toEqual(expectedActionsClaim);
                 let containsClaim = false;
                 let containsJoin = false;
                 for(const actionObj of actionFactory.mock.calls[0][0]) {
@@ -213,7 +277,7 @@ describe('Claim Ticket Enricher', () => {
                 }
                 expect(containsClaim).toBe(true);
                 expect(containsJoin).toBe(true);
-                expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+                expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-enricher');
                 expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity);
 
                 expect(claimTicketActions.mock.calls.length).toBe(1);
@@ -247,8 +311,7 @@ describe('Claim Ticket Enricher', () => {
                 }
 
                 expect(actionFactory.mock.calls.length).toBe(1);
-                expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-                expect(actionFactory.mock.calls[0][0].length).toBe(2);
+                expect(actionFactory.mock.calls[0][0]).toEqual(expectedActionsJoin);
                 let containsClaim = false;
                 let containsJoin = false;
                 for(const actionObj of actionFactory.mock.calls[0][0]) {
@@ -263,7 +326,7 @@ describe('Claim Ticket Enricher', () => {
                 }
                 expect(containsClaim).toBe(true);
                 expect(containsJoin).toBe(true);
-                expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+                expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-enricher');
                 expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity);
 
                 expect(claimTicketActions.mock.calls.length).toBe(1);
@@ -326,8 +389,8 @@ describe('Claim Ticket Enricher', () => {
 
                 expect(renderErrorMessage.mock.calls.length).toBe(1);
                 expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntityNoTicketUrl);
-                expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-                expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+                expect(renderErrorMessage.mock.calls[0][1]).toEqual('Cannot retrieve ticket state.');
+                expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-enricher');
             });
             it('Should render error (API status 204)', async () => {
                 mockTicketService.getTicket.mockResolvedValue(mockTicketNotFound);
@@ -343,8 +406,8 @@ describe('Claim Ticket Enricher', () => {
 
                 expect(renderErrorMessage.mock.calls.length).toBe(1);
                 expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity);
-                expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-                expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+                expect(renderErrorMessage.mock.calls[0][1]).toEqual('Ticket not found.');
+                expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-enricher');
             });
             it('Should render error (API failure in getTicket)', async () => {
                 mockTicketService.getTicket.mockResolvedValue(Promise.reject({}));
@@ -357,8 +420,8 @@ describe('Claim Ticket Enricher', () => {
                 expect(mockTicketService.getTicket.mock.calls[0][0]).toEqual(mockEntity.ticketUrl);
 
                 expect(renderErrorMessage.mock.calls.length).toBe(1);
-                expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-                expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+                expect(renderErrorMessage.mock.calls[0][1]).toEqual('Cannot retrieve ticket state.');
+                expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-enricher');
             });
             it('Should render error (extensions-api failure in getUserId)', async () => {
                 mockTicketService.getTicket.mockResolvedValue(mockEntity);
@@ -373,8 +436,8 @@ describe('Claim Ticket Enricher', () => {
                 expect(mockTicketService.getTicket.mock.calls[0][0]).toEqual(mockEntity.ticketUrl);
 
                 expect(renderErrorMessage.mock.calls.length).toBe(1);
-                expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-                expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+                expect(renderErrorMessage.mock.calls[0][1]).toEqual('Cannot retrieve ticket state.');
+                expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-enricher');
             });
             it('Should render error (extensions-api failure in getRooms)', async () => {
                 mockTicketService.getTicket.mockResolvedValue(mockEntity);
@@ -389,8 +452,8 @@ describe('Claim Ticket Enricher', () => {
                 expect(mockTicketService.getTicket.mock.calls[0][0]).toEqual(mockEntity.ticketUrl);
 
                 expect(renderErrorMessage.mock.calls.length).toBe(1);
-                expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-                expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+                expect(renderErrorMessage.mock.calls[0][1]).toEqual('Cannot retrieve ticket state.');
+                expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-enricher');
             });
         });
     });
@@ -414,9 +477,8 @@ describe('Claim Ticket Enricher', () => {
             expect(subscribe.mock.calls[0][0]).toEqual('entity');
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(1);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+            expect(actionFactory.mock.calls[0][0]).toEqual(expectedActionOnClaim);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-enricher');
             expect(actionFactory.mock.calls[0][2]).toEqual(mockActionDataClaim.entity);
 
             expect(claimTicketActions.mock.calls.length).toBe(1);
@@ -426,7 +488,7 @@ describe('Claim Ticket Enricher', () => {
 
             expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
             expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockActionDataClaim.enricherInstanceId);
-            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
+            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(mockTemplate);
             expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockData);
         });
         it('Should update enricher on join conversation', async () => {
@@ -444,9 +506,8 @@ describe('Claim Ticket Enricher', () => {
             expect(subscribe.mock.calls[0][0]).toEqual('entity');
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(1);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+            expect(actionFactory.mock.calls[0][0]).toEqual(expectedActionOnJoin);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-enricher');
             expect(actionFactory.mock.calls[0][2]).toEqual(mockActionDataJoin.entity);
 
             expect(claimTicketActions.mock.calls.length).toBe(1);
@@ -456,13 +517,11 @@ describe('Claim Ticket Enricher', () => {
 
             expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
             expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockActionDataClaim.enricherInstanceId);
-            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
+            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(mockTemplate);
             expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockData);
         });
         it('Should do nothing (default action)', async() => {
             claimTicketEnricher.action(mockActionDataDefault);
-
-            expect(entityRegistry.updateEnricher.mock.calls.length).toBe(0);
         });
     });
 });

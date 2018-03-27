@@ -55,7 +55,7 @@ const mockDataDeny = {
     entity: {}
 };
 
-const mockEntity1 = {
+const mockEntity = {
     attachmentUrl: 'attachment.url/13232',
     makerId: mockerId,
     makerCheckerId: 'mockerCheckerId',
@@ -113,10 +113,48 @@ const isActionValid = (data) => {
 const mockErrorMessage = { messageException: 'mockMessageException' };
 const mockErrorNoMessage = 'mockError!';
 
+const expectedActionsChecker = [ { id: 'approveAttachment',
+    service: 'helpdesk-attachment-enricher',
+    type: 'approveAttachment',
+    label: 'Approve',
+    enricherInstanceId: 'mockerCheckerId',
+    streamId: 'krjijasd___12039__1jdfja23',
+    userId: 987654321 },
+    {
+        id: 'denyAttachment',
+        service: 'helpdesk-attachment-enricher',
+        type: 'denyAttachment',
+        label: 'Deny',
+        enricherInstanceId: 'mockerCheckerId',
+        streamId: 'krjijasd___12039__1jdfja23',
+        userId: 987654321
+    }];
+
+const expectedActionsMaker = [ { id: 'approveAttachment',
+    service: 'helpdesk-attachment-enricher',
+    type: 'approveAttachment',
+    label: 'Approve',
+    enricherInstanceId: 'mockerCheckerId',
+    streamId: 'krjijasd___12039__1jdfja23',
+    userId: 123456789 },
+    {
+        id: 'denyAttachment',
+        service: 'helpdesk-attachment-enricher',
+        type: 'denyAttachment',
+        label: 'Deny',
+        enricherInstanceId: 'mockerCheckerId',
+        streamId: 'krjijasd___12039__1jdfja23',
+        userId: 123456789
+    }];
+
+const mockDataUpdate = 'mockDataUpdate';
+const mockTemplate = 'mockTemplate';
+
 describe('Attachment Enricher', () => {
     let attachmentEnricher;
     beforeAll(() => {
-        AttachmentService.mockClear();
+        attachmentActions.mockReturnValue(mockTemplate);
+        actionFactory.mockReturnValue(mockDataUpdate);
     });
     it('Should create a new attachment enricher', () => {
         AttachmentService.mockImplementation(() => {
@@ -144,19 +182,19 @@ describe('Attachment Enricher', () => {
             mockAttachmentService.search.mockResolvedValue({ data: mockAttachmentOpen });
             getUserId.mockResolvedValue(mockerChekcerId);
 
-            attachmentEnricher.enrich(mockType, mockEntity1);
+            attachmentEnricher.enrich(mockType, mockEntity);
 
             await delay(10);
 
             expect(mockAttachmentService.search.mock.calls.length).toBe(1);
+            expect(mockAttachmentService.search.mock.calls[0][0]).toBe(mockEntity.attachmentUrl);
 
             expect(getUserId.mock.calls.length).toBe(1);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(2);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
-            expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity1);
+            expect(actionFactory.mock.calls[0][0]).toEqual(expectedActionsChecker);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-attachment-enricher');
+            expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity);
 
             expect(attachmentActions.mock.calls.length).toBe(1);
             expect(attachmentActions.mock.calls[0][0].showActions).toBe(true);
@@ -169,19 +207,19 @@ describe('Attachment Enricher', () => {
             mockAttachmentService.search.mockResolvedValue({ data: mockAttachmentNoDisplayName });
             getUserId.mockResolvedValue(mockerChekcerId);
 
-            attachmentEnricher.enrich(mockType, mockEntity1);
+            attachmentEnricher.enrich(mockType, mockEntity);
 
             await delay(10);
 
             expect(mockAttachmentService.search.mock.calls.length).toBe(1);
+            expect(mockAttachmentService.search.mock.calls[0][0]).toBe(mockEntity.attachmentUrl);
 
             expect(getUserId.mock.calls.length).toBe(1);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(2);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
-            expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity1);
+            expect(actionFactory.mock.calls[0][0]).toEqual(expectedActionsChecker);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-attachment-enricher');
+            expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity);
 
             expect(attachmentActions.mock.calls.length).toBe(1);
             expect(attachmentActions.mock.calls[0][0].showActions).toBe(true);
@@ -194,19 +232,19 @@ describe('Attachment Enricher', () => {
             mockAttachmentService.search.mockResolvedValue({ data: mockAttachmentOpen });
             getUserId.mockResolvedValue(mockerId);
 
-            attachmentEnricher.enrich(mockType, mockEntity1);
+            attachmentEnricher.enrich(mockType, mockEntity);
 
             await delay(10);
 
             expect(mockAttachmentService.search.mock.calls.length).toBe(1);
+            expect(mockAttachmentService.search.mock.calls[0][0]).toBe(mockEntity.attachmentUrl);
 
             expect(getUserId.mock.calls.length).toBe(1);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(2);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
-            expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity1);
+            expect(actionFactory.mock.calls[0][0]).toEqual(expectedActionsMaker);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-attachment-enricher');
+            expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity);
 
             expect(attachmentActions.mock.calls.length).toBe(1);
             expect(attachmentActions.mock.calls[0][0].showActions).toBe(true);
@@ -219,7 +257,8 @@ describe('Attachment Enricher', () => {
             mockAttachmentService.search.mockResolvedValue({ data: mockAttachmentApproved });
             getUserId.mockResolvedValue(mockerChekcerId);
 
-            attachmentEnricher.enrich(mockType, mockEntity1);
+            attachmentEnricher.enrich(mockType, mockEntity);
+            expect(mockAttachmentService.search.mock.calls[0][0]).toBe(mockEntity.attachmentUrl);
 
             await delay(10);
 
@@ -228,10 +267,9 @@ describe('Attachment Enricher', () => {
             expect(getUserId.mock.calls.length).toBe(1);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(2);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
-            expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity1);
+            expect(actionFactory.mock.calls[0][0]).toEqual(expectedActionsChecker);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-attachment-enricher');
+            expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity);
 
             expect(attachmentActions.mock.calls.length).toBe(1);
             expect(attachmentActions.mock.calls[0][0].showActions).toBe(false);
@@ -252,13 +290,13 @@ describe('Attachment Enricher', () => {
 
             expect(renderErrorMessage.mock.calls.length).toBe(1);
             expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntityNoUrl);
-            expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-            expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+            expect(renderErrorMessage.mock.calls[0][1]).toEqual('Cannot retrieve attachment state.');
+            expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-attachment-enricher');
         });
         it('Should render error (status 204 by API)', async () => {
             mockAttachmentService.search.mockResolvedValue({ status: 204 });
 
-            attachmentEnricher.enrich(mockType, mockEntity1);
+            attachmentEnricher.enrich(mockType, mockEntity);
 
             await delay(10);
 
@@ -269,14 +307,14 @@ describe('Attachment Enricher', () => {
             expect(attachmentActions.mock.calls.length).toBe(0);
 
             expect(renderErrorMessage.mock.calls.length).toBe(1);
-            expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity1);
-            expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-            expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+            expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity);
+            expect(renderErrorMessage.mock.calls[0][1]).toEqual('Attachment not found.');
+            expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-attachment-enricher');
         });
         it('Should render error (API exception with message)', async () => {
             mockAttachmentService.search.mockResolvedValue(Promise.reject(mockErrorMessage));
 
-            attachmentEnricher.enrich(mockType, mockEntity1);
+            attachmentEnricher.enrich(mockType, mockEntity);
 
             await delay(10);
 
@@ -287,14 +325,14 @@ describe('Attachment Enricher', () => {
             expect(attachmentActions.mock.calls.length).toBe(0);
 
             expect(renderErrorMessage.mock.calls.length).toBe(1);
-            expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity1);
+            expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity);
             expect(renderErrorMessage.mock.calls[0][1]).toEqual(mockErrorMessage.messageException);
-            expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+            expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-attachment-enricher');
         });
         it('Should render error (API exception with no message)', async () => {
             mockAttachmentService.search.mockResolvedValue(Promise.reject(mockErrorNoMessage));
 
-            attachmentEnricher.enrich(mockType, mockEntity1);
+            attachmentEnricher.enrich(mockType, mockEntity);
 
             await delay(10);
 
@@ -305,9 +343,9 @@ describe('Attachment Enricher', () => {
             expect(attachmentActions.mock.calls.length).toBe(0);
 
             expect(renderErrorMessage.mock.calls.length).toBe(1);
-            expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity1);
-            expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-            expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+            expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity);
+            expect(renderErrorMessage.mock.calls[0][1]).toEqual('Cannot retrieve attachment state.');
+            expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-attachment-enricher');
         });
     });
     describe('Action:', () => {
@@ -332,9 +370,8 @@ describe('Attachment Enricher', () => {
             expect(subscribe.mock.calls.length).toBe(1);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(0);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+            expect(actionFactory.mock.calls[0][0]).toEqual([]);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-attachment-enricher');
             expect(actionFactory.mock.calls[0][2]).toEqual(mockDataApprove.entity);
 
             expect(mockAttachmentService.approve.mock.calls.length).toBe(1);
@@ -347,8 +384,8 @@ describe('Attachment Enricher', () => {
 
             expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
             expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockDataApprove.enricherInstanceId);
-            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toEqual(mockTemplate);
+            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockDataUpdate);
         });
         it('Should update enricher on denied attachment', async () => {
             mockAttachmentService.deny.mockResolvedValue({ data: { user: { displayName: 'lulba' } } });
@@ -360,9 +397,8 @@ describe('Attachment Enricher', () => {
             expect(subscribe.mock.calls.length).toBe(1);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(0);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+            expect(actionFactory.mock.calls[0][0]).toEqual([]);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-attachment-enricher');
             expect(actionFactory.mock.calls[0][2]).toEqual(mockDataDeny.entity);
 
             expect(mockAttachmentService.deny.mock.calls.length).toBe(1);
@@ -375,8 +411,8 @@ describe('Attachment Enricher', () => {
 
             expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
             expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockDataDeny.enricherInstanceId);
-            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toEqual(mockTemplate);
+            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockDataUpdate);
         });
         it('Should update enricher on approved attachment (no user displayName case)', async () => {
             mockAttachmentService.approve.mockResolvedValue({ data: { user: {} } });
@@ -388,9 +424,8 @@ describe('Attachment Enricher', () => {
             expect(subscribe.mock.calls.length).toBe(1);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(0);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+            expect(actionFactory.mock.calls[0][0]).toEqual([]);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-attachment-enricher');
             expect(actionFactory.mock.calls[0][2]).toEqual(mockDataApprove.entity);
 
             expect(mockAttachmentService.approve.mock.calls.length).toBe(1);
@@ -403,8 +438,8 @@ describe('Attachment Enricher', () => {
 
             expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
             expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockDataApprove.enricherInstanceId);
-            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toEqual(mockTemplate);
+            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockDataUpdate);
         });
         it('Should update enricher on denied attachment (no user displayName case)', async () => {
             mockAttachmentService.deny.mockResolvedValue({ data: { user: {} } });
@@ -416,9 +451,8 @@ describe('Attachment Enricher', () => {
             expect(subscribe.mock.calls.length).toBe(1);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(actionFactory.mock.calls[0][0].length).toBe(0);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+            expect(actionFactory.mock.calls[0][0]).toEqual([]);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-attachment-enricher');
             expect(actionFactory.mock.calls[0][2]).toEqual(mockDataDeny.entity);
 
             expect(mockAttachmentService.deny.mock.calls.length).toBe(1);
@@ -431,8 +465,8 @@ describe('Attachment Enricher', () => {
 
             expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
             expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockDataDeny.enricherInstanceId);
-            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toEqual(mockTemplate);
+            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockDataUpdate);
         });
     });
 });

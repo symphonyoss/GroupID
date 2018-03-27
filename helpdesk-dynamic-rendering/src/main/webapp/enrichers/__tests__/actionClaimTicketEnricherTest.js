@@ -58,6 +58,31 @@ const mockEntityUnserviced = {
     }
 };
 
+const mockActionData = 'mockActionData';
+const mockTemplate = 'mockTemplate';
+
+const expectedActions = [{ id: 'joinConversation',
+    service: 'helpdesk-enricher',
+    type: 'joinConversation',
+    label: 'Join the conversation',
+    enricherInstanceId: 'A3M5F9K3S0',
+    show: true,
+    userName: 'Tester',
+    streamId: 'krjijasd___12039__1jdfja23',
+    userId: 123456789
+}];
+
+const expectedActionsNoUsername = [{ id: 'joinConversation',
+    service: 'helpdesk-enricher',
+    type: 'joinConversation',
+    label: 'Join the conversation',
+    enricherInstanceId: 'A3M5F9K3S0',
+    show: true,
+    userName: '',
+    streamId: 'krjijasd___12039__1jdfja23',
+    userId: 123456789
+}];
+
 const delay = (duration) => {
     return new Promise((resolve) => {
         setTimeout(() => {
@@ -84,6 +109,10 @@ const isActionValid = (data) => {
 
 describe('Action Claim Ticket Enricher', () => {
     let actionClaimTicketEnricher;
+    beforeAll(() => {
+        actionFactory.mockReturnValue(mockActionData);
+        claimTicketActions.mockReturnValue(mockTemplate);
+    })
     beforeEach(() => {
         getUserId.mockClear();
         getRooms.mockClear();
@@ -115,17 +144,16 @@ describe('Action Claim Ticket Enricher', () => {
 
             expect(getRooms.mock.calls.length).toBe(1);
 
-            expect(base64.escape.mock.calls.length).toBe(mockInRoomList.length);
-            for(const room of mockInRoomList) {
-                expect(base64.escape.mock.calls).toContainEqual([room.threadId]);
-            }
+            expect(base64.escape.mock.calls.length).toBe(1);
+            expect(base64.escape.mock.calls[0][0]).toEqual(mockInRoomList[0].threadId);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+            expect(actionFactory.mock.calls[0][0]).toEqual(expectedActions);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-enricher');
             expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity1);
 
             expect(subscribe.mock.calls.length).toBe(1);
+            expect(subscribe.mock.calls[0][0]).toEqual('entity');
 
             expect(claimTicketActions.mock.calls.length).toBe(1);
             expect(claimTicketActions.mock.calls[0][0].isTicketRoomMember).toBe(true);
@@ -133,8 +161,8 @@ describe('Action Claim Ticket Enricher', () => {
 
             expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
             expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockEntity1.ticketId);
-            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toEqual(mockTemplate);
+            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockActionData);
 
             expect(renderErrorMessage.mock.calls.length).toBe(0);
         });
@@ -149,17 +177,16 @@ describe('Action Claim Ticket Enricher', () => {
 
             expect(getRooms.mock.calls.length).toBe(1);
 
-            expect(base64.escape.mock.calls.length).toBe(mockInRoomList.length);
-            for(const room of mockInRoomList) {
-                expect(base64.escape.mock.calls[0]).toContain(room.threadId);
-            }
+            expect(base64.escape.mock.calls.length).toBe(1);
+            expect(base64.escape.mock.calls[0][0]).toEqual(mockInRoomList[0].threadId);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+            expect(actionFactory.mock.calls[0][0]).toEqual(expectedActions);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-enricher');
             expect(actionFactory.mock.calls[0][2]).toEqual(mockEntity1);
 
             expect(subscribe.mock.calls.length).toBe(1);
+            expect(subscribe.mock.calls[0][0]).toEqual('entity');
 
             expect(claimTicketActions.mock.calls.length).toBe(1);
             expect(claimTicketActions.mock.calls[0][0].isTicketRoomMember).toBe(false);
@@ -167,8 +194,8 @@ describe('Action Claim Ticket Enricher', () => {
 
             expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
             expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockEntity1.ticketId);
-            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toEqual(mockTemplate);
+            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockActionData);
 
             expect(renderErrorMessage.mock.calls.length).toBe(0);
         });
@@ -181,25 +208,24 @@ describe('Action Claim Ticket Enricher', () => {
 
             expect(getRooms.mock.calls.length).toBe(1);
 
-            expect(base64.escape.mock.calls.length).toBe(mockInRoomList.length);
-            for(const room of mockInRoomList) {
-                expect(base64.escape.mock.calls[0]).toContain(room.threadId);
-            }
+            expect(base64.escape.mock.calls.length).toBe(1);
+            expect(base64.escape.mock.calls[0][0]).toEqual(mockInRoomList[0].threadId);
 
             expect(actionFactory.mock.calls.length).toBe(1);
-            expect(Array.isArray(actionFactory.mock.calls[0][0])).toBe(true);
-            expect(typeof actionFactory.mock.calls[0][1]).toEqual('string');
+            expect(actionFactory.mock.calls[0][0]).toEqual(expectedActionsNoUsername);
+            expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-enricher');
             expect(actionFactory.mock.calls[0][2]).toEqual(mockEntityNoAgent);
 
             expect(subscribe.mock.calls.length).toBe(1);
+            expect(subscribe.mock.calls[0][0]).toEqual('entity');
 
             expect(claimTicketActions.mock.calls.length).toBe(1);
             expect(isActionValid(claimTicketActions.mock.calls[0][0])).toBe(true);
 
             expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
             expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockEntityNoAgent.ticketId);
-            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+            expect(entityRegistry.updateEnricher.mock.calls[0][1]).toEqual(mockTemplate);
+            expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockActionData);
 
             expect(renderErrorMessage.mock.calls.length).toBe(0);
         });
@@ -242,8 +268,8 @@ describe('Action Claim Ticket Enricher', () => {
 
             expect(renderErrorMessage.mock.calls.length).toBe(1);
             expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity1);
-            expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-            expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+            expect(renderErrorMessage.mock.calls[0][1]).toEqual('Could not find this user.');
+            expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-enricher');
         });
         it('Should fail to get user id with error message defined', async () => {
             getUserId.mockResolvedValue(Promise.reject(mockErrorMessage));
@@ -264,7 +290,7 @@ describe('Action Claim Ticket Enricher', () => {
             expect(renderErrorMessage.mock.calls.length).toBe(1);
             expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity1);
             expect(renderErrorMessage.mock.calls[0][1]).toEqual(mockErrorMessage.messageException);
-            expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+            expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-enricher');
         });
         it('Should fail to get user rooms with no error message defined', async () => {
             getRooms.mockResolvedValue(Promise.reject(mockErrorNoMessage));
@@ -284,8 +310,8 @@ describe('Action Claim Ticket Enricher', () => {
 
             expect(renderErrorMessage.mock.calls.length).toBe(1);
             expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity1);
-            expect(typeof renderErrorMessage.mock.calls[0][1]).toEqual('string');
-            expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+            expect(renderErrorMessage.mock.calls[0][1]).toEqual('Could not get rooms for this user.');
+            expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-enricher');
         });
         it('Should fail to get user rooms with error message defined', async () => {
             getRooms.mockResolvedValue(Promise.reject(mockErrorMessage));
@@ -306,7 +332,7 @@ describe('Action Claim Ticket Enricher', () => {
             expect(renderErrorMessage.mock.calls.length).toBe(1);
             expect(renderErrorMessage.mock.calls[0][0]).toEqual(mockEntity1);
             expect(renderErrorMessage.mock.calls[0][1]).toEqual(mockErrorMessage.messageException);
-            expect(typeof renderErrorMessage.mock.calls[0][2]).toEqual('string');
+            expect(renderErrorMessage.mock.calls[0][2]).toEqual('helpdesk-enricher');
         });
     });
 });

@@ -55,6 +55,9 @@ const mockEntityOpen = {
     }
 };
 
+const mockActionFactoryData = 'mockActionFactoryData';
+const mockTemplate = 'mockTemplate';
+
 const isActionValid = (data) => {
     let valid = true;
     if(!data.hasOwnProperty('showActions')) {
@@ -74,6 +77,10 @@ const isActionValid = (data) => {
 
 describe('Action Attachment Enricher', () => {
     let actionAttachmentEnricher;
+    beforeAll(() => {
+        actionFactory.mockReturnValue(mockActionFactoryData);
+        attachmentActions.mockReturnValue(mockTemplate);
+    });
     beforeEach(() => {
         actionFactory.mockClear();
         entityRegistry.updateEnricher.mockClear();
@@ -92,54 +99,57 @@ describe('Action Attachment Enricher', () => {
 
         expect(actionFactory.mock.calls.length).toBe(1);
         expect(actionFactory.mock.calls[0][0]).toEqual([]);
-        expect(typeof actionFactory.mock.calls[0][1] === 'string').toBe(true);
+        expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-action-attachment-enricher');
         expect(actionFactory.mock.calls[0][2]).toEqual(mockEntityApproved);
 
         expect(subscribe.mock.calls.length).toBe(1);
+        expect(subscribe.mock.calls[0][0]).toEqual('entity');
 
         expect(attachmentActions.mock.calls.length).toBe(1);
         expect(isActionValid(attachmentActions.mock.calls[0][0])).toBe(true);
 
         expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
         expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockEntityApproved.makerCheckerId);
-        expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-        expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+        expect(entityRegistry.updateEnricher.mock.calls[0][1]).toEqual(mockTemplate);
+        expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockActionFactoryData);
     });
     it('Should update enricher (denied attachment case)', () => {
         actionAttachmentEnricher.enrich(mockType, mockEntityDenied);
 
         expect(actionFactory.mock.calls.length).toBe(1);
         expect(actionFactory.mock.calls[0][0]).toEqual([]);
-        expect(typeof actionFactory.mock.calls[0][1] === 'string').toBe(true);
+        expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-action-attachment-enricher');
         expect(actionFactory.mock.calls[0][2]).toEqual(mockEntityDenied);
 
         expect(subscribe.mock.calls.length).toBe(1);
+        expect(subscribe.mock.calls[0][0]).toEqual('entity');
 
         expect(attachmentActions.mock.calls.length).toBe(1);
         expect(isActionValid(attachmentActions.mock.calls[0][0])).toBe(true);
 
         expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
         expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockEntityDenied.makerCheckerId);
-        expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-        expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+        expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(mockTemplate);
+        expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockActionFactoryData);
     });
     it('Should update enricher (approved but no checker display name case)', () => {
         actionAttachmentEnricher.enrich(mockType, mockEntityNoCheckerDisplayName);
 
         expect(actionFactory.mock.calls.length).toBe(1);
         expect(actionFactory.mock.calls[0][0]).toEqual([]);
-        expect(typeof actionFactory.mock.calls[0][1] === 'string').toBe(true);
+        expect(actionFactory.mock.calls[0][1]).toEqual('helpdesk-action-attachment-enricher');
         expect(actionFactory.mock.calls[0][2]).toEqual(mockEntityNoCheckerDisplayName);
 
         expect(subscribe.mock.calls.length).toBe(1);
+        expect(subscribe.mock.calls[0][0]).toEqual('entity');
 
         expect(attachmentActions.mock.calls.length).toBe(1);
         expect(isActionValid(attachmentActions.mock.calls[0][0])).toBe(true);
 
         expect(entityRegistry.updateEnricher.mock.calls.length).toBe(1);
         expect(entityRegistry.updateEnricher.mock.calls[0][0]).toEqual(mockEntityNoCheckerDisplayName.makerCheckerId);
-        expect(entityRegistry.updateEnricher.mock.calls[0][1]).toBe(undefined);
-        expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(undefined);
+        expect(entityRegistry.updateEnricher.mock.calls[0][1]).toEqual(mockTemplate);
+        expect(entityRegistry.updateEnricher.mock.calls[0][2]).toBe(mockActionFactoryData);
     });
     it('Should not update enricher (no action was performed case)', () => {
         actionAttachmentEnricher.enrich(mockType, mockEntityOpen);
