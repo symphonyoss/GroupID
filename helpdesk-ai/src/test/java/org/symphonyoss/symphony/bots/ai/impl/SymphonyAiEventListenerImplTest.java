@@ -21,10 +21,11 @@ import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 
 /**
+ * Unit tests for {@link SymphonyAiEventListenerImpl}
  * Created by rsanchez on 05/01/18.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AiEventListenerImplTest {
+public class SymphonyAiEventListenerImplTest {
 
   private static final String PREFIX = "@";
 
@@ -49,9 +50,8 @@ public class AiEventListenerImplTest {
 
   @Before
   public void init() {
-    this.commandMenu = new AiCommandMenu();
+    this.commandMenu = new AiCommandMenu(PREFIX);
 
-    this.commandMenu.setCommandPrefix(PREFIX);
     this.sessionContext.setAiCommandMenu(commandMenu);
 
     this.eventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, false);

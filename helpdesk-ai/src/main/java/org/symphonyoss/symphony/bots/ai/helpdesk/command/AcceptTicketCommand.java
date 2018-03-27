@@ -32,13 +32,14 @@ public class AcceptTicketCommand extends AiCommand {
 
   private static final Logger LOG = LoggerFactory.getLogger(AcceptTicketCommand.class);
 
-  public AcceptTicketCommand(String command, String usage) {
-    super(command, usage);
+  public AcceptTicketCommand(HelpDeskAiConfig config) {
+    super(config.getAcceptTicketCommand(),
+        config.getDefaultPrefix() + config.getAcceptTicketCommand());
     setArgumentTypes(ArgumentType.STRING);
     addAction(new AcceptAction());
   }
 
-  class AcceptAction implements AiAction {
+  private class AcceptAction implements AiAction {
     /**
      * Fire the AcceptTicket command action
      * @param sessionContext current session context

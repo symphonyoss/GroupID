@@ -21,8 +21,6 @@ public class AiCommandMenu {
     this.commandPrefix = commandPrefix;
   }
 
-  public AiCommandMenu() {}
-
   /**
    * Adds a command to the "menu"
    * @param aiCommand {@link AiCommand} to be added
@@ -59,11 +57,4 @@ public class AiCommandMenu {
     return commandPrefix;
   }
 
-  /**
-   * Set the menu command prefix
-   * @param commandPrefix
-   */
-  public void setCommandPrefix(String commandPrefix) {
-    this.commandPrefix = commandPrefix;
-  }
 }

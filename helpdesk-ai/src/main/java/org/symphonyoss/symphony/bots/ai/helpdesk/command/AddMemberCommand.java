@@ -33,15 +33,16 @@ import java.util.Set;
  * Created by nick.tarsillo on 10/12/17.
  */
 public class AddMemberCommand extends AiCommand {
+
   private static final Logger LOG = LoggerFactory.getLogger(AddMemberCommand.class);
 
-  public AddMemberCommand(String command, String usage) {
-    super(command, usage);
+  public AddMemberCommand(HelpDeskAiConfig config) {
+    super(config.getAddMemberCommand(), config.getDefaultPrefix() + config.getAddMemberCommand());
     setArgumentTypes(ArgumentType.LONG, ArgumentType.STRING);
     addAction(new AddMemberAction());
   }
 
-  class AddMemberAction implements AiAction {
+  private class AddMemberAction implements AiAction {
     /**
      * Fire the AddMember command action
      * @param sessionContext current session context

@@ -9,10 +9,10 @@ import org.symphonyoss.symphony.bots.ai.helpdesk.command.CloseTicketCommand;
  * An AI command line menu that will contain commands for agents in client service rooms.
  */
 public class ServiceCommandMenu extends AiCommandMenu {
-  public ServiceCommandMenu(HelpDeskAiConfig helpDeskAiConfig) {
-    setCommandPrefix(helpDeskAiConfig.getAgentServiceRoomPrefix());
 
-    addCommand(new CloseTicketCommand(helpDeskAiConfig.getCloseTicketCommand(),
-        helpDeskAiConfig.getAgentServiceRoomPrefix() + helpDeskAiConfig.getCloseTicketCommand()));
+  public ServiceCommandMenu(HelpDeskAiConfig helpDeskAiConfig) {
+    super(helpDeskAiConfig.getAgentServiceRoomPrefix());
+    addCommand(new CloseTicketCommand(helpDeskAiConfig));
   }
+
 }
