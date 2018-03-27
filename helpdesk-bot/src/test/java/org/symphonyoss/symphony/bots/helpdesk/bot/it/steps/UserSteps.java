@@ -27,7 +27,7 @@ public class UserSteps {
 
   private final TempVariablesContext context = TempVariablesContext.getInstance();
 
-  private CertificateUtils certificateUtils = new CertificateUtils();
+  private CertificateUtils certificateUtils = new CertificateUtils(null);
 
   @Given("a new user account $user with roles $roles")
   public void createEndUser(String user, List<String> roles) {

@@ -73,32 +73,37 @@ public class HelpDeskProvisioningService {
     LOGGER.info("Provisioning is being executed.");
 
     // Root certificate
-    generateRootCertificate();
+    CompanyCert cert = generateRootCertificate();
 
     // Service account
     generateServiceAccount();
+
+    if (cert != null) {
+      LOGGER.info("Certificate generated!");
+      // Uploading CA cert
+      uploadRootCertificate(cert);
+    }
   }
 
-  private void generateRootCertificate() {
+  private CompanyCert generateRootCertificate() {
     if (config.isGenerateCACert()) {
       String certificatePath = certificateUtils.getSelfSignedRootCertificatePath();
       File certFile = new File(certificatePath);
 
-      if (certFile.exists() && !config.isOverwriteCACert()) {
-        LOGGER.info("Self Signed CA ROOT certificate already exists.");
-        return;
-      }
-
-      LOGGER.info("Generating a Self signed CA ROOT certificate.");
-      CompanyCert cert = getSelfSignedCertificate();
-      if (cert != null) {
-        LOGGER.info("Certificate generated! Logging in to upload the cert to a POD.");
-        String sessionToken = login();
-        LOGGER.info("Logged in successfully. Uploading certificate.");
-        publicApiClient.createCompanyCert(sessionToken, cert);
-        LOGGER.info("Certificate successfully uploaded.");
+      if (!certFile.exists() || config.isOverwriteCACert()) {
+        LOGGER.info("Generating a Self signed CA ROOT certificate.");
+        return getSelfSignedCertificate();
       }
     }
+    return null;
+  }
+
+  private void uploadRootCertificate(CompanyCert cert) {
+    LOGGER.info("Logging in to upload the cert to a POD.");
+    String sessionToken = login();
+    LOGGER.info("Logged in successfully. Uploading certificate.");
+    publicApiClient.createCompanyCert(sessionToken, cert);
+    LOGGER.info("Certificate successfully uploaded.");
   }
 
   private void generateServiceAccount() {

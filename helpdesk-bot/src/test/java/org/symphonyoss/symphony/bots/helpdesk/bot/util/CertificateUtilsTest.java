@@ -46,7 +46,7 @@ public class CertificateUtilsTest {
 
   @Before
   public void init() throws Exception {
-    utils = new CertificateUtils();
+    utils = new CertificateUtils(null);
 
     certsDir = new File(System.getProperty(CERTS_DIR_PROPERTY));
     caCertFile = new File(certsDir.getPath() + File.separator + CA_CERT_FILENAME);

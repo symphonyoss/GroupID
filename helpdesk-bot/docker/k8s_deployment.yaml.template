@@ -59,7 +59,7 @@ spec:
             - name: PROVISIONING_EXECUTE
               value: 'true'
             - name: PROVISIONING_USER_NAME
-              value: testuser
+              value: adrian1
             - name: PROVISIONING_USER_PASSWORD
               value: Symphony!123456
             - name: PROVISIONING_CA_GENERATE_KEYSTORE
