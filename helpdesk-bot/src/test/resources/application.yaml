@@ -39,6 +39,9 @@ serviceRoomWasNotCreated: "There was a problem trying to create the service room
 
 provisioning:
   execute: false
-  generate-ca: false
+  ca:
+    generate-keystore: false
+    overwrite: false
   service-account:
-    generate-p12: false
+    generate-keystore: false
+    overwrite: false
