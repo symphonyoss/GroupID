@@ -109,19 +109,17 @@ public class CertificateUtils {
 
   private static final String ROOT_KEY_FILENAME = "root-key.pem";
 
-  @Value("${certs.dir}")
-  private String certsDir;
-
   /**
    * Adds BouncyCastle as a Security Provider.
    * Creates certificate directory and set it into the test context.
    */
-  public CertificateUtils() {
+  public CertificateUtils(@Value("${certs.dir}") String certsDir) {
     Security.addProvider(new BouncyCastleProvider());
 
     if (StringUtils.isEmpty(certsDir)) {
       certsDir = System.getProperty("java.io.tmpdir") + File.separator + CERTS_DIR;
     }
+    LOGGER.info("Certs DIR is: {}", certsDir);
 
     File directory = new File(certsDir);
     if (!directory.exists()) {
@@ -434,6 +432,7 @@ public class CertificateUtils {
     URI certsDir = new File(CONTEXT.getCertsDir()).toURI();
     File rootCertFile = new File(certsDir.resolve(fileName));
     if (rootCertFile.exists()) {
+      LOGGER.info("File {} already exists, deleting it...", rootCertFile.getPath());
       rootCertFile.delete();
     }
 
@@ -441,6 +440,7 @@ public class CertificateUtils {
     JcaPEMWriter pemWriter = new JcaPEMWriter(fileWriter);
     pemWriter.writeObject(pem);
     pemWriter.flush();
+    LOGGER.info("File {} created! ", rootCertFile.getPath());
   }
 
 }

@@ -43,7 +43,7 @@ public class PrepareEnvironmentListener implements TestExecutionListener {
   private static final TempVariablesContext
       CONTEXT = TempVariablesContext.getInstance();
 
-  private CertificateUtils certificateUtils = new CertificateUtils();
+  private CertificateUtils certificateUtils = new CertificateUtils(null);
 
   @Override
   public void beforeTestClass(TestContext testContext) throws Exception {
