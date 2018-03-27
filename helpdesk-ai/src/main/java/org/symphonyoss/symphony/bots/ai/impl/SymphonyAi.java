@@ -156,10 +156,7 @@ public class SymphonyAi implements Ai {
 
   @Override
   public AiSessionContext newAiSessionContext(SymphonyAiSessionKey aiSessionKey) {
-    AiSessionContext aiSessionContext = new AiSessionContext();
-    aiSessionContext.setAiSessionKey(aiSessionKey);
-
-    return aiSessionContext;
+    return new AiSessionContext(aiSessionKey);
   }
 
   /**

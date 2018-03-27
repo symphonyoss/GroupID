@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.ai.helpdesk;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
+import org.symphonyoss.symphony.bots.ai.helpdesk.message.MessageProducer;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAi;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiEventListenerImpl;
@@ -40,10 +41,10 @@ public class HelpDeskAi extends SymphonyAi {
 
     MembershipClient membershipClient = helpDeskAiSession.getMembershipClient();
 
-    this.aiResponder =
-        new HelpDeskAiResponder(symphonyClient, membershipClient);
-    this.aiEventListener =
-        new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
+    MessageProducer messageProducer = new MessageProducer(membershipClient, symphonyClient);
+
+    this.aiResponder = new HelpDeskAiResponder(symphonyClient, messageProducer);
+    this.aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
   }
 
   /**
@@ -53,12 +54,7 @@ public class HelpDeskAi extends SymphonyAi {
    */
   @Override
   public AiSessionContext newAiSessionContext(SymphonyAiSessionKey sessionKey) {
-    HelpDeskAiConfig config = helpDeskAiSession.getHelpDeskAiConfig();
-
-    HelpDeskAiSessionContext sessionContext = new HelpDeskAiSessionContext();
-    sessionContext.setHelpDeskAiSession(helpDeskAiSession);
-    sessionContext.setAiSessionKey(sessionKey);
-    sessionContext.setGroupId(config.getGroupId());
+    HelpDeskAiSessionContext sessionContext = new HelpDeskAiSessionContext(sessionKey, helpDeskAiSession);
 
     Membership membership =
         helpDeskAiSession.getMembershipClient().getMembership(sessionKey.getUid());
