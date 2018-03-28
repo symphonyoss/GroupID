@@ -185,3 +185,17 @@ mvn -DcaKeyPath=${PATH_TO_CERTS}/helpdesk-root-key.pem -DcaCertPath=${PATH_TO_CE
 ```
 
 You must replace ${PATH_TO_CERTS} variable with the certificate directory and ${PATH_TO_YAML} with the YAML absolute path.
+
+
+## Containerized Deployment
+
+### Docker and Kubernetes
+
+This application is prepared to be deployed as a container, actually it is devided into four containers:
+
+1. [helpdesk-mongodb](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-mongodb/docker)
+2. [helpdesk-api](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-service/docker)
+3. [helpdesk-renderer](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-application/docker)
+4. [helpdesk-bot](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-bot/docker)
+
+
