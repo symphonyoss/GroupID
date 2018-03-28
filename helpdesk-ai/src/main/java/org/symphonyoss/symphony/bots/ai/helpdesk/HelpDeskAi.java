@@ -23,8 +23,7 @@ public class HelpDeskAi extends SymphonyAi {
   private HelpDeskAiSession helpDeskAiSession;
 
   public HelpDeskAi(HelpDeskAiSession helpDeskAiSession) {
-    super(helpDeskAiSession.getSymphonyClient(),
-        helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands());
+    super(helpDeskAiSession.getSymphonyClient());
     this.helpDeskAiSession = helpDeskAiSession;
   }
 
@@ -36,7 +35,6 @@ public class HelpDeskAi extends SymphonyAi {
     AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(
         helpDeskAiSession.getSymphonyClient().getLocalUser());
 
-    boolean suggestCommands = helpDeskAiSession.getHelpDeskAiConfig().isSuggestCommands();
     SymphonyClient symphonyClient = helpDeskAiSession.getSymphonyClient();
 
     MembershipClient membershipClient = helpDeskAiSession.getMembershipClient();
@@ -44,7 +42,7 @@ public class HelpDeskAi extends SymphonyAi {
     MessageProducer messageProducer = new MessageProducer(membershipClient, symphonyClient);
 
     this.aiResponder = new HelpDeskAiResponder(symphonyClient, messageProducer);
-    this.aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommands);
+    this.aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder);
   }
 
   /**
@@ -54,25 +52,38 @@ public class HelpDeskAi extends SymphonyAi {
    */
   @Override
   public AiSessionContext newAiSessionContext(SymphonyAiSessionKey sessionKey) {
+    Long userId = sessionKey.getUid();
+    String streamId = sessionKey.getStreamId();
+
     HelpDeskAiSessionContext sessionContext = new HelpDeskAiSessionContext(sessionKey, helpDeskAiSession);
 
-    Membership membership =
-        helpDeskAiSession.getMembershipClient().getMembership(sessionKey.getUid());
+    if (isAgentUser(userId)) {
 
-    if ((membership != null) && (MembershipClient.MembershipType.AGENT.getType()
-        .equals(membership.getType()))) {
-      Ticket ticket =
-          helpDeskAiSession.getTicketClient().getTicketByServiceStreamId(sessionKey.getStreamId());
-      if (ticket != null) {
+      if (isTicketRoom(streamId)) {
+        // Ticket room
         sessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT_SERVICE);
       } else {
+        // Agent room
         sessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.AGENT);
       }
+
     } else {
+      // Client room
       sessionContext.setSessionType(HelpDeskAiSessionContext.SessionType.CLIENT);
     }
 
     return sessionContext;
+  }
+
+  private boolean isAgentUser(Long userId) {
+    Membership membership = helpDeskAiSession.getMembershipClient().getMembership(userId);
+    return membership != null && MembershipClient.MembershipType.AGENT.getType()
+        .equals(membership.getType());
+  }
+
+  private boolean isTicketRoom(String streamId) {
+    Ticket ticket = helpDeskAiSession.getTicketClient().getTicketByServiceStreamId(streamId);
+    return ticket != null;
   }
 
 }

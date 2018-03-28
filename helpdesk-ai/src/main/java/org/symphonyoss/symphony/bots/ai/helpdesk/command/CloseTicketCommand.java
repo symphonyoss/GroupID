@@ -33,8 +33,7 @@ public class CloseTicketCommand extends AiCommand {
   private static final String INTERNAL_ERROR = "Something went wrong internally.";
 
   public CloseTicketCommand(HelpDeskAiConfig config) {
-    super(config.getCloseTicketCommand(),
-        config.getAgentServiceRoomPrefix() + config.getCloseTicketCommand());
+    super(config.getCloseTicketCommand());
     addAction(new ExitAction());
   }
 

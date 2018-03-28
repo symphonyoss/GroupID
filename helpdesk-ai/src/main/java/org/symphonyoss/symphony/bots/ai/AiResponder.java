@@ -29,10 +29,4 @@ public interface AiResponder {
    */
   void respondWithUseMenu(AiSessionContext sessionContext, SymphonyAiMessage message);
 
-  /**
-   * Send suggestion message based on menu.
-   * @param sessionContext the session context to add the response to.
-   * @param command the incorrect menu.
-   */
-  void respondWithSuggestion(AiSessionContext sessionContext, AiCommandInterpreter aiCommandInterpreter, SymphonyAiMessage command);
 }
