@@ -19,6 +19,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 
 /**
  * Unit tests for {@link SymphonyAiEventListenerImpl}
@@ -30,6 +31,12 @@ public class SymphonyAiEventListenerImplTest {
   private static final String PREFIX = "@";
 
   private static final String MOCK_COMMAND = "command";
+  
+  private static final String SESSION_KEY = "SESSION";
+
+  private static final Long USER_ID = 1234L;
+
+  private static final String STREAM_ID = "STREAM";
 
   @Mock
   private AiCommandInterpreter aiCommandInterpreter;
@@ -42,7 +49,9 @@ public class SymphonyAiEventListenerImplTest {
 
   private AiCommandMenu commandMenu;
 
-  private AiSessionContext sessionContext = new AiSessionContext();
+  private SymphonyAiSessionKey sessionKey = new SymphonyAiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
+
+  private AiSessionContext sessionContext = new AiSessionContext(sessionKey);
 
   private SymphonyAiMessage message = new SymphonyAiMessage("");
 

@@ -200,6 +200,17 @@
                                 <additionalClasspathElement>${project.build.outputDirectory}</additionalClasspathElement>
                             </additionalClasspathElements>
                             <skipITs>${skipBotBddTests}</skipITs>
+                            <forkedProcessTimeoutInSeconds>600</forkedProcessTimeoutInSeconds>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <skipITs>${skipBotBddTests}</skipITs>
+                            <failIfNoTests>true</failIfNoTests>
                         </configuration>
                     </execution>
                 </executions>

@@ -57,6 +57,9 @@ public class MessageProxyServiceTest {
   @Mock
   private MessageProxyService messageProxyService;
 
+  @Mock
+  private HelpDeskAiSessionContext helpDeskAiSessionContext;
+
   @Before
   public void setUp() throws Exception {
     messageProxyService =
@@ -69,7 +72,6 @@ public class MessageProxyServiceTest {
     SymphonyAiSessionKey aiSessionKey = new SymphonyAiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
     doReturn(aiSessionKey).when(helpDeskAi).getSessionKey(USER_ID,STREAM_ID);
 
-    HelpDeskAiSessionContext helpDeskAiSessionContext = new HelpDeskAiSessionContext();
     doReturn(helpDeskAiSessionContext).when(helpDeskAi).getSessionContext(aiSessionKey);
 
     messageProxyService.onMessage(getMembershipAgent(), getTicket(), getTestSymMessage());
@@ -94,7 +96,6 @@ public class MessageProxyServiceTest {
     SymphonyAiSessionKey aiSessionKey = new SymphonyAiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
     doReturn(aiSessionKey).when(helpDeskAi).getSessionKey(USER_ID,STREAM_ID);
 
-    HelpDeskAiSessionContext helpDeskAiSessionContext = new HelpDeskAiSessionContext();
     doReturn(helpDeskAiSessionContext).when(helpDeskAi).getSessionContext(aiSessionKey);
 
     messageProxyService.onMessage(membership, getTicket(), getTestSymMessage());
