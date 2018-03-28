@@ -4,7 +4,7 @@
   "description": "Symphony HelpDesk Bot - Dynamic Rendering App",
   "main": "index.js",
   "scripts": {
-    "postinstall": "npm run test && npm run webpack",
+    "postinstall": "npm run webpack",
     "test": "jest --coverage",
     "test:watch": "npm test -- --watch",
     "webpack": "./node_modules/webpack/bin/webpack.js -p --config ./webpack.config.js --bail",
