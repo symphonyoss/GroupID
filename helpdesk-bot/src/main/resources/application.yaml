@@ -45,7 +45,7 @@ http-client:
   read-timeout: 45000
 
 certs:
-  dir: #should be defined as environment variable CERTS_DIR
+  dir: '' #should be defined as environment variable CERTS_DIR
 
 provisioning:
   execute: false
