@@ -6,6 +6,7 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
@@ -30,8 +31,9 @@ public class ProxyConversation extends AiConversation {
    * @param allowCommands flag to allow commands
    * @param makerCheckerService the MakerCheckerService
    */
-  public ProxyConversation(boolean allowCommands, MakerCheckerService makerCheckerService) {
-    super(allowCommands);
+  public ProxyConversation(boolean allowCommands, AiSessionContext sessionContext,
+      MakerCheckerService makerCheckerService) {
+    super(allowCommands, sessionContext);
     this.makerCheckerService = makerCheckerService;
   }
 
@@ -44,10 +46,12 @@ public class ProxyConversation extends AiConversation {
    */
   @Override
   public void onMessage(AiResponder responder, SymphonyAiMessage message) {
-    if(makerCheckerService.allChecksPass(message.toSymMessage())) {
+    SymMessage symMessage = message.toSymMessage();
+
+    if(makerCheckerService.allChecksPass(symMessage)) {
       dispatchMessage(responder, message);
     } else {
-      dispatchMakerCheckerMessage(message);
+      dispatchMakerCheckerMessage(symMessage);
     }
 
     if (proxyIdleTimer != null) {
@@ -68,18 +72,17 @@ public class ProxyConversation extends AiConversation {
 
   /**
    * Build a MakerCheckerMessage and send it via the MakerCheckerService
-   * @param symphonyAiMessage the SymphonyAiMessage to be sent
+   * @param message the message to be sent
    */
-  private void dispatchMakerCheckerMessage(SymphonyAiMessage symphonyAiMessage) {
+  private void dispatchMakerCheckerMessage(SymMessage message) {
     Set<String> proxyToIds = this.proxyToIds.stream()
         .map(item -> item.getResponseIdentifier())
         .collect(Collectors.toSet());
 
-    Set<SymMessage> symMessages =
-        makerCheckerService.getMakerCheckerMessages(symphonyAiMessage.toSymMessage(), proxyToIds);
+    Set<SymMessage> symMessages = makerCheckerService.getMakerCheckerMessages(message, proxyToIds);
 
     for(SymMessage symMessage: symMessages) {
-     makerCheckerService.sendMakerCheckerMesssage(symMessage, symphonyAiMessage.getMessageId(), proxyToIds);
+      makerCheckerService.sendMakerCheckerMesssage(symMessage, message.getId(), proxyToIds);
     }
   }
 
