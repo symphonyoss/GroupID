@@ -191,14 +191,14 @@ You must replace ${PATH_TO_CERTS} variable with the certificate directory and ${
 
 ### Docker and Kubernetes
 
-This application is prepared to be deployed as a container, actually it is devided into four containers:
+This application is prepared to be deployed as a container, actually it is divided into four containers:
 
 1. [helpdesk-mongodb](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-mongodb/docker)
 2. [helpdesk-api](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-service/docker)
 3. [helpdesk-renderer](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-application/docker)
 4. [helpdesk-bot](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-bot/docker)
 
-Each project contains the folowing structure:
+Each project contains the following structure:
 ```
 docker/
   Dockerfile
@@ -206,7 +206,7 @@ docker/
   k8s_deployment.yaml.template
   k8s_service.yaml
 ```
-The ```Dockerfile``` contains the base image, some necessary applications and the entrypoint to run the application. While the ```k8s_deployment.yaml.template``` is used to create a [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) on Kubernetes. And the ```k8s_service.yaml``` a [service](https://kubernetes.io/docs/concepts/services-networking/service/) on Kubernetes as well.
+The ```Dockerfile``` contains the base image, some necessary applications and the entry point to run the application. While the ```k8s_deployment.yaml.template``` is used to create a [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) on Kubernetes. And the ```k8s_service.yaml``` a [service](https://kubernetes.io/docs/concepts/services-networking/service/) on Kubernetes as well.
 
 There is also a file named ```k8s_build_push_run.sh```, it is used to perform the operations defined above.
 
@@ -229,7 +229,7 @@ Each project has a ```.yaml.template``` file (except the mongoDB container) and 
 
 1. Never edit the ```<VERSION>``` information. It will be replaced by the version number located inside ```pom.xml``` when ```k8s_build_push_run.sh``` is executed.
 
-2. The folowing entries are already configured to use the [Kubernetes Service DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/), so probably they must not be changed:
+2. The following entries are already configured to use the [Kubernetes Service DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/), so probably they must not be changed:
   - ```SERVER_PORT```
   - ```HELPDESK_BOT_HOST```
   - ```HELPDESK_BOT_PORT```
