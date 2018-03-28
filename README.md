@@ -198,4 +198,75 @@ This application is prepared to be deployed as a container, actually it is devid
 3. [helpdesk-renderer](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-application/docker)
 4. [helpdesk-bot](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-bot/docker)
 
+Each project contains the folowing structure:
+```
+docker/
+  Dockerfile
+  k8s_build_push_run.sh
+  k8s_deployment.yaml.template
+  k8s_service.yaml
+```
+The ```Dockerfile``` contains the base image, some necessary applications and the entrypoint to run the application. While the ```k8s_deployment.yaml.template``` is used to create a [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) on Kubernetes. And the ```k8s_service.yaml``` a [service](https://kubernetes.io/docs/concepts/services-networking/service/) on Kubernetes as well.
+
+There is also a file named ```k8s_build_push_run.sh```, it is used to perform the operations defined above.
+
+
+#### How to start
+
+First of all, you must install [Google Cloud](https://cloud.google.com/sdk/docs/quickstarts) and, after that, [Kubernetes CTL](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-via-curl).
+
+Then the following command must be executed ```gcloud init``` and select the needed project. So the following command as well ```gcloud container clusters get-credentials <cluster_name> --zone us-central1-b --project <project_name>``` and GCloud is configured.
+
+
+#### Create a service account in your POD
+
+You must go to AC Portal on your POD and create a service account, it will be used by ```helpdesk-bot``` to authenticate. Please keep the chosen username, it will be used bellow.
+
+
+#### Fill the .yaml.template files
+
+Each project has a ```.yaml.template``` file (except the mongoDB container) and this file must be edited. Some considerations about this file:
+
+1. Never edit the ```<VERSION>``` information. It will be replaced by the version number located inside ```pom.xml``` when ```k8s_build_push_run.sh``` is executed.
+
+2. The folowing entries are already configured to use the [Kubernetes Service DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/), so probably they must not be changed:
+  - ```SERVER_PORT```
+  - ```HELPDESK_BOT_HOST```
+  - ```HELPDESK_BOT_PORT```
+  - ```HELPDESK_SERVICE_HOST```
+  - ```HELPDESK_SERVICE_PORT```
+  - ```MONGO_HOST```
+  - ```MONGO_PORT```
+  - (```MONGO_HOST``` and ```MONGO_PORT``` are configured to use ```helpdesk-mongodb``` service, it must be changed if another MongoDB will be used)
+
+3. When editing the entry ```PROVISIONING_SERVICE_ACCOUNT_NAME``` you must inform the username created for the service account created previously. It also must be the name of the ```.p12``` file contained in ```AUTHENTICATION_KEYSTORE_FILE``` entry. For example, if username is ```mybot123``` it must be ```mybot123.p12```.
+
+4. Other entries must be updated to reflect your environment.
+
+
+#### The provisioning process
+
+Inside ```helpdesk-bot```'s ```k8s_deployment.yaml.template``` there are some entries related to the provisioning process, it must be executed at least once. Set flags to ```TRUE```, inform the credentials (an user with PROVISIONING role) and the provisioning will be performed during the bootstrap:
+  - ``` PROVISIONING_USER_NAME```
+  - ``` PROVISIONING_USER_PASSWORD```
+  - ``` PROVISIONING_CA_GENERATE_KEYSTORE```
+  - ``` PROVISIONING_CA_OVERWRITE```
+  - ``` PROVISIONING_SERVICE_ACCOUNT_NAME```
+  - ``` PROVISIONING_SERVICE_ACCOUNT_GENERATE_KEYSTORE```
+  - ``` PROVISIONING_SERVICE_ACCOUNT_OVERWRITE```
+
+
+#### Deploying it!
+
+Go to the root [docker/](https://github.com/symphonyoss/GroupID/tree/dev/docker) dir and execute ```k8s_build_push_run.sh```. It will perform a ```mvn clean install``` and call each ```k8s_build_push_run.sh``` located inside the required projects.
+
+After this process is done, it is time to check if everything is working. Execute the command ```kubectl proxy```, open a browser and go to http://127.0.0.1:8001/ui. These are some example of dashboards, showing deployments, pods and services:
+
+ADD IMAGES HERE
+
+
+#### Configuring your APP
+
+TBD
+
 
