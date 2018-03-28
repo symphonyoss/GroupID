@@ -46,7 +46,7 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
         setAiCommandMenu(new ServiceCommandMenu(aiConfig));
         break;
       case AGENT:
-        setAiCommandMenu(new AgentCommandMenu(aiConfig));
+        setAiCommandMenu(new AgentCommandMenu());
         break;
       default:
         setAiCommandMenu(new ClientCommandMenu());
