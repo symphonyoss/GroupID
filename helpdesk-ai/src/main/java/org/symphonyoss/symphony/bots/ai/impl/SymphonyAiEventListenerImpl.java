@@ -23,13 +23,9 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
 
   private AiResponder aiResponder;
 
-  private boolean suggestCommands;
-
-  public SymphonyAiEventListenerImpl(AiCommandInterpreter aiCommandInterpreter, AiResponder aiResponder,
-      boolean suggestCommands) {
+  public SymphonyAiEventListenerImpl(AiCommandInterpreter aiCommandInterpreter, AiResponder aiResponder) {
     this.aiCommandInterpreter = aiCommandInterpreter;
     this.aiResponder = aiResponder;
-    this.suggestCommands = suggestCommands;
   }
 
   @Override
@@ -48,10 +44,6 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
 
     if (commands.isEmpty()) {
       aiResponder.respondWithUseMenu(sessionContext, command);
-
-      if (suggestCommands) {
-        aiResponder.respondWithSuggestion(sessionContext, aiCommandInterpreter, command);
-      }
     } else {
       commands.forEach(aiCommand -> {
         AiArgumentMap args = aiCommandInterpreter.readCommandArguments(aiCommand, command, prefix);

@@ -63,7 +63,7 @@ public class SymphonyAiEventListenerImplTest {
 
     this.sessionContext.setAiCommandMenu(commandMenu);
 
-    this.eventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, false);
+    this.eventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder);
   }
 
   @Test
@@ -80,29 +80,13 @@ public class SymphonyAiEventListenerImplTest {
 
     verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
     verify(aiResponder, times(1)).respondWithUseMenu(sessionContext, message);
-    verify(aiResponder, never()).respondWithSuggestion(sessionContext, aiCommandInterpreter, message);
-  }
-
-  @Test
-  public void testSuggestCommands() {
-    AiCommand command = new AiCommand(MOCK_COMMAND, MOCK_COMMAND);
-    this.commandMenu.addCommand(command);
-
-    this.eventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, true);
-
-    doReturn(true).when(aiCommandInterpreter).hasPrefix(message, PREFIX);
-
-    eventListener.onCommand(message, sessionContext);
-
-    verify(aiResponder, times(1)).respondWithUseMenu(sessionContext, message);
-    verify(aiResponder, times(1)).respondWithSuggestion(sessionContext, aiCommandInterpreter, message);
   }
 
   @Test
   public void testCommands() {
     AiArgumentMap args = new AiArgumentMap();
 
-    AiCommand command = new AiCommand(MOCK_COMMAND, MOCK_COMMAND);
+    AiCommand command = new AiCommand(MOCK_COMMAND);
     command.addAction(aiAction);
 
     this.commandMenu.addCommand(command);

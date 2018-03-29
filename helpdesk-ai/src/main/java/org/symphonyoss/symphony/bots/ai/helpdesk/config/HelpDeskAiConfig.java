@@ -32,14 +32,6 @@ public class HelpDeskAiConfig {
     this.closeTicketCommand = closeTicketCommand;
   }
 
-  public boolean isSuggestCommands() {
-    return suggestCommands;
-  }
-
-  public void setSuggestCommands(boolean suggestCommands) {
-    this.suggestCommands = suggestCommands;
-  }
-
   public String getCloseTicketSuccessResponse() {
     return closeTicketSuccessResponse;
   }

@@ -1,14 +1,11 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.exceptions.MessagesException;
-import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
-import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
@@ -45,6 +42,7 @@ public class SymphonyAiResponder implements AiResponder {
   @Override
   public void respond(AiSessionContext sessionContext) {
     Map<AiResponseIdentifier, SymphonyAiMessage> response = new HashMap<>();
+
     for (AiResponse aiResponse : responseMap.get(sessionContext)) {
       for (AiResponseIdentifier responseIdentifier : aiResponse.getRespondTo()) {
         if (!response.containsKey(responseIdentifier)) {
@@ -90,6 +88,7 @@ public class SymphonyAiResponder implements AiResponder {
 
     SymStream stream = new SymStream();
     stream.setStreamId(respond.getResponseIdentifier());
+
     try {
       messagesClient.sendMessage(stream, symMessage);
     } catch (MessagesException e) {
@@ -109,8 +108,7 @@ public class SymphonyAiResponder implements AiResponder {
             "\n", "</li><li>") + "</li></ul></body>";
     response = response.replace("<li></li>", "");
 
-    SymphonyAiSessionKey symphonyAiSessionKey =
-        (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
+    SymphonyAiSessionKey symphonyAiSessionKey = sessionContext.getAiSessionKey();
 
     Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
     SymphonyAiResponseIdentifierImpl aiResponseIdentifier =
@@ -121,59 +119,6 @@ public class SymphonyAiResponder implements AiResponder {
     AiResponse aiResponse = new AiResponse(new SymphonyAiMessage(response), responseIdentifiers);
     addResponse(sessionContext, aiResponse);
     respond(sessionContext);
-  }
-
-  /**
-   * Respond with a suggested command.
-   * @param sessionContext the session context to base the response on.
-   * @param aiCommandInterpreter the command interpreter, used to interpret what command should
-   * be suggested.
-   * @param command the message containing the command.
-   */
-  @Override
-  public void respondWithSuggestion(AiSessionContext sessionContext,
-      AiCommandInterpreter aiCommandInterpreter, SymphonyAiMessage command) {
-    SymphonyAiSessionKey symphonyAiSessionKey =
-        (SymphonyAiSessionKey) sessionContext.getAiSessionKey();
-
-    AiCommand bestOption =
-        getBestCommand(sessionContext, aiCommandInterpreter, command.getAiMessage());
-
-    Set<AiResponseIdentifier> responseIdentifiers = new HashSet<>();
-    SymphonyAiResponseIdentifierImpl aiResponseIdentifier =
-        new SymphonyAiResponseIdentifierImpl(sessionContext.getSessionName(),
-            symphonyAiSessionKey.getStreamId());
-    responseIdentifiers.add(aiResponseIdentifier);
-
-    AiResponse aiResponse = new AiResponse(
-        new SymphonyAiMessage(
-            AiConstants.SUGGEST + bestOption.getCommand() + "? (Type <b>/last</b> to run menu.)"),
-        responseIdentifiers);
-    addResponse(sessionContext, aiResponse);
-    respond(sessionContext);
-  }
-
-  /**
-   * Retrieve the best command option according to the given command text
-   * @param sessionContext current session context
-   * @param aiCommandInterpreter command interpreter
-   * @param command command text
-   * @return best selected option for the command
-   */
-  protected AiCommand getBestCommand(AiSessionContext sessionContext,
-      AiCommandInterpreter aiCommandInterpreter, String command) {
-    AiCommand bestOption = null;
-    int least = Integer.MAX_VALUE;
-    for (AiCommand aiCommand : sessionContext.getAiCommandMenu().getCommandSet()) {
-      int current = StringUtils.getLevenshteinDistance(
-          aiCommandInterpreter.readCommandWithoutArguments(aiCommand), command);
-      if (current < least) {
-        bestOption = aiCommand;
-        least = current;
-      }
-    }
-
-    return bestOption;
   }
 
 }

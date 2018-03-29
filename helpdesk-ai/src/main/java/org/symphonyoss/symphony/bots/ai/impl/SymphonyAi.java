@@ -30,10 +30,10 @@ public class SymphonyAi implements Ai {
 
   protected AiResponder aiResponder;
 
-  public SymphonyAi(SymphonyClient symphonyClient, boolean suggestCommand) {
+  public SymphonyAi(SymphonyClient symphonyClient) {
     AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(symphonyClient.getLocalUser());
     aiResponder = new SymphonyAiResponder(symphonyClient.getMessagesClient());
-    aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder, suggestCommand);
+    aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder);
     aiSessionContextManager = new SymphonyAiSessionContextManager();
     aiConversationManager = new SymphonyAiConversationManager();
   }
