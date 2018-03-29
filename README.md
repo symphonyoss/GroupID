@@ -262,8 +262,9 @@ Go to the root [docker/](https://github.com/symphonyoss/GroupID/tree/dev/docker)
 
 After this process is done, it is time to check if everything is working. Execute the command ```kubectl proxy```, open a browser and go to http://127.0.0.1:8001/ui. These are some example of dashboards, showing deployments, pods and services:
 
-ADD IMAGES HERE
-
+![deployments](https://raw.githubusercontent.com/symphonyoss/GroupID/dev/docs/deployments.png)
+![pods](https://raw.githubusercontent.com/symphonyoss/GroupID/dev/docs/pods.png)
+![services](https://raw.githubusercontent.com/symphonyoss/GroupID/dev/docs/services.png)
 
 #### Configuring your APP
 
