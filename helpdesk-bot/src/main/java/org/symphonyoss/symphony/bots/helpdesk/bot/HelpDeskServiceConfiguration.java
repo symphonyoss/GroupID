@@ -55,13 +55,7 @@ public class HelpDeskServiceConfiguration {
     helpDeskAiConfig.setGroupId(configuration.getGroupId());
     helpDeskAiConfig.setAgentStreamId(configuration.getAgentStreamId());
     helpDeskAiConfig.setCloseTicketSuccessResponse(configuration.getCloseTicketSuccessResponse());
-    helpDeskAiConfig.setAddMemberAgentSuccessResponse(configuration.getAddMemberAgentSuccessResponse());
-    helpDeskAiConfig.setAddMemberClientSuccessResponse(configuration.getAddMemberClientSuccessResponse());
-    helpDeskAiConfig.setAcceptTicketClientSuccessResponse(configuration.getAcceptTicketClientSuccessResponse());
-    helpDeskAiConfig.setAcceptTicketCommand(configuration.getAcceptTicketCommand());
     helpDeskAiConfig.setCloseTicketCommand(configuration.getCloseTicketCommand());
-    helpDeskAiConfig.setAddMemberCommand(configuration.getAddMemberCommand());
-    helpDeskAiConfig.setDefaultPrefix(configuration.getAiDefaultPrefix());
     helpDeskAiConfig.setAgentServiceRoomPrefix(configuration.getAiServicePrefix());
 
     helpDeskAiSession.setHelpDeskAiConfig(helpDeskAiConfig);

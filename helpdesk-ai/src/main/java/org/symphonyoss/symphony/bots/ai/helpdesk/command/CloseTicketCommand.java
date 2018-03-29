@@ -7,7 +7,6 @@ import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSessionContext;
-import org.symphonyoss.symphony.bots.ai.helpdesk.common.HelpDeskAiConstants;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
@@ -31,9 +30,10 @@ import java.util.Set;
  */
 public class CloseTicketCommand extends AiCommand {
 
+  private static final String INTERNAL_ERROR = "Something went wrong internally.";
+
   public CloseTicketCommand(HelpDeskAiConfig config) {
-    super(config.getCloseTicketCommand(),
-        config.getAgentServiceRoomPrefix() + config.getCloseTicketCommand());
+    super(config.getCloseTicketCommand());
     addAction(new ExitAction());
   }
 
@@ -112,7 +112,7 @@ public class CloseTicketCommand extends AiCommand {
      * @return the built AI response
      */
     private AiResponse internalErrorResponse(SymphonyAiSessionKey aiSessionKey) {
-      return response(HelpDeskAiConstants.INTERNAL_ERROR, aiSessionKey.getStreamId());
+      return response(INTERNAL_ERROR, aiSessionKey.getStreamId());
     }
 
     /**

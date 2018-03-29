@@ -62,7 +62,7 @@ public class HelpDeskPublicApiClientTest {
   private RestTemplate restTemplate;
 
   @Spy
-  private CertificateUtils certificateUtils = new CertificateUtils();
+  private CertificateUtils certificateUtils = new CertificateUtils(null);
 
   @InjectMocks
   private HelpDeskPublicApiClient client = new HelpDeskPublicApiClient();

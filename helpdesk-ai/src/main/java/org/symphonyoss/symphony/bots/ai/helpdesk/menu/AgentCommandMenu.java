@@ -1,9 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.helpdesk.menu;
 
-import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
+import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
-import org.symphonyoss.symphony.bots.ai.helpdesk.command.AcceptTicketCommand;
-import org.symphonyoss.symphony.bots.ai.helpdesk.command.AddMemberCommand;
 
 /**
  * An AI command line menu, that will contain agent commands.
@@ -12,11 +10,8 @@ import org.symphonyoss.symphony.bots.ai.helpdesk.command.AddMemberCommand;
  */
 public class AgentCommandMenu extends AiCommandMenu {
 
-  public AgentCommandMenu(HelpDeskAiConfig helpDeskAiConfig) {
-    super(helpDeskAiConfig.getDefaultPrefix());
-
-    addCommand(new AcceptTicketCommand(helpDeskAiConfig));
-    addCommand(new AddMemberCommand(helpDeskAiConfig));
+  public AgentCommandMenu() {
+    super(StringUtils.EMPTY);
   }
 
 }

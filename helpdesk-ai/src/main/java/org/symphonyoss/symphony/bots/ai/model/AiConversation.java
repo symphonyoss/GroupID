@@ -23,6 +23,11 @@ public abstract class AiConversation {
     this.allowCommands = allowCommands;
   }
 
+  public AiConversation(boolean allowCommands, AiSessionContext aiSessionContext) {
+    this.allowCommands = allowCommands;
+    this.aiSessionContext = aiSessionContext;
+  }
+
   /**
    * Called when a conversation message is sent
    * @param responder object used to respond the message

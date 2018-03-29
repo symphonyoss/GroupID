@@ -9,7 +9,7 @@ module.exports = {
     controller: path.resolve(__dirname, "./src/main/webapp/js/controller.js")
   },
   output: {
-    path: path.resolve(__dirname, "./target/static"),
+    path: path.resolve(__dirname, "./target/classes/static"),
     filename: "[name].bundle.js"
   },
   devtool: 'source-map',
