@@ -13,19 +13,19 @@ import java.util.Set;
  */
 public abstract class AiConversation {
 
-  protected AiSessionContext aiSessionContext;
+  protected AiCommandMenu aiCommandMenu;
 
   protected boolean allowCommands;
 
-  protected SymphonyAiMessage lastMessage;
+  protected String lastMessageId;
 
   public AiConversation(boolean allowCommands) {
     this.allowCommands = allowCommands;
   }
 
-  public AiConversation(boolean allowCommands, AiSessionContext aiSessionContext) {
+  public AiConversation(boolean allowCommands, AiCommandMenu aiCommandMenu) {
+    this.aiCommandMenu = aiCommandMenu;
     this.allowCommands = allowCommands;
-    this.aiSessionContext = aiSessionContext;
   }
 
   /**
@@ -44,34 +44,34 @@ public abstract class AiConversation {
   }
 
   /**
-   * Retrieve this conversation session context
-   * @return {@link AiSessionContext session context} for this conversation
+   * Set command menu
+   * @param aiCommandMenu List of available commands
    */
-  public AiSessionContext getAiSessionContext() {
-    return aiSessionContext;
+  public void setAiCommandMenu(AiCommandMenu aiCommandMenu) {
+    this.aiCommandMenu = aiCommandMenu;
   }
 
   /**
-   * Set this conversation session context
-   * @param sessionContext {@link AiSessionContext session context} for this conversation
+   * Retrieve command menu.
+   * @return List of available commands
    */
-  public void setAiSessionContext(AiSessionContext sessionContext) {
-    this.aiSessionContext = sessionContext;
+  public AiCommandMenu getAiCommandMenu() {
+    return aiCommandMenu;
   }
 
   /**
    * Retrieve the conversation last message
    * @return last message
    */
-  public SymphonyAiMessage getLastMessage() {
-    return lastMessage;
+  public String getLastMessageId() {
+    return lastMessageId;
   }
 
   /**
    * Set this conversation last message
-   * @param lastMessage last message
+   * @param lastMessageId last message
    */
-  public void setLastMessage(SymphonyAiMessage lastMessage) {
-    this.lastMessage = lastMessage;
+  public void setLastMessageId(String lastMessageId) {
+    this.lastMessageId = lastMessageId;
   }
 }

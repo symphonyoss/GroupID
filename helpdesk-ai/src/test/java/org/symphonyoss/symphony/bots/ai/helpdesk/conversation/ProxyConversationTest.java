@@ -54,7 +54,7 @@ public class ProxyConversationTest {
   @Before
   public void init() {
     doReturn(sessionKey).when(sessionContext).getAiSessionKey();
-    this.proxyConversation = new ProxyConversation(false, sessionContext, makerCheckerService);
+    this.proxyConversation = new ProxyConversation(makerCheckerService);
   }
 
   @Test

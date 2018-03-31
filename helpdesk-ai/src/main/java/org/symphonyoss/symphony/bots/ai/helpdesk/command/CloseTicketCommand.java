@@ -3,16 +3,13 @@ package org.symphonyoss.symphony.bots.ai.helpdesk.command;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSession;
-import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSessionContext;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskApiException;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -27,21 +24,21 @@ public class CloseTicketCommand extends AiCommand {
 
   private static final String INTERNAL_ERROR = "Something went wrong internally.";
 
-  private HelpDeskAiConfig helpDeskAiConfig;
+  private final HelpDeskAiConfig helpDeskAiConfig;
 
-  private TicketClient ticketClient;
+  private final TicketClient ticketClient;
 
-  private SymphonyClient symphonyClient;
+  private final SymphonyClient symphonyClient;
 
-  private IdleTimerManager idleTimerManager;
+  private final IdleTimerManager idleTimerManager;
 
-  public CloseTicketCommand(HelpDeskAiSession helpDeskAiSession, HelpDeskAiConfig config,
-      IdleTimerManager timerManager) {
+  public CloseTicketCommand(HelpDeskAiConfig config, TicketClient ticketClient,
+      SymphonyClient symphonyClient, IdleTimerManager idleTimerManager) {
     super(config.getCloseTicketCommand());
     this.helpDeskAiConfig = config;
-    this.ticketClient = helpDeskAiSession.getTicketClient();
-    this.symphonyClient = helpDeskAiSession.getSymphonyClient();
-    this.idleTimerManager = timerManager;
+    this.ticketClient = ticketClient;
+    this.symphonyClient = symphonyClient;
+    this.idleTimerManager = idleTimerManager;
   }
 
   /**
@@ -72,7 +69,7 @@ public class CloseTicketCommand extends AiCommand {
           }
         }
 
-        responder.respond(successResponse(helpDeskAiConfig, ticket));
+        responder.respond(successResponse(ticket));
 
         idleTimerManager.remove(ticket.getId());
       } catch (SymException e) {
@@ -98,11 +95,10 @@ public class CloseTicketCommand extends AiCommand {
 
   /**
    * Response when ticket is closed successfully
-   * @param helpDeskAiConfig The HelpDesk AI Configurations
    * @param ticket the closed ticket
    * @return the built AI response
    */
-  private AiResponse successResponse(HelpDeskAiConfig helpDeskAiConfig, Ticket ticket) {
+  private AiResponse successResponse(Ticket ticket) {
     return response(helpDeskAiConfig.getCloseTicketSuccessResponse(), ticket.getClientStreamId());
   }
 

@@ -5,6 +5,7 @@ import org.symphonyoss.symphony.bots.ai.Ai;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.AiEventListener;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
+import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
@@ -28,7 +29,7 @@ public class SymphonyAi implements Ai {
   protected AiResponder aiResponder;
 
   public SymphonyAi(SymphonyClient symphonyClient) {
-    AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(symphonyClient.getLocalUser());
+    AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(symphonyClient);
     aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder);
     aiSessionContextManager = new SymphonyAiSessionContextManager();
     aiConversationManager = new SymphonyAiConversationManager();
@@ -87,7 +88,7 @@ public class SymphonyAi implements Ai {
   @Override
   public void startConversation(SymphonyAiSessionKey aiSessionKey, AiConversation aiConversation) {
     AiSessionContext aiSessionContext = getSessionContext(aiSessionKey);
-    aiConversation.setAiSessionContext(aiSessionContext);
+    aiConversation.setAiCommandMenu(aiSessionContext.getAiCommandMenu());
 
     aiConversationManager.registerConversation(aiSessionContext, aiConversation);
   }
@@ -143,6 +144,11 @@ public class SymphonyAi implements Ai {
   @Override
   public AiSessionContext newAiSessionContext(SymphonyAiSessionKey aiSessionKey) {
     return new AiSessionContext(aiSessionKey);
+  }
+
+  @Override
+  public AiCommandMenu newAiCommandMenu(SymphonyAiSessionKey aiSessionKey) {
+    return null;
   }
 
   /**

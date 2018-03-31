@@ -28,11 +28,9 @@ public class MessageProducer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageProducer.class);
 
-  private final MessagesClient messagesClient;
-
   private final MembershipClient membershipClient;
 
-  private final UsersClient usersClient;
+  private final SymphonyClient symphonyClient;
 
   private final SymphonyClientUtil symphonyClientUtil;
 
@@ -43,9 +41,8 @@ public class MessageProducer {
    * @return A MessageProducer object
    */
   public MessageProducer(MembershipClient membershipClient, SymphonyClient symphonyClient) {
-    this.messagesClient = symphonyClient.getMessagesClient();
     this.membershipClient = membershipClient;
-    this.usersClient = symphonyClient.getUsersClient();
+    this.symphonyClient = symphonyClient;
     this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
@@ -163,7 +160,7 @@ public class MessageProducer {
     Long userId = symphonyAiMessage.getFromUserId();
 
     try {
-      SymUser user = usersClient.getUserFromId(userId);
+      SymUser user = symphonyClient.getUsersClient().getUserFromId(userId);
 
       header.append("<b>");
       header.append(user.getDisplayName());
@@ -237,7 +234,7 @@ public class MessageProducer {
     stream.setStreamId(streamId);
 
     try {
-      messagesClient.sendMessage(stream, symMessage);
+      symphonyClient.getMessagesClient().sendMessage(stream, symMessage);
     } catch (MessagesException e) {
       LOGGER.error("AI could not send message: ", e);
     }

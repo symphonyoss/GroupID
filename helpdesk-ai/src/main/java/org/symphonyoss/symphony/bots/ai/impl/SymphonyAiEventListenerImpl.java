@@ -54,13 +54,12 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
 
   @Override
   public void onConversation(SymphonyAiMessage message, AiConversation aiConversation) {
-    String prefix = aiConversation.getAiSessionContext().getAiCommandMenu().getCommandPrefix();
-    SymphonyAiMessage lastMessage = aiConversation.getLastMessage();
+    String prefix = aiConversation.getAiCommandMenu().getCommandPrefix();
 
     if ((!aiConversation.isAllowCommands() || !aiCommandInterpreter.hasPrefix(message, prefix)) &&
-        (lastMessage == null || !lastMessage.equals(message))) {
+        (!message.getMessageId().equals(aiConversation.getLastMessageId()))) {
       aiConversation.onMessage(aiResponder, message);
-      aiConversation.setLastMessage(message);
+      aiConversation.setLastMessageId(message.getMessageId());
     }
   }
 

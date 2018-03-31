@@ -2,6 +2,8 @@ package org.symphonyoss.symphony.bots.ai.helpdesk.conversation;
 
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiCommand;
+import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
@@ -24,13 +26,21 @@ public class ProxyConversation extends AiConversation {
   private MakerCheckerService makerCheckerService;
 
   /**
-   * Constructor for class ProxyConversation
-   * @param allowCommands flag to allow commands
+   * Constructor for class ProxyConversation that avoids commands.
    * @param makerCheckerService the MakerCheckerService
    */
-  public ProxyConversation(boolean allowCommands, AiSessionContext sessionContext,
-      MakerCheckerService makerCheckerService) {
-    super(allowCommands, sessionContext);
+  public ProxyConversation(MakerCheckerService makerCheckerService) {
+    super(false);
+    this.makerCheckerService = makerCheckerService;
+  }
+
+  /**
+   * Constructor for class ProxyConversation that supports commands.
+   * @param aiCommandMenu Available commands
+   * @param makerCheckerService the MakerCheckerService
+   */
+  public ProxyConversation(AiCommandMenu aiCommandMenu, MakerCheckerService makerCheckerService) {
+    super(true, aiCommandMenu);
     this.makerCheckerService = makerCheckerService;
   }
 

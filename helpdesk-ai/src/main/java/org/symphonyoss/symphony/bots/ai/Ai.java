@@ -1,6 +1,7 @@
 package org.symphonyoss.symphony.bots.ai;
 
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
@@ -62,5 +63,12 @@ public interface Ai {
    * @return
    */
   AiSessionContext newAiSessionContext(SymphonyAiSessionKey aiSessionKey);
+
+  /**
+   * Creates a new command menu based on session key
+   * @param aiSessionKey session key
+   * @return List of available commands
+   */
+  AiCommandMenu newAiCommandMenu(SymphonyAiSessionKey aiSessionKey);
 
 }

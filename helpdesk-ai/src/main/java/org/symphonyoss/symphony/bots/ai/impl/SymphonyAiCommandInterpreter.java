@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.ai.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
@@ -40,10 +41,10 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
 
   private static final String VALUE = "value";
 
-  private SymUser aiSymUser;
+  private final SymphonyClient symphonyClient;
 
-  public SymphonyAiCommandInterpreter(SymUser aiSymUser) {
-    this.aiSymUser = aiSymUser;
+  public SymphonyAiCommandInterpreter(SymphonyClient symphonyClient) {
+    this.symphonyClient = symphonyClient;
   }
 
   @Override
@@ -201,6 +202,8 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
   }
 
   private String parsePrefix(String commandPrefix) {
+    SymUser aiSymUser = symphonyClient.getLocalUser();
+
     if(commandPrefix != null && commandPrefix.equals(MENTION)) {
       return MENTION + aiSymUser.getId();
     } else {

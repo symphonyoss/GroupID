@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
@@ -44,23 +43,17 @@ public class HelpDeskServiceConfiguration {
   }
 
   @Bean(name = "helpdeskAi")
-  public HelpDeskAi initHelpDeskAi(HelpDeskBotConfig configuration,
-      MembershipClient membershipClient, TicketClient ticketClient, SymphonyClient symphonyClient) {
-    HelpDeskAiSession helpDeskAiSession = new HelpDeskAiSession();
-    helpDeskAiSession.setMembershipClient(membershipClient);
-    helpDeskAiSession.setTicketClient(ticketClient);
-    helpDeskAiSession.setSymphonyClient(symphonyClient);
-
+  public HelpDeskAi initHelpDeskAi(HelpDeskBotConfig configuration, MembershipClient membershipClient,
+      TicketClient ticketClient, SymphonyClient symphonyClient, IdleTimerManager timerManager) {
     HelpDeskAiConfig helpDeskAiConfig = new HelpDeskAiConfig();
     helpDeskAiConfig.setGroupId(configuration.getGroupId());
-    helpDeskAiConfig.setAgentStreamId(configuration.getAgentStreamId());
     helpDeskAiConfig.setCloseTicketSuccessResponse(configuration.getCloseTicketSuccessResponse());
     helpDeskAiConfig.setCloseTicketCommand(configuration.getCloseTicketCommand());
     helpDeskAiConfig.setAgentServiceRoomPrefix(configuration.getAiServicePrefix());
 
-    helpDeskAiSession.setHelpDeskAiConfig(helpDeskAiConfig);
-
-    HelpDeskAi helpDeskAi = new HelpDeskAi(helpDeskAiSession);
+    HelpDeskAi helpDeskAi =
+        new HelpDeskAi(helpDeskAiConfig, symphonyClient, ticketClient, membershipClient,
+            timerManager);
 
     return helpDeskAi;
   }
