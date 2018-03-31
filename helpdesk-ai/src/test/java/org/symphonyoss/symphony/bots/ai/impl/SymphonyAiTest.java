@@ -16,9 +16,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.ai.AiEventListener;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.conversation.NullConversation;
-import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
@@ -58,9 +56,6 @@ public class SymphonyAiTest {
 
   @Mock
   private AiConversation aiConversation;
-
-  @Mock
-  private AiResponseIdentifier responseIdentifier;
 
   private SymMessage symMessage = new SymMessage();
 
@@ -194,18 +189,16 @@ public class SymphonyAiTest {
   @Test
   public void testSendMessage() {
     SymphonyAiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
-    Set<AiResponseIdentifier> responseIdentifierSet = Collections.singleton(responseIdentifier);
+    Set<String> responseIdentifierSet = Collections.singleton(MOCK_STREAM_ID);
     SymphonyAiMessage message = new SymphonyAiMessage(symMessage);
 
     doReturn(sessionContext).when(aiSessionContextManager).getSessionContext(sessionKey);
 
-    symphonyAi.sendMessage(message, responseIdentifierSet, sessionKey);
-
-    verify(aiResponder, times(1)).respond(sessionContext);
+    symphonyAi.sendMessage(message, MOCK_STREAM_ID);
 
     ArgumentCaptor<AiResponse> responseParam = ArgumentCaptor.forClass(AiResponse.class);
 
-    verify(aiResponder, times(1)).addResponse(eq(sessionContext), responseParam.capture());
+    verify(aiResponder, times(1)).respond(responseParam.capture());
 
     AiResponse response = responseParam.getValue();
 

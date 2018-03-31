@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.symphonyoss.symphony.bots.ai.AiAction;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
@@ -30,8 +29,6 @@ public class SymphonyAiEventListenerImplTest {
 
   private static final String PREFIX = "@";
 
-  private static final String MOCK_COMMAND = "command";
-  
   private static final String SESSION_KEY = "SESSION";
 
   private static final Long USER_ID = 1234L;
@@ -45,7 +42,7 @@ public class SymphonyAiEventListenerImplTest {
   private AiResponder aiResponder;
 
   @Mock
-  private AiAction aiAction;
+  private AiCommand aiCommand;
 
   private AiCommandMenu commandMenu;
 
@@ -79,26 +76,22 @@ public class SymphonyAiEventListenerImplTest {
     eventListener.onCommand(message, sessionContext);
 
     verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
-    verify(aiResponder, times(1)).respondWithUseMenu(sessionContext, message);
+    verify(aiResponder, times(1)).respondWithUseMenu(sessionKey, commandMenu, message);
   }
 
   @Test
   public void testCommands() {
     AiArgumentMap args = new AiArgumentMap();
 
-    AiCommand command = new AiCommand(MOCK_COMMAND);
-    command.addAction(aiAction);
-
-    this.commandMenu.addCommand(command);
+    this.commandMenu.addCommand(aiCommand);
 
     doReturn(true).when(aiCommandInterpreter).hasPrefix(message, PREFIX);
-    doReturn(true).when(aiCommandInterpreter).isCommand(command, message, PREFIX);
-    doReturn(args).when(aiCommandInterpreter).readCommandArguments(command, message, PREFIX);
+    doReturn(true).when(aiCommandInterpreter).isCommand(aiCommand, message, PREFIX);
+    doReturn(args).when(aiCommandInterpreter).readCommandArguments(aiCommand, message, PREFIX);
 
     eventListener.onCommand(message, sessionContext);
 
-    verify(aiAction, times(1)).doAction(sessionContext, aiResponder, args);
-    verify(aiResponder, times(1)).respond(sessionContext);
+    verify(aiCommand, times(1)).executeCommand(sessionKey, aiResponder, args);
   }
 
 }

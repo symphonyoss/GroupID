@@ -41,7 +41,7 @@ public class HelpDeskAi extends SymphonyAi {
 
     MessageProducer messageProducer = new MessageProducer(membershipClient, symphonyClient);
 
-    this.aiResponder = new HelpDeskAiResponder(symphonyClient, messageProducer);
+    this.aiResponder = new HelpDeskAiResponder(messageProducer);
     this.aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder);
   }
 

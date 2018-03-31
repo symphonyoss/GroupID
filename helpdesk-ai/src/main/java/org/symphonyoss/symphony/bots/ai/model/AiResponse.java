@@ -1,9 +1,10 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
-import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * This class represents a response to be sent from the Ai.
@@ -13,7 +14,8 @@ import java.util.Set;
 public class AiResponse {
 
   private SymphonyAiMessage message;
-  private Set<AiResponseIdentifier> respondTo;
+
+  private Set<String> respondTo;
 
   /**
    * Creates a new {@link AiResponse} instance with the response text and where the answer should
@@ -21,7 +23,12 @@ public class AiResponse {
    * @param message the message text
    * @param respondTo who should receive the message
    */
-  public AiResponse(SymphonyAiMessage message, Set<AiResponseIdentifier> respondTo) {
+  public AiResponse(SymphonyAiMessage message, String... respondTo) {
+    this.message = message;
+    this.respondTo = Arrays.stream(respondTo).collect(Collectors.toSet());
+  }
+
+  public AiResponse(SymphonyAiMessage message, Set<String> respondTo) {
     this.message = message;
     this.respondTo = respondTo;
   }
@@ -30,7 +37,7 @@ public class AiResponse {
     return message;
   }
 
-  public Set<AiResponseIdentifier> getRespondTo() {
+  public Set<String> getRespondTo() {
     return respondTo;
   }
 }

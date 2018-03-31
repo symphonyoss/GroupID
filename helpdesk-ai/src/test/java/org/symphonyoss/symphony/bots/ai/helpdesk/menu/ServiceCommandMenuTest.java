@@ -4,8 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAiSession;
 import org.symphonyoss.symphony.bots.ai.helpdesk.command.CloseTicketCommand;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
+import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 
 import java.util.Set;
@@ -20,7 +22,11 @@ public class ServiceCommandMenuTest {
 
   private static final String CLOSE_TICKET_COMMAND = "Close";
 
+  private HelpDeskAiSession session = new HelpDeskAiSession();
+
   private HelpDeskAiConfig config = new HelpDeskAiConfig();
+
+  private IdleTimerManager timerManager = new IdleTimerManager();
 
   @Before
   public void init() {
@@ -30,7 +36,7 @@ public class ServiceCommandMenuTest {
 
   @Test
   public void testCommandSet() {
-    ServiceCommandMenu menu = new ServiceCommandMenu(config);
+    ServiceCommandMenu menu = new ServiceCommandMenu(session, config, timerManager);
 
     assertEquals(AGENT_ROOM_PREFIX, menu.getCommandPrefix());
 

@@ -32,10 +32,6 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
     this.aiConfig = helpDeskAiSession.getHelpDeskAiConfig();
   }
 
-  public HelpDeskAiSession getHelpDeskAiSession() {
-    return helpDeskAiSession;
-  }
-
   /**
    * Sets the session type of the HelpDesk AI (Service, Agent, or Client)
    * @param sessionType the type of the session
@@ -43,7 +39,7 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
   public void setSessionType(SessionType sessionType) {
     switch (sessionType) {
       case AGENT_SERVICE:
-        setAiCommandMenu(new ServiceCommandMenu(aiConfig));
+        setAiCommandMenu(new ServiceCommandMenu(helpDeskAiSession, aiConfig, idleTimerManager));
         break;
       case AGENT:
         setAiCommandMenu(new AgentCommandMenu());
@@ -52,14 +48,6 @@ public class HelpDeskAiSessionContext extends AiSessionContext {
         setAiCommandMenu(new ClientCommandMenu());
         break;
     }
-  }
-
-  public String getGroupId() {
-    return aiConfig.getGroupId();
-  }
-
-  public IdleTimerManager getIdleTimerManager() {
-    return idleTimerManager;
   }
 
   public void setIdleTimerManager(IdleTimerManager idleTimerManager) {

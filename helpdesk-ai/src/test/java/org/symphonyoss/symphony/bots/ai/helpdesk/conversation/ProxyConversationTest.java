@@ -16,6 +16,7 @@ import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
@@ -45,10 +46,14 @@ public class ProxyConversationTest {
   @Mock
   private ProxyIdleTimer timer;
 
+  @Mock
+  private SymphonyAiSessionKey sessionKey;
+
   private ProxyConversation proxyConversation;
 
   @Before
   public void init() {
+    doReturn(sessionKey).when(sessionContext).getAiSessionKey();
     this.proxyConversation = new ProxyConversation(false, sessionContext, makerCheckerService);
   }
 
@@ -62,8 +67,7 @@ public class ProxyConversationTest {
 
     proxyConversation.onMessage(responder, aiMessage);
 
-    verify(responder, times(1)).addResponse(eq(sessionContext), any(AiResponse.class));
-    verify(responder, times(1)).respond(sessionContext);
+    verify(responder, times(1)).respond(any(AiResponse.class));
     verify(timer, times(1)).reset();
   }
 

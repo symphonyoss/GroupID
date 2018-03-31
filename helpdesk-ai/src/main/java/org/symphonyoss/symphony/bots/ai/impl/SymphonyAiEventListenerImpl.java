@@ -43,11 +43,11 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
         .collect(Collectors.toList());
 
     if (commands.isEmpty()) {
-      aiResponder.respondWithUseMenu(sessionContext, command);
+      aiResponder.respondWithUseMenu(sessionContext.getAiSessionKey(), commandMenu, command);
     } else {
       commands.forEach(aiCommand -> {
         AiArgumentMap args = aiCommandInterpreter.readCommandArguments(aiCommand, command, prefix);
-        aiCommand.executeCommand(sessionContext, aiResponder, args);
+        aiCommand.executeCommand(sessionContext.getAiSessionKey(), aiResponder, args);
       });
     }
   }

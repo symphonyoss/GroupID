@@ -1,8 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.helpdesk.conversation;
 
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
@@ -12,7 +10,6 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by nick.tarsillo on 9/28/17.
@@ -20,7 +17,7 @@ import java.util.stream.Collectors;
  */
 public class ProxyConversation extends AiConversation {
 
-  private Set<AiResponseIdentifier> proxyToIds = new HashSet<>();
+  private Set<String> proxyToIds = new HashSet<>();
 
   private ProxyIdleTimer proxyIdleTimer;
 
@@ -66,8 +63,7 @@ public class ProxyConversation extends AiConversation {
    */
   private void dispatchMessage(AiResponder responder, SymphonyAiMessage symphonyAiMessage) {
     AiResponse aiResponse = new AiResponse(symphonyAiMessage, proxyToIds);
-    responder.addResponse(aiSessionContext, aiResponse);
-    responder.respond(aiSessionContext);
+    responder.respond(aiResponse);
   }
 
   /**
@@ -75,10 +71,6 @@ public class ProxyConversation extends AiConversation {
    * @param message the message to be sent
    */
   private void dispatchMakerCheckerMessage(SymMessage message) {
-    Set<String> proxyToIds = this.proxyToIds.stream()
-        .map(item -> item.getResponseIdentifier())
-        .collect(Collectors.toSet());
-
     Set<SymMessage> symMessages = makerCheckerService.getMakerCheckerMessages(message, proxyToIds);
 
     for(SymMessage symMessage: symMessages) {
@@ -91,7 +83,7 @@ public class ProxyConversation extends AiConversation {
    * @param streamId the stream to proxy to.
    */
   public void addProxyId(String streamId) {
-    proxyToIds.add(new SymphonyAiResponseIdentifierImpl(streamId));
+    proxyToIds.add(streamId);
   }
 
   public void setProxyIdleTimer(ProxyIdleTimer proxyIdleTimer) {

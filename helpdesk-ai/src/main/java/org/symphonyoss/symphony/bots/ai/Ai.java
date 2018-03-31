@@ -45,11 +45,9 @@ public interface Ai {
   /**
    * Sends the given message to the session context with the given {@link SymphonyAiSessionKey session key}
    * @param aiMessage message to send
-   * @param responseIdentifierSet set with the ids to where the message should be sent
-   * @param aiSessionKey a session context key
+   * @param responseIdentifiers array with the ids to where the message should be sent
    */
-  void sendMessage(SymphonyAiMessage aiMessage, Set<AiResponseIdentifier> responseIdentifierSet,
-      SymphonyAiSessionKey aiSessionKey);
+  void sendMessage(SymphonyAiMessage aiMessage, String... responseIdentifiers);
 
   /**
    * Retrieve the session context with the given {@link SymphonyAiSessionKey session key}

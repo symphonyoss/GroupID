@@ -6,11 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
 import org.symphonyoss.client.exceptions.SymException;
-import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -27,7 +24,7 @@ import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import javax.ws.rs.BadRequestException;
-import java.util.HashSet;
+
 import java.util.Set;
 
 /**
@@ -106,7 +103,7 @@ public class V1HelpDeskController extends V1ApiController {
     }
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
-      sendApprovedMakerChekerMessage(makerchecker, userId);
+      sendApprovedMakerChekerMessage(makerchecker);
 
       UserInfo checker = getChecker(agentUser);
       makerchecker.setChecker(checker);
@@ -186,7 +183,7 @@ public class V1HelpDeskController extends V1ApiController {
     return makerCheckerResponse;
   }
 
-  private void sendApprovedMakerChekerMessage(Makerchecker makerchecker, Long checkerId) {
+  private void sendApprovedMakerChekerMessage(Makerchecker makerchecker) {
     AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
     checkerMessage.setAttachmentId(makerchecker.getAttachmentId());
     checkerMessage.setGroupId(makerchecker.getGroupId());
@@ -196,17 +193,11 @@ public class V1HelpDeskController extends V1ApiController {
     checkerMessage.setTimeStamp(makerchecker.getTimeStamp());
     checkerMessage.setType(ATTACHMENT_TYPE);
 
-    SymphonyAiSessionKey aiSessionKey = helpDeskAi.getSessionKey(checkerId, makerchecker.getStreamId());
-
     Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
 
     for (SymMessage symMessage : symMessages) {
       SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
-
-      Set<AiResponseIdentifier> identifiers = new HashSet<>();
-      identifiers.add(new SymphonyAiResponseIdentifierImpl(symMessage.getStreamId()));
-
-      helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
+      helpDeskAi.sendMessage(symphonyAiMessage, symMessage.getStreamId());
 
       if (symphonyAiMessage.getAttachment() != null) {
         agentMakerCheckerService.afterSendApprovedMessage(symMessage);

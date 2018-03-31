@@ -5,14 +5,11 @@ import org.symphonyoss.symphony.bots.ai.Ai;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.AiEventListener;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.clients.model.SymMessage;
-
-import java.util.Set;
 
 /**
  * Main entry point for the <i>Agent Interface</i> messages. This class works as both session context manager and
@@ -32,7 +29,6 @@ public class SymphonyAi implements Ai {
 
   public SymphonyAi(SymphonyClient symphonyClient) {
     AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(symphonyClient.getLocalUser());
-    aiResponder = new SymphonyAiResponder(symphonyClient.getMessagesClient());
     aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder);
     aiSessionContextManager = new SymphonyAiSessionContextManager();
     aiConversationManager = new SymphonyAiConversationManager();
@@ -121,20 +117,10 @@ public class SymphonyAi implements Ai {
     aiConversationManager.removeConversation(aiSessionContext);
   }
 
-  /**
-   * Sends the given message to the session context with the given {@link SymphonyAiSessionKey session key}
-   * @param aiMessage message to send
-   * @param responseIdentifierSet set with the ids to where the message should be sent
-   * @param aiSessionKey a session context key
-   */
   @Override
-  public void sendMessage(SymphonyAiMessage aiMessage,
-      Set<AiResponseIdentifier> responseIdentifierSet, SymphonyAiSessionKey aiSessionKey) {
-    AiSessionContext aiSessionContext = getSessionContext(aiSessionKey);
-
-    AiResponse aiResponse = new AiResponse(aiMessage, responseIdentifierSet);
-    aiResponder.addResponse(aiSessionContext, aiResponse);
-    aiResponder.respond(aiSessionContext);
+  public void sendMessage(SymphonyAiMessage aiMessage, String... responseIdentifiers) {
+    AiResponse aiResponse = new AiResponse(aiMessage, responseIdentifiers);
+    aiResponder.respond(aiResponse);
   }
 
   /**
