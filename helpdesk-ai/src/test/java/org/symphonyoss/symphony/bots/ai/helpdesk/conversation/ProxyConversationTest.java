@@ -13,9 +13,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
@@ -43,7 +43,7 @@ public class ProxyConversationTest {
   private ProxyIdleTimer timer;
 
   @Mock
-  private SymphonyAiSessionKey sessionKey;
+  private AiSessionKey sessionKey;
 
   private ProxyConversation proxyConversation;
 
@@ -54,7 +54,7 @@ public class ProxyConversationTest {
 
   @Test
   public void testDispatchMessage() {
-    SymphonyAiMessage aiMessage = new SymphonyAiMessage(new SymMessage());
+    AiMessage aiMessage = new AiMessage(new SymMessage());
 
     doReturn(true).when(makerCheckerService).allChecksPass(any(SymMessage.class));
 
@@ -73,7 +73,7 @@ public class ProxyConversationTest {
     SymMessage message = new SymMessage();
     message.setId(MESSAGE_ID);
 
-    SymphonyAiMessage aiMessage = new SymphonyAiMessage(message);
+    AiMessage aiMessage = new AiMessage(message);
 
     doReturn(false).when(makerCheckerService).allChecksPass(any(SymMessage.class));
     doReturn(Collections.singleton(message)).when(makerCheckerService)

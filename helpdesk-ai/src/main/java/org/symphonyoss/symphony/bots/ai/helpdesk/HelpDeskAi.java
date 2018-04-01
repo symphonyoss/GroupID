@@ -12,7 +12,7 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAi;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiEventListenerImpl;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -58,7 +58,7 @@ public class HelpDeskAi extends SymphonyAi {
   }
 
   @Override
-  public AiCommandMenu newAiCommandMenu(SymphonyAiSessionKey sessionKey) {
+  public AiCommandMenu newAiCommandMenu(AiSessionKey sessionKey) {
     Long userId = sessionKey.getUid();
     String streamId = sessionKey.getStreamId();
 

@@ -1,6 +1,6 @@
 package org.symphonyoss.symphony.bots.ai;
 
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 
@@ -18,7 +18,7 @@ public interface AiCommandInterpreter {
    * @param commandPrefix the command prefix
    * @return True if the message is a call for the given command, false otherwise.
    */
-  boolean isCommand(AiCommand aiCommand, SymphonyAiMessage command, String commandPrefix);
+  boolean isCommand(AiCommand aiCommand, AiMessage command, String commandPrefix);
 
   /**
    * Checks if AiMessage starts with menu prefix, and therefore should be treated as a command.
@@ -26,7 +26,7 @@ public interface AiCommandInterpreter {
    * @param commandPrefix command prefix to be checked in the message
    * @return True if the a message has the given command prefix
    */
-  boolean hasPrefix(SymphonyAiMessage command, String commandPrefix);
+  boolean hasPrefix(AiMessage command, String commandPrefix);
 
   /**
    * Reads the arguments contained in a command line message.
@@ -41,7 +41,7 @@ public interface AiCommandInterpreter {
    * @param commandPrefix command prefix to be checked in the message
    * @return The arguments contained in a command message
    */
-  AiArgumentMap readCommandArguments(AiCommand aiCommand, SymphonyAiMessage command, String commandPrefix);
+  AiArgumentMap readCommandArguments(AiCommand aiCommand, AiMessage command, String commandPrefix);
 
   /**
    * Extracts the command from an {@link AiCommand}.

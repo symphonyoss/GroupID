@@ -8,7 +8,7 @@ import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyConversation;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyIdleTimer;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.IdleTicketConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
@@ -79,7 +79,7 @@ public class MessageProxyService {
     Long userId = symMessage.getFromUserId();
     String streamId = symMessage.getStreamId();
 
-    SymphonyAiSessionKey aiSessionKey = helpDeskAi.getSessionKey(userId, streamId);
+    AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(userId, streamId);
 
     if (MembershipClient.MembershipType.AGENT.name().equals(membership.getType())) {
       AiConversation aiConversation = helpDeskAi.getConversation(aiSessionKey);
@@ -100,7 +100,7 @@ public class MessageProxyService {
    * @param ticket the ticket to base the mapping on.
    * @param aiSessionKey session key
    */
-  private void createAgentProxy(Ticket ticket, SymphonyAiSessionKey aiSessionKey) {
+  private void createAgentProxy(Ticket ticket, AiSessionKey aiSessionKey) {
     AiCommandMenu aiCommandMenu = helpDeskAi.newAiCommandMenu(aiSessionKey);
 
     ProxyConversation aiConversation = new ProxyConversation(aiCommandMenu, agentMakerCheckerService);
@@ -125,7 +125,7 @@ public class MessageProxyService {
    * @param ticket the ticket to base the mapping on.
    * @param aiSessionKey session key
    */
-  private void addAgentToProxy(Ticket ticket, SymphonyAiSessionKey aiSessionKey) {
+  private void addAgentToProxy(Ticket ticket, AiSessionKey aiSessionKey) {
     AiCommandMenu aiCommandMenu = helpDeskAi.newAiCommandMenu(aiSessionKey);
 
     ProxyConversation aiConversation = new ProxyConversation(aiCommandMenu, agentMakerCheckerService);
@@ -137,7 +137,7 @@ public class MessageProxyService {
     aiConversation.setProxyIdleTimer(proxyIdleTimer);
   }
 
-  private void createClientProxy(Ticket ticket, SymphonyAiSessionKey aiSessionKey) {
+  private void createClientProxy(Ticket ticket, AiSessionKey aiSessionKey) {
     ProxyConversation aiConversation = new ProxyConversation(clientMakerCheckerService);
     aiConversation.addProxyId(ticket.getServiceStreamId());
 

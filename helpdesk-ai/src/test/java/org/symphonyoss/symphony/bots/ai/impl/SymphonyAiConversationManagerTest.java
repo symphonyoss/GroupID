@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.ai.conversation.NullConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 /**
  * Unit tests for {@link SymphonyAiConversationManager}
@@ -22,7 +22,7 @@ public class SymphonyAiConversationManagerTest {
   private AiConversation conversation;
 
   @Mock
-  private SymphonyAiSessionKey aiSessionKey;
+  private AiSessionKey aiSessionKey;
 
   @Test
   public void testManager() {

@@ -1,10 +1,6 @@
 package org.symphonyoss.symphony.bots.ai.model;
 
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * A conversation between a user and the bot. Used to create contextual Ai conversations.
@@ -33,7 +29,7 @@ public abstract class AiConversation {
    * @param responder object used to respond the message
    * @param message the message itself
    */
-  public abstract void onMessage(AiResponder responder, SymphonyAiMessage message);
+  public abstract void onMessage(AiResponder responder, AiMessage message);
 
   /**
    * Check if this conversation allow commands

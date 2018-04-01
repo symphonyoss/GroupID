@@ -18,7 +18,8 @@ import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 /**
  * Unit tests for {@link SymphonyAiEventListenerImpl}
@@ -51,9 +52,9 @@ public class SymphonyAiEventListenerImplTest {
 
   private AiCommandMenu commandMenu;
 
-  private SymphonyAiSessionKey sessionKey = new SymphonyAiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
+  private AiSessionKey sessionKey = new AiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
 
-  private SymphonyAiMessage message = new SymphonyAiMessage("");
+  private AiMessage message = new AiMessage("");
 
   private SymphonyAiEventListenerImpl eventListener;
 
@@ -73,14 +74,14 @@ public class SymphonyAiEventListenerImplTest {
     doReturn(false).when(aiConversation).isAllowCommands();
 
     eventListener.onMessage(sessionKey, message, aiConversation);
-    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
+    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(AiMessage.class), anyString());
     verify(aiConversation, times(1)).onMessage(aiResponder, message);
   }
 
   @Test
   public void testWithoutPrefix() {
     eventListener.onMessage(sessionKey, message, aiConversation);
-    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
+    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(AiMessage.class), anyString());
     verify(aiConversation, times(1)).onMessage(aiResponder, message);
   }
 
@@ -90,7 +91,7 @@ public class SymphonyAiEventListenerImplTest {
 
     eventListener.onMessage(sessionKey, message, aiConversation);
 
-    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
+    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(AiMessage.class), anyString());
     verify(aiResponder, times(1)).respondWithUseMenu(sessionKey, commandMenu, message);
     verify(aiConversation, never()).onMessage(aiResponder, message);
   }
@@ -117,7 +118,7 @@ public class SymphonyAiEventListenerImplTest {
 
     eventListener.onMessage(sessionKey, message, aiConversation);
 
-    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
+    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(AiMessage.class), anyString());
     verify(aiConversation, never()).onMessage(aiResponder, message);
   }
 

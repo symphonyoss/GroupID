@@ -1,4 +1,4 @@
-package org.symphonyoss.symphony.bots.ai.impl;
+package org.symphonyoss.symphony.bots.ai.model;
 
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -13,7 +13,7 @@ import java.util.List;
  * <p>
  * Created by nick.tarsillo on 10/2/17.
  */
-public class SymphonyAiMessage {
+public class AiMessage {
 
   private String aiMessage;
 
@@ -33,13 +33,13 @@ public class SymphonyAiMessage {
 
   private List<SymAttachmentInfo> attachments;
 
-  public SymphonyAiMessage(String message) {
+  public AiMessage(String message) {
     this.aiMessage = message;
     this.entityData = "";
     this.attachments = new ArrayList<>();
   }
 
-  public SymphonyAiMessage(SymMessage symMessage) {
+  public AiMessage(SymMessage symMessage) {
     this.aiMessage = symMessage.getMessageText();
     this.messageData = symMessage.getMessage();
     this.entityData = symMessage.getEntityData();
@@ -149,7 +149,7 @@ public class SymphonyAiMessage {
     if (this == o) { return true; }
     if (o == null || getClass() != o.getClass()) { return false; }
 
-    SymphonyAiMessage that = (SymphonyAiMessage) o;
+    AiMessage that = (AiMessage) o;
 
     if (entityData != null ? !entityData.equals(that.entityData) : that.entityData != null) {
       return false;

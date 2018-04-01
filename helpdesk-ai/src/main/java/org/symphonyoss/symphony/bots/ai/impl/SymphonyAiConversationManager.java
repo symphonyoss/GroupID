@@ -2,7 +2,7 @@ package org.symphonyoss.symphony.bots.ai.impl;
 
 import org.symphonyoss.symphony.bots.ai.conversation.NullConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,14 +16,14 @@ public class SymphonyAiConversationManager {
 
   private static final AiConversation DEFAULT_CONVERSATION = new NullConversation();
 
-  private Map<SymphonyAiSessionKey, AiConversation> cache = new ConcurrentHashMap<>();
+  private Map<AiSessionKey, AiConversation> cache = new ConcurrentHashMap<>();
 
   /**
    * Register an new Ai Conversation.
    * @param aiSessionKey session key
    * @param aiConversation the conversation to register.
    */
-  public void registerConversation(SymphonyAiSessionKey aiSessionKey, AiConversation aiConversation) {
+  public void registerConversation(AiSessionKey aiSessionKey, AiConversation aiConversation) {
     cache.put(aiSessionKey, aiConversation);
   }
 
@@ -31,7 +31,7 @@ public class SymphonyAiConversationManager {
    * Removes an Ai Conversation.
    * @param aiSessionKey session key
    */
-  public void removeConversation(SymphonyAiSessionKey aiSessionKey) {
+  public void removeConversation(AiSessionKey aiSessionKey) {
     cache.remove(aiSessionKey);
   }
 
@@ -40,7 +40,7 @@ public class SymphonyAiConversationManager {
    * @param aiSessionKey session key
    * @return
    */
-  public AiConversation getConversation(SymphonyAiSessionKey aiSessionKey) {
+  public AiConversation getConversation(AiSessionKey aiSessionKey) {
     if (cache.containsKey(aiSessionKey)) {
       return cache.get(aiSessionKey);
     }

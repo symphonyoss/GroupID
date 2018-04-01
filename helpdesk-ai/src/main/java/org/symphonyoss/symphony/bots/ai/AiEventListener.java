@@ -1,8 +1,8 @@
 package org.symphonyoss.symphony.bots.ai;
 
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 /**
  * Class to listen to AI events
@@ -15,9 +15,9 @@ public interface AiEventListener {
    * Interprets an AI message as a part of a contextual conversation with the AI.
    *
    * @param sessionKey session key
-   * @param message {@link SymphonyAiMessage} containing the conversation message
+   * @param message {@link AiMessage} containing the conversation message
    * @param aiConversation The {@link AiConversation} object containing the current conversation
    */
-  void onMessage(SymphonyAiSessionKey sessionKey, SymphonyAiMessage message, AiConversation aiConversation);
+  void onMessage(AiSessionKey sessionKey, AiMessage message, AiConversation aiConversation);
 
 }

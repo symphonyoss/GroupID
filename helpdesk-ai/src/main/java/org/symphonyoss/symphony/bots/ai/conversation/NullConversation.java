@@ -1,7 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.conversation;
 
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 
 /**
@@ -16,7 +16,7 @@ public class NullConversation extends AiConversation {
   }
 
   @Override
-  public void onMessage(AiResponder responder, SymphonyAiMessage message) {
+  public void onMessage(AiResponder responder, AiMessage message) {
     // Do nothing
   }
 

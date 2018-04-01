@@ -7,7 +7,8 @@ import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,7 +30,7 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
   }
 
   @Override
-  public void onMessage(SymphonyAiSessionKey sessionKey, SymphonyAiMessage message,
+  public void onMessage(AiSessionKey sessionKey, AiMessage message,
       AiConversation aiConversation) {
     if (isNewMessage(message, aiConversation)) {
 
@@ -46,7 +47,7 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
     }
   }
 
-  private boolean isNewMessage(SymphonyAiMessage message, AiConversation aiConversation) {
+  private boolean isNewMessage(AiMessage message, AiConversation aiConversation) {
     return !message.getMessageId().equals(aiConversation.getLastMessageId());
   }
 
@@ -57,7 +58,7 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
    * @param message Symphony message
    * @param aiConversation AI conversation
    */
-  private void onCommand(SymphonyAiSessionKey sessionKey, SymphonyAiMessage message,
+  private void onCommand(AiSessionKey sessionKey, AiMessage message,
       AiConversation aiConversation) {
     List<AiCommand> commands = getMessageCommands(message, aiConversation);
 
@@ -75,7 +76,7 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
    * @param aiConversation AI Conversation
    * @return List of commands
    */
-  private List<AiCommand> getMessageCommands(SymphonyAiMessage message, AiConversation aiConversation) {
+  private List<AiCommand> getMessageCommands(AiMessage message, AiConversation aiConversation) {
     AiCommandMenu commandMenu = aiConversation.getAiCommandMenu();
     String prefix = commandMenu.getCommandPrefix();
 
@@ -93,7 +94,7 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
    * @param message Symphony message
    * @param aiConversation AI conversation
    */
-  private void processInvalidCommand(SymphonyAiSessionKey sessionKey, SymphonyAiMessage message,
+  private void processInvalidCommand(AiSessionKey sessionKey, AiMessage message,
       AiConversation aiConversation) {
     aiResponder.respondWithUseMenu(sessionKey, aiConversation.getAiCommandMenu(), message);
   }
@@ -106,8 +107,8 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
    * @param message Symphony message
    * @param aiConversation AI conversation
    */
-  private void processCommand(SymphonyAiSessionKey sessionKey, AiCommand command,
-      SymphonyAiMessage message, AiConversation aiConversation) {
+  private void processCommand(AiSessionKey sessionKey, AiCommand command,
+      AiMessage message, AiConversation aiConversation) {
     String prefix = aiConversation.getAiCommandMenu().getCommandPrefix();
 
     AiArgumentMap args = aiCommandInterpreter.readCommandArguments(command, message, prefix);
@@ -120,7 +121,7 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
    * @param message Symphony message
    * @param aiConversation AI conversation
    */
-  private void onConversation(SymphonyAiMessage message, AiConversation aiConversation) {
+  private void onConversation(AiMessage message, AiConversation aiConversation) {
     aiConversation.onMessage(aiResponder, message);
   }
 }

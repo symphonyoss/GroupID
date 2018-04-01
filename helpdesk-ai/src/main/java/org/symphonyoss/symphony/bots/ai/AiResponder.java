@@ -1,9 +1,9 @@
 package org.symphonyoss.symphony.bots.ai;
 
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 /**
  * The {@link AiResponder} is used as message responder for the given session context
@@ -23,7 +23,7 @@ public interface AiResponder {
    * @param sessionKey the session key.
    * @param commandMenu Set of available commands.
    */
-  void respondWithUseMenu(SymphonyAiSessionKey sessionKey, AiCommandMenu commandMenu,
-      SymphonyAiMessage message);
+  void respondWithUseMenu(AiSessionKey sessionKey, AiCommandMenu commandMenu,
+      AiMessage message);
 
 }

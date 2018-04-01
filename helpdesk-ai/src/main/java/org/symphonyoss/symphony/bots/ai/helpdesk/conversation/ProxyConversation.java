@@ -1,7 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.helpdesk.conversation;
 
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
@@ -50,7 +50,7 @@ public class ProxyConversation extends AiConversation {
    * @param message the message received by the AI
    */
   @Override
-  public void onMessage(AiResponder responder, SymphonyAiMessage message) {
+  public void onMessage(AiResponder responder, AiMessage message) {
     SymMessage symMessage = message.toSymMessage();
 
     if(makerCheckerService.allChecksPass(symMessage)) {
@@ -67,10 +67,10 @@ public class ProxyConversation extends AiConversation {
   /**
    * Build a new AI Response with the message and send it in the AI Session context
    * @param responder the AI responder, used to respond to users.
-   * @param symphonyAiMessage the message to be sent by the AI
+   * @param aiMessage the message to be sent by the AI
    */
-  private void dispatchMessage(AiResponder responder, SymphonyAiMessage symphonyAiMessage) {
-    AiResponse aiResponse = new AiResponse(symphonyAiMessage, proxyToIds);
+  private void dispatchMessage(AiResponder responder, AiMessage aiMessage) {
+    AiResponse aiResponse = new AiResponse(aiMessage, proxyToIds);
     responder.respond(aiResponse);
   }
 

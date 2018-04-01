@@ -1,7 +1,7 @@
 package org.symphonyoss.symphony.bots.ai.helpdesk;
 
 import org.symphonyoss.symphony.bots.ai.helpdesk.message.MessageProducer;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponder;
 
 /**
@@ -16,8 +16,8 @@ public class HelpDeskAiResponder extends SymphonyAiResponder {
   }
 
   @Override
-  protected void publishMessage(String streamId, SymphonyAiMessage symphonyAiMessage) {
-    messageProducer.publishMessage(symphonyAiMessage, streamId);
+  protected void publishMessage(String streamId, AiMessage aiMessage) {
+    messageProducer.publishMessage(aiMessage, streamId);
   }
 
 }

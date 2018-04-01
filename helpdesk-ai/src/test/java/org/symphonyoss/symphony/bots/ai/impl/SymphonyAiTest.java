@@ -16,8 +16,9 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.ai.AiEventListener;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.Collections;
@@ -63,8 +64,8 @@ public class SymphonyAiTest {
 
   @Test
   public void testOnMessage() {
-    SymphonyAiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
-    SymphonyAiMessage message = new SymphonyAiMessage(symMessage);
+    AiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
+    AiMessage message = new AiMessage(symMessage);
 
     doReturn(aiConversation).when(aiConversationManager).getConversation(sessionKey);
 
@@ -75,7 +76,7 @@ public class SymphonyAiTest {
 
   @Test
   public void testStartConversation() {
-    SymphonyAiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
+    AiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
 
     symphonyAi.startConversation(sessionKey, aiConversation);
 
@@ -84,7 +85,7 @@ public class SymphonyAiTest {
 
   @Test
   public void testGetConversation() {
-    SymphonyAiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
+    AiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
 
     doReturn(aiConversation).when(aiConversationManager).getConversation(sessionKey);
 
@@ -93,7 +94,7 @@ public class SymphonyAiTest {
 
   @Test
   public void testEndConversation() {
-    SymphonyAiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
+    AiSessionKey sessionKey = symphonyAi.getSessionKey(MOCK_USER_ID, MOCK_STREAM_ID);
 
     symphonyAi.endConversation(sessionKey);
 
@@ -103,7 +104,7 @@ public class SymphonyAiTest {
   @Test
   public void testSendMessage() {
     Set<String> responseIdentifierSet = Collections.singleton(MOCK_STREAM_ID);
-    SymphonyAiMessage message = new SymphonyAiMessage(symMessage);
+    AiMessage message = new AiMessage(symMessage);
 
     symphonyAi.sendMessage(message, MOCK_STREAM_ID);
 

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -196,10 +196,10 @@ public class V1HelpDeskController extends V1ApiController {
     Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
 
     for (SymMessage symMessage : symMessages) {
-      SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
-      helpDeskAi.sendMessage(symphonyAiMessage, symMessage.getStreamId());
+      AiMessage aiMessage = new AiMessage(symMessage);
+      helpDeskAi.sendMessage(aiMessage, symMessage.getStreamId());
 
-      if (symphonyAiMessage.getAttachment() != null) {
+      if (aiMessage.getAttachment() != null) {
         agentMakerCheckerService.afterSendApprovedMessage(symMessage);
       }
     }

@@ -7,7 +7,7 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
@@ -99,9 +99,9 @@ public class AcceptTicketService extends TicketService {
    * @param ticket Ticket info
    */
   private void sendAcceptMessageToClient(Ticket ticket) {
-    SymphonyAiMessage symphonyAiMessage =
-            new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
-    helpDeskAi.sendMessage(symphonyAiMessage, ticket.getClientStreamId());
+    AiMessage aiMessage =
+            new AiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
+    helpDeskAi.sendMessage(aiMessage, ticket.getClientStreamId());
   }
 
   private void sendAcceptMessageToAgents(Ticket ticket, SymUser agent, TicketClient.TicketStateType ticketState) {
@@ -160,7 +160,7 @@ public class AcceptTicketService extends TicketService {
   }
 
   private void sendMessage(SymMessage symMessage) {
-    SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
-    helpDeskAi.sendMessage(symphonyAiMessage, symMessage.getStreamId());
+    AiMessage aiMessage = new AiMessage(symMessage);
+    helpDeskAi.sendMessage(aiMessage, symMessage.getStreamId());
   }
 }

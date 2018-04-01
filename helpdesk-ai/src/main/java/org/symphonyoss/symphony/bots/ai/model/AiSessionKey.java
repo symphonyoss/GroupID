@@ -7,7 +7,7 @@ import java.util.Objects;
  * <p>
  * Created by nick.tarsillo on 11/10/17.
  */
-public class SymphonyAiSessionKey {
+public class AiSessionKey {
 
   private String sessionKey;
 
@@ -15,7 +15,7 @@ public class SymphonyAiSessionKey {
 
   private Long uid;
 
-  public SymphonyAiSessionKey(String sessionKey, Long uid, String streamId) {
+  public AiSessionKey(String sessionKey, Long uid, String streamId) {
     this.sessionKey = sessionKey;
     this.streamId = streamId;
     this.uid = uid;
@@ -35,8 +35,8 @@ public class SymphonyAiSessionKey {
 
   @Override
   public boolean equals(Object other) {
-    return (other instanceof SymphonyAiSessionKey
-        && Objects.equals(sessionKey, ((SymphonyAiSessionKey) other).getSessionKey()));
+    return (other instanceof AiSessionKey
+        && Objects.equals(sessionKey, ((AiSessionKey) other).getSessionKey()));
   }
 
   @Override

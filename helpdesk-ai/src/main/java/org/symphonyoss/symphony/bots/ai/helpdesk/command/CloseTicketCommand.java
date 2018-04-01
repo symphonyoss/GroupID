@@ -5,11 +5,11 @@ import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskApiException;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
@@ -48,7 +48,7 @@ public class CloseTicketCommand extends AiCommand {
    * @param aiArgumentMap arguments passed to execute this action
    */
   @Override
-  public void executeCommand(SymphonyAiSessionKey sessionKey, AiResponder responder,
+  public void executeCommand(AiSessionKey sessionKey, AiResponder responder,
       AiArgumentMap aiArgumentMap) {
     try {
       String streamId = sessionKey.getStreamId();
@@ -107,7 +107,7 @@ public class CloseTicketCommand extends AiCommand {
    * @param aiSessionKey The Key for this AI Session Context
    * @return the built AI response
    */
-  private AiResponse internalErrorResponse(SymphonyAiSessionKey aiSessionKey) {
+  private AiResponse internalErrorResponse(AiSessionKey aiSessionKey) {
     return response(INTERNAL_ERROR, aiSessionKey.getStreamId());
   }
 
@@ -118,7 +118,7 @@ public class CloseTicketCommand extends AiCommand {
    * @return the built AI response
    */
   private AiResponse response(String message, String stream) {
-    SymphonyAiMessage aiMessage = new SymphonyAiMessage(message);
+    AiMessage aiMessage = new AiMessage(message);
     return new AiResponse(aiMessage, stream);
   }
 }

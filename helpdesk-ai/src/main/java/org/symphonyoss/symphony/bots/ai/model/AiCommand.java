@@ -31,7 +31,7 @@ public abstract class AiCommand implements Comparable {
    * @param aiResponder a responder the ai can use to respond to users.
    * @param aiArgumentMap a map of arguments to execute the command with.
    */
-  public abstract void executeCommand(SymphonyAiSessionKey sessionKey, AiResponder aiResponder,
+  public abstract void executeCommand(AiSessionKey sessionKey, AiResponder aiResponder,
       AiArgumentMap aiArgumentMap);
 
   @Override
