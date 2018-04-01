@@ -80,11 +80,6 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
         .function(context -> registerBot(context))
         .onError(e -> LOGGER.error("Fail to register bot user", e));
 
-    FunctionExecutor<ApplicationContext, HelpDeskAi> functionAi = new FunctionExecutor<>();
-    functionAi
-        .function(context -> initializeAi(context))
-        .onError(e -> LOGGER.error("Fail to initilize Helpdesk Ai", e));
-
     FunctionExecutor<ApplicationContext, IdleTimerManager> functionIdleTimeManager = new FunctionExecutor<>();
     functionIdleTimeManager
         .function(context -> initializeIdleTimeManager(context))
@@ -96,7 +91,6 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
       SymAuth symAuth = functionAuth.executeBackoffExponential(applicationContext);
       functionClient.executeBackoffExponential(symAuth);
       functionRegisterBot.executeBackoffExponential(applicationContext);
-      functionAi.executeBackoffExponential(applicationContext);
       functionIdleTimeManager.executeBackoffExponential(applicationContext);
 
       ready(applicationContext);
@@ -211,17 +205,6 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
   private Membership registerBot(ApplicationContext applicationContext) {
     HelpDeskBot helpDeskBot = applicationContext.getBean(HelpDeskBot.class);
     return helpDeskBot.registerDefaultAgent();
-  }
-
-  /**
-   * Register Helpdesk AI
-   * @param applicationContext Spring application context
-   */
-  private HelpDeskAi initializeAi(ApplicationContext applicationContext) {
-    HelpDeskAi helpDeskAi = applicationContext.getBean(HelpDeskAi.class);
-    helpDeskAi.init();
-
-    return helpDeskAi;
   }
 
   /**

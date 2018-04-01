@@ -43,12 +43,14 @@ public class HelpDeskAi extends SymphonyAi {
     this.ticketClient = ticketClient;
     this.membershipClient = membershipClient;
     this.timerManager = timerManager;
+
+    init();
   }
 
   /**
    * Initializes the HelpDeskAi
    */
-  public void init() {
+  private void init() {
     AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(symphonyClient);
 
     MessageProducer messageProducer = new MessageProducer(membershipClient, symphonyClient);
