@@ -12,7 +12,6 @@ import org.symphonyoss.symphony.bots.ai.impl.SymphonyAi;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiEventListenerImpl;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;

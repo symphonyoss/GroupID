@@ -17,7 +17,7 @@ import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 
 /**
@@ -28,6 +28,8 @@ import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 public class SymphonyAiEventListenerImplTest {
 
   private static final String PREFIX = "@";
+
+  private static final String MSG_ID = "MSG";
 
   private static final String SESSION_KEY = "SESSION";
 
@@ -44,11 +46,12 @@ public class SymphonyAiEventListenerImplTest {
   @Mock
   private AiCommand aiCommand;
 
+  @Mock
+  private AiConversation aiConversation;
+
   private AiCommandMenu commandMenu;
 
   private SymphonyAiSessionKey sessionKey = new SymphonyAiSessionKey(SESSION_KEY, USER_ID, STREAM_ID);
-
-  private AiSessionContext sessionContext = new AiSessionContext(sessionKey);
 
   private SymphonyAiMessage message = new SymphonyAiMessage("");
 
@@ -56,27 +59,40 @@ public class SymphonyAiEventListenerImplTest {
 
   @Before
   public void init() {
+    this.message.setMessageId(MSG_ID);
     this.commandMenu = new AiCommandMenu(PREFIX);
 
-    this.sessionContext.setAiCommandMenu(commandMenu);
+    doReturn(true).when(aiConversation).isAllowCommands();
+    doReturn(commandMenu).when(aiConversation).getAiCommandMenu();
 
     this.eventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder);
   }
 
   @Test
-  public void testWithoutPrefix() {
-    eventListener.onCommand(message, sessionContext);
+  public void testDoNotAllowCommands() {
+    doReturn(false).when(aiConversation).isAllowCommands();
+
+    eventListener.onMessage(sessionKey, message, aiConversation);
     verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
+    verify(aiConversation, times(1)).onMessage(aiResponder, message);
+  }
+
+  @Test
+  public void testWithoutPrefix() {
+    eventListener.onMessage(sessionKey, message, aiConversation);
+    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
+    verify(aiConversation, times(1)).onMessage(aiResponder, message);
   }
 
   @Test
   public void testEmptyCommandSet() {
     doReturn(true).when(aiCommandInterpreter).hasPrefix(message, PREFIX);
 
-    eventListener.onCommand(message, sessionContext);
+    eventListener.onMessage(sessionKey, message, aiConversation);
 
     verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
     verify(aiResponder, times(1)).respondWithUseMenu(sessionKey, commandMenu, message);
+    verify(aiConversation, never()).onMessage(aiResponder, message);
   }
 
   @Test
@@ -89,9 +105,20 @@ public class SymphonyAiEventListenerImplTest {
     doReturn(true).when(aiCommandInterpreter).isCommand(aiCommand, message, PREFIX);
     doReturn(args).when(aiCommandInterpreter).readCommandArguments(aiCommand, message, PREFIX);
 
-    eventListener.onCommand(message, sessionContext);
+    eventListener.onMessage(sessionKey, message, aiConversation);
 
     verify(aiCommand, times(1)).executeCommand(sessionKey, aiResponder, args);
+    verify(aiConversation, never()).onMessage(aiResponder, message);
+  }
+
+  @Test
+  public void testEqualsMessage() {
+    doReturn(MSG_ID).when(aiConversation).getLastMessageId();
+
+    eventListener.onMessage(sessionKey, message, aiConversation);
+
+    verify(aiCommandInterpreter, never()).isCommand(any(AiCommand.class), any(SymphonyAiMessage.class), anyString());
+    verify(aiConversation, never()).onMessage(aiResponder, message);
   }
 
 }

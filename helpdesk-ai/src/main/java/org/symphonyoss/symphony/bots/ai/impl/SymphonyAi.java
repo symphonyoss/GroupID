@@ -8,7 +8,6 @@ import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
@@ -22,8 +21,6 @@ public class SymphonyAi implements Ai {
 
   protected AiEventListener aiEventListener;
 
-  protected SymphonyAiSessionContextManager aiSessionContextManager;
-
   protected SymphonyAiConversationManager aiConversationManager;
 
   protected AiResponder aiResponder;
@@ -31,14 +28,12 @@ public class SymphonyAi implements Ai {
   public SymphonyAi(SymphonyClient symphonyClient) {
     AiCommandInterpreter aiCommandInterpreter = new SymphonyAiCommandInterpreter(symphonyClient);
     aiEventListener = new SymphonyAiEventListenerImpl(aiCommandInterpreter, aiResponder);
-    aiSessionContextManager = new SymphonyAiSessionContextManager();
     aiConversationManager = new SymphonyAiConversationManager();
   }
 
-  public SymphonyAi(AiEventListener aiEventListener, SymphonyAiSessionContextManager aiSessionContextManager,
+  public SymphonyAi(AiEventListener aiEventListener,
       SymphonyAiConversationManager aiConversationManager, AiResponder aiResponder) {
     this.aiEventListener = aiEventListener;
-    this.aiSessionContextManager = aiSessionContextManager;
     this.aiConversationManager = aiConversationManager;
     this.aiResponder = aiResponder;
   }
@@ -60,37 +55,13 @@ public class SymphonyAi implements Ai {
    */
   @Override
   public void onAiMessage(SymphonyAiSessionKey aiSessionKey, SymphonyAiMessage message) {
-    AiSessionContext sessionContext =  getSessionContext(aiSessionKey);
-    AiConversation aiConversation = aiConversationManager.getConversation(sessionContext);
-
-    if (isNewMessage(message, sessionContext)) {
-
-      if (allowCommands(aiConversation, sessionContext)) {
-        aiEventListener.onCommand(message, sessionContext);
-      }
-
-      if (aiConversation != null) {
-        aiEventListener.onConversation(message, aiConversation);
-      }
-
-      sessionContext.setLastMessageId(message.getMessageId());
-    }
-  }
-
-  private boolean isNewMessage(SymphonyAiMessage message, AiSessionContext sessionContext) {
-    return !message.getMessageId().equals(sessionContext.getLastMessageId());
-  }
-
-  private boolean allowCommands(AiConversation aiConversation, AiSessionContext sessionContext) {
-    return sessionContext.allowCommands() && aiConversation.isAllowCommands();
+    AiConversation aiConversation = aiConversationManager.getConversation(aiSessionKey);
+    aiEventListener.onMessage(aiSessionKey, message, aiConversation);
   }
 
   @Override
   public void startConversation(SymphonyAiSessionKey aiSessionKey, AiConversation aiConversation) {
-    AiSessionContext aiSessionContext = getSessionContext(aiSessionKey);
-    aiConversation.setAiCommandMenu(aiSessionContext.getAiCommandMenu());
-
-    aiConversationManager.registerConversation(aiSessionContext, aiConversation);
+    aiConversationManager.registerConversation(aiSessionKey, aiConversation);
   }
 
   /**
@@ -100,12 +71,7 @@ public class SymphonyAi implements Ai {
    */
   @Override
   public AiConversation getConversation(SymphonyAiSessionKey aiSessionKey) {
-    AiSessionContext aiSessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
-    if (aiSessionContext != null) {
-      return aiConversationManager.getConversation(aiSessionContext);
-    } else {
-      return null;
-    }
+    return aiConversationManager.getConversation(aiSessionKey);
   }
 
   /**
@@ -114,36 +80,13 @@ public class SymphonyAi implements Ai {
    */
   @Override
   public void endConversation(SymphonyAiSessionKey aiSessionKey) {
-    AiSessionContext aiSessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
-    aiConversationManager.removeConversation(aiSessionContext);
+    aiConversationManager.removeConversation(aiSessionKey);
   }
 
   @Override
   public void sendMessage(SymphonyAiMessage aiMessage, String... responseIdentifiers) {
     AiResponse aiResponse = new AiResponse(aiMessage, responseIdentifiers);
     aiResponder.respond(aiResponse);
-  }
-
-  /**
-   * Retrieve the session context with the given {@link SymphonyAiSessionKey session key}
-   * @param aiSessionKey a session context key
-   * @return session context with the given key
-   */
-  @Override
-  public AiSessionContext getSessionContext(SymphonyAiSessionKey aiSessionKey) {
-    AiSessionContext sessionContext = aiSessionContextManager.getSessionContext(aiSessionKey);
-
-    if(sessionContext == null) {
-      sessionContext = newAiSessionContext(aiSessionKey);
-      aiSessionContextManager.putSessionContext(aiSessionKey, sessionContext);
-    }
-
-    return sessionContext;
-  }
-
-  @Override
-  public AiSessionContext newAiSessionContext(SymphonyAiSessionKey aiSessionKey) {
-    return new AiSessionContext(aiSessionKey);
   }
 
   @Override

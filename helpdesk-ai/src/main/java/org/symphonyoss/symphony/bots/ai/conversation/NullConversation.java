@@ -12,7 +12,7 @@ import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 public class NullConversation extends AiConversation {
 
   public NullConversation() {
-    super(true);
+    super(false);
   }
 
   @Override

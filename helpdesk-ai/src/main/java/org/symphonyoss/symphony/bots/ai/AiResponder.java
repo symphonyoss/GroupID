@@ -3,7 +3,6 @@ package org.symphonyoss.symphony.bots.ai;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 
 /**

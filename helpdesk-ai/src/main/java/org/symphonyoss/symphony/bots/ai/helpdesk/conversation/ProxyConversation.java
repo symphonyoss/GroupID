@@ -2,11 +2,9 @@ package org.symphonyoss.symphony.bots.ai.helpdesk.conversation;
 
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 

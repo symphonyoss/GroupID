@@ -44,14 +44,6 @@ public abstract class AiConversation {
   }
 
   /**
-   * Set command menu
-   * @param aiCommandMenu List of available commands
-   */
-  public void setAiCommandMenu(AiCommandMenu aiCommandMenu) {
-    this.aiCommandMenu = aiCommandMenu;
-  }
-
-  /**
    * Retrieve command menu.
    * @return List of available commands
    */

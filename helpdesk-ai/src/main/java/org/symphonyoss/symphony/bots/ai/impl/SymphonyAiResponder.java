@@ -1,16 +1,10 @@
 package org.symphonyoss.symphony.bots.ai.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
-import org.symphonyoss.symphony.clients.MessagesClient;
-import org.symphonyoss.symphony.clients.model.SymMessage;
-import org.symphonyoss.symphony.clients.model.SymStream;
 
 /**
  * Concrete implementation of {@link AiResponder}.

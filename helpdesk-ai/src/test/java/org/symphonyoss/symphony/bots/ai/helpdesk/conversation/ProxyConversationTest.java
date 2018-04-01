@@ -15,7 +15,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -38,9 +37,6 @@ public class ProxyConversationTest {
   private MakerCheckerService makerCheckerService;
 
   @Mock
-  private AiSessionContext sessionContext;
-
-  @Mock
   private AiResponder responder;
 
   @Mock
@@ -53,7 +49,6 @@ public class ProxyConversationTest {
 
   @Before
   public void init() {
-    doReturn(sessionKey).when(sessionContext).getAiSessionKey();
     this.proxyConversation = new ProxyConversation(makerCheckerService);
   }
 
