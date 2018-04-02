@@ -1,5 +1,5 @@
 import 'babel-polyfill';
-import { bootstrapService } from 'symphony-app-authentication-fe';
+import { initApp } from 'symphony-app-authentication-fe';
 import { getParameterByName } from '../utils/urlUtils';
 import ClaimTicketEnricher from '../enrichers/claimTicketEnricher';
 import ActionClaimTicketEnricher from '../enrichers/actionClaimTicketEnricher';
@@ -30,24 +30,23 @@ const registerEnrichers = () => {
 };
 
 const initAuthentication = () => {
-  let config;
-  config.appId = appId;
-  config.dependencies = ['ui', 'entity', 'extended-user-service', 'error-banner'];
-  config.exportedDependencies = [controllerName, claimTicketEnricher.name,
-    attachmentEnricher.name, actionClaimTicketEnricher.name, actionAttachmentEnricher.name];
-  config.baseAuthenticationUrl = 'localhost:8080';
+  const config = {
+    appId,
+    dependencies: ['ui', 'entity', 'extended-user-service', 'error-banner'],
+    exportedDependencies: [controllerName, claimTicketEnricher.name, attachmentEnricher.name,
+      actionClaimTicketEnricher.name, actionAttachmentEnricher.name],
+    baseAuthenticationUrl: 'https://localhost:8081/helpdesk',
+  };
 
-  bootstrapService.initApp(config);
+  initApp(config);
 };
 
-const initApp = () => {
+const initApplication = () => {
   SYMPHONY.services.register(controllerName);
-
   initEnrichers();
-
   initAuthentication();
 
   registerEnrichers();
 };
 
-initApp();
+initApplication();
