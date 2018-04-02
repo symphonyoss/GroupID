@@ -1,10 +1,10 @@
 import 'babel-polyfill';
+import { bootstrapService } from 'symphony-app-authentication-fe';
 import { getParameterByName } from '../utils/urlUtils';
 import ClaimTicketEnricher from '../enrichers/claimTicketEnricher';
 import ActionClaimTicketEnricher from '../enrichers/actionClaimTicketEnricher';
 import AttachmentEnricher from '../enrichers/attachmentEnricher';
 import ActionAttachmentEnricher from '../enrichers/actionAttachmentEnricher';
-import { bootstrapService } from 'symphony-app-authentication-fe';
 
 const claimTicketEnricher = new ClaimTicketEnricher();
 const attachmentEnricher = new AttachmentEnricher();
