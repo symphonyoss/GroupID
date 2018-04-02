@@ -204,7 +204,14 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
     Element elementMessageML = Jsoup.parse(aiMessage.getMessageData()).select("div").first();
     Set<String> uids = new HashSet<>();
 
-    if(elementMessageML.getElementsByAttributeValue("class", "wysiwyg").size() > 0) {
+    int mention = 1;
+    if(jsonNode.get(MENTION_START + mention) == null) {
+      while (jsonNode.get(MENTION_START + mention) != null) {
+        jsonNode = jsonNode.get(MENTION_START + mention);
+        uids.add(jsonNode.get(USER_ID).get(0).get(VALUE).asText());
+        mention++;
+      }
+    } else {
       int entity = 0;
       while (jsonNode.get(String.valueOf(entity)) != null) {
         jsonNode = jsonNode.get(String.valueOf(entity));
@@ -212,13 +219,6 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
           uids.add(jsonNode.get(USER_ID).get(0).get(VALUE).asText());
         }
         entity++;
-      }
-    } else {
-      int mention = 1;
-      while (jsonNode.get(MENTION_START + mention) != null) {
-        jsonNode = jsonNode.get(MENTION_START + mention);
-        uids.add(jsonNode.get(USER_ID).get(0).get(VALUE).asText());
-        mention++;
       }
     }
     return uids;
