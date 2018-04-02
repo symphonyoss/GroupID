@@ -205,7 +205,7 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
     Set<String> uids = new HashSet<>();
 
     int mention = 1;
-    if(jsonNode.get(MENTION_START + mention) == null) {
+    if(jsonNode.get(MENTION_START + mention) != null) {
       while (jsonNode.get(MENTION_START + mention) != null) {
         jsonNode = jsonNode.get(MENTION_START + mention);
         uids.add(jsonNode.get(USER_ID).get(0).get(VALUE).asText());
