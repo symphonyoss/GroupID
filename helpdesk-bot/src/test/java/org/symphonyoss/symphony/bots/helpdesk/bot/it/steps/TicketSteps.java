@@ -374,6 +374,28 @@ public class TicketSteps {
     Thread.sleep(5000L);
   }
 
+  @When("$user user sends a message to close the ticket (PresentationML 2.0 format)")
+  public void closeTicketFormat2_0(String username)
+      throws InterruptedException, MessagesException {
+    SymUser botUser = userHelper.getBotUser();
+
+    String closeMessage =
+        "<div data-format=\"PresentationML\" data-version=\"2.0\" class=\"wysiwyg\"><span><span "
+            + "class=\"entity\" data-entity-id=\"0\">@HalpDesk Lucas</span> close</span></div>";
+
+    String closeEntityData = String.format(
+        "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":%d}],"
+            + "\"type\":\"com.symphony.user.mention\"}}", botUser.getId());
+
+    SymMessage message = new SymMessage();
+    message.setMessage(closeMessage);
+
+    messageHelper.sendAgentMessage(username, message);
+
+    // Waiting message be processed
+    Thread.sleep(5000L);
+  }
+
   @When("$user user sends a message to close the other ticket")
   public void closeOtherTicket(String username)
       throws InterruptedException, MessagesException {
