@@ -1,10 +1,10 @@
 # Symphony HelpDesk
 
-This document provides a brief overview of Symphony HelpDesk components and how to build them from scratch.
+This document provides a brief overview of the Symphony HelpDesk components and how to build them from scratch.
 
 # Overview
 
-Symphony HelpDesk is composed by three cloud-native applications built on top of Symphony Boot.
+Symphony HelpDesk is composed of three cloud-native applications built on top of Symphony Boot.
 
 The applications are:
 * HelpDesk API: Manages tickets and stream membership
@@ -191,7 +191,7 @@ You must replace ${PATH_TO_CERTS} variable with the certificate directory and ${
 
 ### Docker and Kubernetes
 
-This application is prepared to be deployed as a container, actually it is divided into four containers:
+This application is setup to be deployed via Docker and is divided into four containers:
 
 1. [helpdesk-mongodb](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-mongodb/docker)
 2. [helpdesk-api](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-service/docker)
@@ -206,30 +206,30 @@ docker/
   k8s_deployment.yaml.template
   k8s_service.yaml
 ```
-The ```Dockerfile``` contains the base image, some necessary applications and the entry point to run the application. While the ```k8s_deployment.yaml.template``` is used to create a [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) on Kubernetes. And the ```k8s_service.yaml``` a [service](https://kubernetes.io/docs/concepts/services-networking/service/) on Kubernetes as well.
+The ```Dockerfile``` contains the base image, some necessary applications and the entry point to run the application. The ```k8s_deployment.yaml.template``` is used to create a [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) on Kubernetes, and the ```k8s_service.yaml``` a [service](https://kubernetes.io/docs/concepts/services-networking/service/) on Kubernetes.
 
-There is also a file named ```k8s_build_push_run.sh```, it is used to perform the operations defined above.
+There is also a file named ```k8s_build_push_run.sh```, used to perform the operations defined above.
 
 
 #### How to start
 
 First of all, you must install [Google Cloud](https://cloud.google.com/sdk/docs/quickstarts) and, after that, [Kubernetes CTL](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-via-curl).
 
-Then the following command must be executed ```gcloud init``` and select the needed project. So the following command as well ```gcloud container clusters get-credentials <cluster_name> --zone us-central1-b --project <project_name>``` and GCloud is configured.
+The following command must be executed ```gcloud init``` and the needed project selected. Then the following command is needed to configure GCloud: ```gcloud container clusters get-credentials <cluster_name> --zone us-central1-b --project <project_name>```.
 
 
 #### Create a service account in your POD
 
-You must go to AC Portal on your POD and create a service account, it will be used by ```helpdesk-bot``` to authenticate. Please keep the chosen username, it will be used bellow.
+You must go to AC Portal on your POD and create a service account, which will be used by ```helpdesk-bot``` to authenticate. Please record the chosen username - it will be used bellow.
 
 
 #### Fill the .yaml.template files
 
-Each project has a ```.yaml.template``` file (except the mongoDB container) and this file must be edited. Some considerations about this file:
+Each project has a ```.yaml.template``` file (except the mongoDB container) that must be edited. Some considerations about this file:
 
 1. Never edit the ```<VERSION>``` information. It will be replaced by the version number located inside ```pom.xml``` when ```k8s_build_push_run.sh``` is executed.
 
-2. The following entries are already configured to use the [Kubernetes Service DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/), so probably they must not be changed:
+2. The following entries are already configured to use the [Kubernetes Service DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/), so probably they need not be changed:
   - ```SERVER_PORT```
   - ```HELPDESK_BOT_HOST```
   - ```HELPDESK_BOT_PORT```
@@ -237,16 +237,16 @@ Each project has a ```.yaml.template``` file (except the mongoDB container) and 
   - ```HELPDESK_SERVICE_PORT```
   - ```MONGO_HOST```
   - ```MONGO_PORT```
-  - (```MONGO_HOST``` and ```MONGO_PORT``` are configured to use ```helpdesk-mongodb``` service, it must be changed if another MongoDB will be used)
+  - (```MONGO_HOST``` and ```MONGO_PORT``` are configured to use ```helpdesk-mongodb``` service and must be changed if another MongoDB will be used)
 
-3. When editing the entry ```PROVISIONING_SERVICE_ACCOUNT_NAME``` you must inform the username created for the service account created previously. It also must be the name of the ```.p12``` file contained in ```AUTHENTICATION_KEYSTORE_FILE``` entry. For example, if username is ```mybot123``` it must be ```mybot123.p12```.
+3. When editing the entry ```PROVISIONING_SERVICE_ACCOUNT_NAME```, you must input the username for the previously created service account. It also must be the name of the ```.p12``` file contained in the ```AUTHENTICATION_KEYSTORE_FILE``` entry. For example, if username is ```mybot123``` the keystore file must be ```mybot123.p12```.
 
 4. Other entries must be updated to reflect your environment.
 
 
 #### The provisioning process
 
-Inside ```helpdesk-bot```'s ```k8s_deployment.yaml.template``` there are some entries related to the provisioning process, it must be executed at least once. Set flags to ```TRUE```, inform the credentials (an user with PROVISIONING role) and the provisioning will be performed during the bootstrap:
+Inside ```helpdesk-bot```'s ```k8s_deployment.yaml.template```, there are some entries related to the provisioning process that must be executed at least once. Set flags to ```TRUE``` and input the credentials (a user with PROVISIONING role), and the provisioning will be performed during the bootstrap:
   - ``` PROVISIONING_USER_NAME```
   - ``` PROVISIONING_USER_PASSWORD```
   - ``` PROVISIONING_CA_GENERATE_KEYSTORE```
