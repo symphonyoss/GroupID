@@ -379,9 +379,10 @@ public class TicketSteps {
       throws InterruptedException, MessagesException {
     SymUser botUser = userHelper.getBotUser();
 
-    String closeMessage =
+    String closeMessage = String.format(
         "<div data-format=\"PresentationML\" data-version=\"2.0\" class=\"wysiwyg\"><span><span "
-            + "class=\"entity\" data-entity-id=\"0\">@HalpDesk Lucas</span> close</span></div>";
+            + "class=\"entity\" data-entity-id=\"0\">@%s</span> close</span></div>",
+        botUser.getDisplayName());
 
     String closeEntityData = String.format(
         "{\"0\":{\"id\":[{\"type\":\"com.symphony.user.userId\",\"value\":%d}],"
@@ -389,6 +390,7 @@ public class TicketSteps {
 
     SymMessage message = new SymMessage();
     message.setMessage(closeMessage);
+    message.setEntityData(closeEntityData);
 
     messageHelper.sendAgentMessage(username, message);
 
