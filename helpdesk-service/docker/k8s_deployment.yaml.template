@@ -42,7 +42,7 @@ spec:
               value: 'true'
             - name: APP_AUTHENTICATION_FILTER_ENABLED
               value: 'false'
-            - name: AUTHENTICATION_KEYSTORE_FILE
+            - name: APP_AUTHENTICATION_KEYSTORE_FILE
               value: /opt/symphony/helpdesk-api/certs/helpdesk-app.p12
-            - name: AUTHENTICATION_KEYSTORE_PASSWORD
+            - name: APP_AUTHENTICATION_KEYSTORE_PASSWORD
               value: changeit
