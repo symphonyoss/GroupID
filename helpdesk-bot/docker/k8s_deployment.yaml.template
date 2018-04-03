@@ -22,10 +22,14 @@ spec:
           env:
             - name: SERVER_PORT
               value: '8080'
+            - name: HELPDESK_BOT_SCHEME
+              value: http
             - name: HELPDESK_BOT_HOST
               value: helpdesk-bot-service
             - name: HELPDESK_BOT_PORT
               value: '80'
+            - name: HELPDESK_SERVICE_SCHEME
+              value: http
             - name: HELPDESK_SERVICE_HOST
               value: helpdesk-api-service
             - name: HELPDESK_SERVICE_PORT
@@ -67,7 +71,7 @@ spec:
             - name: PROVISIONING_CA_OVERWRITE
               value: 'true'
             - name: PROVISIONING_SERVICE_ACCOUNT_NAME
-              value: helpdesk-bot
+              value: zezao
             - name: PROVISIONING_SERVICE_ACCOUNT_GENERATE_KEYSTORE
               value: 'true'
             - name: PROVISIONING_SERVICE_ACCOUNT_OVERWRITE
@@ -75,7 +79,7 @@ spec:
             - name: CERTS_DIR
               value: /opt/symphony/helpdesk-bot/certs
             - name: AUTHENTICATION_KEYSTORE_FILE
-              value: /opt/symphony/helpdesk-bot/certs/helpdesk.p12
+              value: /opt/symphony/helpdesk-bot/certs/zezao.p12
             - name: AUTHENTICATION_KEYSTORE_PASSWORD
               value: changeit
             - name: GROUP_ID

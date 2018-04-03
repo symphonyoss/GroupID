@@ -9,9 +9,19 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ServiceInfo {
 
+  private String scheme;
+
   private String host;
 
   private Integer port;
+
+  public String getScheme() {
+    return scheme;
+  }
+
+  public void setScheme(String scheme) {
+    this.scheme = scheme;
+  }
 
   public String getHost() {
     return host;
@@ -39,19 +49,12 @@ public class ServiceInfo {
     if (StringUtils.isEmpty(host)) {
       return StringUtils.EMPTY;
     }
+    String usedScheme = StringUtils.isEmpty(scheme) ? "https" : scheme;
 
     if (port != null) {
-      return String.format("https://%s:%d/%s", host, port, context);
+      return String.format("%s://%s:%d/%s", usedScheme, host, port, context);
     } else {
-      return String.format("https://%s/%s", host, context);
+      return String.format("%s://%s/%s", usedScheme, host, context);
     }
-  }
-
-  @Override
-  public String toString() {
-    return "ServiceInfo{" +
-        "host='" + host + '\'' +
-        ", port=" + port +
-        "}\n";
   }
 }
