@@ -15,6 +15,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.client.services.MessageService;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
@@ -42,6 +43,9 @@ public class HelpDeskBootstrapTest {
   private static final String MOCK_AGENT_URL = "https://test.symphony.com/agent";
 
   private static final String MOCK_POD_URL = "https://test.symphony.com/pod";
+
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
 
   @Mock
   private ApplicationReadyEvent event;
@@ -114,7 +118,11 @@ public class HelpDeskBootstrapTest {
 
   @Test
   public void testRetries() throws InitException {
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
     SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
 
     doThrow(Exception.class).doReturn(symAuth).when(authenticationService).authenticate();
     doThrow(HelpDeskAuthenticationException.class).doThrow(InitException.class)

@@ -2,6 +2,7 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.ticket;
 
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -52,7 +53,7 @@ public abstract class TicketService {
    * @return the ticket responses
    */
   public TicketResponse execute(String ticketId, Long agentId) {
-    Ticket ticket = ticketClient.getTicket(ticketId);
+    Ticket ticket = ticketClient.getTicket(symphonyClientUtil.getAuthToken(), ticketId);
 
     if (ticket == null) {
       throw new BadRequestException(TICKET_NOT_FOUND);

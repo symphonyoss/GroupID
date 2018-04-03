@@ -3,10 +3,12 @@ package org.symphonyoss.symphony.bots.helpdesk.bot;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import javax.annotation.PostConstruct;
@@ -25,6 +27,8 @@ public class HelpDeskBot {
 
   private final ChatListener chatListener;
 
+  private final SymphonyClientUtil symphonyClientUtil;
+
   private boolean ready;
 
   /**
@@ -40,6 +44,7 @@ public class HelpDeskBot {
     this.symphonyClient = symphonyClient;
     this.membershipClient = membershipClient;
     this.chatListener = chatListener;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
   @PostConstruct
@@ -55,14 +60,16 @@ public class HelpDeskBot {
    * Register bot user as an agent member.
    */
   public Membership registerDefaultAgent() {
+    String jwt = symphonyClientUtil.getAuthToken();
+
     SymUser localUser = symphonyClient.getLocalUser();
-    Membership membership = membershipClient.getMembership(localUser.getId());
+    Membership membership = membershipClient.getMembership(jwt, localUser.getId());
 
     if(membership == null) {
-      return membershipClient.newMembership(localUser.getId(), MembershipClient.MembershipType.AGENT);
+      return membershipClient.newMembership(jwt, localUser.getId(), MembershipClient.MembershipType.AGENT);
     } else if(!MembershipClient.MembershipType.AGENT.getType().equals(membership.getType())){
       membership.setType(MembershipClient.MembershipType.AGENT.getType());
-      return membershipClient.updateMembership(membership);
+      return membershipClient.updateMembership(jwt, membership);
     }
 
     return membership;

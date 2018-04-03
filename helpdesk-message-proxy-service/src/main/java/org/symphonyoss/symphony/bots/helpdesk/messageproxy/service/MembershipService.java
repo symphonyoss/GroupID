@@ -5,9 +5,12 @@ import static org.symphonyoss.symphony.bots.helpdesk.service.membership.client.M
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient.MembershipType;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 /**
@@ -20,8 +23,11 @@ public class MembershipService {
 
   private final MembershipClient membershipClient;
 
-  public MembershipService(MembershipClient membershipClient) {
+  private final SymphonyClientUtil symphonyClientUtil;
+
+  public MembershipService(MembershipClient membershipClient, SymphonyClient symphonyClient) {
     this.membershipClient = membershipClient;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
   public Membership updateMembership(SymMessage symMessage, MembershipType type) {
@@ -40,7 +46,7 @@ public class MembershipService {
   }
 
   public Membership getMembership(Long userId) {
-    Membership membership = membershipClient.getMembership(userId);
+    Membership membership = membershipClient.getMembership(symphonyClientUtil.getAuthToken(), userId);
 
     if (membership != null) {
       LOGGER.info("Found membership: " + membership.toString());
@@ -50,11 +56,11 @@ public class MembershipService {
   }
 
   private Membership createMembership(Long userId, MembershipType type) {
-    return membershipClient.newMembership(userId, type);
+    return membershipClient.newMembership(symphonyClientUtil.getAuthToken(), userId, type);
   }
 
   private Membership updateMembership(Membership membership) {
-    return membershipClient.updateMembership(membership);
+    return membershipClient.updateMembership(symphonyClientUtil.getAuthToken(), membership);
   }
 
 }

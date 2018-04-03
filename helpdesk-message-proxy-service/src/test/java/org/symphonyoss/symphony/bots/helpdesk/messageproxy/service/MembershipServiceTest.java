@@ -10,6 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -24,6 +27,9 @@ public class MembershipServiceTest {
   @Mock
   private MembershipClient membershipClient;
 
+  @Mock
+  private SymphonyClient symphonyClient;
+
   private MembershipService membershipService;
 
   private static final String STREAM_ID = "STREAM_ID";
@@ -34,10 +40,21 @@ public class MembershipServiceTest {
 
   private static final String GROUP_ID = "GROUP_ID";
 
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
+
   @Before
   public void initMocks() {
     membershipService =
-        new MembershipService(membershipClient);
+        new MembershipService(membershipClient, symphonyClient);
+
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
   }
 
   @Test
@@ -45,11 +62,11 @@ public class MembershipServiceTest {
     SymMessage symMessage = new SymMessage();
     symMessage.setStreamId(STREAM_ID);
 
-    doReturn(null).when(membershipClient).getMembership(AGENT_ID);
+    doReturn(null).when(membershipClient).getMembership(JWT, AGENT_ID);
 
     Membership membership = membershipService.getMembership(AGENT_ID);
 
-    verify(membershipClient, times(1)).getMembership(AGENT_ID);
+    verify(membershipClient, times(1)).getMembership(JWT, AGENT_ID);
     assertEquals(null,membership);
 
   }
@@ -60,14 +77,14 @@ public class MembershipServiceTest {
     symMessage.setFromUserId(CLIENT_ID);
     Membership client = getMembershipClient();
 
-    doReturn(null).when(membershipClient).getMembership(CLIENT_ID);
+    doReturn(null).when(membershipClient).getMembership(JWT, CLIENT_ID);
 
-    doReturn(client).when(membershipClient).newMembership(CLIENT_ID,
+    doReturn(client).when(membershipClient).newMembership(JWT, CLIENT_ID,
         MembershipClient.MembershipType.CLIENT);
 
     Membership actual = membershipService.updateMembership(symMessage, MembershipClient.MembershipType.CLIENT);
 
-    verify(membershipClient, times(1)).newMembership(CLIENT_ID, MembershipClient.MembershipType.CLIENT);
+    verify(membershipClient, times(1)).newMembership(JWT, CLIENT_ID, MembershipClient.MembershipType.CLIENT);
 
     assertEquals(client, actual);
 
@@ -80,14 +97,14 @@ public class MembershipServiceTest {
 
     Membership agent = getMembershipAgent();
 
-    doReturn(null).when(membershipClient).getMembership(AGENT_ID);
+    doReturn(null).when(membershipClient).getMembership(JWT, AGENT_ID);
 
-    doReturn(agent).when(membershipClient).newMembership(AGENT_ID,
-        MembershipClient.MembershipType.AGENT);
+    doReturn(agent).when(membershipClient)
+        .newMembership(JWT, AGENT_ID, MembershipClient.MembershipType.AGENT);
 
     Membership actual = membershipService.updateMembership(symMessage, MembershipClient.MembershipType.AGENT);
 
-    verify(membershipClient, times(1)).newMembership(AGENT_ID, MembershipClient.MembershipType.AGENT);
+    verify(membershipClient, times(1)).newMembership(JWT, AGENT_ID, MembershipClient.MembershipType.AGENT);
 
     assertEquals(agent, actual);
   }
@@ -99,13 +116,13 @@ public class MembershipServiceTest {
     Membership client = getMembershipClient();
     Membership agent = getMembershipClientUpdated();
 
-    doReturn(client).when(membershipClient).getMembership(CLIENT_ID);
+    doReturn(client).when(membershipClient).getMembership(JWT, CLIENT_ID);
 
-    doReturn(agent).when(membershipClient).updateMembership(client);
+    doReturn(agent).when(membershipClient).updateMembership(JWT, client);
 
     Membership actual = membershipService.updateMembership(symMessage, MembershipClient.MembershipType.AGENT);
 
-    verify(membershipClient, times(1)).updateMembership(client);
+    verify(membershipClient, times(1)).updateMembership(JWT, client);
 
     assertEquals(agent, actual);
   }

@@ -91,7 +91,7 @@ public class AcceptTicketService extends TicketService {
     ticket.setAgent(agentUser);
 
     ticket.setState(state.getState());
-    ticketClient.updateTicket(ticket);
+    ticketClient.updateTicket(symphonyClientUtil.getAuthToken(), ticket);
   }
 
   /**
@@ -151,7 +151,7 @@ public class AcceptTicketService extends TicketService {
             .forEach(symMessage -> sendMessage(symMessage));
 
         ticket.setQuestionTimestamp(firstTimeStamp);
-        ticketClient.updateTicket(ticket);
+        ticketClient.updateTicket(symphonyClientUtil.getAuthToken(), ticket);
       } catch (MessagesException e) {
         LOG.error("Could not send message to service room: ", e);
         throw new InternalServerErrorException();

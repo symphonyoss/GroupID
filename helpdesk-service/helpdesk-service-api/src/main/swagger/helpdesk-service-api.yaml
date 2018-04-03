@@ -17,6 +17,10 @@ paths:
       summary: Create a ticket.
       operationId: createTicket
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: ticket
           in: body
           required: true
@@ -42,6 +46,10 @@ paths:
       summary: Get a ticket.
       operationId: getTicket
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: id
           in: path
           required: true
@@ -67,6 +75,10 @@ paths:
       summary: Update a ticket.
       operationId: updateTicket
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: id
           in: path
           required: true
@@ -95,6 +107,10 @@ paths:
       summary: Delete a ticket.
       operationId: deleteTicket
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: id
           in: path
           required: true
@@ -117,6 +133,10 @@ paths:
       summary: Search for a ticket.
       operationId: searchTicket
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: groupId
           in: query
           required: false
@@ -147,6 +167,10 @@ paths:
       summary: Create a membership.
       operationId: createMembership
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: membership
           in: body
           required: true
@@ -170,6 +194,10 @@ paths:
       summary: Get a membership.
       operationId: getMembership
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: groupId
           in: path
           required: true
@@ -196,6 +224,10 @@ paths:
       summary: Update a membership.
       operationId: updateMembership
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: groupId
           in: path
           required: true
@@ -229,6 +261,10 @@ paths:
       summary: Delete a membership.
       operationId: deleteMembership
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: groupId
           in: path
           required: true
@@ -258,6 +294,10 @@ paths:
       summary: Create a makerchecker.
       operationId: createMakerchecker
       parameters:
+        - name: Authorization
+          in: header
+          required: true
+          type: string
         - name: makerchecker
           in: body
           required: true
@@ -292,6 +332,10 @@ paths:
         summary: Get a makerchecker.
         operationId: getMakerchecker
         parameters:
+          - name: Authorization
+            in: header
+            required: true
+            type: string
           - name: id
             in: path
             required: true
@@ -317,6 +361,10 @@ paths:
         summary: Update a makerchecker.
         operationId: updateMakerchecker
         parameters:
+          - name: Authorization
+            in: header
+            required: true
+            type: string
           - name: id
             in: path
             required: true

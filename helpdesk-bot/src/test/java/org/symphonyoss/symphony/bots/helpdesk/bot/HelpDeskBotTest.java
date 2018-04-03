@@ -17,6 +17,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.exceptions.UsersClientException;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.ChatListener;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
@@ -33,6 +35,9 @@ public class HelpDeskBotTest {
   private static final String MOCK_GROUP_ID = "mockgroupid";
 
   private static final long MOCK_USERID = 123456;
+
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
 
   @Mock
   private HelpDeskBotConfig configuration;
@@ -61,6 +66,14 @@ public class HelpDeskBotTest {
 
     doReturn(user).when(symphonyClient).getLocalUser();
 
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
+
     doReturn(MOCK_GROUP_ID).when(configuration).getGroupId();
   }
 
@@ -79,18 +92,19 @@ public class HelpDeskBotTest {
   @Test
   public void testCreateMembership() throws InitException, UsersClientException {
     this.helpDeskBot.registerDefaultAgent();
-    verify(membershipClient, times(1)).newMembership(MOCK_USERID, MembershipClient.MembershipType.AGENT);
+    verify(membershipClient, times(1)).newMembership(JWT, MOCK_USERID,
+        MembershipClient.MembershipType.AGENT);
   }
 
   @Test
   public void testUpdateMembership() throws InitException, UsersClientException {
     Membership membership = new Membership();
 
-    doReturn(membership).when(membershipClient).getMembership(MOCK_USERID);
+    doReturn(membership).when(membershipClient).getMembership(JWT, MOCK_USERID);
 
     this.helpDeskBot.registerDefaultAgent();
 
-    verify(membershipClient, times(1)).updateMembership(membership);
+    verify(membershipClient, times(1)).updateMembership(JWT, membership);
   }
 
   @Test
@@ -98,12 +112,12 @@ public class HelpDeskBotTest {
     Membership membership = new Membership();
     membership.setType(MembershipClient.MembershipType.AGENT.getType());
 
-    doReturn(membership).when(membershipClient).getMembership(MOCK_USERID);
+    doReturn(membership).when(membershipClient).getMembership(JWT, MOCK_USERID);
 
     Membership result = this.helpDeskBot.registerDefaultAgent();
 
-    verify(membershipClient, never()).newMembership(MOCK_USERID, MembershipClient.MembershipType.AGENT);
-    verify(membershipClient, never()).updateMembership(membership);
+    verify(membershipClient, never()).newMembership(JWT, MOCK_USERID, MembershipClient.MembershipType.AGENT);
+    verify(membershipClient, never()).updateMembership(JWT, membership);
 
     assertEquals(membership, result);
   }

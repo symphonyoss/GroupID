@@ -17,6 +17,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.Membersh
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 
 /**
  * An extension of the Symphony AI, that supports help desk functions.
@@ -35,6 +36,8 @@ public class HelpDeskAi extends SymphonyAi {
 
   private final IdleTimerManager timerManager;
 
+  private final SymphonyClientUtil symphonyClientUtil;
+
   public HelpDeskAi(HelpDeskAiConfig aiConfig, SymphonyClient symphonyClient,
       TicketClient ticketClient, MembershipClient membershipClient, IdleTimerManager timerManager) {
     super(symphonyClient);
@@ -43,6 +46,7 @@ public class HelpDeskAi extends SymphonyAi {
     this.ticketClient = ticketClient;
     this.membershipClient = membershipClient;
     this.timerManager = timerManager;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
 
     init();
   }
@@ -64,9 +68,11 @@ public class HelpDeskAi extends SymphonyAi {
     Long userId = sessionKey.getUid();
     String streamId = sessionKey.getStreamId();
 
-    if (isAgentUser(userId)) {
+    String jwt = symphonyClientUtil.getAuthToken();
 
-      if (isTicketRoom(streamId)) {
+    if (isAgentUser(jwt, userId)) {
+
+      if (isTicketRoom(jwt, streamId)) {
         // Ticket room
         return new ServiceCommandMenu(aiConfig, ticketClient, symphonyClient, timerManager);
       } else {
@@ -80,14 +86,14 @@ public class HelpDeskAi extends SymphonyAi {
     }
   }
 
-  private boolean isAgentUser(Long userId) {
-    Membership membership = membershipClient.getMembership(userId);
+  private boolean isAgentUser(String jwt, Long userId) {
+    Membership membership = membershipClient.getMembership(jwt, userId);
     return membership != null && MembershipClient.MembershipType.AGENT.getType()
         .equals(membership.getType());
   }
 
-  private boolean isTicketRoom(String streamId) {
-    Ticket ticket = ticketClient.getTicketByServiceStreamId(streamId);
+  private boolean isTicketRoom(String jwt, String streamId) {
+    Ticket ticket = ticketClient.getTicketByServiceStreamId(jwt, streamId);
     return ticket != null;
   }
 

@@ -22,7 +22,9 @@ import org.symphonyoss.client.events.SymUserJoinedRoom;
 import org.symphonyoss.client.events.SymUserLeftRoom;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.client.services.MessageService;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -60,6 +62,9 @@ public class HelpDeskRoomEventListenerTest {
   public static final String MESSAGE_ID = "";
 
   private String runawayAgentMessage = "Message";
+
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
 
   @Mock
   private HelpDeskBotConfig config;
@@ -103,6 +108,14 @@ public class HelpDeskRoomEventListenerTest {
 
     doReturn(symUser).when(symphonyClient).getLocalUser();
 
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
+
     this.listener =
         new HelpDeskRoomEventListener(runawayAgentMessage, symphonyClient, ticketClient, config,
             ticketService);
@@ -145,12 +158,12 @@ public class HelpDeskRoomEventListenerTest {
     mockTicket.setAgent(new UserInfo());
     mockTicket.setState(TicketClient.TicketStateType.RESOLVED.toString());
 
-    doReturn(mockTicket).when(ticketClient).getTicketByServiceStreamId(eq(MOCK_STREAM));
+    doReturn(mockTicket).when(ticketClient).getTicketByServiceStreamId(JWT, MOCK_STREAM);
 
     listener.onSymUserLeftRoom(symUserLeftRoom);
 
-    verify(ticketClient, times(1)).getTicketByServiceStreamId(MOCK_STREAM);
-    verify(ticketClient, never()).updateTicket(eq(mockTicket));
+    verify(ticketClient, times(1)).getTicketByServiceStreamId(JWT, MOCK_STREAM);
+    verify(ticketClient, never()).updateTicket(JWT, mockTicket);
   }
 
   @Test
@@ -170,7 +183,7 @@ public class HelpDeskRoomEventListenerTest {
     symMessage.setId(MESSAGE_ID);
 
     doReturn(MOCK_STREAM2).when(config).getAgentStreamId();
-    doReturn(mockTicket).when(ticketClient).getTicketByServiceStreamId(eq(MOCK_STREAM));
+    doReturn(mockTicket).when(ticketClient).getTicketByServiceStreamId(JWT, MOCK_STREAM);
     doReturn(messagesClient).when(symphonyClient).getMessagesClient();
     doReturn(Arrays.asList(symMessage)).when(messagesClient)
         .getMessagesFromStream(any(SymStream.class), anyLong(), anyInt(), anyInt());
@@ -180,8 +193,8 @@ public class HelpDeskRoomEventListenerTest {
     assertEquals(null, mockTicket.getAgent());
     assertEquals(TicketClient.TicketStateType.UNSERVICED.toString(), mockTicket.getState());
 
-    verify(ticketClient, times(1)).getTicketByServiceStreamId(MOCK_STREAM);
-    verify(ticketClient, times(1)).updateTicket(eq(mockTicket));
+    verify(ticketClient, times(1)).getTicketByServiceStreamId(JWT, MOCK_STREAM);
+    verify(ticketClient, times(1)).updateTicket(JWT, mockTicket);
     verify(ticketService, times(1)).sendTicketMessageToAgentStreamId(eq(mockTicket),
         any(SymMessage.class));
     verify(ticketService, times(1)).sendClientMessageToServiceStreamId(anyString(),
