@@ -1,10 +1,10 @@
 # Symphony HelpDesk
 
-This document provides a brief overview of Symphony HelpDesk components and how to build them from scratch.
+This document provides a brief overview of the Symphony HelpDesk components and how to build them from scratch.
 
 # Overview
 
-Symphony HelpDesk is composed by three cloud-native applications built on top of Symphony Boot.
+Symphony HelpDesk is composed of three cloud-native applications built on top of Symphony Boot.
 
 The applications are:
 * HelpDesk API: Manages tickets and stream membership
@@ -185,3 +185,89 @@ mvn -DcaKeyPath=${PATH_TO_CERTS}/helpdesk-root-key.pem -DcaCertPath=${PATH_TO_CE
 ```
 
 You must replace ${PATH_TO_CERTS} variable with the certificate directory and ${PATH_TO_YAML} with the YAML absolute path.
+
+
+## Containerized Deployment
+
+### Docker and Kubernetes
+
+This application is setup to be deployed via Docker and is divided into four containers:
+
+1. [helpdesk-mongodb](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-mongodb/docker)
+2. [helpdesk-api](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-service/docker)
+3. [helpdesk-renderer](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-application/docker)
+4. [helpdesk-bot](https://github.com/symphonyoss/GroupID/tree/dev/helpdesk-bot/docker)
+
+Each project contains the following structure:
+```
+docker/
+  Dockerfile
+  k8s_build_push_run.sh
+  k8s_deployment.yaml.template
+  k8s_service.yaml
+```
+The ```Dockerfile``` contains the base image, some necessary applications and the entry point to run the application. The ```k8s_deployment.yaml.template``` is used to create a [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) on Kubernetes, and the ```k8s_service.yaml``` a [service](https://kubernetes.io/docs/concepts/services-networking/service/) on Kubernetes.
+
+There is also a file named ```k8s_build_push_run.sh```, used to perform the operations defined above.
+
+
+#### How to start
+
+First of all, you must install [Google Cloud](https://cloud.google.com/sdk/docs/quickstarts) and, after that, [Kubernetes CTL](https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl-binary-via-curl).
+
+The following command must be executed ```gcloud init``` and the needed project selected. Then the following command is needed to configure GCloud: ```gcloud container clusters get-credentials <cluster_name> --zone us-central1-b --project <project_name>```.
+
+
+#### Create a service account in your POD
+
+You must go to AC Portal on your POD and create a service account, which will be used by ```helpdesk-bot``` to authenticate. Please record the chosen username - it will be used bellow.
+
+
+#### Fill the .yaml.template files
+
+Each project has a ```.yaml.template``` file (except the mongoDB container) that must be edited. Some considerations about this file:
+
+1. Never edit the ```<VERSION>``` information. It will be replaced by the version number located inside ```pom.xml``` when ```k8s_build_push_run.sh``` is executed.
+
+2. The following entries are already configured to use the [Kubernetes Service DNS](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/), so probably they need not be changed:
+  - ```SERVER_PORT```
+  - ```HELPDESK_BOT_HOST```
+  - ```HELPDESK_BOT_PORT```
+  - ```HELPDESK_SERVICE_HOST```
+  - ```HELPDESK_SERVICE_PORT```
+  - ```MONGO_HOST```
+  - ```MONGO_PORT```
+  - (```MONGO_HOST``` and ```MONGO_PORT``` are configured to use ```helpdesk-mongodb``` service and must be changed if another MongoDB will be used)
+
+3. When editing the entry ```PROVISIONING_SERVICE_ACCOUNT_NAME```, you must input the username for the previously created service account. It also must be the name of the ```.p12``` file contained in the ```AUTHENTICATION_KEYSTORE_FILE``` entry. For example, if username is ```mybot123``` the keystore file must be ```mybot123.p12```.
+
+4. Other entries must be updated to reflect your environment.
+
+
+#### The provisioning process
+
+Inside ```helpdesk-bot```'s ```k8s_deployment.yaml.template```, there are some entries related to the provisioning process that must be executed at least once. Set flags to ```TRUE``` and input the credentials (a user with PROVISIONING role), and the provisioning will be performed during the bootstrap:
+  - ``` PROVISIONING_USER_NAME```
+  - ``` PROVISIONING_USER_PASSWORD```
+  - ``` PROVISIONING_CA_GENERATE_KEYSTORE```
+  - ``` PROVISIONING_CA_OVERWRITE```
+  - ``` PROVISIONING_SERVICE_ACCOUNT_NAME```
+  - ``` PROVISIONING_SERVICE_ACCOUNT_GENERATE_KEYSTORE```
+  - ``` PROVISIONING_SERVICE_ACCOUNT_OVERWRITE```
+
+
+#### Deploying it!
+
+Go to the root [docker/](https://github.com/symphonyoss/GroupID/tree/dev/docker) dir and execute ```k8s_build_push_run.sh```. It will perform a ```mvn clean install``` and call each ```k8s_build_push_run.sh``` located inside the required projects.
+
+After this process is done, it is time to check if everything is working. Execute the command ```kubectl proxy```, open a browser and go to http://127.0.0.1:8001/ui. These are some example of dashboards, showing deployments, pods and services:
+
+![deployments](https://raw.githubusercontent.com/symphonyoss/GroupID/dev/docs/deployments.png)
+![pods](https://raw.githubusercontent.com/symphonyoss/GroupID/dev/docs/pods.png)
+![services](https://raw.githubusercontent.com/symphonyoss/GroupID/dev/docs/services.png)
+
+#### Configuring your APP
+
+TBD
+
+
