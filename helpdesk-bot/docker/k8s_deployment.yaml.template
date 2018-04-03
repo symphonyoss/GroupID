@@ -63,7 +63,7 @@ spec:
             - name: PROVISIONING_EXECUTE
               value: 'true'
             - name: PROVISIONING_USER_NAME
-              value: adrian1
+              value: provisioning-username
             - name: PROVISIONING_USER_PASSWORD
               value: Symphony!123456
             - name: PROVISIONING_CA_GENERATE_KEYSTORE
@@ -71,7 +71,7 @@ spec:
             - name: PROVISIONING_CA_OVERWRITE
               value: 'true'
             - name: PROVISIONING_SERVICE_ACCOUNT_NAME
-              value: zezao
+              value: helpdesk-bot
             - name: PROVISIONING_SERVICE_ACCOUNT_GENERATE_KEYSTORE
               value: 'true'
             - name: PROVISIONING_SERVICE_ACCOUNT_OVERWRITE
@@ -79,7 +79,7 @@ spec:
             - name: CERTS_DIR
               value: /opt/symphony/helpdesk-bot/certs
             - name: AUTHENTICATION_KEYSTORE_FILE
-              value: /opt/symphony/helpdesk-bot/certs/zezao.p12
+              value: /opt/symphony/helpdesk-bot/certs/helpdesk-bot.p12
             - name: AUTHENTICATION_KEYSTORE_PASSWORD
               value: changeit
             - name: GROUP_ID

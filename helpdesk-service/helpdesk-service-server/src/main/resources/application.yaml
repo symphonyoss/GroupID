@@ -16,7 +16,7 @@ mongo:
   ignoreSSL: false
 
 app-authentication:
-  enabled: false
+  enabled: true
   pod:
     host: ${pod.host}
     port: ${pod.port}
