@@ -38,15 +38,17 @@ const initAuthentication = () => {
     baseAuthenticationUrl: 'https://localhost:8081/helpdesk',
   };
 
-  initApp(config);
+  return initApp(config);
 };
 
 const initApplication = () => {
   SYMPHONY.services.register(controllerName);
-  initEnrichers();
-  initAuthentication();
 
-  registerEnrichers();
+  initEnrichers();
+
+  initAuthentication()
+    .then(() => registerEnrichers())
+    .fail(e => console.error(e));
 };
 
 initApplication();
