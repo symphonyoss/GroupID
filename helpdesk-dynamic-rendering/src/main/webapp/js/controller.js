@@ -12,6 +12,7 @@ const actionClaimTicketEnricher = new ActionClaimTicketEnricher();
 const actionAttachmentEnricher = new ActionAttachmentEnricher();
 
 const appName = getParameterByName('id');
+const authenticationURL = getParameterByName('baseAuthenticationURL');
 const appId = appName || 'helpdesk';
 const controllerName = `${appId}:controller`;
 
@@ -35,7 +36,7 @@ const initAuthentication = () => {
     dependencies: ['ui', 'entity', 'extended-user-service', 'error-banner'],
     exportedDependencies: [controllerName, claimTicketEnricher.name, attachmentEnricher.name,
       actionClaimTicketEnricher.name, actionAttachmentEnricher.name],
-    baseAuthenticationUrl: 'https://localhost:8081/helpdesk',
+    baseAuthenticationUrl: authenticationURL,
   };
 
   return initApp(config);
