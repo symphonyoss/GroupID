@@ -1,7 +1,9 @@
 import * as apiCalls from "../apiCalls";
 import axios from 'axios';
+import { getUserJWT } from 'symphony-app-authentication-fe';
 
 jest.mock('axios');
+jest.mock('symphony-app-authentication-fe');
 
 const mockUserId = 123456789;
 
@@ -38,10 +40,14 @@ describe('API Calls', () => {
         beforeEach(() => {
             axios.mockClear();
             axios.mockResolvedValue();
+            getUserJWT.mockReturnValue('23JWT798');
         });
         it('Should make a claimTicket call', () => {
             apiCalls.claimTicket(mockTicket);
             const expectedArg = {
+                headers: {
+                    Authorization: "Bearer 23JWT798"
+                },
                 method: 'post',
                 url: mockTicket.entity.claimUrl,
                 params: { agentId: mockUserId }
@@ -53,6 +59,9 @@ describe('API Calls', () => {
         it('Should make a joinConversation call', () => {
             apiCalls.joinConversation(mockTicket);
             const expectedArg = {
+                headers: {
+                    Authorization: "Bearer 23JWT798"
+                },
                 method: 'post',
                 url: mockTicket.entity.joinUrl,
                 params: { agentId: mockUserId }
@@ -64,6 +73,9 @@ describe('API Calls', () => {
         it('Should make a getTicket call', () => {
             apiCalls.getTicket(mockTicket.url);
             const expectedArg = {
+                headers: {
+                    Authorization: "Bearer 23JWT798"
+                },
                 method: 'get',
                 url: mockTicket.url
             };
@@ -74,6 +86,9 @@ describe('API Calls', () => {
         it('Should make a approveAttachment call', () => {
             apiCalls.approveAttachment(mockAttachment.approveUrl, mockUserId);
             const expectedArg = {
+                headers: {
+                    Authorization: "Bearer 23JWT798"
+                },
                 method: 'post',
                 url: mockAttachment.approveUrl,
                 params: { userId: mockUserId }
@@ -85,6 +100,9 @@ describe('API Calls', () => {
         it('Should make a denyAttachment call', () => {
             apiCalls.denyAttachment(mockAttachment.denyUrl, mockUserId);
             const expectedArg = {
+                headers: {
+                    Authorization: "Bearer 23JWT798"
+                },
                 method: 'post',
                 url: mockAttachment.denyUrl,
                 params: { userId: mockUserId }
@@ -96,6 +114,9 @@ describe('API Calls', () => {
         it('Should make a searchAttachment call', () => {
             apiCalls.searchAttachment(mockAttachment.attachmentUrl);
             const expectedArg = {
+                headers: {
+                    Authorization: "Bearer 23JWT798"
+                },
                 method: 'get',
                 url: mockAttachment.attachmentUrl
             };
