@@ -9,7 +9,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.ai.conversation.NullConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 /**
  * Unit tests for {@link SymphonyAiConversationManager}
@@ -22,23 +22,23 @@ public class SymphonyAiConversationManagerTest {
   private AiConversation conversation;
 
   @Mock
-  private AiSessionContext aiSessionContext;
+  private AiSessionKey aiSessionKey;
 
   @Test
   public void testManager() {
     SymphonyAiConversationManager manager = new SymphonyAiConversationManager();
 
-    AiConversation result = manager.getConversation(aiSessionContext);
+    AiConversation result = manager.getConversation(aiSessionKey);
 
     assertEquals(NullConversation.class, result.getClass());
 
-    manager.registerConversation(aiSessionContext, conversation);
-    result = manager.getConversation(aiSessionContext);
+    manager.registerConversation(aiSessionKey, conversation);
+    result = manager.getConversation(aiSessionKey);
 
     assertEquals(conversation, result);
 
-    manager.removeConversation(aiSessionContext);
-    result = manager.getConversation(aiSessionContext);
+    manager.removeConversation(aiSessionKey);
+    result = manager.getConversation(aiSessionKey);
 
     assertEquals(NullConversation.class, result.getClass());
   }

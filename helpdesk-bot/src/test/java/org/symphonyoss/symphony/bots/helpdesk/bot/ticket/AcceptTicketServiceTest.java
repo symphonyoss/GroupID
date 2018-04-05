@@ -171,7 +171,7 @@ public class AcceptTicketServiceTest {
     assertEquals(MOCK_USER_ID, user.getUserId());
 
     verify(ticketClient, times(1)).updateTicket(ticket);
-    verify(helpDeskAi, times(1)).sendMessage(any(), any(), any());
+    verify(helpDeskAi, times(1)).sendMessage(any(), any());
     verify(messagesClient, times(1)).sendMessage(any(SymStream.class), any(SymMessage.class));
   }
 
@@ -188,9 +188,9 @@ public class AcceptTicketServiceTest {
         .getMessagesFromStream(any(SymStream.class), eq(ticket.getQuestionTimestamp()), eq(0),
             eq(100));
 
-    acceptTicketService.sendTicketHistory(ticket, MOCK_CLIENT_ID);
+    acceptTicketService.sendTicketHistory(ticket);
 
-    verify(helpDeskAi, times(2)).sendMessage(any(), any(), any());
+    verify(helpDeskAi, times(2)).sendMessage(any(), any());
   }
 
   private Ticket mockTicket() {

@@ -3,10 +3,12 @@ package org.symphonyoss.symphony.bots.ai.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.AiCommandInterpreter;
 import org.symphonyoss.symphony.bots.ai.common.AiConstants;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.ArgumentType;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
@@ -40,15 +42,15 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
 
   private static final String VALUE = "value";
 
-  private SymUser aiSymUser;
+  private final SymphonyClient symphonyClient;
 
-  public SymphonyAiCommandInterpreter(SymUser aiSymUser) {
-    this.aiSymUser = aiSymUser;
+  public SymphonyAiCommandInterpreter(SymphonyClient symphonyClient) {
+    this.symphonyClient = symphonyClient;
   }
 
   @Override
-  public boolean isCommand(AiCommand aiCommand, SymphonyAiMessage command, String commandPrefix) {
-    SymphonyAiMessage aiMessage = parseMentions(command);
+  public boolean isCommand(AiCommand aiCommand, AiMessage command, String commandPrefix) {
+    AiMessage aiMessage = parseMentions(command);
     String prefixNormalized = parsePrefix(commandPrefix);
 
     String commandNormalized = aiMessage.getAiMessage().toLowerCase();
@@ -106,8 +108,8 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
   }
 
   @Override
-  public boolean hasPrefix(SymphonyAiMessage command, String commandPrefix) {
-    SymphonyAiMessage aiMessage = parseMentions(command);
+  public boolean hasPrefix(AiMessage command, String commandPrefix) {
+    AiMessage aiMessage = parseMentions(command);
     String prefixNormalized = parsePrefix(commandPrefix);
 
     return StringUtils.isNotBlank(commandPrefix) && aiMessage.getAiMessage()
@@ -115,9 +117,9 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
   }
 
   @Override
-  public AiArgumentMap readCommandArguments(AiCommand aiCommand, SymphonyAiMessage command,
+  public AiArgumentMap readCommandArguments(AiCommand aiCommand, AiMessage command,
       String commandPrefix) {
-    SymphonyAiMessage aiMessage = parseMentions(command);
+    AiMessage aiMessage = parseMentions(command);
     String prefixNormalized = parsePrefix(commandPrefix);
 
     AiArgumentMap aiArgumentMap = new AiArgumentMap();
@@ -160,7 +162,7 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
     return command.trim();
   }
 
-  private SymphonyAiMessage parseMentions(SymphonyAiMessage aiMessage) {
+  private AiMessage parseMentions(AiMessage aiMessage) {
     try {
       if (StringUtils.isNotBlank(aiMessage.getEntityData())) {
         JsonNode jsonNode = objectMapper.readTree(aiMessage.getEntityData());
@@ -183,7 +185,7 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
         SymMessage symMessage = new SymMessage();
         symMessage.setMessage(parseMention);
 
-        SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage.getMessageText());
+        AiMessage symphonyAiMessage = new AiMessage(symMessage.getMessageText());
         symphonyAiMessage.setEntityData(aiMessage.getEntityData());
         symphonyAiMessage.setFromUserId(aiMessage.getFromUserId());
         symphonyAiMessage.setMessageData(parseMention);
@@ -201,6 +203,8 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
   }
 
   private String parsePrefix(String commandPrefix) {
+    SymUser aiSymUser = symphonyClient.getLocalUser();
+
     if(commandPrefix != null && commandPrefix.equals(MENTION)) {
       return MENTION + aiSymUser.getId();
     } else {

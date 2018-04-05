@@ -2,7 +2,7 @@ package org.symphonyoss.symphony.bots.ai.impl;
 
 import org.symphonyoss.symphony.bots.ai.conversation.NullConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,33 +16,33 @@ public class SymphonyAiConversationManager {
 
   private static final AiConversation DEFAULT_CONVERSATION = new NullConversation();
 
-  private Map<AiSessionContext, AiConversation> conversations = new ConcurrentHashMap<>();
+  private Map<AiSessionKey, AiConversation> cache = new ConcurrentHashMap<>();
 
   /**
    * Register an new Ai Conversation.
-   * @param aiSessionContext the session context for the conversation.
+   * @param aiSessionKey session key
    * @param aiConversation the conversation to register.
    */
-  public void registerConversation(AiSessionContext aiSessionContext, AiConversation aiConversation) {
-    conversations.put(aiSessionContext, aiConversation);
+  public void registerConversation(AiSessionKey aiSessionKey, AiConversation aiConversation) {
+    cache.put(aiSessionKey, aiConversation);
   }
 
   /**
    * Removes an Ai Conversation.
-   * @param aiSessionContext
+   * @param aiSessionKey session key
    */
-  public void removeConversation(AiSessionContext aiSessionContext) {
-    conversations.remove(aiSessionContext);
+  public void removeConversation(AiSessionKey aiSessionKey) {
+    cache.remove(aiSessionKey);
   }
 
   /**
    * Gets an Ai Conversation.
-   * @param aiSessionContext the session context associated with the Ai Conversation
+   * @param aiSessionKey session key
    * @return
    */
-  public AiConversation getConversation(AiSessionContext aiSessionContext) {
-    if (conversations.containsKey(aiSessionContext)) {
-      return conversations.get(aiSessionContext);
+  public AiConversation getConversation(AiSessionKey aiSessionKey) {
+    if (cache.containsKey(aiSessionKey)) {
+      return cache.get(aiSessionKey);
     }
 
     return DEFAULT_CONVERSATION;

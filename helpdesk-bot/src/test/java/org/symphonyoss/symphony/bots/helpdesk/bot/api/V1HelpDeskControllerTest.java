@@ -66,7 +66,6 @@ public class V1HelpDeskControllerTest {
   private static final String MESSAGE_ACCEPTED = "Maker checker message accepted.";
   private static final String MESSAGE_DENIED = "Maker checker message denied.";
 
-
   @Mock
   private AcceptTicketService acceptTicketService;
 
@@ -182,7 +181,6 @@ public class V1HelpDeskControllerTest {
     MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_ACCEPTED, response.getMessage());
 
-    verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
     verify(agentMakerCheckerService, times(1)).sendActionMakerCheckerMessage(makerchecker,
         MakercheckerClient.AttachmentStateType.APPROVED);
   }

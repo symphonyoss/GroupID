@@ -96,7 +96,7 @@ public class TicketManagerService {
 
       if (ticket == null) {
         String ticketId = RandomStringUtils.randomAlphanumeric(TICKET_ID_LENGTH).toUpperCase();
-        Room serviceStream = null;
+        Room serviceStream;
         Long userId = message.getSymUser().getId();
 
         try {
@@ -115,7 +115,7 @@ public class TicketManagerService {
         LOGGER.info("Ticket already exists");
       }
       messageProxyService.onMessage(membership, ticket, message);
-    } else {
+    } else if (ticket != null) {
       messageProxyService.onMessage(membership, ticket, message);
     }
   }
