@@ -19,7 +19,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: ticket
           in: body
@@ -48,7 +48,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: id
           in: path
@@ -77,7 +77,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: id
           in: path
@@ -109,7 +109,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: id
           in: path
@@ -135,7 +135,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: groupId
           in: query
@@ -169,7 +169,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: membership
           in: body
@@ -196,7 +196,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: groupId
           in: path
@@ -226,7 +226,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: groupId
           in: path
@@ -263,7 +263,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: groupId
           in: path
@@ -296,7 +296,7 @@ paths:
       parameters:
         - name: Authorization
           in: header
-          required: true
+          required: false
           type: string
         - name: makerchecker
           in: body
@@ -334,7 +334,7 @@ paths:
         parameters:
           - name: Authorization
             in: header
-            required: true
+            required: false
             type: string
           - name: id
             in: path
@@ -363,7 +363,7 @@ paths:
         parameters:
           - name: Authorization
             in: header
-            required: true
+            required: false
             type: string
           - name: id
             in: path

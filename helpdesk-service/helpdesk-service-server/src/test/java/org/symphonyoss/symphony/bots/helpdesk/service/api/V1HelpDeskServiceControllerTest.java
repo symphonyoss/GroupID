@@ -81,15 +81,15 @@ public class V1HelpDeskServiceControllerTest {
 
     doReturn(mockMembership).when(membershipDao).createMembership(mockMembership);
 
-    Membership membership = v1HelpDeskServiceController.createMembership(StringUtils.EMPTY, mockMembership);
+    Membership membership = v1HelpDeskServiceController.createMembership(mockMembership, StringUtils.EMPTY);
     assertEquals(mockMembership, membership);
   }
 
   @Test
   public void deleteMembership() throws Exception {
     SuccessResponse response =
-        v1HelpDeskServiceController.deleteMembership(StringUtils.EMPTY, GROUP_ID_MOCK,
-            MEMBERSHIP_ID_MOCK);
+        v1HelpDeskServiceController.deleteMembership(GROUP_ID_MOCK, MEMBERSHIP_ID_MOCK,
+            StringUtils.EMPTY);
     assertEquals(DELETE_MEMBERSHIP_RESPONSE, response.getMessage());
   }
 
@@ -99,8 +99,8 @@ public class V1HelpDeskServiceControllerTest {
     doReturn(mockMembership).when(membershipDao).getMembership(GROUP_ID_MOCK, MEMBERSHIP_ID_MOCK);
 
     Membership membership =
-        v1HelpDeskServiceController.getMembership(StringUtils.EMPTY, GROUP_ID_MOCK,
-            MEMBERSHIP_ID_MOCK);
+        v1HelpDeskServiceController.getMembership(GROUP_ID_MOCK, MEMBERSHIP_ID_MOCK,
+            StringUtils.EMPTY);
     assertEquals(membershipMock(), membership);
   }
 
@@ -111,8 +111,8 @@ public class V1HelpDeskServiceControllerTest {
     doReturn(mockMembership).when(membershipDao)
         .updateMembership(GROUP_ID_MOCK, NEW_MEMBERSHIP_ID_MOCK, membershipMock());
     Membership membership =
-        v1HelpDeskServiceController.updateMembership(StringUtils.EMPTY, GROUP_ID_MOCK,
-            NEW_MEMBERSHIP_ID_MOCK, membershipMock());
+        v1HelpDeskServiceController.updateMembership(GROUP_ID_MOCK, NEW_MEMBERSHIP_ID_MOCK,
+            membershipMock(), StringUtils.EMPTY);
     assertEquals(NEW_MEMBERSHIP_ID_MOCK, membership.getId());
   }
 
@@ -120,13 +120,13 @@ public class V1HelpDeskServiceControllerTest {
   public void createTicket() throws Exception {
     Ticket ticket = mockTicketUnresolved();
     doReturn(ticket).when(ticketDao).createTicket(ticket);
-    Ticket createdTicket = v1HelpDeskServiceController.createTicket(StringUtils.EMPTY, ticket);
+    Ticket createdTicket = v1HelpDeskServiceController.createTicket(ticket, StringUtils.EMPTY);
     assertEquals(ticket, createdTicket);
   }
 
   @Test
   public void deleteTicket() throws Exception {
-    SuccessResponse message = v1HelpDeskServiceController.deleteTicket(StringUtils.EMPTY, MOCK_TICKET_ID);
+    SuccessResponse message = v1HelpDeskServiceController.deleteTicket(MOCK_TICKET_ID, StringUtils.EMPTY);
     assertEquals(DELETE_TICKET_RESPONSE,  message.getMessage());
   }
 
@@ -134,7 +134,7 @@ public class V1HelpDeskServiceControllerTest {
   public void getTicket() throws Exception {
     Ticket ticket = mockTicketUnresolved();
     doReturn(ticket).when(ticketDao).getTicket(MOCK_TICKET_ID);
-    Ticket foundTicket = v1HelpDeskServiceController.getTicket(StringUtils.EMPTY, MOCK_TICKET_ID);
+    Ticket foundTicket = v1HelpDeskServiceController.getTicket(MOCK_TICKET_ID, StringUtils.EMPTY);
     assertEquals(ticket, foundTicket);
   }
 
@@ -163,7 +163,7 @@ public class V1HelpDeskServiceControllerTest {
     Ticket ticket = mockTicketUnresolved();
     ticket.setId(MOCK_NEW_TICKET_ID);
     doReturn(ticket).when(ticketDao).updateTicket(MOCK_NEW_TICKET_ID, ticket);
-    Ticket updatedTicket = v1HelpDeskServiceController.updateTicket(StringUtils.EMPTY, MOCK_NEW_TICKET_ID, ticket);
+    Ticket updatedTicket = v1HelpDeskServiceController.updateTicket(MOCK_NEW_TICKET_ID, ticket, StringUtils.EMPTY);
     assertEquals(ticket, updatedTicket);
   }
 
@@ -171,7 +171,7 @@ public class V1HelpDeskServiceControllerTest {
   public void createMakerchecker() throws Exception {
     Makerchecker makercheckerMock = makercheckerMock();
     doReturn(makercheckerMock).when(makercheckerDao).createMakerchecker(makercheckerMock);
-    Makerchecker makerchecker = v1HelpDeskServiceController.createMakerchecker(StringUtils.EMPTY, makercheckerMock());
+    Makerchecker makerchecker = v1HelpDeskServiceController.createMakerchecker(makercheckerMock(), StringUtils.EMPTY);
     assertEquals(makercheckerMock, makerchecker);
   }
 
@@ -179,7 +179,7 @@ public class V1HelpDeskServiceControllerTest {
   public void getMakerchecker() throws Exception {
     Makerchecker makercheckerMock = makercheckerMock();
     doReturn(makercheckerMock).when(makercheckerDao).getMakerchecker(MOCK_MAKERCHECKER_ID);
-    Makerchecker makerchecker = v1HelpDeskServiceController.getMakerchecker(StringUtils.EMPTY, MOCK_MAKERCHECKER_ID);
+    Makerchecker makerchecker = v1HelpDeskServiceController.getMakerchecker(MOCK_MAKERCHECKER_ID, StringUtils.EMPTY);
     assertEquals(makercheckerMock, makerchecker);
 
   }
@@ -194,8 +194,8 @@ public class V1HelpDeskServiceControllerTest {
         .updateMakerchecker(MOCK_NEW_MAKERCHECKER_ID, makerchecker);
 
     makerchecker =
-        v1HelpDeskServiceController.updateMakerchecker(StringUtils.EMPTY, MOCK_NEW_MAKERCHECKER_ID,
-            makerchecker);
+        v1HelpDeskServiceController.updateMakerchecker(MOCK_NEW_MAKERCHECKER_ID, makerchecker,
+            StringUtils.EMPTY);
     assertEquals(updatedMakerchecker, makerchecker);
   }
 

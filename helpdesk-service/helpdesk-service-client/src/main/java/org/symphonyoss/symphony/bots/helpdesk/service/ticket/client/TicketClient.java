@@ -58,7 +58,7 @@ public class TicketClient extends BaseClient {
     String authorization = getAuthorizationHeader(jwt);
 
     try {
-      return ticketApi.getTicket(authorization, ticketId);
+      return ticketApi.getTicket(ticketId, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Get ticket failed: " + ticketId, e);
     }
@@ -93,7 +93,7 @@ public class TicketClient extends BaseClient {
     ticket.setConversationID(conversationId);
 
     try {
-      return ticketApi.createTicket(authorization, ticket);
+      return ticketApi.createTicket(ticket, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Creating ticket failed: " + ticketId, e);
     }
@@ -182,7 +182,7 @@ public class TicketClient extends BaseClient {
     String authorization = getAuthorizationHeader(jwt);
 
     try {
-      return ticketApi.updateTicket(authorization, ticket.getId(), ticket);
+      return ticketApi.updateTicket(ticket.getId(), ticket, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Updating ticket failed: " + ticket.getId(), e);
     }

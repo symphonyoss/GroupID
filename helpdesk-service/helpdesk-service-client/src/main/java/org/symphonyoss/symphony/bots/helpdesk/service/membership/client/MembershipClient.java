@@ -55,7 +55,7 @@ public class MembershipClient extends BaseClient {
     String authorization = getAuthorizationHeader(jwt);
 
     try {
-      return membershipApi.getMembership(authorization, groupId, userId);
+      return membershipApi.getMembership(groupId, userId, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Failed to get membership: " + userId, e);
     }
@@ -78,7 +78,7 @@ public class MembershipClient extends BaseClient {
     membership.setType(membershipType.getType());
 
     try {
-      return membershipApi.createMembership(authorization, membership);
+      return membershipApi.createMembership(membership, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Failed to create new membership for user: " + userId, e);
     }
@@ -96,7 +96,7 @@ public class MembershipClient extends BaseClient {
 
     try {
       Membership updateMembership =
-          membershipApi.updateMembership(authorization, groupId, membership.getId(), membership);
+          membershipApi.updateMembership(groupId, membership.getId(), membership, authorization);
       LOG.info("Updated membership for userid: " + membership.getId());
       return updateMembership;
     } catch (ApiException e) {

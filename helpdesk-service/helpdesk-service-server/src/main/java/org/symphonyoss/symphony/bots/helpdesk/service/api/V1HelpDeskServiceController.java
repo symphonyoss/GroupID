@@ -39,7 +39,7 @@ public class V1HelpDeskServiceController extends V1ApiController {
   private MakercheckerDao makercheckerDao;
 
   @Override
-  public Membership createMembership(String authorization, Membership membership) {
+  public Membership createMembership(Membership membership, String authorization) {
     validateRequiredParameter("groupId", membership.getGroupId(), "body");
     validateRequiredParameter("id", membership.getId(), "body");
     validateRequiredParameter("type", membership.getType(), "body");
@@ -48,23 +48,23 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public SuccessResponse deleteMembership(String authorization, String groupId, Long id) {
+  public SuccessResponse deleteMembership(String groupId, Long id, String authorization) {
     membershipDao.deleteMembership(groupId, id);
     return new SuccessResponse().message(DELETE_MEMBERSHIP_RESPONSE);
   }
 
   @Override
-  public Membership getMembership(String authorization, String groupId, Long id) {
+  public Membership getMembership(String groupId, Long id, String authorization) {
     return membershipDao.getMembership(groupId, id);
   }
 
   @Override
-  public Membership updateMembership(String authorization, String groupId, Long id, Membership membership) {
+  public Membership updateMembership(String groupId, Long id, Membership membership, String authorization) {
     return membershipDao.updateMembership(groupId, id, membership);
   }
 
   @Override
-  public Ticket createTicket(String authorization, Ticket ticket) {
+  public Ticket createTicket(Ticket ticket, String authorization) {
     validateRequiredParameter("id", ticket.getId(), "body");
     validateRequiredParameter("groupId", ticket.getGroupId(), "body");
     validateRequiredParameter("state", ticket.getState(), "body");
@@ -73,13 +73,13 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public SuccessResponse deleteTicket(String authorization, String id) {
+  public SuccessResponse deleteTicket(String id, String authorization) {
     ticketDao.deleteTicket(id);
     return new SuccessResponse().message(DELETE_TICKET_RESPONSE);
   }
 
   @Override
-  public Ticket getTicket(String authorization, String id) {
+  public Ticket getTicket(String id, String authorization) {
     return ticketDao.getTicket(id);
   }
 
@@ -101,12 +101,12 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public Ticket updateTicket(String authorization, String id, Ticket ticket) {
+  public Ticket updateTicket(String id, Ticket ticket, String authorization) {
     return ticketDao.updateTicket(id, ticket);
   }
 
   @Override
-  public Makerchecker createMakerchecker(String authorization, Makerchecker makerchecker) {
+  public Makerchecker createMakerchecker(Makerchecker makerchecker, String authorization) {
     validateRequiredParameter("id", makerchecker.getId(), "body");
     validateRequiredParameter("makerId", makerchecker.getMakerId(), "body");
     validateRequiredParameter("streamId", makerchecker.getStreamId(), "body");
@@ -116,12 +116,12 @@ public class V1HelpDeskServiceController extends V1ApiController {
   }
 
   @Override
-  public Makerchecker getMakerchecker(String authorization, String id) {
+  public Makerchecker getMakerchecker(String id, String authorization) {
     return makercheckerDao.getMakerchecker(id);
   }
 
   @Override
-  public Makerchecker updateMakerchecker(String authorization, String id, Makerchecker makerchecker) {
+  public Makerchecker updateMakerchecker(String id, Makerchecker makerchecker, String authorization) {
     validateRequiredParameter("id", makerchecker.getId(), "body");
     validateRequiredParameter("makerId", makerchecker.getMakerId(), "body");
     validateRequiredParameter("streamId", makerchecker.getStreamId(), "body");

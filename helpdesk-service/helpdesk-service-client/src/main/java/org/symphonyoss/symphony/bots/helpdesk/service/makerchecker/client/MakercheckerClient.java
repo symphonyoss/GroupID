@@ -55,7 +55,7 @@ public class MakercheckerClient extends BaseClient {
     String authorization = getAuthorizationHeader(jwt);
 
     try {
-      return makercheckerApi.getMakerchecker(authorization, id);
+      return makercheckerApi.getMakerchecker(id, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Get makerchecker failed: " + id, e);
     }
@@ -93,7 +93,7 @@ public class MakercheckerClient extends BaseClient {
     makerchecker.setState(AttachmentStateType.OPENED.getState());
 
     try {
-      return makercheckerApi.createMakerchecker(authorization, makerchecker);
+      return makercheckerApi.createMakerchecker(makerchecker, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Creating makerchecker failed: " + id, e);
     }
@@ -110,7 +110,7 @@ public class MakercheckerClient extends BaseClient {
     String authorization = getAuthorizationHeader(jwt);
 
     try {
-      return makercheckerApi.updateMakerchecker(authorization, makerchecker.getId(), makerchecker);
+      return makercheckerApi.updateMakerchecker(makerchecker.getId(), makerchecker, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Updating makerchecker failed: " + makerchecker.getId(), e);
     }
