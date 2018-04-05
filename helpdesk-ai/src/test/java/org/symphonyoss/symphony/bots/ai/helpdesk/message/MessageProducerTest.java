@@ -17,6 +17,8 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.AttachmentsException;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
@@ -110,6 +112,9 @@ public class MessageProducerTest {
   private static final int ATTACHMENTS_COUNT = 10;
   private static final String USER_NAME = "Ultimate Tester";
 
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
+
   @Mock
   private MembershipClient membershipClient;
 
@@ -147,11 +152,19 @@ public class MessageProducerTest {
     doReturn(usersClient).when(symphonyClient).getUsersClient();
     doReturn(symUser).when(usersClient).getUserFromId(anyLong());
     doReturn(USER_NAME).when(symUser).getDisplayName();
-    doReturn(membership).when(membershipClient).getMembership(anyLong());
+    doReturn(membership).when(membershipClient).getMembership(JWT, USER_ID);
     doReturn(attachmentsClient).when(symphonyClient).getAttachmentsClient();
     doReturn(fileBytes).when(attachmentsClient)
         .getAttachmentData(any(SymAttachmentInfo.class), any(SymMessage.class));
     messageProducer = new MessageProducer(membershipClient, symphonyClient);
+
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
   }
 
   @Test

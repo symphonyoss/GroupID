@@ -10,6 +10,7 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.model.Room;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.InstructionalMessageConfig;
@@ -18,6 +19,7 @@ import org.symphonyoss.symphony.bots.helpdesk.messageproxy.message.Instructional
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.bots.utility.message.SymMessageUtil;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -62,6 +64,8 @@ public class TicketService {
 
   private final HelpDeskServiceInfo helpDeskServiceInfo;
 
+  private final SymphonyClientUtil symphonyClientUtil;
+
   public TicketService(@Value("${agentStreamId}") String agentStreamId,
       @Value("${claimEntityHeader}") String claimHeader,
       @Value("${createTicketMessage}") String createTicketMessage,
@@ -78,6 +82,7 @@ public class TicketService {
     this.createTicketMessage = createTicketMessage;
     this.serviceRoomWasNotCreated = serviceRoomWasNotCreated;
     this.instructionalMessageConfig = instructionalMessageConfig;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
   public Ticket createTicket(String ticketId, SymMessage message, Room serviceStream) {
@@ -94,9 +99,9 @@ public class TicketService {
     }
 
     Boolean viewHistory = serviceStream.getRoomDetail().getRoomAttributes().getViewHistory();
-    Ticket ticket =
-        ticketClient.createTicket(ticketId, message.getStreamId(), serviceStream.getId(),
-            Long.valueOf(message.getTimestamp()), client, viewHistory, message.getId());
+    Ticket ticket = ticketClient.createTicket(symphonyClientUtil.getAuthToken(), ticketId,
+        message.getStreamId(), serviceStream.getId(), Long.valueOf(message.getTimestamp()), client,
+        viewHistory, message.getId());
     sendTicketMessageToAgentStreamId(ticket, message);
 
     SymMessage symMessage = new SymMessage();
@@ -113,11 +118,11 @@ public class TicketService {
   }
 
   public Ticket getUnresolvedTicket(String streamId) {
-    return ticketClient.getUnresolvedTicketByClientStreamId(streamId);
+    return ticketClient.getUnresolvedTicketByClientStreamId(symphonyClientUtil.getAuthToken(), streamId);
   }
 
   public Ticket getTicketByServiceStreamId(String streamId) {
-    return ticketClient.getTicketByServiceStreamId(streamId);
+    return ticketClient.getTicketByServiceStreamId(symphonyClientUtil.getAuthToken(), streamId);
   }
 
   public void sendTicketMessageToAgentStreamId(Ticket ticket, SymMessage message) {
@@ -220,4 +225,5 @@ public class TicketService {
       LOGGER.error("Could not send message to client stream ID: ", e);
     }
   }
+
 }

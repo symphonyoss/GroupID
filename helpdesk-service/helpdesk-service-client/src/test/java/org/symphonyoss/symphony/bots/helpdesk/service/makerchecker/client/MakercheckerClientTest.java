@@ -1,8 +1,8 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertNotNull;
-import static junit.framework.TestCase.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
@@ -32,6 +32,8 @@ public class MakercheckerClientTest {
   private static final String ATTACHMENT_NAME = "ATTACHMENT_NAME";
   private static final String MESSAGE_ID = "MESSAGE_ID";
   private static final Long TIMESTAMP = 1L;
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
 
   private static final String GROUP_ID = "GROUP_ID";
 
@@ -56,17 +58,16 @@ public class MakercheckerClientTest {
 
     doReturn(MOCK_MAKERCHECKER_ID).when(apiClient).escapeString(MOCK_MAKERCHECKER_ID);
 
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(MOCK_MAKERCHECKER_ID);
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(JWT, MOCK_MAKERCHECKER_ID);
 
     assertNotNull(makerchecker);
     assertEquals(makercheckerMock(), makerchecker);
-
   }
 
   @Test
   public void getMakercheckerWithNullId() throws ApiException {
     try {
-      makercheckerClient.getMakerchecker(null);
+      makercheckerClient.getMakerchecker(JWT, null);
       fail();
     } catch (HelpDeskApiException e) {
       assertEquals("Missing the required parameter 'id' when calling getMakerchecker",
@@ -82,7 +83,7 @@ public class MakercheckerClientTest {
             any(), any());
 
     Makerchecker makerchecker =
-        makercheckerClient.createMakerchecker(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID,
+        makercheckerClient.createMakerchecker(JWT, MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID,
             MOCK_SERVICE_STREAM_ID, ATTACHMENT_ID, ATTACHMENT_NAME, MESSAGE_ID, TIMESTAMP, null);
 
     assertNotNull(makerchecker);
@@ -96,7 +97,7 @@ public class MakercheckerClientTest {
             any(), any());
 
     try {
-      makercheckerClient.createMakerchecker(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID,
+      makercheckerClient.createMakerchecker(JWT, MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID,
           MOCK_SERVICE_STREAM_ID, ATTACHMENT_ID, ATTACHMENT_NAME, MESSAGE_ID, TIMESTAMP, null);
       fail();
     } catch (HelpDeskApiException e) {
@@ -115,7 +116,7 @@ public class MakercheckerClientTest {
     doReturn(makerchecker).when(apiClient)
         .invokeAPI(eq("/v1/makerchecker/MOCK_MAKERCHECKER_ID"), eq("PUT"), any(), any(), any(), any(), any(), any(), any(), any());
 
-    Makerchecker updatedMakerchecker = makercheckerClient.updateMakerchecker(makerchecker);
+    Makerchecker updatedMakerchecker = makercheckerClient.updateMakerchecker(JWT, makerchecker);
 
     assertNotNull(updatedMakerchecker);
     assertEquals(makerchecker, updatedMakerchecker);
@@ -126,7 +127,7 @@ public class MakercheckerClientTest {
   public void updateMakercheckerWithError() throws ApiException {
 
     try {
-      makercheckerClient.updateMakerchecker(new Makerchecker());
+      makercheckerClient.updateMakerchecker(JWT, new Makerchecker());
       fail();
     } catch(HelpDeskApiException e) {
       assertEquals("Missing the required parameter 'id' when calling updateMakerchecker", e.getCause().getMessage());

@@ -58,7 +58,7 @@ public class TicketHelper {
    */
   public Optional<Ticket> getUnservicedTicket() {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, null);
+      List<Ticket> ticketList = ticketApi.searchTicket("", groupId, null, null);
 
       return ticketList.stream()
           .filter(ticket -> ticket.getState().equals(TicketClient.TicketStateType.UNSERVICED.getState()))
@@ -76,7 +76,7 @@ public class TicketHelper {
    */
   public Optional<Ticket> getClaimedTicket(Long agentId) {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, null);
+      List<Ticket> ticketList = ticketApi.searchTicket("", groupId, null, null);
 
       return ticketList.stream()
           .filter(ticket -> TicketClient.TicketStateType.UNRESOLVED.getState().equals(ticket.getState()))
@@ -95,7 +95,7 @@ public class TicketHelper {
    */
   public Optional<Ticket> getFirstClaimedTicket(Long agentId) {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, null);
+      List<Ticket> ticketList = ticketApi.searchTicket("", groupId, null, null);
 
       return ticketList.stream()
           .filter(ticket -> TicketClient.TicketStateType.UNRESOLVED.getState().equals(ticket.getState()))
@@ -113,7 +113,7 @@ public class TicketHelper {
    */
   public Optional<Ticket> getClaimedTicket() {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket(groupId, null, null);
+      List<Ticket> ticketList = ticketApi.searchTicket("", groupId, null, null);
 
       return ticketList.stream()
           .filter(ticket -> ticket.getState().equals(TicketClient.TicketStateType.UNRESOLVED.getState()))

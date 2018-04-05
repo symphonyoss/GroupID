@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.endsWith;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -21,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.AgentExternalCheck;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
@@ -68,6 +71,9 @@ public class MakerCheckerServiceTest {
 
   private static final Long MOCK_MAKER_ID = 10651518946916l;
 
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
+
   private MakerCheckerService makerCheckerService;
 
   @Mock
@@ -90,6 +96,14 @@ public class MakerCheckerServiceTest {
 
   @Before
   public void init() {
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
+
     doReturn(messagesClient).when(symphonyClient).getMessagesClient();
 
     makerCheckerService = new MakerCheckerService(makercheckerClient, symphonyClient);
@@ -104,7 +118,7 @@ public class MakerCheckerServiceTest {
 
     Ticket ticket = new Ticket();
     ticket.setState(UNRESOLVED.getState());
-    when(ticketClient.getTicketByServiceStreamId(STREAM_ID)).thenReturn(ticket);
+    when(ticketClient.getTicketByServiceStreamId(JWT, STREAM_ID)).thenReturn(ticket);
 
     SymMessage symMessage = mockSymMessage(true);
     assertFalse(makerCheckerService.allChecksPass(symMessage));
@@ -117,7 +131,7 @@ public class MakerCheckerServiceTest {
             symphonyValidationUtil);
     makerCheckerService.addCheck(agentExternalCheck);
 
-    when(ticketClient.getTicketByServiceStreamId(STREAM_ID)).thenReturn(null);
+    when(ticketClient.getTicketByServiceStreamId(JWT, STREAM_ID)).thenReturn(null);
 
     SymMessage symMessage = mockSymMessage(false);
     assertTrue(makerCheckerService.allChecksPass(symMessage));
@@ -173,7 +187,7 @@ public class MakerCheckerServiceTest {
 
     Ticket ticket = new Ticket();
     ticket.setState(UNRESOLVED.getState());
-    when(ticketClient.getTicketByServiceStreamId(STREAM_ID)).thenReturn(ticket);
+    when(ticketClient.getTicketByServiceStreamId(JWT, STREAM_ID)).thenReturn(ticket);
 
     Set<String> ids = new HashSet<>();
     ids.add(ATTACHMENT_ID);
@@ -192,7 +206,7 @@ public class MakerCheckerServiceTest {
 
     makerCheckerService.sendMakerCheckerMesssage(symMessage, MESSAGE_ID, ids);
 
-    verify(makercheckerClient, times(1)).createMakerchecker(eq(MESSAGE_ID), eq(MOCK_MAKER_ID),
+    verify(makercheckerClient, times(1)).createMakerchecker(eq(JWT), eq(MESSAGE_ID), eq(MOCK_MAKER_ID),
         eq(STREAM_ID), eq(ATTACHMENT_ID), eq(ATTACHMENT_NAME), eq(MESSAGE_ID), eq(TIMESTAMP),
         any(ArrayList.class));
     verify(symphonyClient, times(1)).getMessagesClient();

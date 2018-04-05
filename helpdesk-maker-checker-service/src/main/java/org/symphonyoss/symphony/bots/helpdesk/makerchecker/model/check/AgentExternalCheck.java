@@ -8,6 +8,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.AttachmentsException;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.ActionMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.message.MakerCheckerMessageBuilder;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
@@ -89,7 +90,8 @@ public class AgentExternalCheck implements Checker {
   }
 
   private boolean hasOpenTicketInServiceRoom(SymMessage message) {
-    Ticket ticket = ticketClient.getTicketByServiceStreamId(message.getStreamId());
+    Ticket ticket =
+        ticketClient.getTicketByServiceStreamId(symphonyClientUtil.getAuthToken(), message.getStreamId());
     return ticket != null && UNRESOLVED.getState().equals(ticket.getState());
   }
 

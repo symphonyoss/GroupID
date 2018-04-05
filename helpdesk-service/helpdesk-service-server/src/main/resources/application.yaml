@@ -24,7 +24,7 @@ app-authentication:
     host: ${session_auth.host}
     port: ${session_auth.port}
   filter:
-    enabled: false
+    enabled: true
     url-patterns:
       - "/v1/*"
     excluded-paths:

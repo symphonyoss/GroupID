@@ -2,12 +2,13 @@ package org.symphonyoss.symphony.bots.ai.helpdesk.command;
 
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
 import org.symphonyoss.symphony.bots.ai.helpdesk.config.HelpDeskAiConfig;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
-import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskApiException;
@@ -51,12 +52,16 @@ public class CloseTicketCommand extends AiCommand {
   public void executeCommand(AiSessionKey sessionKey, AiResponder responder,
       AiArgumentMap aiArgumentMap) {
     try {
+      Token sessionToken = symphonyClient.getSymAuth().getSessionToken();
+      String jwt = sessionToken.getToken();
+
       String streamId = sessionKey.getStreamId();
 
-      Ticket ticket = ticketClient.getTicketByServiceStreamId(streamId);
+      Ticket ticket = ticketClient.getTicketByServiceStreamId(jwt, streamId);
       String currentState = ticket.getState();
 
-      updateTicket(ticketClient, ticket, TicketClient.TicketStateType.RESOLVED.getState());
+      ticket.setState(TicketClient.TicketStateType.RESOLVED.getState());
+      ticketClient.updateTicket(jwt, ticket);
 
       try {
         MembershipList membershipList = symphonyClient.getRoomMembershipClient().getRoomMembership(streamId);
@@ -74,23 +79,13 @@ public class CloseTicketCommand extends AiCommand {
         idleTimerManager.remove(ticket.getId());
       } catch (SymException e) {
         responder.respond(internalErrorResponse(sessionKey));
-        updateTicket(ticketClient, ticket, currentState);
+
+        ticket.setState(currentState);
+        ticketClient.updateTicket(jwt, ticket);
       }
     } catch (HelpDeskApiException e) {
       responder.respond(internalErrorResponse(sessionKey));
     }
-  }
-
-  /**
-   * Updates the ticket to a new state
-   * @param client the TicketClient
-   * @param ticket the Ticket itself
-   * @param state the new state
-   * @return the updated ticket
-   */
-  private Ticket updateTicket(TicketClient client, Ticket ticket, String state) {
-    ticket.setState(state);
-    return client.updateTicket(ticket);
   }
 
   /**

@@ -20,6 +20,7 @@ import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.services.RoomServiceEventListener;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -162,10 +163,12 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
    */
   @Override
   public void onSymUserLeftRoom(SymUserLeftRoom symUserLeftRoom) {
+    String jwt = symphonyClientUtil.getAuthToken();
+
     SymStream symStream = symUserLeftRoom.getStream();
 
     if (!isAgentStreamId(symStream)) {
-      Ticket ticket = ticketClient.getTicketByServiceStreamId(symStream.getStreamId());
+      Ticket ticket = ticketClient.getTicketByServiceStreamId(jwt, symStream.getStreamId());
 
       if (ticket != null && UNRESOLVED.getState().equals(ticket.getState())
           && isRoomUnserviced(symStream.getStreamId())) {
@@ -174,7 +177,7 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
         // Update ticket to a state that it can be claimed again by another agent
         ticket.setAgent(null);
         ticket.setState(TicketClient.TicketStateType.UNSERVICED.toString());
-        ticketClient.updateTicket(ticket);
+        ticketClient.updateTicket(jwt, ticket);
 
         SymUser localUser = symphonyClient.getLocalUser();
 

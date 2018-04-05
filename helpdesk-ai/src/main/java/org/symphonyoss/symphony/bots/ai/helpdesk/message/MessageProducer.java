@@ -63,7 +63,7 @@ public class MessageProducer {
       return;
     }
 
-    Membership membership = membershipClient.getMembership(userId);
+    Membership membership = membershipClient.getMembership(symphonyClientUtil.getAuthToken(), userId);
 
     if (MembershipClient.MembershipType.CLIENT.getType().equals(membership.getType())) {
       sendClientMessage(aiMessage, streamId);

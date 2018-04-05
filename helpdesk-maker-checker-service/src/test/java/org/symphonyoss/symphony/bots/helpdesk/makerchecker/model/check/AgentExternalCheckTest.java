@@ -18,6 +18,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
@@ -91,6 +93,10 @@ public class AgentExternalCheckTest {
       + "data-entity-id=\"makerchecker\">        <card class=\"barStyle\">            <header>   "
       + "             ${entity['makerchecker'].messageToAgents}            </header>        "
       + "</card>    </div></messageML>";
+
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
+
   public static final long FROM_USER_ID = 99129L;
 
   private AgentExternalCheck agentExternalCheck;
@@ -109,6 +115,14 @@ public class AgentExternalCheckTest {
     agentExternalCheck =
         new AgentExternalCheck(BOT_HOST, SERVICE_HOST, GROUP_ID, ticketClient, symphonyClient,
             symphonyValidationUtil);
+
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
   }
 
   @Test
@@ -203,7 +217,7 @@ public class AgentExternalCheckTest {
     Ticket ticket = new Ticket();
     ticket.setState(UNRESOLVED.getState());
 
-    when(ticketClient.getTicketByServiceStreamId(MOCK_SERVICE_STREAM_ID)).thenReturn(ticket);
+    when(ticketClient.getTicketByServiceStreamId(JWT, MOCK_SERVICE_STREAM_ID)).thenReturn(ticket);
 
     Set<Object> flagged = agentExternalCheck.check(symMessage);
     assertEquals(2, flagged.size());
@@ -217,7 +231,7 @@ public class AgentExternalCheckTest {
     Ticket ticket = new Ticket();
     ticket.setState(UNSERVICED.getState());
 
-    when(ticketClient.getTicketByServiceStreamId(MOCK_SERVICE_STREAM_ID)).thenReturn(ticket);
+    when(ticketClient.getTicketByServiceStreamId(JWT, MOCK_SERVICE_STREAM_ID)).thenReturn(ticket);
 
     Set<Object> flagged = agentExternalCheck.check(symMessage);
     assertNull(flagged);

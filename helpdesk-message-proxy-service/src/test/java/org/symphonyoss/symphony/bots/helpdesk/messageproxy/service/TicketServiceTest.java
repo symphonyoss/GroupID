@@ -3,6 +3,7 @@ package org.symphonyoss.symphony.bots.helpdesk.messageproxy.service;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +19,8 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
 import org.symphonyoss.client.model.Room;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskBotInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.HelpDeskServiceInfo;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.config.InstructionalMessageConfig;
@@ -93,6 +96,9 @@ public class TicketServiceTest {
 
   private static final Long TEST_FROM_USER_ID = 2L;
 
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
+
   private TicketService ticketService;
 
   @Mock
@@ -110,6 +116,14 @@ public class TicketServiceTest {
   @Before
   public void initMocks() {
     MockitoAnnotations.initMocks(this);
+
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
 
     when(symphonyClient.getUsersClient()).thenReturn(usersClient);
     when(symphonyClient.getMessagesClient()).thenReturn(messagesClient);
@@ -180,7 +194,7 @@ public class TicketServiceTest {
     SymMessage testSym = getTestSymMessage();
 
     Ticket mockTicket = mock(Ticket.class);
-    when(ticketClient.createTicket(TEST_TICKET_ID, TEST_CLIENT_STREAM_ID, TEST_SERVICE_STREAM_ID,
+    when(ticketClient.createTicket(JWT, TEST_TICKET_ID, TEST_CLIENT_STREAM_ID, TEST_SERVICE_STREAM_ID,
         TEST_TIMESTAMP, getTestClient(), Boolean.TRUE, testSym.getId())).thenReturn(mockTicket);
 
     SymMessage symMessage = new SymMessage();
