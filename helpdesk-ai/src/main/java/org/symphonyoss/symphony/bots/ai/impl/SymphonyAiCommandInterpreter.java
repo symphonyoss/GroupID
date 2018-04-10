@@ -24,7 +24,7 @@ import java.util.Set;
  */
 public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private static final String PATTERN_ARGUMENT_START = "\\{";
 
@@ -200,22 +200,22 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
   }
 
   private Set<String> getUIds(AiMessage aiMessage) throws IOException {
-    JsonNode jsonNode = objectMapper.readTree(aiMessage.getEntityData());
+    JsonNode jsonNode = OBJECT_MAPPER.readTree(aiMessage.getEntityData());
     Set<String> uids = new HashSet<>();
 
     int mention = 1;
     if(jsonNode.get(MENTION_START + mention) != null) {
       while (jsonNode.get(MENTION_START + mention) != null) {
-        jsonNode = jsonNode.get(MENTION_START + mention);
-        uids.add(jsonNode.get(USER_ID).get(0).get(VALUE).asText());
+        JsonNode mentionNode = jsonNode.get(MENTION_START + mention);
+        uids.add(mentionNode.get(USER_ID).get(0).get(VALUE).asText());
         mention++;
       }
     } else {
       int entity = 0;
       while (jsonNode.get(String.valueOf(entity)) != null) {
-        jsonNode = jsonNode.get(String.valueOf(entity));
-        if (jsonNode.get(TYPE).asText().equals(MENTION_TYPE)) {
-          uids.add(jsonNode.get(USER_ID).get(0).get(VALUE).asText());
+        JsonNode mentionNode = jsonNode.get(String.valueOf(entity));
+        if (mentionNode.get(TYPE).asText().equals(MENTION_TYPE)) {
+          uids.add(mentionNode.get(USER_ID).get(0).get(VALUE).asText());
         }
         entity++;
       }
