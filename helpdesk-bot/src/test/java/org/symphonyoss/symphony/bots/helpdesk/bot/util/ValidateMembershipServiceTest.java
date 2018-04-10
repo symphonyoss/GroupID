@@ -13,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
@@ -31,6 +33,9 @@ public class ValidateMembershipServiceTest {
   private static final Long MOCK_USER_ID = 123456L;
 
   private static final String MOCK_AGENT_STREAM_ID = "Zs-nx3pQh3-XyKlT5B15m3___p_zHfetdA";
+
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
 
   @Mock
   private MembershipClient membershipClient;
@@ -53,6 +58,14 @@ public class ValidateMembershipServiceTest {
 
     this.validateMembershipService =
         new ValidateMembershipService(membershipClient, symphonyClient, helpDeskBotConfig);
+
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
   }
 
   @Test
@@ -79,7 +92,8 @@ public class ValidateMembershipServiceTest {
 
     validateMembershipService.updateMembership(MOCK_USER_ID);
 
-    verify(membershipClient, times(1)).newMembership(MOCK_USER_ID, MembershipClient.MembershipType.AGENT);
+    verify(membershipClient, times(1)).newMembership(JWT, MOCK_USER_ID,
+        MembershipClient.MembershipType.AGENT);
   }
 
   @Test
@@ -87,7 +101,7 @@ public class ValidateMembershipServiceTest {
     Membership membership = new Membership();
     membership.setType(MembershipClient.MembershipType.CLIENT.getType());
 
-    doReturn(membership).when(membershipClient).getMembership(MOCK_USER_ID);
+    doReturn(membership).when(membershipClient).getMembership(JWT, MOCK_USER_ID);
 
     MemberInfo memberInfo = new MemberInfo();
     memberInfo.setId(MOCK_USER_ID);
@@ -101,7 +115,7 @@ public class ValidateMembershipServiceTest {
 
     assertEquals(MembershipClient.MembershipType.AGENT.getType(), membership.getType());
 
-    verify(membershipClient, times(1)).updateMembership(membership);
+    verify(membershipClient, times(1)).updateMembership(JWT, membership);
   }
 
 }

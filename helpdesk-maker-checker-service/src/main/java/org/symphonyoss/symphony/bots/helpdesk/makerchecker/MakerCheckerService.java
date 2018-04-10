@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.MakerCheckerMessage;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.check.Checker;
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
@@ -166,9 +167,8 @@ public class MakerCheckerService {
 
     List<String> proxyToStreamIdsList = new ArrayList<String>(proxyToStreamId);
 
-    this.makercheckerClient.createMakerchecker(makerCheckerId, makerId,
-        symMessage.getStreamId(), attachmentId, attachmentName, messageId, timeStamp,
-        proxyToStreamIdsList);
+    this.makercheckerClient.createMakerchecker(symphonyClientUtil.getAuthToken(), makerCheckerId, makerId,
+        symMessage.getStreamId(), attachmentId, attachmentName, messageId, timeStamp, proxyToStreamIdsList);
   }
 
   public void afterSendApprovedMessage(SymMessage symMessage) {

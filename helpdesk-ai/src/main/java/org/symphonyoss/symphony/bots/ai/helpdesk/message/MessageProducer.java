@@ -5,13 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.bots.utility.message.SymMessageUtil;
-import org.symphonyoss.symphony.clients.MessagesClient;
-import org.symphonyoss.symphony.clients.UsersClient;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymStream;
@@ -28,11 +26,9 @@ public class MessageProducer {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MessageProducer.class);
 
-  private final MessagesClient messagesClient;
-
   private final MembershipClient membershipClient;
 
-  private final UsersClient usersClient;
+  private final SymphonyClient symphonyClient;
 
   private final SymphonyClientUtil symphonyClientUtil;
 
@@ -43,50 +39,49 @@ public class MessageProducer {
    * @return A MessageProducer object
    */
   public MessageProducer(MembershipClient membershipClient, SymphonyClient symphonyClient) {
-    this.messagesClient = symphonyClient.getMessagesClient();
     this.membershipClient = membershipClient;
-    this.usersClient = symphonyClient.getUsersClient();
+    this.symphonyClient = symphonyClient;
     this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
   /**
    * Build and send a message(s) into a stream (if it is a Client message with multiple attachments,
    * it will send one for each)
-   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param aiMessage AiMessage with the message contents
    * @param streamId String that contains the streamId
    */
-  public void publishMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
-    Long userId = symphonyAiMessage.getFromUserId();
+  public void publishMessage(AiMessage aiMessage, String streamId) {
+    Long userId = aiMessage.getFromUserId();
 
-    if (SymMessageUtil.isChime(symphonyAiMessage.toSymMessage())) {
-      sendChimeMessage(symphonyAiMessage, streamId);
+    if (SymMessageUtil.isChime(aiMessage.toSymMessage())) {
+      sendChimeMessage(aiMessage, streamId);
       return;
     }
 
     if (userId == null) {
-      sendAgentMessage(symphonyAiMessage, streamId);
+      sendAgentMessage(aiMessage, streamId);
       return;
     }
 
-    Membership membership = membershipClient.getMembership(userId);
+    Membership membership = membershipClient.getMembership(symphonyClientUtil.getAuthToken(), userId);
 
     if (MembershipClient.MembershipType.CLIENT.getType().equals(membership.getType())) {
-      sendClientMessage(symphonyAiMessage, streamId);
+      sendClientMessage(aiMessage, streamId);
     } else {
-      sendAgentMessage(symphonyAiMessage, streamId);
+      sendAgentMessage(aiMessage, streamId);
     }
   }
 
   /**
    * Build Client message and send it. If it has multiple attachments, it will send one for each
-   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param aiMessage AiMessage with the message contents
    * @param streamId String that contains the streamId
    */
-  private void sendClientMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
-    if (SymMessageUtil.hasAttachment(symphonyAiMessage.toSymMessage())) {
-      sendClientMessageWithAttachments(symphonyAiMessage, streamId);
+  private void sendClientMessage(AiMessage aiMessage, String streamId) {
+    if (SymMessageUtil.hasAttachment(aiMessage.toSymMessage())) {
+      sendClientMessageWithAttachments(aiMessage, streamId);
     } else {
-      SymMessage symMessage = buildClientMessage(symphonyAiMessage);
+      SymMessage symMessage = buildClientMessage(aiMessage);
       sendMessage(symMessage, streamId);
     }
   }
@@ -94,76 +89,76 @@ public class MessageProducer {
   /**
    * Build Client messages and send it, one for each attachment. Only the first message contains the
    * original message text, if any.
-   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param aiMessage AiMessage with the message contents
    * @param streamId String that contains the streamId
    */
-  private void sendClientMessageWithAttachments(SymphonyAiMessage symphonyAiMessage,
+  private void sendClientMessageWithAttachments(AiMessage aiMessage,
       String streamId) {
-    SymMessage symMessage = buildClientMessage(symphonyAiMessage);
+    SymMessage symMessage = buildClientMessage(aiMessage);
     symMessage.setAttachment(
-        getClientAttachment(symphonyAiMessage, symphonyAiMessage.getAttachments().get(0)));
+        getClientAttachment(aiMessage, aiMessage.getAttachments().get(0)));
     sendMessage(symMessage, streamId);
 
-    symphonyAiMessage.setAiMessage("");
-    symphonyAiMessage.setMessageData("");
+    aiMessage.setAiMessage("");
+    aiMessage.setMessageData("");
 
-    symphonyAiMessage.getAttachments().stream()
+    aiMessage.getAttachments().stream()
         .skip(1)
         .forEach(attachmentInfo -> {
-          SymMessage attachmentMessage = buildClientMessage(symphonyAiMessage);
-          attachmentMessage.setAttachment(getClientAttachment(symphonyAiMessage, attachmentInfo));
+          SymMessage attachmentMessage = buildClientMessage(aiMessage);
+          attachmentMessage.setAttachment(getClientAttachment(aiMessage, attachmentInfo));
           sendMessage(attachmentMessage, streamId);
         });
   }
 
   /**
    * Build and send an Agent message
-   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param aiMessage AiMessage with the message contents
    * @param streamId String that contains the streamId
    */
-  private void sendAgentMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
-    SymMessage symMessage = buildAgentMessage(symphonyAiMessage);
+  private void sendAgentMessage(AiMessage aiMessage, String streamId) {
+    SymMessage symMessage = buildAgentMessage(aiMessage);
     sendMessage(symMessage, streamId);
   }
 
   /**
    * Build and send a SymMessage that contains a chime
-   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param aiMessage AiMessage with the message contents
    * @param streamId String that contains the streamId
    */
-  private void sendChimeMessage(SymphonyAiMessage symphonyAiMessage, String streamId) {
-    SymMessage symMessage = buildChimeMessage(symphonyAiMessage);
+  private void sendChimeMessage(AiMessage aiMessage, String streamId) {
+    SymMessage symMessage = buildChimeMessage(aiMessage);
     sendMessage(symMessage, streamId);
   }
 
   /**
    * Build a SymMessage that contains a chime
-   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * @param aiMessage AiMessage with the message contents
    * @return The built SymMessage
    */
-  private SymMessage buildChimeMessage(SymphonyAiMessage symphonyAiMessage) {
+  private SymMessage buildChimeMessage(AiMessage aiMessage) {
     StringBuilder message = new StringBuilder("<messageML>");
     SymMessage symMessage = new SymMessage();
-    message.append(SymMessageUtil.parseMessage(symphonyAiMessage.toSymMessage()));
+    message.append(SymMessageUtil.parseMessage(aiMessage.toSymMessage()));
     message.append("</messageML>");
 
     symMessage.setMessage(message.toString());
-    symMessage.setEntityData(symphonyAiMessage.getEntityData());
+    symMessage.setEntityData(aiMessage.getEntityData());
 
     return symMessage;
   }
 
   /**
-   * Build a SymMessage for a Client given a SymphonyAiMessage
-   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * Build a SymMessage for a Client given a AiMessage
+   * @param aiMessage AiMessage with the message contents
    * @return The built SymMessage
    */
-  private SymMessage buildClientMessage(SymphonyAiMessage symphonyAiMessage) {
+  private SymMessage buildClientMessage(AiMessage aiMessage) {
     StringBuilder header = new StringBuilder();
-    Long userId = symphonyAiMessage.getFromUserId();
+    Long userId = aiMessage.getFromUserId();
 
     try {
-      SymUser user = usersClient.getUserFromId(userId);
+      SymUser user = symphonyClient.getUsersClient().getUserFromId(userId);
 
       header.append("<b>");
       header.append(user.getDisplayName());
@@ -172,56 +167,56 @@ public class MessageProducer {
       LOGGER.info("User " + userId + " not found");
     }
 
-    return buildMessage(symphonyAiMessage, header.toString());
+    return buildMessage(aiMessage, header.toString());
   }
 
   /**
-   * Build a SymMessage for an Agent given a SymphonyAiMessage
-   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * Build a SymMessage for an Agent given a AiMessage
+   * @param aiMessage AiMessage with the message contents
    * @return The built SymMessage
    */
-  private SymMessage buildAgentMessage(SymphonyAiMessage symphonyAiMessage) {
-    return buildMessage(symphonyAiMessage, "");
+  private SymMessage buildAgentMessage(AiMessage aiMessage) {
+    return buildMessage(aiMessage, "");
   }
 
   /**
-   * Build a SymMessage given a SymphonyAiMessage and a header String
-   * @param symphonyAiMessage SymphonyAiMessage with the message contents
+   * Build a SymMessage given a AiMessage and a header String
+   * @param aiMessage AiMessage with the message contents
    * @param header String with the message header (e.g. Client name)
    * @return The built SymMessage
    */
-  private SymMessage buildMessage(SymphonyAiMessage symphonyAiMessage, String header) {
+  private SymMessage buildMessage(AiMessage aiMessage, String header) {
     StringBuilder message = new StringBuilder("<messageML>");
     SymMessage symMessage = new SymMessage();
 
     message.append(header);
-    if (symphonyAiMessage.getMessageData() != null) {
-      message.append(SymMessageUtil.parseMessage(symphonyAiMessage.toSymMessage()));
+    if (aiMessage.getMessageData() != null) {
+      message.append(SymMessageUtil.parseMessage(aiMessage.toSymMessage()));
     } else {
-      message.append(symphonyAiMessage.getAiMessage());
+      message.append(aiMessage.getAiMessage());
     }
 
     message.append("</messageML>");
 
     symMessage.setMessage(message.toString());
-    symMessage.setEntityData(symphonyAiMessage.getEntityData());
-    symMessage.setAttachments(symphonyAiMessage.getAttachments());
-    symMessage.setAttachment(symphonyAiMessage.getAttachment());
+    symMessage.setEntityData(aiMessage.getEntityData());
+    symMessage.setAttachments(aiMessage.getAttachments());
+    symMessage.setAttachment(aiMessage.getAttachment());
 
     return symMessage;
   }
 
   /**
-   * Get an Attachment to a SymphonyAiMessage
-   * @param symphonyAiMessage The SymphonyAiMessage containing the attachment
+   * Get an Attachment to a AiMessage
+   * @param aiMessage The AiMessage containing the attachment
    * @param attachmentInfo The SymAttachmentInfo of the specific attachment to be added
    * @return The attachment
    */
-  private File getClientAttachment(SymphonyAiMessage symphonyAiMessage,
+  private File getClientAttachment(AiMessage aiMessage,
       SymAttachmentInfo attachmentInfo) {
     SymMessage attachmentMessage = new SymMessage();
-    attachmentMessage.setId(symphonyAiMessage.getMessageId());
-    attachmentMessage.setStreamId(symphonyAiMessage.getStreamId());
+    attachmentMessage.setId(aiMessage.getMessageId());
+    attachmentMessage.setStreamId(aiMessage.getStreamId());
 
     return symphonyClientUtil.getFileAttachment(attachmentInfo, attachmentMessage);
   }
@@ -237,7 +232,7 @@ public class MessageProducer {
     stream.setStreamId(streamId);
 
     try {
-      messagesClient.sendMessage(stream, symMessage);
+      symphonyClient.getMessagesClient().sendMessage(stream, symMessage);
     } catch (MessagesException e) {
       LOGGER.error("AI could not send message: ", e);
     }

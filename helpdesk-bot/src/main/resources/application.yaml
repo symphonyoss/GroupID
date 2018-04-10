@@ -29,7 +29,7 @@ noAgentsMessage: "There are no available agents to attend your ticket right now.
 serviceRoomWasNotCreated: "There was a problem trying to create the service room. Please try again."
 
 app-authentication:
-  enabled: false
+  enabled: true
   pod:
     host: ${pod.host}
     port: ${pod.port:443}

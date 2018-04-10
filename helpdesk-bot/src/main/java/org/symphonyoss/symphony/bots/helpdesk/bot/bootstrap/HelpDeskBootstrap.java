@@ -80,14 +80,9 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
         .function(context -> registerBot(context))
         .onError(e -> LOGGER.error("Fail to register bot user", e));
 
-    FunctionExecutor<ApplicationContext, HelpDeskAi> functionAi = new FunctionExecutor<>();
-    functionAi
-        .function(context -> initializeAi(context))
-        .onError(e -> LOGGER.error("Fail to initilize Helpdesk Ai", e));
-
-    FunctionExecutor<ApplicationContext, IdleTimerManager> functionIdleTimeManager = new FunctionExecutor<>();
+    FunctionExecutor<SymAuth, IdleTimerManager> functionIdleTimeManager = new FunctionExecutor<>();
     functionIdleTimeManager
-        .function(context -> initializeIdleTimeManager(context))
+        .function(auth -> initializeIdleTimeManager(applicationContext, auth))
         .onError(e -> LOGGER.error("Fail to initialize Idle Timer Manager", e));
 
     try {
@@ -96,8 +91,7 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
       SymAuth symAuth = functionAuth.executeBackoffExponential(applicationContext);
       functionClient.executeBackoffExponential(symAuth);
       functionRegisterBot.executeBackoffExponential(applicationContext);
-      functionAi.executeBackoffExponential(applicationContext);
-      functionIdleTimeManager.executeBackoffExponential(applicationContext);
+      functionIdleTimeManager.executeBackoffExponential(symAuth);
 
       ready(applicationContext);
     } catch (InterruptedException e) {
@@ -108,10 +102,11 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
   /**
    * Initialize a time manager to get all unserviced ticket and set idle timer on them.
    * @param context Spring application context
+   * @param symAuth Symphony authentication
    * @return IdleTimeManager
    */
 
-  private IdleTimerManager initializeIdleTimeManager(ApplicationContext context) {
+  private IdleTimerManager initializeIdleTimeManager(ApplicationContext context, SymAuth symAuth) {
     IdleTimerManager timerManager = context.getBean(IdleTimerManager.class);
     TicketClient ticketClient = context.getBean(TicketClient.class);
     IdleTicketConfig idleTicketConfig = context.getBean(IdleTicketConfig.class);
@@ -120,7 +115,9 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
     Long timeout = idleTicketConfig.getTimeout();
     TimeUnit timeUnit = idleTicketConfig.getUnit();
 
-    ticketClient.getUnresolvedTickets().stream()
+    String jwt = symAuth.getSessionToken().getToken();
+
+    ticketClient.getUnresolvedTickets(jwt).stream()
         .forEach((ticket)-> timerManager.put(ticket.getId(),
         new ProxyIdleTimer(timeout, timeUnit ) {
           @Override
@@ -211,17 +208,6 @@ public class HelpDeskBootstrap implements ApplicationListener<ApplicationReadyEv
   private Membership registerBot(ApplicationContext applicationContext) {
     HelpDeskBot helpDeskBot = applicationContext.getBean(HelpDeskBot.class);
     return helpDeskBot.registerDefaultAgent();
-  }
-
-  /**
-   * Register Helpdesk AI
-   * @param applicationContext Spring application context
-   */
-  private HelpDeskAi initializeAi(ApplicationContext applicationContext) {
-    HelpDeskAi helpDeskAi = applicationContext.getBean(HelpDeskAi.class);
-    helpDeskAi.init();
-
-    return helpDeskAi;
   }
 
   /**

@@ -8,12 +8,17 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.apps.authentication.jwt.model.JwtPayload;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.AcceptTicketService;
@@ -66,6 +71,8 @@ public class V1HelpDeskControllerTest {
   private static final String MESSAGE_ACCEPTED = "Maker checker message accepted.";
   private static final String MESSAGE_DENIED = "Maker checker message denied.";
 
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
 
   @Mock
   private AcceptTicketService acceptTicketService;
@@ -88,8 +95,25 @@ public class V1HelpDeskControllerTest {
   @Mock
   private HelpDeskAi helpDeskAi;
 
-  @InjectMocks
+  @Mock
+  private SymphonyClient symphonyClient;
+
   private V1HelpDeskController v1HelpDeskController;
+
+  @Before
+  public void init() {
+    this.v1HelpDeskController = new V1HelpDeskController(symphonyValidationUtil,
+        makercheckerClient, agentMakerCheckerService, helpDeskAi, acceptTicketService,
+        joinConversationService, validateMembershipService, symphonyClient);
+
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
+  }
 
   @Test
   public void testAcceptTicket() {
@@ -106,7 +130,7 @@ public class V1HelpDeskControllerTest {
   @Test()
   public void testApproveMakercheckerSameId() throws SymException {
     Makerchecker makerchecker = mockMakerchecker();
-    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
+    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(JWT, makerchecker.getId());
 
     try {
       v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID);
@@ -119,7 +143,7 @@ public class V1HelpDeskControllerTest {
   @Test(expected = BadRequestException.class)
   public void testInactiveAgent() throws SymException {
     Makerchecker makerchecker = mockMakerchecker();
-    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
+    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(JWT, makerchecker.getId());
 
     doThrow(SymException.class).when(validateMembershipService).updateMembership(MOCK_AGENT_ID);
 
@@ -129,7 +153,7 @@ public class V1HelpDeskControllerTest {
   @Test()
   public void testDenyMakercheckerSameId() throws SymException {
     Makerchecker makerchecker = mockMakerchecker();
-    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
+    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(JWT, makerchecker.getId());
 
     try {
       v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_MAKER_ID);
@@ -143,7 +167,7 @@ public class V1HelpDeskControllerTest {
   public void DenyUnoppenedAttachment() throws SymException {
     Makerchecker makerchecker = mockMakerchecker();
     makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
-    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
+    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(JWT, makerchecker.getId());
 
     try {
       v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
@@ -157,7 +181,7 @@ public class V1HelpDeskControllerTest {
   public void ApproveUnoppenedAttachment() throws SymException {
     Makerchecker makerchecker = mockMakerchecker();
     makerchecker.setState(MakercheckerClient.AttachmentStateType.APPROVED.getState());
-    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
+    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(JWT, makerchecker.getId());
 
     try {
       v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
@@ -170,7 +194,7 @@ public class V1HelpDeskControllerTest {
   @Test()
   public void ApproveAttachment() throws SymException {
     Makerchecker makerchecker = mockMakerchecker();
-    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
+    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(JWT, makerchecker.getId());
 
     SymUser agent = mockActiveSymUser();
     doReturn(agent).when(symphonyValidationUtil).validateUserId(MOCK_AGENT_ID);
@@ -182,7 +206,6 @@ public class V1HelpDeskControllerTest {
     MakerCheckerResponse response = v1HelpDeskController.approveMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_ACCEPTED, response.getMessage());
 
-    verify(helpDeskAi, times(1)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
     verify(agentMakerCheckerService, times(1)).sendActionMakerCheckerMessage(makerchecker,
         MakercheckerClient.AttachmentStateType.APPROVED);
   }
@@ -190,7 +213,7 @@ public class V1HelpDeskControllerTest {
   @Test()
   public void DenyAttachment() throws SymException {
     Makerchecker makerchecker = mockMakerchecker();
-    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(makerchecker.getId());
+    doReturn(makerchecker).when(makercheckerClient).getMakerchecker(JWT, makerchecker.getId());
 
     SymUser agent = mockActiveSymUser();
     doReturn(agent).when(symphonyValidationUtil).validateUserId(MOCK_AGENT_ID);
@@ -198,7 +221,7 @@ public class V1HelpDeskControllerTest {
     MakerCheckerResponse response = v1HelpDeskController.denyMakerCheckerMessage(MOCK_MAKERCHECKER_ID, MOCK_AGENT_ID);
     assertEquals(MESSAGE_DENIED, response.getMessage());
 
-    verify(makercheckerClient, times(1)).updateMakerchecker(makerchecker);
+    verify(makercheckerClient, times(1)).updateMakerchecker(JWT, makerchecker);
     verify(helpDeskAi, times(0)).getSessionKey(MOCK_AGENT_ID, MOCK_SERVICE_STREAM_ID);
     verify(agentMakerCheckerService, times(1)).sendActionMakerCheckerMessage(makerchecker,
         MakercheckerClient.AttachmentStateType.DENIED);

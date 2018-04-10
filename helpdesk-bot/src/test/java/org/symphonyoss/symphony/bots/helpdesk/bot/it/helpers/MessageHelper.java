@@ -124,7 +124,7 @@ public class MessageHelper {
   /**
    * Retrieve the latest agent message.
    *
-   * @param SymUser Agent user
+   * @param agent Agent user
    * @param initialTime Initial time to retrieve messages
    * @return Latest message
    * @throws MessagesException Failure to retrieve messages

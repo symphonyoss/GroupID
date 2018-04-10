@@ -7,10 +7,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.ticket.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.pod.model.MembershipList;
 
 import javax.ws.rs.BadRequestException;
@@ -29,12 +31,15 @@ public class ValidateMembershipService {
 
   private final HelpDeskBotConfig helpDeskBotConfig;
 
+  private final SymphonyClientUtil symphonyClientUtil;
+
   public ValidateMembershipService(
       MembershipClient membershipClient, SymphonyClient symphonyClient,
       HelpDeskBotConfig helpDeskBotConfig) {
     this.membershipClient = membershipClient;
     this.symphonyClient = symphonyClient;
     this.helpDeskBotConfig = helpDeskBotConfig;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
   }
 
   /**
@@ -44,19 +49,21 @@ public class ValidateMembershipService {
    * @throws SymException
    */
   public void updateMembership(Long agentId) throws SymException {
-    Membership membership = membershipClient.getMembership(agentId);
+    String jwt = symphonyClientUtil.getAuthToken();
+
+    Membership membership = membershipClient.getMembership(jwt, agentId);
 
     if (membership == null) {
       validateAgentStreamMemberships(agentId);
 
-      membershipClient.newMembership(agentId, AGENT);
+      membershipClient.newMembership(jwt, agentId, AGENT);
 
       LOG.info("Created new agent membership for userid: " + agentId);
     } else if (!AGENT.getType().equals(membership.getType())) {
       validateAgentStreamMemberships(agentId);
 
       membership.setType(AGENT.getType());
-      membershipClient.updateMembership(membership);
+      membershipClient.updateMembership(jwt, membership);
 
       LOG.info("Updated agent membership for userid: " + agentId);
     }
@@ -80,4 +87,5 @@ public class ValidateMembershipService {
       throw new BadRequestException("User is not an agent");
     }
   }
+
 }

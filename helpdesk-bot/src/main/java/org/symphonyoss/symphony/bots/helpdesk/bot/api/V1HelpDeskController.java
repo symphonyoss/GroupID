@@ -2,15 +2,12 @@ package org.symphonyoss.symphony.bots.helpdesk.bot.api;
 
 
 import org.apache.commons.codec.binary.Base64;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
-import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.MakerCheckerResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -22,12 +19,13 @@ import org.symphonyoss.symphony.bots.helpdesk.makerchecker.model.AttachmentMaker
 import org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client.MakercheckerClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Makerchecker;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.UserInfo;
+import org.symphonyoss.symphony.bots.utility.client.SymphonyClientUtil;
 import org.symphonyoss.symphony.bots.utility.validation.SymphonyValidationUtil;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import javax.ws.rs.BadRequestException;
-import java.util.HashSet;
+
 import java.util.Set;
 
 /**
@@ -45,27 +43,37 @@ public class V1HelpDeskController extends V1ApiController {
       "You can not perform this action in your own attachment.";
   private static final String ATTACHMENT_TYPE = "ATTACHMENT";
 
-  @Autowired
-  private SymphonyValidationUtil symphonyValidationUtil;
+  private final SymphonyValidationUtil symphonyValidationUtil;
 
-  @Autowired
-  private MakercheckerClient makercheckerClient;
+  private final MakercheckerClient makercheckerClient;
 
   @Qualifier("agentMakerCheckerService")
-  @Autowired
-  private MakerCheckerService agentMakerCheckerService;
+  private final MakerCheckerService agentMakerCheckerService;
 
-  @Autowired
-  private HelpDeskAi helpDeskAi;
+  private final HelpDeskAi helpDeskAi;
 
-  @Autowired
-  private AcceptTicketService acceptTicketService;
+  private final AcceptTicketService acceptTicketService;
 
-  @Autowired
-  private JoinConversationService joinConversationService;
+  private final JoinConversationService joinConversationService;
 
-  @Autowired
-  private ValidateMembershipService validateMembershipService;
+  private final ValidateMembershipService validateMembershipService;
+
+  private final SymphonyClientUtil symphonyClientUtil;
+
+  public V1HelpDeskController(SymphonyValidationUtil symphonyValidationUtil,
+      MakercheckerClient makercheckerClient, MakerCheckerService agentMakerCheckerService,
+      HelpDeskAi helpDeskAi, AcceptTicketService acceptTicketService,
+      JoinConversationService joinConversationService,
+      ValidateMembershipService validateMembershipService, SymphonyClient symphonyClient) {
+    this.symphonyValidationUtil = symphonyValidationUtil;
+    this.makercheckerClient = makercheckerClient;
+    this.agentMakerCheckerService = agentMakerCheckerService;
+    this.helpDeskAi = helpDeskAi;
+    this.acceptTicketService = acceptTicketService;
+    this.joinConversationService = joinConversationService;
+    this.validateMembershipService = validateMembershipService;
+    this.symphonyClientUtil = new SymphonyClientUtil(symphonyClient);
+  }
 
   @Override
   public TicketResponse acceptTicket(String ticketId, Long agentId) {
@@ -88,9 +96,11 @@ public class V1HelpDeskController extends V1ApiController {
     validateRequiredParameter("makerCheckerId", makerCheckerId, "body");
     validateRequiredParameter("userId", userId, "body");
 
+    String jwt = symphonyClientUtil.getAuthToken();
+
     SymUser agentUser = symphonyValidationUtil.validateUserId(userId);
 
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(makerCheckerId);
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(jwt, makerCheckerId);
     if (makerchecker == null) {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
     }
@@ -106,7 +116,7 @@ public class V1HelpDeskController extends V1ApiController {
     }
 
     if (MakercheckerClient.AttachmentStateType.OPENED.getState().equals(makerchecker.getState())) {
-      sendApprovedMakerChekerMessage(makerchecker, userId);
+      sendApprovedMakerChekerMessage(makerchecker);
 
       UserInfo checker = getChecker(agentUser);
       makerchecker.setChecker(checker);
@@ -114,7 +124,7 @@ public class V1HelpDeskController extends V1ApiController {
 
       agentMakerCheckerService.sendActionMakerCheckerMessage(makerchecker, MakercheckerClient.AttachmentStateType.APPROVED);
 
-      makercheckerClient.updateMakerchecker(makerchecker);
+      makercheckerClient.updateMakerchecker(jwt, makerchecker);
 
       return buildMakerCheckerResponse(agentUser, makerchecker);
     } else {
@@ -134,9 +144,11 @@ public class V1HelpDeskController extends V1ApiController {
     validateRequiredParameter("makerCheckerId", makerCheckerId, "body");
     validateRequiredParameter("userId", userId, "body");
 
+    String jwt = symphonyClientUtil.getAuthToken();
+
     SymUser agentUser = symphonyValidationUtil.validateUserId(userId);
 
-    Makerchecker makerchecker = makercheckerClient.getMakerchecker(makerCheckerId);
+    Makerchecker makerchecker = makercheckerClient.getMakerchecker(jwt, makerCheckerId);
     if (makerchecker == null) {
       throw new BadRequestException(MAKER_CHECKER_NOT_FOUND);
     }
@@ -159,7 +171,7 @@ public class V1HelpDeskController extends V1ApiController {
 
       agentMakerCheckerService.sendActionMakerCheckerMessage(makerchecker, MakercheckerClient.AttachmentStateType.DENIED);
 
-      makercheckerClient.updateMakerchecker(makerchecker);
+      makercheckerClient.updateMakerchecker(jwt, makerchecker);
 
       return buildMakerCheckerResponse(agentUser, makerchecker);
     } else {
@@ -186,7 +198,7 @@ public class V1HelpDeskController extends V1ApiController {
     return makerCheckerResponse;
   }
 
-  private void sendApprovedMakerChekerMessage(Makerchecker makerchecker, Long checkerId) {
+  private void sendApprovedMakerChekerMessage(Makerchecker makerchecker) {
     AttachmentMakerCheckerMessage checkerMessage = new AttachmentMakerCheckerMessage();
     checkerMessage.setAttachmentId(makerchecker.getAttachmentId());
     checkerMessage.setGroupId(makerchecker.getGroupId());
@@ -196,19 +208,13 @@ public class V1HelpDeskController extends V1ApiController {
     checkerMessage.setTimeStamp(makerchecker.getTimeStamp());
     checkerMessage.setType(ATTACHMENT_TYPE);
 
-    SymphonyAiSessionKey aiSessionKey = helpDeskAi.getSessionKey(checkerId, makerchecker.getStreamId());
-
     Set<SymMessage> symMessages = agentMakerCheckerService.getApprovedMakercheckerMessage(checkerMessage);
 
     for (SymMessage symMessage : symMessages) {
-      SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
+      AiMessage aiMessage = new AiMessage(symMessage);
+      helpDeskAi.sendMessage(aiMessage, symMessage.getStreamId());
 
-      Set<AiResponseIdentifier> identifiers = new HashSet<>();
-      identifiers.add(new SymphonyAiResponseIdentifierImpl(symMessage.getStreamId()));
-
-      helpDeskAi.sendMessage(symphonyAiMessage, identifiers, aiSessionKey);
-
-      if (symphonyAiMessage.getAttachment() != null) {
+      if (aiMessage.getAttachment() != null) {
         agentMakerCheckerService.afterSendApprovedMessage(symMessage);
       }
     }

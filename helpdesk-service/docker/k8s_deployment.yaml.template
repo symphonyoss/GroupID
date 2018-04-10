@@ -26,6 +26,8 @@ spec:
               value: helpdesk-mongodb-service
             - name: MONGO_PORT
               value: '80'
+            - name: MONGO_IGNORESSL
+              value: 'true'
             - name: APP_AUTHENTICATION_ENABLED
               value: 'true'
             - name: APP_AUTHENTICATION_POD_HOST
@@ -40,5 +42,7 @@ spec:
               value: 'true'
             - name: APP_AUTHENTICATION_FILTER_ENABLED
               value: 'false'
-            - name: MONGO_IGNORESSL
-              value: 'true'
+            - name: APP_AUTHENTICATION_KEYSTORE_FILE
+              value: /opt/symphony/helpdesk-api/certs/helpdesk-app.p12
+            - name: APP_AUTHENTICATION_KEYSTORE_PASSWORD
+              value: changeit

@@ -13,9 +13,9 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
@@ -37,24 +37,24 @@ public class ProxyConversationTest {
   private MakerCheckerService makerCheckerService;
 
   @Mock
-  private AiSessionContext sessionContext;
-
-  @Mock
   private AiResponder responder;
 
   @Mock
   private ProxyIdleTimer timer;
 
+  @Mock
+  private AiSessionKey sessionKey;
+
   private ProxyConversation proxyConversation;
 
   @Before
   public void init() {
-    this.proxyConversation = new ProxyConversation(false, sessionContext, makerCheckerService);
+    this.proxyConversation = new ProxyConversation(makerCheckerService);
   }
 
   @Test
   public void testDispatchMessage() {
-    SymphonyAiMessage aiMessage = new SymphonyAiMessage(new SymMessage());
+    AiMessage aiMessage = new AiMessage(new SymMessage());
 
     doReturn(true).when(makerCheckerService).allChecksPass(any(SymMessage.class));
 
@@ -62,8 +62,7 @@ public class ProxyConversationTest {
 
     proxyConversation.onMessage(responder, aiMessage);
 
-    verify(responder, times(1)).addResponse(eq(sessionContext), any(AiResponse.class));
-    verify(responder, times(1)).respond(sessionContext);
+    verify(responder, times(1)).respond(any(AiResponse.class));
     verify(timer, times(1)).reset();
   }
 
@@ -74,7 +73,7 @@ public class ProxyConversationTest {
     SymMessage message = new SymMessage();
     message.setId(MESSAGE_ID);
 
-    SymphonyAiMessage aiMessage = new SymphonyAiMessage(message);
+    AiMessage aiMessage = new AiMessage(message);
 
     doReturn(false).when(makerCheckerService).allChecksPass(any(SymMessage.class));
     doReturn(Collections.singleton(message)).when(makerCheckerService)

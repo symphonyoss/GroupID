@@ -14,6 +14,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -51,6 +53,9 @@ public class TicketServiceTest {
 
   private static final long QUESTION_TIMESTAMP = 230111987l;
 
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
+
   @Mock
   private SymphonyValidationUtil symphonyValidationUtil;
 
@@ -76,6 +81,14 @@ public class TicketServiceTest {
     doReturn(roomMembershipClient).when(symphonyClient).getRoomMembershipClient();
     doReturn(MOCK_AGENT_STREAM_ID).when(helpDeskBotConfig).getAgentStreamId();
 
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
+
     this.ticketService =
         new MockTicketService(symphonyValidationUtil, symphonyClient, helpDeskBotConfig,
             ticketClient, validateMembershipService);
@@ -96,7 +109,7 @@ public class TicketServiceTest {
     Ticket ticket = mockTicket();
     SymUser agentUser = mockAgent();
 
-    doReturn(ticket).when(ticketClient).getTicket(MOCK_TICKET_ID);
+    doReturn(ticket).when(ticketClient).getTicket(JWT, MOCK_TICKET_ID);
     doReturn(agentUser).when(symphonyValidationUtil).validateUserId(MOCK_CLIENT_ID);
 
     TicketResponse response = ticketService.execute(MOCK_TICKET_ID, MOCK_CLIENT_ID);

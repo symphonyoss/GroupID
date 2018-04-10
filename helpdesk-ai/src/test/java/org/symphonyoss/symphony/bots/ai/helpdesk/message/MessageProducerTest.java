@@ -17,8 +17,9 @@ import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.AttachmentsException;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.UsersClientException;
-import org.symphonyoss.symphony.bots.ai.helpdesk.message.MessageProducer;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.service.membership.client.MembershipClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.clients.AttachmentsClient;
@@ -111,6 +112,9 @@ public class MessageProducerTest {
   private static final int ATTACHMENTS_COUNT = 10;
   private static final String USER_NAME = "Ultimate Tester";
 
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
+
   @Mock
   private MembershipClient membershipClient;
 
@@ -134,7 +138,7 @@ public class MessageProducerTest {
 
   private MessageProducer messageProducer;
 
-  private SymphonyAiMessage symphonyAiMessage;
+  private AiMessage aiMessage;
 
   private byte[] fileBytes = "filebytes".getBytes();
 
@@ -142,17 +146,25 @@ public class MessageProducerTest {
 
   @Before
   public void init() throws UsersClientException, AttachmentsException {
-    symphonyAiMessage = new SymphonyAiMessage("");
-    symphonyAiMessage.setFromUserId(USER_ID);
+    aiMessage = new AiMessage("");
+    aiMessage.setFromUserId(USER_ID);
     doReturn(messagesClient).when(symphonyClient).getMessagesClient();
     doReturn(usersClient).when(symphonyClient).getUsersClient();
     doReturn(symUser).when(usersClient).getUserFromId(anyLong());
     doReturn(USER_NAME).when(symUser).getDisplayName();
-    doReturn(membership).when(membershipClient).getMembership(anyLong());
+    doReturn(membership).when(membershipClient).getMembership(JWT, USER_ID);
     doReturn(attachmentsClient).when(symphonyClient).getAttachmentsClient();
     doReturn(fileBytes).when(attachmentsClient)
         .getAttachmentData(any(SymAttachmentInfo.class), any(SymMessage.class));
     messageProducer = new MessageProducer(membershipClient, symphonyClient);
+
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
   }
 
   @Test
@@ -161,9 +173,9 @@ public class MessageProducerTest {
         "Thank you for contacting us, this session is now over. Any new messages in this chat will "
             + "be delivered to the JPM Equity Team as a new session.";
     String EXPECTED_BOT_MESSAGE = "<messageML>" + BOT_MESSAGE + "</messageML>";
-    symphonyAiMessage.setAiMessage(BOT_MESSAGE);
+    aiMessage.setAiMessage(BOT_MESSAGE);
 
-    messageProducer.publishMessage(symphonyAiMessage, streamId);
+    messageProducer.publishMessage(aiMessage, streamId);
     ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
@@ -174,9 +186,9 @@ public class MessageProducerTest {
   @Test
   public void testAgentChime() throws MessagesException {
     doReturn("AGENT").when(membership).getType();
-    symphonyAiMessage.setMessageData(CHIME_MESSAGE);
+    aiMessage.setMessageData(CHIME_MESSAGE);
 
-    messageProducer.publishMessage(symphonyAiMessage, streamId);
+    messageProducer.publishMessage(aiMessage, streamId);
     ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
@@ -208,10 +220,10 @@ public class MessageProducerTest {
             + "<li>we</li>\n <li>have</li>\n <li>a</li>\n <li>bullet</li>\n "
             + "<li>list</li>\n</ul></messageML>";
     doReturn("AGENT").when(membership).getType();
-    symphonyAiMessage.setMessageData(COMPLEX_MESSAGE);
-    symphonyAiMessage.setEntityData(COMPLEX_MESSAGE_ENTITY_DATA);
+    aiMessage.setMessageData(COMPLEX_MESSAGE);
+    aiMessage.setEntityData(COMPLEX_MESSAGE_ENTITY_DATA);
 
-    messageProducer.publishMessage(symphonyAiMessage, streamId);
+    messageProducer.publishMessage(aiMessage, streamId);
     ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
@@ -225,10 +237,10 @@ public class MessageProducerTest {
     String tmpDir = System.getProperty("java.io.tmpdir");
     doReturn("AGENT").when(membership).getType();
     File file = new File(tmpDir + File.separator + "test_directory" + File.separator + "test_file");
-    symphonyAiMessage.setMessageData(EMPTY_MESSAGE);
-    symphonyAiMessage.setAttachment(file);
+    aiMessage.setMessageData(EMPTY_MESSAGE);
+    aiMessage.setAttachment(file);
 
-    messageProducer.publishMessage(symphonyAiMessage, streamId);
+    messageProducer.publishMessage(aiMessage, streamId);
     ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
@@ -239,9 +251,9 @@ public class MessageProducerTest {
   @Test
   public void testClientChime() throws MessagesException {
     doReturn("CLIENT").when(membership).getType();
-    symphonyAiMessage.setMessageData(CHIME_MESSAGE);
+    aiMessage.setMessageData(CHIME_MESSAGE);
 
-    messageProducer.publishMessage(symphonyAiMessage, streamId);
+    messageProducer.publishMessage(aiMessage, streamId);
     ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
@@ -274,10 +286,10 @@ public class MessageProducerTest {
             + "/>Finally,<ul>\n <li>we</li>\n <li>have</li>\n <li>a</li>\n <li>bullet</li>\n "
             + "<li>list</li>\n</ul></messageML>";
     doReturn("CLIENT").when(membership).getType();
-    symphonyAiMessage.setMessageData(COMPLEX_MESSAGE);
-    symphonyAiMessage.setEntityData(COMPLEX_MESSAGE_ENTITY_DATA);
+    aiMessage.setMessageData(COMPLEX_MESSAGE);
+    aiMessage.setEntityData(COMPLEX_MESSAGE_ENTITY_DATA);
 
-    messageProducer.publishMessage(symphonyAiMessage, streamId);
+    messageProducer.publishMessage(aiMessage, streamId);
     ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
     verify(messagesClient).sendMessage(any(SymStream.class), captor.capture());
 
@@ -297,10 +309,10 @@ public class MessageProducerTest {
       attachmentInfo.setName("file_" + String.valueOf(i));
       attachmentInfoList.add(attachmentInfo);
     }
-    symphonyAiMessage.setAttachments(attachmentInfoList);
-    symphonyAiMessage.setMessageData(EMPTY_MESSAGE);
+    aiMessage.setAttachments(attachmentInfoList);
+    aiMessage.setMessageData(EMPTY_MESSAGE);
 
-    messageProducer.publishMessage(symphonyAiMessage, streamId);
+    messageProducer.publishMessage(aiMessage, streamId);
     ArgumentCaptor<SymMessage> captor = ArgumentCaptor.forClass(SymMessage.class);
     verify(messagesClient, times(ATTACHMENTS_COUNT)).sendMessage(any(SymStream.class),
         captor.capture());

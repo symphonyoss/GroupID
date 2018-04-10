@@ -11,12 +11,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.symphonyoss.client.exceptions.InitException;
 import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.client.services.MessageService;
-import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.helpdesk.bot.HelpDeskBot;
 import org.symphonyoss.symphony.bots.helpdesk.bot.authentication.HelpDeskAuthenticationException;
@@ -45,6 +44,9 @@ public class HelpDeskBootstrapTest {
 
   private static final String MOCK_POD_URL = "https://test.symphony.com/pod";
 
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
+
   @Mock
   private ApplicationReadyEvent event;
 
@@ -71,9 +73,6 @@ public class HelpDeskBootstrapTest {
 
   @Mock
   private HelpDeskBot helpDeskBot;
-
-  @Mock
-  private HelpDeskAi helpDeskAi;
 
   @Mock
   private MessageService messageService;
@@ -107,7 +106,6 @@ public class HelpDeskBootstrapTest {
     doReturn(connectionListener).when(applicationContext).getBean(AutoConnectionAcceptListener.class);
     doReturn(chatListener).when(applicationContext).getBean(ChatListener.class);
     doReturn(helpDeskBot).when(applicationContext).getBean(HelpDeskBot.class);
-    doReturn(helpDeskAi).when(applicationContext).getBean(HelpDeskAi.class);
     doReturn(httpClient).when(applicationContext).getBean(HelpDeskHttpClient.class);
     doReturn(provisioningService).when(applicationContext).getBean(HelpDeskProvisioningService.class);
 
@@ -120,7 +118,11 @@ public class HelpDeskBootstrapTest {
 
   @Test
   public void testRetries() throws InitException {
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
     SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
 
     doThrow(Exception.class).doReturn(symAuth).when(authenticationService).authenticate();
     doThrow(HelpDeskAuthenticationException.class).doThrow(InitException.class)
@@ -128,7 +130,6 @@ public class HelpDeskBootstrapTest {
         .when(symphonyClient)
         .init(symAuth, MOCK_EMAIL, MOCK_AGENT_URL, MOCK_POD_URL);
     doThrow(Exception.class).doReturn(new Membership()).when(helpDeskBot).registerDefaultAgent();
-    doThrow(Exception.class).doNothing().when(helpDeskAi).init();
 
     HelpDeskBootstrap helpDeskBootstrap = new HelpDeskBootstrap();
     helpDeskBootstrap.onApplicationEvent(event);

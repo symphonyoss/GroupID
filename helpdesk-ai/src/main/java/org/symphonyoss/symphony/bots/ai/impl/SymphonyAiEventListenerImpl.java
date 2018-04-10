@@ -7,7 +7,8 @@ import org.symphonyoss.symphony.bots.ai.model.AiArgumentMap;
 import org.symphonyoss.symphony.bots.ai.model.AiCommand;
 import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,39 +30,98 @@ public class SymphonyAiEventListenerImpl implements AiEventListener {
   }
 
   @Override
-  public void onCommand(SymphonyAiMessage command, AiSessionContext sessionContext) {
-    AiCommandMenu commandMenu = sessionContext.getAiCommandMenu();
-    String prefix = commandMenu.getCommandPrefix();
+  public void onMessage(AiSessionKey sessionKey, AiMessage message,
+      AiConversation aiConversation) {
+    if (isNewMessage(message, aiConversation)) {
 
-    if (!aiCommandInterpreter.hasPrefix(command, prefix)) {
-      return;
+      AiCommandMenu commandMenu = aiConversation.getAiCommandMenu();
+
+      if (aiConversation.isAllowCommands() && aiCommandInterpreter.hasPrefix(message,
+          commandMenu.getCommandPrefix())) {
+        onCommand(sessionKey, message, aiConversation);
+      } else {
+        onConversation(message, aiConversation);
+      }
+
+      aiConversation.setLastMessageId(message.getMessageId());
     }
+  }
 
-    List<AiCommand> commands = commandMenu.getCommandSet()
-        .stream()
-        .filter(aiCommand -> aiCommandInterpreter.isCommand(aiCommand, command, prefix))
-        .collect(Collectors.toList());
+  private boolean isNewMessage(AiMessage message, AiConversation aiConversation) {
+    return !message.getMessageId().equals(aiConversation.getLastMessageId());
+  }
+
+  /**
+   * Process message as commands.
+   *
+   * @param sessionKey session key
+   * @param message Symphony message
+   * @param aiConversation AI conversation
+   */
+  private void onCommand(AiSessionKey sessionKey, AiMessage message,
+      AiConversation aiConversation) {
+    List<AiCommand> commands = getMessageCommands(message, aiConversation);
 
     if (commands.isEmpty()) {
-      aiResponder.respondWithUseMenu(sessionContext, command);
+      processInvalidCommand(sessionKey, message, aiConversation);
     } else {
-      commands.forEach(aiCommand -> {
-        AiArgumentMap args = aiCommandInterpreter.readCommandArguments(aiCommand, command, prefix);
-        aiCommand.executeCommand(sessionContext, aiResponder, args);
-      });
+      commands.forEach(aiCommand -> processCommand(sessionKey, aiCommand, message, aiConversation));
     }
   }
 
-  @Override
-  public void onConversation(SymphonyAiMessage message, AiConversation aiConversation) {
-    String prefix = aiConversation.getAiSessionContext().getAiCommandMenu().getCommandPrefix();
-    SymphonyAiMessage lastMessage = aiConversation.getLastMessage();
+  /**
+   * Returns a list of commands in the message for this context.
+   *
+   * @param message Symphony message
+   * @param aiConversation AI Conversation
+   * @return List of commands
+   */
+  private List<AiCommand> getMessageCommands(AiMessage message, AiConversation aiConversation) {
+    AiCommandMenu commandMenu = aiConversation.getAiCommandMenu();
+    String prefix = commandMenu.getCommandPrefix();
 
-    if ((!aiConversation.isAllowCommands() || !aiCommandInterpreter.hasPrefix(message, prefix)) &&
-        (lastMessage == null || !lastMessage.equals(message))) {
-      aiConversation.onMessage(aiResponder, message);
-      aiConversation.setLastMessage(message);
-    }
+    return commandMenu.getCommandSet()
+        .stream()
+        .filter(aiCommand -> aiCommandInterpreter.isCommand(aiCommand, message, prefix))
+        .collect(Collectors.toList());
   }
 
+  /**
+   * Process an invalid command sending a message with the list of available commands and how to
+   * use them. This method can also provide suggestion of commands if required.
+   *
+   * @param sessionKey session key
+   * @param message Symphony message
+   * @param aiConversation AI conversation
+   */
+  private void processInvalidCommand(AiSessionKey sessionKey, AiMessage message,
+      AiConversation aiConversation) {
+    aiResponder.respondWithUseMenu(sessionKey, aiConversation.getAiCommandMenu(), message);
+  }
+
+  /**
+   * Process a command sending a message with the list of available commands and how to
+   * use them. This method can also provide suggestion of commands if required.
+   *
+   * @param command AI command
+   * @param message Symphony message
+   * @param aiConversation AI conversation
+   */
+  private void processCommand(AiSessionKey sessionKey, AiCommand command,
+      AiMessage message, AiConversation aiConversation) {
+    String prefix = aiConversation.getAiCommandMenu().getCommandPrefix();
+
+    AiArgumentMap args = aiCommandInterpreter.readCommandArguments(command, message, prefix);
+    command.executeCommand(sessionKey, aiResponder, args);
+  }
+
+  /**
+   * Process message as a conversation.
+   *
+   * @param message Symphony message
+   * @param aiConversation AI conversation
+   */
+  private void onConversation(AiMessage message, AiConversation aiConversation) {
+    aiConversation.onMessage(aiResponder, message);
+  }
 }

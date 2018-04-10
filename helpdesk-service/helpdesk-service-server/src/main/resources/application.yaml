@@ -13,6 +13,7 @@ mongo:
   waitTimeout: 10000
   readPreference: nearest
   writeConcern: majority
+  ignoreSSL: false
 
 app-authentication:
   enabled: true
@@ -23,7 +24,7 @@ app-authentication:
     host: ${session_auth.host}
     port: ${session_auth.port}
   filter:
-    enabled: false
+    enabled: true
     url-patterns:
       - "/v1/*"
     excluded-paths:

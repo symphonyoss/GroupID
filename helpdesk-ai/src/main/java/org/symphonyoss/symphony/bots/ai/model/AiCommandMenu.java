@@ -10,7 +10,9 @@ import java.util.Set;
  * Created by nick.tarsillo on 8/20/17.
  */
 public class AiCommandMenu {
+
   private Set<AiCommand> commandSet = new LinkedHashSet<>();
+
   private String commandPrefix;
 
   /**

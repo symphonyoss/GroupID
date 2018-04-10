@@ -6,11 +6,8 @@ import org.springframework.stereotype.Service;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
-import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
-import org.symphonyoss.symphony.bots.ai.model.SymphonyAiSessionKey;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.util.ValidateMembershipService;
@@ -24,9 +21,7 @@ import org.symphonyoss.symphony.clients.model.SymStream;
 import org.symphonyoss.symphony.clients.model.SymUser;
 
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.InternalServerErrorException;
@@ -68,8 +63,8 @@ public class AcceptTicketService extends TicketService {
         Long agentId = agent.getId();
         updateMembership(agentId);
         addAgentToServiceStream(ticket, agentId);
-        sendTicketHistory(ticket, agentId);
-        sendAcceptMessageToClient(ticket, agentId);
+        sendTicketHistory(ticket);
+        sendAcceptMessageToClient(ticket);
         sendAcceptMessageToAgents(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
         updateTicketState(ticket, agent, TicketClient.TicketStateType.UNRESOLVED);
 
@@ -96,23 +91,17 @@ public class AcceptTicketService extends TicketService {
     ticket.setAgent(agentUser);
 
     ticket.setState(state.getState());
-    ticketClient.updateTicket(ticket);
+    ticketClient.updateTicket(symphonyClientUtil.getAuthToken(), ticket);
   }
 
   /**
    * Sends accept message to client stream.
    * @param ticket Ticket info
-   * @param agentId Agent user id
    */
-  private void sendAcceptMessageToClient(Ticket ticket, Long agentId) {
-    SymphonyAiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, ticket.getServiceStreamId());
-    SymphonyAiMessage symphonyAiMessage =
-            new SymphonyAiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
-
-    Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
-    responseIdentifierSet.add(new SymphonyAiResponseIdentifierImpl(ticket.getClientStreamId()));
-
-    helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
+  private void sendAcceptMessageToClient(Ticket ticket) {
+    AiMessage aiMessage =
+            new AiMessage(helpDeskBotConfig.getAcceptTicketClientSuccessResponse());
+    helpDeskAi.sendMessage(aiMessage, ticket.getClientStreamId());
   }
 
   private void sendAcceptMessageToAgents(Ticket ticket, SymUser agent, TicketClient.TicketStateType ticketState) {
@@ -145,7 +134,7 @@ public class AcceptTicketService extends TicketService {
     return acceptMessage;
   }
 
-  protected void sendTicketHistory(Ticket ticket, Long agentId) {
+  protected void sendTicketHistory(Ticket ticket) {
     if (Boolean.FALSE.equals(ticket.getShowHistory())) {
       SymStream serviceStream = new SymStream();
       serviceStream.setStreamId(ticket.getServiceStreamId());
@@ -159,10 +148,10 @@ public class AcceptTicketService extends TicketService {
         messages.stream()
             .filter(symMessage -> !Long.valueOf(symMessage.getTimestamp()).equals(ticket.getQuestionTimestamp()))
             .sorted(Comparator.comparing(SymMessage::getTimestamp))
-            .forEach(symMessage -> sendMessage(symMessage, agentId));
+            .forEach(symMessage -> sendMessage(symMessage));
 
         ticket.setQuestionTimestamp(firstTimeStamp);
-        ticketClient.updateTicket(ticket);
+        ticketClient.updateTicket(symphonyClientUtil.getAuthToken(), ticket);
       } catch (MessagesException e) {
         LOG.error("Could not send message to service room: ", e);
         throw new InternalServerErrorException();
@@ -170,13 +159,8 @@ public class AcceptTicketService extends TicketService {
     }
   }
 
-  private void sendMessage(SymMessage symMessage, Long agentId) {
-    SymphonyAiSessionKey sessionKey = helpDeskAi.getSessionKey(agentId, symMessage.getStreamId());
-    SymphonyAiMessage symphonyAiMessage = new SymphonyAiMessage(symMessage);
-
-    Set<AiResponseIdentifier> responseIdentifierSet = new HashSet<>();
-    responseIdentifierSet.add(new SymphonyAiResponseIdentifierImpl(symMessage.getStreamId()));
-
-    helpDeskAi.sendMessage(symphonyAiMessage, responseIdentifierSet, sessionKey);
+  private void sendMessage(SymMessage symMessage) {
+    AiMessage aiMessage = new AiMessage(symMessage);
+    helpDeskAi.sendMessage(aiMessage, symMessage.getStreamId());
   }
 }

@@ -18,8 +18,11 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
+import org.symphonyoss.client.model.SymAuth;
 import org.symphonyoss.client.services.MessageService;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.User;
@@ -60,6 +63,8 @@ public class AcceptTicketServiceTest {
 
   private static final String STREAM_NAME = "Test Room";
 
+  private static final String STREAM_ID = "STREAM_ID";
+
   private static final String MOCK_MESSAGE_ID_1 = "2301";
 
   private static final String MOCK_MESSAGE_ID_2 = "2401";
@@ -73,6 +78,9 @@ public class AcceptTicketServiceTest {
   private static final Long MOCK_CLIENT_ID = 123456L;
 
   private static final String MOCK_CLIENT_DISPLAY_NAME = "mock client";
+
+  private static final String JWT = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9."
+      + "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9";
 
   @Mock
   private SymphonyValidationUtil symphonyValidationUtil;
@@ -117,6 +125,14 @@ public class AcceptTicketServiceTest {
     this.acceptTicketService =
         new AcceptTicketService(symphonyValidationUtil, symphonyClient,
             helpDeskBotConfig, ticketClient, helpDeskAi, validateMembershipService);
+
+    Token sessionToken = new Token();
+    sessionToken.setToken(JWT);
+
+    SymAuth symAuth = new SymAuth();
+    symAuth.setSessionToken(sessionToken);
+
+    doReturn(symAuth).when(symphonyClient).getSymAuth();
   }
 
   @Test
@@ -154,6 +170,7 @@ public class AcceptTicketServiceTest {
     Ticket ticket = new Ticket();
     ticket.setId(MOCK_TICKET_ID);
     ticket.setState(TicketClient.TicketStateType.UNSERVICED.getState());
+    ticket.setClientStreamId(STREAM_ID);
 
     SymUser agent = new SymUser();
     agent.setId(MOCK_USER_ID);
@@ -170,11 +187,10 @@ public class AcceptTicketServiceTest {
     assertEquals(MOCK_USER_DISPLAY_NAME, user.getDisplayName());
     assertEquals(MOCK_USER_ID, user.getUserId());
 
-    verify(ticketClient, times(1)).updateTicket(ticket);
-    verify(helpDeskAi, times(1)).sendMessage(any(), any(), any());
+    verify(ticketClient, times(1)).updateTicket(JWT, ticket);
+    verify(helpDeskAi, times(1)).sendMessage(any(AiMessage.class), eq(STREAM_ID));
     verify(messagesClient, times(1)).sendMessage(any(SymStream.class), any(SymMessage.class));
   }
-
 
   @Test
   public void testSendMessageWithShowHistoryFalse() throws MessagesException {
@@ -188,9 +204,9 @@ public class AcceptTicketServiceTest {
         .getMessagesFromStream(any(SymStream.class), eq(ticket.getQuestionTimestamp()), eq(0),
             eq(100));
 
-    acceptTicketService.sendTicketHistory(ticket, MOCK_CLIENT_ID);
+    acceptTicketService.sendTicketHistory(ticket);
 
-    verify(helpDeskAi, times(2)).sendMessage(any(), any(), any());
+    verify(helpDeskAi, times(2)).sendMessage(any(), any());
   }
 
   private Ticket mockTicket() {

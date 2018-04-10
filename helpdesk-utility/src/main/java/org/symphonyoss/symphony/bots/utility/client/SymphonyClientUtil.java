@@ -4,6 +4,7 @@ import org.apache.commons.io.FileUtils;
 import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.client.exceptions.AttachmentsException;
 import org.symphonyoss.client.exceptions.MessagesException;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.clients.MessagesClient;
 import org.symphonyoss.symphony.clients.model.SymAttachmentInfo;
 import org.symphonyoss.symphony.clients.model.SymMessage;
@@ -110,5 +111,15 @@ public class SymphonyClientUtil {
         .findFirst();
 
     return symMessage;
+  }
+
+  /**
+   * Retrieves JWT of bot user.
+   *
+   * @return Json Web Token
+   */
+  public String getAuthToken() {
+    Token sessionToken = symphonyClient.getSymAuth().getSessionToken();
+    return sessionToken.getToken();
   }
 }

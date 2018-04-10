@@ -1,5 +1,6 @@
 package org.symphonyoss.symphony.bots.helpdesk.service.makerchecker.client;
 
+import org.symphonyoss.symphony.bots.helpdesk.service.BaseClient;
 import org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskApiException;
 import org.symphonyoss.symphony.bots.helpdesk.service.api.MakercheckerApi;
 import org.symphonyoss.symphony.bots.helpdesk.service.client.ApiClient;
@@ -12,7 +13,8 @@ import java.util.List;
 /**
  * Created by alexandre-silva-daitan on 04/12/17.
  */
-public class MakercheckerClient {
+public class MakercheckerClient extends BaseClient {
+
   public enum AttachmentStateType {
 
     OPENED("OPENED"),
@@ -42,17 +44,42 @@ public class MakercheckerClient {
     this.groupId = groupId;
   }
 
-  public Makerchecker getMakerchecker(String id) {
+  /**
+   * Get maker/checker data.
+   *
+   * @param jwt User JWT
+   * @param id Maker/checker id
+   * @return Maker/checker object
+   */
+  public Makerchecker getMakerchecker(String jwt, String id) {
+    String authorization = getAuthorizationHeader(jwt);
+
     try {
-      return makercheckerApi.getMakerchecker(id);
+      return makercheckerApi.getMakerchecker(id, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Get makerchecker failed: " + id, e);
     }
   }
 
-  public Makerchecker createMakerchecker(String id, Long makerId, String streamId,
+  /**
+   * Create maker/checker object
+   *
+   * @param jwt User JWT
+   * @param id Maker/checker ID
+   * @param makerId User id that creates this object
+   * @param streamId Stream ID
+   * @param attachmentId Attachment ID
+   * @param attachmentName Attachment name
+   * @param messageId Message ID
+   * @param timeStamp Creation timestamp
+   * @param proxyToStreamId List of streams
+   * @return Maker/checker object created
+   */
+  public Makerchecker createMakerchecker(String jwt, String id, Long makerId, String streamId,
       String attachmentId, String attachmentName, String messageId, Long timeStamp,
       List<String> proxyToStreamId) {
+    String authorization = getAuthorizationHeader(jwt);
+
     Makerchecker makerchecker = new Makerchecker();
     makerchecker.setId(id);
     makerchecker.setMakerId(makerId);
@@ -66,15 +93,24 @@ public class MakercheckerClient {
     makerchecker.setState(AttachmentStateType.OPENED.getState());
 
     try {
-      return makercheckerApi.createMakerchecker(makerchecker);
+      return makercheckerApi.createMakerchecker(makerchecker, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Creating makerchecker failed: " + id, e);
     }
   }
 
-  public Makerchecker updateMakerchecker(Makerchecker makerchecker) {
+  /**
+   * Update maker/checker data
+   *
+   * @param jwt User JWT
+   * @param makerchecker Maker/checker object to be updated
+   * @return Maker/checker object updated
+   */
+  public Makerchecker updateMakerchecker(String jwt, Makerchecker makerchecker) {
+    String authorization = getAuthorizationHeader(jwt);
+
     try {
-      return makercheckerApi.updateMakerchecker(makerchecker.getId(), makerchecker);
+      return makercheckerApi.updateMakerchecker(makerchecker.getId(), makerchecker, authorization);
     } catch (ApiException e) {
       throw new HelpDeskApiException("Updating makerchecker failed: " + makerchecker.getId(), e);
     }

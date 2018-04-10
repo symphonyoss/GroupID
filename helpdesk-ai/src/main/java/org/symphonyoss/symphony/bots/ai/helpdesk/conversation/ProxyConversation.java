@@ -1,18 +1,15 @@
 package org.symphonyoss.symphony.bots.ai.helpdesk.conversation;
 
 import org.symphonyoss.symphony.bots.ai.AiResponder;
-import org.symphonyoss.symphony.bots.ai.AiResponseIdentifier;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiResponseIdentifierImpl;
-import org.symphonyoss.symphony.bots.ai.impl.SymphonyAiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiMessage;
+import org.symphonyoss.symphony.bots.ai.model.AiCommandMenu;
 import org.symphonyoss.symphony.bots.ai.model.AiConversation;
 import org.symphonyoss.symphony.bots.ai.model.AiResponse;
-import org.symphonyoss.symphony.bots.ai.model.AiSessionContext;
 import org.symphonyoss.symphony.bots.helpdesk.makerchecker.MakerCheckerService;
 import org.symphonyoss.symphony.clients.model.SymMessage;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Created by nick.tarsillo on 9/28/17.
@@ -20,20 +17,28 @@ import java.util.stream.Collectors;
  */
 public class ProxyConversation extends AiConversation {
 
-  private Set<AiResponseIdentifier> proxyToIds = new HashSet<>();
+  private Set<String> proxyToIds = new HashSet<>();
 
   private ProxyIdleTimer proxyIdleTimer;
 
   private MakerCheckerService makerCheckerService;
 
   /**
-   * Constructor for class ProxyConversation
-   * @param allowCommands flag to allow commands
+   * Constructor for class ProxyConversation that avoids commands.
    * @param makerCheckerService the MakerCheckerService
    */
-  public ProxyConversation(boolean allowCommands, AiSessionContext sessionContext,
-      MakerCheckerService makerCheckerService) {
-    super(allowCommands, sessionContext);
+  public ProxyConversation(MakerCheckerService makerCheckerService) {
+    super(false);
+    this.makerCheckerService = makerCheckerService;
+  }
+
+  /**
+   * Constructor for class ProxyConversation that supports commands.
+   * @param aiCommandMenu Available commands
+   * @param makerCheckerService the MakerCheckerService
+   */
+  public ProxyConversation(AiCommandMenu aiCommandMenu, MakerCheckerService makerCheckerService) {
+    super(true, aiCommandMenu);
     this.makerCheckerService = makerCheckerService;
   }
 
@@ -45,7 +50,7 @@ public class ProxyConversation extends AiConversation {
    * @param message the message received by the AI
    */
   @Override
-  public void onMessage(AiResponder responder, SymphonyAiMessage message) {
+  public void onMessage(AiResponder responder, AiMessage message) {
     SymMessage symMessage = message.toSymMessage();
 
     if(makerCheckerService.allChecksPass(symMessage)) {
@@ -62,12 +67,11 @@ public class ProxyConversation extends AiConversation {
   /**
    * Build a new AI Response with the message and send it in the AI Session context
    * @param responder the AI responder, used to respond to users.
-   * @param symphonyAiMessage the message to be sent by the AI
+   * @param aiMessage the message to be sent by the AI
    */
-  private void dispatchMessage(AiResponder responder, SymphonyAiMessage symphonyAiMessage) {
-    AiResponse aiResponse = new AiResponse(symphonyAiMessage, proxyToIds);
-    responder.addResponse(aiSessionContext, aiResponse);
-    responder.respond(aiSessionContext);
+  private void dispatchMessage(AiResponder responder, AiMessage aiMessage) {
+    AiResponse aiResponse = new AiResponse(aiMessage, proxyToIds);
+    responder.respond(aiResponse);
   }
 
   /**
@@ -75,10 +79,6 @@ public class ProxyConversation extends AiConversation {
    * @param message the message to be sent
    */
   private void dispatchMakerCheckerMessage(SymMessage message) {
-    Set<String> proxyToIds = this.proxyToIds.stream()
-        .map(item -> item.getResponseIdentifier())
-        .collect(Collectors.toSet());
-
     Set<SymMessage> symMessages = makerCheckerService.getMakerCheckerMessages(message, proxyToIds);
 
     for(SymMessage symMessage: symMessages) {
@@ -91,7 +91,7 @@ public class ProxyConversation extends AiConversation {
    * @param streamId the stream to proxy to.
    */
   public void addProxyId(String streamId) {
-    proxyToIds.add(new SymphonyAiResponseIdentifierImpl(streamId));
+    proxyToIds.add(streamId);
   }
 
   public void setProxyIdleTimer(ProxyIdleTimer proxyIdleTimer) {

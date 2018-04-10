@@ -22,10 +22,14 @@ spec:
           env:
             - name: SERVER_PORT
               value: '8080'
+            - name: HELPDESK_BOT_SCHEME
+              value: http
             - name: HELPDESK_BOT_HOST
               value: helpdesk-bot-service
             - name: HELPDESK_BOT_PORT
               value: '80'
+            - name: HELPDESK_SERVICE_SCHEME
+              value: http
             - name: HELPDESK_SERVICE_HOST
               value: helpdesk-api-service
             - name: HELPDESK_SERVICE_PORT
@@ -59,7 +63,7 @@ spec:
             - name: PROVISIONING_EXECUTE
               value: 'true'
             - name: PROVISIONING_USER_NAME
-              value: adrian1
+              value: provisioning-username
             - name: PROVISIONING_USER_PASSWORD
               value: Symphony!123456
             - name: PROVISIONING_CA_GENERATE_KEYSTORE
@@ -75,7 +79,7 @@ spec:
             - name: CERTS_DIR
               value: /opt/symphony/helpdesk-bot/certs
             - name: AUTHENTICATION_KEYSTORE_FILE
-              value: /opt/symphony/helpdesk-bot/certs/helpdesk.p12
+              value: /opt/symphony/helpdesk-bot/certs/helpdesk-bot.p12
             - name: AUTHENTICATION_KEYSTORE_PASSWORD
               value: changeit
             - name: GROUP_ID
