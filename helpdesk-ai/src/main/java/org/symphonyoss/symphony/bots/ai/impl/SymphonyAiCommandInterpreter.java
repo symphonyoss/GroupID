@@ -24,7 +24,7 @@ import java.util.Set;
  */
 public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
 
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
   private static final String PATTERN_ARGUMENT_START = "\\{";
 
@@ -34,9 +34,13 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
 
   private static final String MENTION_START = "mention";
 
+  private static final String MENTION_TYPE = "com.symphony.user.mention";
+
   private static final String MENTION_ENTITY_START = "<span class=\"entity\"";
 
   private static final String MENTION_ENTITY_END = "</span>";
+
+  private static final String TYPE = "type";
 
   private static final String USER_ID = "id";
 
@@ -164,16 +168,9 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
 
   private AiMessage parseMentions(AiMessage aiMessage) {
     try {
-      if (StringUtils.isNotBlank(aiMessage.getEntityData())) {
-        JsonNode jsonNode = objectMapper.readTree(aiMessage.getEntityData());
-        Set<String> uids = new HashSet<>();
-
-        int mention = 1;
-        while (jsonNode.get(MENTION_START + mention) != null) {
-          jsonNode = jsonNode.get(MENTION_START + mention);
-          uids.add(jsonNode.get(USER_ID).get(0).get(VALUE).asText());
-          mention++;
-        }
+      if (StringUtils.isNotBlank(aiMessage.getEntityData())
+          && StringUtils.isNotBlank(aiMessage.getMessageData())) {
+        Set<String> uids = getUIds(aiMessage);
 
         String parseMention = aiMessage.getMessageData();
         for (String uid : uids) {
@@ -202,10 +199,33 @@ public class SymphonyAiCommandInterpreter implements AiCommandInterpreter {
     return aiMessage;
   }
 
-  private String parsePrefix(String commandPrefix) {
-    SymUser aiSymUser = symphonyClient.getLocalUser();
+  private Set<String> getUIds(AiMessage aiMessage) throws IOException {
+    JsonNode jsonNode = OBJECT_MAPPER.readTree(aiMessage.getEntityData());
+    Set<String> uids = new HashSet<>();
 
-    if(commandPrefix != null && commandPrefix.equals(MENTION)) {
+    int mention = 1;
+    if(jsonNode.get(MENTION_START + mention) != null) {
+      while (jsonNode.get(MENTION_START + mention) != null) {
+        JsonNode mentionNode = jsonNode.get(MENTION_START + mention);
+        uids.add(mentionNode.get(USER_ID).get(0).get(VALUE).asText());
+        mention++;
+      }
+    } else {
+      int entity = 0;
+      while (jsonNode.get(String.valueOf(entity)) != null) {
+        JsonNode mentionNode = jsonNode.get(String.valueOf(entity));
+        if (mentionNode.get(TYPE).asText().equals(MENTION_TYPE)) {
+          uids.add(mentionNode.get(USER_ID).get(0).get(VALUE).asText());
+        }
+        entity++;
+      }
+    }
+    return uids;
+  }
+
+  private String parsePrefix(String commandPrefix) {
+    if (commandPrefix != null && commandPrefix.equals(MENTION)) {
+      SymUser aiSymUser = symphonyClient.getLocalUser();
       return MENTION + aiSymUser.getId();
     } else {
       return commandPrefix;
