@@ -1,5 +1,7 @@
 package org.symphonyoss.symphony.bots.helpdesk.bot.it.helpers;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +13,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
+import org.symphonyoss.client.SymphonyClient;
+import org.symphonyoss.client.model.SymAuth;
+import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.bot.model.TicketResponse;
 import org.symphonyoss.symphony.bots.helpdesk.service.HelpDeskApiException;
@@ -37,19 +42,25 @@ import javax.ws.rs.WebApplicationException;
 @Component
 public class TicketHelper {
 
+  private static final String AUTHORIZATION_HEADER = "Bearer %s";
+
   private final TicketApi ticketApi;
 
   private final String groupId;
 
   private final TestRestTemplate restTemplate;
 
-  public TicketHelper(HelpDeskBotConfig config, TestRestTemplate restTemplate) {
+  private final SymphonyClient symphonyClient;
+
+  public TicketHelper(HelpDeskBotConfig config, TestRestTemplate restTemplate,
+      SymphonyClient symphonyClient) {
     ApiClient apiClient = Configuration.getDefaultApiClient();
     apiClient.setBasePath(config.getHelpDeskServiceUrl());
 
     this.ticketApi = new TicketApi(apiClient);
     this.groupId = config.getGroupId();
     this.restTemplate = restTemplate;
+    this.symphonyClient = symphonyClient;
   }
 
   /**
@@ -58,7 +69,7 @@ public class TicketHelper {
    */
   public Optional<Ticket> getUnservicedTicket() {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket("", groupId, null, null);
+      List<Ticket> ticketList = ticketApi.searchTicket(getAuthorizationHeader(), groupId, null, null);
 
       return ticketList.stream()
           .filter(ticket -> ticket.getState().equals(TicketClient.TicketStateType.UNSERVICED.getState()))
@@ -76,7 +87,7 @@ public class TicketHelper {
    */
   public Optional<Ticket> getClaimedTicket(Long agentId) {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket("", groupId, null, null);
+      List<Ticket> ticketList = ticketApi.searchTicket(getAuthorizationHeader(), groupId, null, null);
 
       return ticketList.stream()
           .filter(ticket -> TicketClient.TicketStateType.UNRESOLVED.getState().equals(ticket.getState()))
@@ -95,7 +106,7 @@ public class TicketHelper {
    */
   public Optional<Ticket> getFirstClaimedTicket(Long agentId) {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket("", groupId, null, null);
+      List<Ticket> ticketList = ticketApi.searchTicket(getAuthorizationHeader(), groupId, null, null);
 
       return ticketList.stream()
           .filter(ticket -> TicketClient.TicketStateType.UNRESOLVED.getState().equals(ticket.getState()))
@@ -113,7 +124,7 @@ public class TicketHelper {
    */
   public Optional<Ticket> getClaimedTicket() {
     try {
-      List<Ticket> ticketList = ticketApi.searchTicket("", groupId, null, null);
+      List<Ticket> ticketList = ticketApi.searchTicket(getAuthorizationHeader(), groupId, null, null);
 
       return ticketList.stream()
           .filter(ticket -> ticket.getState().equals(TicketClient.TicketStateType.UNRESOLVED.getState()))
@@ -140,8 +151,11 @@ public class TicketHelper {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
         .queryParam("agentId", agentId);
 
+    HttpHeaders authorizationHeader = getHttpAuthHeader();
+    HttpEntity<String> entity = new HttpEntity<>(authorizationHeader);
+
     ResponseEntity<TicketResponse> responseEntity =
-        restTemplate.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.POST, null,
+        restTemplate.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.POST, entity,
             TicketResponse.class);
 
     if (!responseEntity.getStatusCode().equals(HttpStatus.OK)) {
@@ -160,8 +174,11 @@ public class TicketHelper {
     UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(url)
         .queryParam("agentId", agentId);
 
+    HttpHeaders authorizationHeader = getHttpAuthHeader();
+    HttpEntity<String> entity = new HttpEntity<>(authorizationHeader);
+
     ResponseEntity<TicketResponse> responseEntity =
-        restTemplate.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.POST, null,
+        restTemplate.exchange(builder.buildAndExpand(uriParams).toUri(), HttpMethod.POST, entity,
             TicketResponse.class);
 
     if (!responseEntity.getStatusCode().equals(HttpStatus.OK)) {
@@ -169,6 +186,18 @@ public class TicketHelper {
     }
 
     return responseEntity.getBody();
+  }
+
+  private String getAuthorizationHeader() {
+    Token sessionToken = symphonyClient.getSymAuth().getSessionToken();
+    return String.format(AUTHORIZATION_HEADER, sessionToken.getToken());
+  }
+
+  private HttpHeaders getHttpAuthHeader() {
+    HttpHeaders headers = new HttpHeaders();
+    headers.set(AUTHORIZATION, getAuthorizationHeader());
+
+    return headers;
   }
 
 }
