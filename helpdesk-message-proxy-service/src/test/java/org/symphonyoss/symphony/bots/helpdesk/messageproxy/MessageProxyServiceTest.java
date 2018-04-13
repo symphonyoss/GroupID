@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.ai.model.AiSessionKey;
@@ -22,6 +23,7 @@ import org.symphonyoss.symphony.bots.helpdesk.service.model.Membership;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
 import org.symphonyoss.symphony.bots.helpdesk.service.ticket.client.TicketClient;
 import org.symphonyoss.symphony.clients.model.SymMessage;
+import org.symphonyoss.symphony.clients.model.SymUser;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MessageProxyServiceTest {
@@ -30,6 +32,7 @@ public class MessageProxyServiceTest {
   private static final String MESSAGE_ID = "MESSAGE_ID";
   private static final String GROUP_ID = "GROUP_ID";
   private static final Long AGENT_ID = 123L;
+  private static final Long BOT_ID = 321L;
   private static final Long TEST_TIMESTAMP = 1L;
   private static final Long USER_ID = 2L;
   private static final String MOCK_TICKET_ID = "TICKET_ID";
@@ -56,11 +59,19 @@ public class MessageProxyServiceTest {
   @Mock
   private MessageProxyService messageProxyService;
 
+  @Mock
+  private SymphonyClient symphonyClient;
+
   @Before
   public void setUp() throws Exception {
+    SymUser user = new SymUser();
+    user.setId(USER_ID);
+
+    doReturn(user).when(symphonyClient).getLocalUser();
+
     messageProxyService =
         new MessageProxyService(helpDeskAi, agentMakerCheckerService, clientMakerCheckerService,
-            idleTicketConfig, idleTimerManager, idleMessageService);
+            idleTicketConfig, idleTimerManager, idleMessageService, symphonyClient);
   }
 
   @Test
