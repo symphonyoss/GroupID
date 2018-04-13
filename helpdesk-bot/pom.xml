@@ -97,7 +97,7 @@
         <dependency>
             <groupId>org.symphonyoss.symphony.apps</groupId>
             <artifactId>symphony-app-authentication-filter-starter</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
 
         <dependency>
