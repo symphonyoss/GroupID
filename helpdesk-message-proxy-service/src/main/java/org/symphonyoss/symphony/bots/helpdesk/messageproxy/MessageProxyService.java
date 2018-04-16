@@ -1,7 +1,10 @@
 package org.symphonyoss.symphony.bots.helpdesk.messageproxy;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.symphonyoss.client.SymphonyClient;
 import org.symphonyoss.symphony.bots.ai.helpdesk.HelpDeskAi;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.IdleTimerManager;
 import org.symphonyoss.symphony.bots.ai.helpdesk.conversation.ProxyConversation;
@@ -20,15 +23,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by nick.tarsillo on 9/26/17.
  * The message proxy service handles the proxying of messages between clients and agents.
+ * Created by nick.tarsillo on 9/26/17.
  */
 @Service
 public class MessageProxyService {
 
-  private final Set<String> clientConversations = new HashSet<>();
+  private static final Logger LOGGER = LoggerFactory.getLogger(MessageProxyService.class);
 
-  private final Set<String> agentConversations = new HashSet<>();
+  private final Set<AiSessionKey> agentConversations = new HashSet<>();
+
+  private final Set<String> clientConversations = new HashSet<>();
 
   private final HelpDeskAi helpDeskAi;
 
@@ -42,18 +47,22 @@ public class MessageProxyService {
 
   private final IdleMessageService idleMessageService;
 
+  private final SymphonyClient symphonyClient;
+
   public MessageProxyService(HelpDeskAi helpDeskAi,
       @Qualifier("agentMakerCheckerService") MakerCheckerService agentMakerCheckerService,
       @Qualifier("clientMakerCheckerService") MakerCheckerService clientMakerCheckerService,
       IdleTicketConfig idleTicketConfig,
       IdleTimerManager idleTimerManager,
-      IdleMessageService idleMessageService) {
+      IdleMessageService idleMessageService,
+      SymphonyClient symphonyClient) {
     this.helpDeskAi = helpDeskAi;
     this.agentMakerCheckerService = agentMakerCheckerService;
     this.clientMakerCheckerService = clientMakerCheckerService;
     this.idleTicketConfig = idleTicketConfig;
     this.idleTimerManager = idleTimerManager;
     this.idleMessageService = idleMessageService;
+    this.symphonyClient = symphonyClient;
   }
 
   /**
@@ -63,39 +72,86 @@ public class MessageProxyService {
    * If the member is an agent, the agent is talking in a client service room
    * and a proxy has not been created yet, create a new proxy conversation for ticket.
    *
-   * If the member is an agent, the agent is talking in a client service room
-   * and a proxy has already been created, add the agent to the proxy.
+   * If the member is a client, and a proxy has not been created yet, create a new proxy conversation
+   * for ticket.
    *
-   * If the member is a client, and a ticket has not been created, create a new ticket and
-   * proxy.
-   *
-   * If the member is a client, and ticket exists but not a proxy conversation, create a new proxy.
-   *
-   * If the member is a client, and the ticket and proxy exists with the unserviced state,
-   * update the ticket transcript.
+   * @param membership User info
+   * @param ticket Ticket information
    * @param symMessage the message to proxy.
    */
   public void onMessage(Membership membership, Ticket ticket, SymMessage symMessage) {
     Long userId = symMessage.getFromUserId();
     String streamId = symMessage.getStreamId();
 
+    if (ticket == null) {
+      LOGGER.warn("Ticket was not created");
+      return;
+    }
+
     AiSessionKey aiSessionKey = helpDeskAi.getSessionKey(userId, streamId);
 
-    if (MembershipClient.MembershipType.AGENT.name().equals(membership.getType())) {
-      AiConversation aiConversation = helpDeskAi.getConversation(aiSessionKey);
+    createConversation(ticket, aiSessionKey, membership);
+  }
 
-      if (ticket != null && !agentConversations.contains(ticket.getId())) {
-        createAgentProxy(ticket, aiSessionKey);
-      } else if (ticket != null && aiConversation == null) {
-        addAgentToProxy(ticket, aiSessionKey);
-      }
-    } else if ((ticket != null) && (!clientConversations.contains(ticket.getId()))) {
+  /**
+   * Create proxy conversation if required.
+   *
+   * @param ticket Ticket information
+   * @param aiSessionKey Session key
+   * @param membership User info
+   */
+  private void createConversation(Ticket ticket, AiSessionKey aiSessionKey, Membership membership) {
+    if (isAgentUser(membership) && shouldCreateAgentConversation(aiSessionKey, membership)) {
+      createAgentProxy(ticket, aiSessionKey);
+    } else if (shouldCreateClientConversation(ticket)) {
       createClientProxy(ticket, aiSessionKey);
     }
   }
 
   /**
-   * If a agent talks in a client service room, but a proxy mapping does not exist, create a new
+   * Check if should create a new conversation for agent user.
+   *
+   * @param aiSessionKey Session key
+   * @param membership User info
+   * @return true if the conversation does not exist
+   */
+  private boolean shouldCreateAgentConversation(AiSessionKey aiSessionKey, Membership membership) {
+    return !agentConversations.contains(aiSessionKey) && !isBotUser(membership);
+  }
+
+  /**
+   * Check if should create a new conversation for client user.
+   *
+   * @param ticket Ticket information
+   * @return true if the conversation does not exist
+   */
+  private boolean shouldCreateClientConversation(Ticket ticket) {
+    return !clientConversations.contains(ticket.getId());
+  }
+
+  /**
+   * Check if the group member is an agent.
+   *
+   * @param membership User info
+   * @return true if the group member is an agent.
+   */
+  private boolean isAgentUser(Membership membership) {
+    return MembershipClient.MembershipType.AGENT.name().equals(membership.getType());
+  }
+
+  /**
+   * Check if the group member is the bot user.
+   *
+   * @param membership User info
+   * @return true if the group member is the bot user.
+   */
+  private boolean isBotUser(Membership membership) {
+    Long botUserId = symphonyClient.getLocalUser().getId();
+    return membership.getId().equals(botUserId);
+  }
+
+  /**
+   * If a agent talks in a service room, but a proxy mapping does not exist, create a new
    * mapping based on the ticket.
    * @param ticket the ticket to base the mapping on.
    * @param aiSessionKey session key
@@ -108,35 +164,31 @@ public class MessageProxyService {
 
     helpDeskAi.startConversation(aiSessionKey, aiConversation);
 
-    idleTimerManager.put(ticket.getId(), (new ProxyIdleTimer(idleTicketConfig.getTimeout(),
-        idleTicketConfig.getUnit()) {
-      @Override
-      public void onIdleTimeout() {
-        idleMessageService.sendIdleMessage(ticket);
-      }
-    }));
+    ProxyIdleTimer proxyIdleTimer = idleTimerManager.get(ticket.getId());
 
-    agentConversations.add(ticket.getId());
+    if (proxyIdleTimer == null) {
+      proxyIdleTimer = new ProxyIdleTimer(idleTicketConfig.getTimeout(),
+          idleTicketConfig.getUnit()) {
+        @Override
+        public void onIdleTimeout() {
+          idleMessageService.sendIdleMessage(ticket);
+        }
+      };
+
+      idleTimerManager.put(ticket.getId(), proxyIdleTimer);
+    }
+
+    aiConversation.setProxyIdleTimer(proxyIdleTimer);
+
+    agentConversations.add(aiSessionKey);
   }
 
   /**
-   * If a proxy has already been created for the ticket, but the agent has not been mapped,
-   * map the agent.
+   * If a client talks in a client room, but a proxy mapping does not exist, create a new
+   * mapping based on the ticket.
    * @param ticket the ticket to base the mapping on.
    * @param aiSessionKey session key
    */
-  private void addAgentToProxy(Ticket ticket, AiSessionKey aiSessionKey) {
-    AiCommandMenu aiCommandMenu = helpDeskAi.newAiCommandMenu(aiSessionKey);
-
-    ProxyConversation aiConversation = new ProxyConversation(aiCommandMenu, agentMakerCheckerService);
-    aiConversation.addProxyId(ticket.getClientStreamId());
-
-    helpDeskAi.startConversation(aiSessionKey, aiConversation);
-
-    ProxyIdleTimer proxyIdleTimer = idleTimerManager.get(ticket.getId());
-    aiConversation.setProxyIdleTimer(proxyIdleTimer);
-  }
-
   private void createClientProxy(Ticket ticket, AiSessionKey aiSessionKey) {
     ProxyConversation aiConversation = new ProxyConversation(clientMakerCheckerService);
     aiConversation.addProxyId(ticket.getServiceStreamId());
