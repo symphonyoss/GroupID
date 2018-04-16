@@ -101,32 +101,33 @@ public class MessageProxyService {
    * @param membership User info
    */
   private void createConversation(Ticket ticket, AiSessionKey aiSessionKey, Membership membership) {
-    if (isAgentUser(membership) && shouldCreateAgentConversation(aiSessionKey, membership)) {
+    if (shouldCreateAgentConversation(aiSessionKey, membership)) {
       createAgentProxy(ticket, aiSessionKey);
-    } else if (shouldCreateClientConversation(ticket)) {
+    } else if (shouldCreateClientConversation(ticket, membership)) {
       createClientProxy(ticket, aiSessionKey);
     }
   }
 
   /**
-   * Check if should create a new conversation for agent user.
+   * Check if the provided user is an agent and the proxy conversation has not been created yet.
    *
    * @param aiSessionKey Session key
    * @param membership User info
    * @return true if the conversation does not exist
    */
   private boolean shouldCreateAgentConversation(AiSessionKey aiSessionKey, Membership membership) {
-    return !agentConversations.contains(aiSessionKey) && !isBotUser(membership);
+    return isAgentUser(membership) && !agentConversations.contains(aiSessionKey) && !isBotUser(membership);
   }
 
   /**
-   * Check if should create a new conversation for client user.
+   * Check if the provided user is a client and the proxy conversation has not been created yet.
    *
    * @param ticket Ticket information
+   * @param membership User info
    * @return true if the conversation does not exist
    */
-  private boolean shouldCreateClientConversation(Ticket ticket) {
-    return !clientConversations.contains(ticket.getId());
+  private boolean shouldCreateClientConversation(Ticket ticket, Membership membership) {
+    return isClientUser(membership) && !clientConversations.contains(ticket.getId());
   }
 
   /**
@@ -137,6 +138,16 @@ public class MessageProxyService {
    */
   private boolean isAgentUser(Membership membership) {
     return MembershipClient.MembershipType.AGENT.name().equals(membership.getType());
+  }
+
+  /**
+   * Check if the group member is a client.
+   *
+   * @param membership User info
+   * @return true if the group member is an agent.
+   */
+  private boolean isClientUser(Membership membership) {
+    return MembershipClient.MembershipType.CLIENT.name().equals(membership.getType());
   }
 
   /**
