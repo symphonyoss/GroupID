@@ -20,7 +20,6 @@ import org.symphonyoss.client.exceptions.MessagesException;
 import org.symphonyoss.client.exceptions.SymException;
 import org.symphonyoss.client.model.Room;
 import org.symphonyoss.client.services.RoomServiceEventListener;
-import org.symphonyoss.symphony.authenticator.model.Token;
 import org.symphonyoss.symphony.bots.helpdesk.bot.config.HelpDeskBotConfig;
 import org.symphonyoss.symphony.bots.helpdesk.messageproxy.service.TicketService;
 import org.symphonyoss.symphony.bots.helpdesk.service.model.Ticket;
@@ -166,12 +165,13 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
     String jwt = symphonyClientUtil.getAuthToken();
 
     SymStream symStream = symUserLeftRoom.getStream();
+    SymUser affectedUser = symUserLeftRoom.getAffectedUser();
 
     if (!isAgentStreamId(symStream)) {
       Ticket ticket = ticketClient.getTicketByServiceStreamId(jwt, symStream.getStreamId());
 
       if (ticket != null && UNRESOLVED.getState().equals(ticket.getState())
-          && isRoomUnserviced(symStream.getStreamId())) {
+          && isRoomUnserviced(symStream.getStreamId(), affectedUser.getId())) {
         LOGGER.info("Only the bot was left in the ticket room. Reopening ticket in the Agent room");
 
         // Update ticket to a state that it can be claimed again by another agent
@@ -214,13 +214,17 @@ public class HelpDeskRoomEventListener implements RoomServiceEventListener {
   /**
    * Checks if room is out of agents
    * @param streamId The Stream ID for the room
+   * @param userId User identifier
    * @return true if room is out of agents, false otherwise
    */
-  private boolean isRoomUnserviced(String streamId) {
+  private boolean isRoomUnserviced(String streamId, Long userId) {
     try {
       List<MemberInfo> membershipList =
           symphonyClient.getRoomMembershipClient().getRoomMembership(streamId);
-      return membershipList.size() <= 1;
+
+      return membershipList.stream()
+          .filter(member -> !member.getId().equals(userId))
+          .count() <= 1;
     } catch (SymException e) {
       LOGGER.error(String.format("Could not find membership list for stream [%s]", streamId));
       return false;
