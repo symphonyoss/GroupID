@@ -87,9 +87,6 @@ public class HelpDeskRoomEventListenerTest {
   @Mock
   private MessageService messageService;
 
-  @Mock
-  private MembershipList mockMembershipList;
-
   private HelpDeskRoomEventListener listener;
 
   @Before
@@ -100,8 +97,13 @@ public class HelpDeskRoomEventListenerTest {
     doReturn(messageService).when(symphonyClient).getMessageService();
     doReturn(roomMembershipClient).when(symphonyClient).getRoomMembershipClient();
 
+    MemberInfo memberInfo = new MemberInfo();
+    memberInfo.setId(MOCK_USER);
+
+    MembershipList mockMembershipList = new MembershipList();
+    mockMembershipList.add(memberInfo);
+
     doReturn(mockMembershipList).when(roomMembershipClient).getRoomMembership(anyString());
-    doReturn(1).when(mockMembershipList).size();
 
     SymUser symUser = new SymUser();
     symUser.setId(MOCK_BOT_USER);
