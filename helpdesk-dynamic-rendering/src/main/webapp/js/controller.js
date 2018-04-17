@@ -6,15 +6,15 @@ import ActionClaimTicketEnricher from '../enrichers/actionClaimTicketEnricher';
 import AttachmentEnricher from '../enrichers/attachmentEnricher';
 import ActionAttachmentEnricher from '../enrichers/actionAttachmentEnricher';
 
-const claimTicketEnricher = new ClaimTicketEnricher();
-const attachmentEnricher = new AttachmentEnricher();
-const actionClaimTicketEnricher = new ActionClaimTicketEnricher();
-const actionAttachmentEnricher = new ActionAttachmentEnricher();
-
 const appName = getParameterByName('id');
 const authenticationURL = getParameterByName('baseAuthenticationURL');
 const appId = appName || 'helpdesk';
 const controllerName = `${appId}:controller`;
+
+const claimTicketEnricher = new ClaimTicketEnricher(appId);
+const attachmentEnricher = new AttachmentEnricher(appId);
+const actionClaimTicketEnricher = new ActionClaimTicketEnricher(appId);
+const actionAttachmentEnricher = new ActionAttachmentEnricher(appId);
 
 const initEnrichers = () => {
   claimTicketEnricher.init();

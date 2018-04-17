@@ -1,4 +1,4 @@
-import { MessageEnricherBase } from 'symphony-integration-commons';
+import MessageEnricher from './messageEnricher';
 import actionFactory from '../utils/actionFactory';
 import AttachmentService from '../services/attachmentService';
 import { getUserId } from '../utils/userUtils';
@@ -16,9 +16,9 @@ function AttachmentException(messageException) {
   this.name = 'AttachmentException';
 }
 
-export default class AttachmentEnricher extends MessageEnricherBase {
-  constructor() {
-    super(enricherServiceName, messageEvents);
+export default class AttachmentEnricher extends MessageEnricher {
+  constructor(application) {
+    super(enricherServiceName, messageEvents, application);
 
     const attachmentService = new AttachmentService(enricherServiceName);
 

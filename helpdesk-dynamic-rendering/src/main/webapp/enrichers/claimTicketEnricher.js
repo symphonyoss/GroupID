@@ -1,4 +1,4 @@
-import { MessageEnricherBase } from 'symphony-integration-commons';
+import MessageEnricher from './messageEnricher';
 import actionFactory from '../utils/actionFactory';
 import TicketService from '../services/ticketService';
 import { getUserId, getRooms } from '../utils/userUtils';
@@ -17,9 +17,9 @@ function TicketException(messageException) {
   this.name = 'ticketException';
 }
 
-export default class ClaimTicketEnricher extends MessageEnricherBase {
-  constructor() {
-    super(enricherServiceName, messageEvents);
+export default class ClaimTicketEnricher extends MessageEnricher {
+  constructor(application) {
+    super(enricherServiceName, messageEvents, application);
 
     const ticketService = new TicketService(enricherServiceName);
 

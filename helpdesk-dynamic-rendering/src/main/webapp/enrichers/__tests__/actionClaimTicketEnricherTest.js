@@ -1,4 +1,4 @@
-import { MessageEnricherBase } from 'symphony-integration-commons';
+import MessageEnricher from '../messageEnricher';
 import { getUserId, getRooms } from '../../utils/userUtils';
 import actionFactory from '../../utils/actionFactory';
 import { renderErrorMessage } from '../../utils/errorMessage';
@@ -7,7 +7,7 @@ const base64 = require('base64-url');
 
 import ActionClaimTicketEnricher from '../actionClaimTicketEnricher';
 
-jest.mock('symphony-integration-commons');
+jest.mock('../messageEnricher');
 jest.mock('../../utils/userUtils');
 jest.mock('../../utils/actionFactory');
 jest.mock('../../utils/errorMessage');
@@ -129,7 +129,7 @@ describe('Action Claim Ticket Enricher', () => {
         it('Should create a new action claim ticket enricher', () => {
             actionClaimTicketEnricher = new ActionClaimTicketEnricher();
 
-            expect(MessageEnricherBase.mock.calls.length).toBe(1);
+            expect(MessageEnricher.mock.calls.length).toBe(1);
             expect(typeof actionClaimTicketEnricher.enrich === 'function').toBe(true);
             expect(typeof actionClaimTicketEnricher.action === 'function').toBe(true);
         });

@@ -1,4 +1,4 @@
-import { MessageEnricherBase } from 'symphony-integration-commons';
+import MessageEnricher from '../messageEnricher';
 import actionFactory from '../../utils/actionFactory';
 import AttachmentService from '../../services/attachmentService';
 import { getUserId } from '../../utils/userUtils';
@@ -8,7 +8,7 @@ import attachmentActions from '../../templates/attachmentActions.hbs';
 import AttachmentEnricher from '../attachmentEnricher';
 import {approveAttachment} from "../../api/apiCalls";
 
-jest.mock('symphony-integration-commons');
+jest.mock('../messageEnricher');
 jest.mock('../../utils/actionFactory');
 jest.mock('../../services/attachmentService');
 jest.mock('../../utils/userUtils');
@@ -163,7 +163,7 @@ describe('Attachment Enricher', () => {
 
         attachmentEnricher = new AttachmentEnricher();
 
-        expect(MessageEnricherBase.mock.calls.length).toBe(1);
+        expect(MessageEnricher.mock.calls.length).toBe(1);
         expect(AttachmentService.mock.calls.length).toBe(1);
         expect(attachmentEnricher.services.attachmentService).toEqual(mockAttachmentService);
 

@@ -1,4 +1,4 @@
-import { MessageEnricherBase } from 'symphony-integration-commons';
+import MessageEnricher from './messageEnricher';
 import { getUserId, getRooms } from '../utils/userUtils';
 import actionFactory from '../utils/actionFactory';
 import { renderErrorMessage } from '../utils/errorMessage';
@@ -12,9 +12,9 @@ const messageEvents = [
   'com.symphony.bots.helpdesk.event.ticket.accept',
 ];
 
-export default class ActionClaimTicketEnricher extends MessageEnricherBase {
-  constructor() {
-    super(enricherServiceName, messageEvents);
+export default class ActionClaimTicketEnricher extends MessageEnricher {
+  constructor(application) {
+    super(enricherServiceName, messageEvents, application);
   }
 
   enrich(type, entity) {

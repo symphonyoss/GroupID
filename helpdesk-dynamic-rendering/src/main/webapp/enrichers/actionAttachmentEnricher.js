@@ -1,4 +1,4 @@
-import { MessageEnricherBase } from 'symphony-integration-commons';
+import MessageEnricher from './messageEnricher';
 import actionFactory from '../utils/actionFactory';
 
 const actions = require('../templates/attachmentActions.hbs');
@@ -8,9 +8,9 @@ const messageEvents = [
   'com.symphony.bots.helpdesk.event.makerchecker.action.performed',
 ];
 
-export default class ActionAttachmentEnricher extends MessageEnricherBase {
-  constructor() {
-    super(enricherServiceName, messageEvents);
+export default class ActionAttachmentEnricher extends MessageEnricher {
+  constructor(application) {
+    super(enricherServiceName, messageEvents, application);
   }
 
   enrich(type, entity) {
