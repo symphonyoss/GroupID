@@ -1,10 +1,10 @@
-import { MessageEnricherBase } from 'symphony-integration-commons';
+import MessageEnricher from '../messageEnricher';
 import actionFactory from '../../utils/actionFactory';
 import attachmentActions from '../../templates/attachmentActions.hbs';
 
 import ActionAttachmentEnricher from '../actionAttachmentEnricher';
 
-jest.mock('symphony-integration-commons');
+jest.mock('../messageEnricher');
 jest.mock('../../utils/actionFactory');
 jest.mock('../../templates/attachmentActions.hbs');
 
@@ -90,7 +90,7 @@ describe('Action Attachment Enricher', () => {
     it('Should create a new action attachment enricher', () => {
         actionAttachmentEnricher = new ActionAttachmentEnricher();
 
-        expect(MessageEnricherBase.mock.calls.length).toBe(1);
+        expect(MessageEnricher.mock.calls.length).toBe(1);
         expect(typeof actionAttachmentEnricher.enrich === 'function').toBe(true);
         expect(typeof actionAttachmentEnricher.action === 'function').toBe(true);
     });

@@ -1,4 +1,4 @@
-import { MessageEnricherBase } from 'symphony-integration-commons';
+import MessageEnricher from '../messageEnricher';
 import actionFactory from '../../utils/actionFactory';
 import TicketService from '../../services/ticketService';
 import { getUserId, getRooms } from '../../utils/userUtils';
@@ -8,7 +8,7 @@ const base64 = require('base64-url');
 
 import ClaimTicketEnricher from '../claimTicketEnricher';
 
-jest.mock('symphony-integration-commons');
+jest.mock('../messageEnricher');
 jest.mock('../../utils/actionFactory');
 jest.mock('../../services/ticketService');
 jest.mock('../../utils/userUtils');
@@ -209,7 +209,7 @@ describe('Claim Ticket Enricher', () => {
         claimTicketActions.mockReturnValue(mockTemplate);
     });
     beforeEach(() => {
-        MessageEnricherBase.mockClear();
+        MessageEnricher.mockClear();
         getUserId.mockClear();
         getRooms.mockClear();
         base64.escape.mockClear();
@@ -226,7 +226,7 @@ describe('Claim Ticket Enricher', () => {
 
         claimTicketEnricher = new ClaimTicketEnricher();
 
-        expect(MessageEnricherBase.mock.calls.length).toBe(1);
+        expect(MessageEnricher.mock.calls.length).toBe(1);
         expect(TicketService.mock.calls.length).toBe(1);
         expect(claimTicketEnricher.services.ticketService).toEqual(mockTicketService);
 
