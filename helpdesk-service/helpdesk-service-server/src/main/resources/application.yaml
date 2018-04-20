@@ -19,10 +19,10 @@ app-authentication:
   enabled: true
   pod:
     host: ${pod.host}
-    port: ${pod.port:443}
+    port: ${pod.port}
   session_auth:
     host: ${session_auth.host}
-    port: ${session_auth.port:443}
+    port: ${session_auth.port}
   filter:
     enabled: true
     url-patterns:
