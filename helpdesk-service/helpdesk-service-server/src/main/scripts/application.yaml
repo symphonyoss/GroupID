@@ -1,10 +1,10 @@
 app-authentication:
   pod:
     host: nexus1-dev.symphony.com
+    port: 443
   session_auth:
     host: sym-nexus1-dev-chat-glb-2-guse1-all.symphony.com
     port: 8444
-  app-authentication:
-    api:
-      keystore-file: /data/symphony/helpdesk/certs/helpdesk-app.p12
-      keystore-password: changeit
+  api:
+    keystore-file: /data/symphony/helpdesk/certs/helpdesk-app.p12
+    keystore-password: changeit
