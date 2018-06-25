@@ -7,24 +7,10 @@ function usage {
     echo
     echo "This script run the helpdesk service"
     echo
-    echo "Usage: startup.sh <env>"
-    echo "          --env <nexus1 | nexus2 | nexus3 | nexus4>"
+    echo "Usage: startup.sh <configName>"
+    echo "Options:"
+    echo "<configName>      Folder where the config files are located: e.g.: <scriptfolder>/configs/<configName>"
     echo
-}
-
-##
-# Checks if the given element is in the provided array of elements.
-#
-function elementInArray () {
-    ELEMENT=$1  
-    ARRAY="${@:2}"
-    COUNTER=1
-    for ARRAYELEMENT in $ARRAY
-    do 
-        [[ "$ARRAYELEMENT" == "$ELEMENT" ]] && return $COUNTER;
-        COUNTER=$((COUNTER+1))
-    done
-    return 0
 }
 
 function copyAppBinary {
@@ -64,18 +50,7 @@ function configureSSL {
 }
 
 function configureEnvVariables {
-    envs=('nexus1' 'nexus2' 'nexus3' 'nexus4')
-
-    elementInArray "$ENV" "${envs[@]}"
-    INDEX=$?
-
-    if [ $INDEX == 0 ]
-    then
-        echo "[ERROR] Missing environment. Possible options: nexus1, nexus2, nexus3 and nexus4"
-        exit 1
-    fi
-
-    export SPRING_CONFIG_LOCATION=${SCRIPT_DIRECTORY}/../configs/${ENV}/
+    export SPRING_CONFIG_LOCATION=${SCRIPT_DIRECTORY}/../configs/${CONFIG_NAME}/
     export SPRING_PROFILES_ACTIVE=custom
 }
 
@@ -96,7 +71,7 @@ function main {
         exit
     fi
 
-    ENV=$1
+    CONFIG_NAME=$1
 
     copyAppBinary
     createLogsDirectory
