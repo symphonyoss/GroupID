@@ -55,3 +55,13 @@ provisioning:
   service-account:
     generate-keystore: false
     overwrite: false
+
+helpdesk-service:
+  host: localhost
+  port: 8081
+
+helpdesk-bot:
+  host: localhost
+  port: 8090
+
+groupId: helpdeskBotGroupId

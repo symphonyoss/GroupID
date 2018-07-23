@@ -10,10 +10,10 @@ function parseInput {
 
         case $option in
             #
-            # handles --env option
-            --env)
+            # handles --configName option
+            --configName)
                 shift
-                ENV=$1
+                CONFIG_NAME=$1
                 shift
                 ;;
             #
@@ -38,9 +38,9 @@ function parseInput {
         esac
     done
 
-    if [[ -z "$ENV" ]]
+    if [[ -z "$CONFIG_NAME" ]]
     then
-        echo "[ERROR] Missing environment."
+        echo "[ERROR] Missing environment config folder."
         exit 1
     fi
 
@@ -60,8 +60,11 @@ function help {
     echo "This script create a self-signed root certificate and a bot certificate signed by this root certificate"
     echo
     echo "Usage: generate_bot_keystore.sh [-h|--help]"
-    echo "               --env <nexus1 | nexus2 | nexus3 | nexus4>"
-    echo "               --user Service account username"
+    echo "               --configName <configName>"
+    echo "               --user <username>"
+    echo "Options:"
+    echo "--configName      Folder where the certificates will be generated: <scriptfolder>/certs/<configName>"
+    echo "-- user           Service account username"
     echo
 }
 
@@ -81,10 +84,10 @@ function checkResult {
 # Returns the list of applications that do not have certs created in the given directory.
 #
 function setupRootKeyAndCert {
-    mkdir -p $CERTS_DIR/$ENV
+    mkdir -p $CERTS_DIR/$CONFIG_NAME
 
-    ROOT_KEY_PATH=$CERTS_DIR/$ENV/helpdesk-root-key.pem
-    ROOT_CERT_PATH=$CERTS_DIR/$ENV/helpdesk-root.pem
+    ROOT_KEY_PATH=$CERTS_DIR/$CONFIG_NAME/helpdesk-root-key.pem
+    ROOT_CERT_PATH=$CERTS_DIR/$CONFIG_NAME/helpdesk-root.pem
 
     echo "Checking root key and cert."
 
@@ -110,30 +113,30 @@ function createCertificate {
     BOT_P12_FILENAME=helpdesk.p12
 
     openssl genrsa -aes256 -passout pass:changeit \
-      -out $CERTS_DIR/$ENV/$BOT_KEY_FILENAME 2048
+      -out $CERTS_DIR/$CONFIG_NAME/$BOT_KEY_FILENAME 2048
     checkResult "Failed to create private key."
 
-    openssl req -new -key $CERTS_DIR/$ENV/$BOT_KEY_FILENAME \
+    openssl req -new -key $CERTS_DIR/$CONFIG_NAME/$BOT_KEY_FILENAME \
       -passin pass:changeit \
       -subj "/CN=$USER_NAME/O=Symphony Communications LLC/OU=NOT FOR PRODUCTION USE/C=US" \
-      -out $CERTS_DIR/$ENV/$BOT_REQ_FILENAME
+      -out $CERTS_DIR/$CONFIG_NAME/$BOT_REQ_FILENAME
     checkResult "Failed to create certificate request."
 
-    openssl x509 -req -sha256 -days 2922 -in $CERTS_DIR/$ENV/$BOT_REQ_FILENAME \
+    openssl x509 -req -sha256 -days 2922 -in $CERTS_DIR/$CONFIG_NAME/$BOT_REQ_FILENAME \
       -CA $ROOT_CERT_PATH -CAkey $ROOT_KEY_PATH -passin pass:changeit \
-      -out $CERTS_DIR/$ENV/$BOT_CERT_FILENAME -set_serial 0x1
+      -out $CERTS_DIR/$CONFIG_NAME/$BOT_CERT_FILENAME -set_serial 0x1
     checkResult "Failed to create certificate."
 
-    openssl pkcs12 -export -out $CERTS_DIR/$ENV/$BOT_P12_FILENAME \
-      -aes256 -in $CERTS_DIR/$ENV/$BOT_CERT_FILENAME -inkey $CERTS_DIR/$ENV/$BOT_KEY_FILENAME \
+    openssl pkcs12 -export -out $CERTS_DIR/$CONFIG_NAME/$BOT_P12_FILENAME \
+      -aes256 -in $CERTS_DIR/$CONFIG_NAME/$BOT_CERT_FILENAME -inkey $CERTS_DIR/$CONFIG_NAME/$BOT_KEY_FILENAME \
       -passin pass:changeit -passout pass:changeit
     checkResult "Failed to create p12 file."
 
-    echo "Cert generated at $CERTS_DIR/$ENV/."
+    echo "Cert generated at $CERTS_DIR/$CONFIG_NAME/."
 
-    rm -rf $CERTS_DIR/$ENV/$BOT_KEY_FILENAME
-    rm -rf $CERTS_DIR/$ENV/$BOT_REQ_FILENAME
-    rm -rf $CERTS_DIR/$ENV/$BOT_CERT_FILENAME
+    rm -rf $CERTS_DIR/$CONFIG_NAME/$BOT_KEY_FILENAME
+    rm -rf $CERTS_DIR/$CONFIG_NAME/$BOT_REQ_FILENAME
+    rm -rf $CERTS_DIR/$CONFIG_NAME/$BOT_CERT_FILENAME
 }
 
 function createAppCertificate {
@@ -145,30 +148,30 @@ function createAppCertificate {
     APP_P12_FILENAME=helpdesk-app.p12
 
     openssl genrsa -aes256 -passout pass:changeit \
-      -out $CERTS_DIR/$ENV/$APP_KEY_FILENAME 2048
+      -out $CERTS_DIR/$CONFIG_NAME/$APP_KEY_FILENAME 2048
     checkResult "Failed to create app private key."
 
-    openssl req -new -key $CERTS_DIR/$ENV/$APP_KEY_FILENAME \
+    openssl req -new -key $CERTS_DIR/$CONFIG_NAME/$APP_KEY_FILENAME \
       -passin pass:changeit \
       -subj "/CN=helpdesk/O=Symphony Communications LLC/OU=NOT FOR PRODUCTION USE/C=US" \
-      -out $CERTS_DIR/$ENV/$APP_REQ_FILENAME
+      -out $CERTS_DIR/$CONFIG_NAME/$APP_REQ_FILENAME
     checkResult "Failed to create app certificate request."
 
-    openssl x509 -req -sha256 -days 2922 -in $CERTS_DIR/$ENV/$APP_REQ_FILENAME \
+    openssl x509 -req -sha256 -days 2922 -in $CERTS_DIR/$CONFIG_NAME/$APP_REQ_FILENAME \
       -CA $ROOT_CERT_PATH -CAkey $ROOT_KEY_PATH -passin pass:changeit \
-      -out $CERTS_DIR/$ENV/$APP_CERT_FILENAME -set_serial 0x1
+      -out $CERTS_DIR/$CONFIG_NAME/$APP_CERT_FILENAME -set_serial 0x1
     checkResult "Failed to create app certificate."
 
-    openssl pkcs12 -export -out $CERTS_DIR/$ENV/$APP_P12_FILENAME \
-      -aes256 -in $CERTS_DIR/$ENV/$APP_CERT_FILENAME -inkey $CERTS_DIR/$ENV/$APP_KEY_FILENAME \
+    openssl pkcs12 -export -out $CERTS_DIR/$CONFIG_NAME/$APP_P12_FILENAME \
+      -aes256 -in $CERTS_DIR/$CONFIG_NAME/$APP_CERT_FILENAME -inkey $CERTS_DIR/$CONFIG_NAME/$APP_KEY_FILENAME \
       -passin pass:changeit -passout pass:changeit
     checkResult "Failed to create app p12 file."
 
-    echo "Cert generated at $CERTS_DIR/$ENV/."
+    echo "Cert generated at $CERTS_DIR/$CONFIG_NAME/."
 
-    rm -rf $CERTS_DIR/$ENV/$APP_KEY_FILENAME
-    rm -rf $CERTS_DIR/$ENV/$APP_REQ_FILENAME
-    rm -rf $CERTS_DIR/$ENV/$APP_CERT_FILENAME
+    rm -rf $CERTS_DIR/$CONFIG_NAME/$APP_KEY_FILENAME
+    rm -rf $CERTS_DIR/$CONFIG_NAME/$APP_REQ_FILENAME
+    rm -rf $CERTS_DIR/$CONFIG_NAME/$APP_CERT_FILENAME
 }
 
 SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)

@@ -28,6 +28,7 @@ You’ll build the three java applications described above.
 * HelpDesk App installed on pod ([Bundle File](/helpdesk-dynamic-rendering/src/main/webapp/bundle.json))
 * OpenSSL
 * jq (https://stedolan.github.io/jq/)
+* Java Cryptography Extension Unlimited Strength Jurisdiction Policy ([JCE](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html))
 
 ### Build with maven
 These applications are compatible with Apache Maven 3.0.5 or above. If you don’t already have Maven installed you can follow the instructions at maven.apache.org.
@@ -76,7 +77,7 @@ If you're an admin user in the POD, please follow these steps:
  * Create new service account for your bot
  * Run **generate_keystores.sh** script to generate bot and application p12 files. You must provide service account username and environment as script parameters
 ```
-./generate_keystores.sh --env nexus1 --user helpdesk
+./generate_keystores.sh --configName myPodConfig --user helpdesk
 ```
  * Import 'certs/${env}/helpdesk-root.pem' file into the POD. You can make it in the AC Portal -> Manage Certificates
 
@@ -85,9 +86,8 @@ account. Then, you should copy this file to 'certs/${env}' directory.
 
 After that, you must run the **create_agent_room.sh** script providing the environment, room name, room description and  your user id. This script will create the agent queue room and configure the stream ID in the YAML config file
 ```
-./create_agent_room.sh --env nexus1 --name "Room Name" --description "Room Description" --agent userID
+./create_agent_room.sh --podAddr pod.symphony.com --sessionAuthFQDN session.auth.fullyq.domain.name.symphony.com --sessionAuthPort 8444 --configName myPodConfig --name "Room Name" --description "Room Description" --agent userID
 ```
-
 ## Execute applications
 
 ### Scripts

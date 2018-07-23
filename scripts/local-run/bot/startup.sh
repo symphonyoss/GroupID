@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 ##
 # Displays help text on how to use this script.
 #
@@ -7,24 +8,10 @@ function usage {
     echo
     echo "This script run the helpdesk bot"
     echo
-    echo "Usage: startup.sh <env>"
-    echo "          --env <nexus1 | nexus2 | nexus3 | nexus4>"
+    echo "Usage: startup.sh <configName>"
+    echo "Options:"
+    echo "<configName>      Folder where the certificates/config files are located: e.g.: <scriptfolder>/certs/<configName>"
     echo
-}
-
-##
-# Checks if the given element is in the provided array of elements.
-#
-function elementInArray () {
-    ELEMENT=$1  
-    ARRAY="${@:2}"
-    COUNTER=1
-    for ARRAYELEMENT in $ARRAY
-    do 
-        [[ "$ARRAYELEMENT" == "$ELEMENT" ]] && return $COUNTER;
-        COUNTER=$((COUNTER+1))
-    done
-    return 0
 }
 
 function copyAppBinary {
@@ -64,16 +51,16 @@ function configureSSL {
 }
 
 function validateCertsDirectory {
-    CERTS_PATH=${CERTS_DIR}/${ENV}/helpdesk.p12
+    CERTS_PATH=${CERTS_DIR}/${CONFIG_NAME}/helpdesk.p12
     if [ ! -e ${CERTS_PATH} ]
     then
-        echo "[ERROR] Missing helpdesk certificate file."
+        echo "[ERROR] Missing helpdesk certificate file. $CERTS_PATH"
         exit 1
     fi
 }
 
 function validateCustomProfile {
-    CONFIG_LOCATION=${SCRIPT_DIRECTORY}/../configs/${ENV}
+    CONFIG_LOCATION=${SCRIPT_DIRECTORY}/../configs/${CONFIG_NAME}
     CUSTOM_PROFILE=${CONFIG_LOCATION}/application-custom.yaml
 
     if [ ! -e ${CUSTOM_PROFILE} ]
@@ -84,21 +71,10 @@ function validateCustomProfile {
 }
 
 function configureEnvVariables {
-    envs=('nexus1' 'nexus2' 'nexus3' 'nexus4')
-
-    elementInArray "$ENV" "${envs[@]}"
-    INDEX=$?
-
-    if [ $INDEX == 0 ]
-    then
-        echo "[ERROR] Missing environment. Possible options: nexus1, nexus2, nexus3 and nexus4"
-        exit 1
-    fi
-
     validateCertsDirectory
     validateCustomProfile
 
-    export SPRING_CONFIG_LOCATION=${SCRIPT_DIRECTORY}/../configs/${ENV}/
+    export SPRING_CONFIG_LOCATION=${SCRIPT_DIRECTORY}/../configs/${CONFIG_NAME}/
     export CERTS_DIR=${CERTS_DIR}
     export SPRING_PROFILES_ACTIVE=custom
 }
@@ -121,7 +97,7 @@ function main {
         exit
     fi
 
-    ENV=$1
+    CONFIG_NAME=$1
 
     copyAppBinary
     createLogsDirectory

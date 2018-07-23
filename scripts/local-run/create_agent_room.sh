@@ -1,24 +1,5 @@
 #!/usr/bin/env bash
 
-envs=('nexus1' 'nexus2' 'nexus3' 'nexus4')
-pod_envs=('nexus1-2.symphony.com' 'nexus2-2.symphony.com' 'nexus3-2.symphony.com' 'nexus4-2.symphony.com')
-fqdn_envs=('sym-nexus1-dev-chat-glb-3-ause1-all.symphony.com' 'sym-nexus2-dev-chat-glb-3-ause1-all.symphony.com' 'sym-nexus3-dev-chat-glb-3-ause1-all.symphony.com' 'sym-nexus4-dev-chat-glb-3-ause1-all.symphony.com')
-
-##
-# Checks if the given element is in the provided array of elements.
-#
-function elementInArray () {
-    ELEMENT=$1  
-    ARRAY="${@:2}"
-    COUNTER=1
-    for ARRAYELEMENT in $ARRAY
-    do 
-        [[ "$ARRAYELEMENT" == "$ELEMENT" ]] && return $COUNTER;
-        COUNTER=$((COUNTER+1))
-    done
-    return 0
-}
-
 ##
 # Parses the input and adds information to shell variables
 #
@@ -29,23 +10,31 @@ function parseInput {
 
         case $option in
             #
-            # handles --env option
-            --env)
+            ## handles --podAddr
+            --podAddr)
                 shift
-                ENV=$1
-                elementInArray "$ENV" "${envs[@]}"
-                INDEX=$?
-
-                if [ $INDEX == 0 ]
-                then
-                    echo "[ERROR] Invalid environment."
-                    exit 1
-                fi
-
-                POD_ADDRESS=${pod_envs[$INDEX-1]}
-                FQDN_POD_ADDRESS=${fqdn_envs[$INDEX-1]}
-                AUTH_ENDPOINT="https://$FQDN_POD_ADDRESS:8444/sessionauth/v1/authenticate"
-                CREATE_ENDPOINT="https://$POD_ADDRESS/pod/v3/room/create"
+                POD_ADDRESS=$1
+                shift
+                ;;
+            #
+            ## handles --sessionAuthFQDN
+            --sessionAuthFQDN)
+                shift
+                SESSION_AUTH_ADDRESS=$1
+                shift
+                ;;
+            #
+            ## handles --sessionAuthPort
+            --sessionAuthPort)
+                shift
+                SESSION_AUTH_PORT=$1
+                shift
+                ;;
+            #
+            # handles --configName option
+            --configName)
+                shift
+                CONFIG_NAME=$1
                 shift
                 ;;
             #
@@ -66,7 +55,7 @@ function parseInput {
             # handles --agent option
             --agent)
                 shift
-                AGENT=$1
+                AGENT_ID=$1
                 shift
                 ;;
             #
@@ -90,6 +79,24 @@ function parseInput {
         exit 1
     fi
 
+    if [[ -z "$SESSION_AUTH_ADDRESS" ]]
+    then
+        echo "[ERROR] Missing environment."
+        exit 1
+    fi
+
+    if [[ -z "$SESSION_AUTH_PORT" ]]
+    then
+        echo "[ERROR] Missing environment."
+        exit 1
+    fi
+
+    if [[ -z "$CONFIG_NAME" ]]
+    then
+        echo "[ERROR] Configuration folder."
+        exit 1
+    fi
+
     if [[ -z "$ROOM_NAME" ]]
     then
         echo "[ERROR] Missing room name."
@@ -102,7 +109,7 @@ function parseInput {
         exit 1
     fi
 
-    if [[ -z "$AGENT" ]]
+    if [[ -z "$AGENT_ID" ]]
     then
         echo "[ERROR] Missing agent identifier."
         exit 1
@@ -118,10 +125,21 @@ function help {
     echo "This script create a new agent room"
     echo
     echo "Usage: create_agent_room.sh [-h|--help]"
-    echo "               --env <nexus1 | nexus2 | nexus3 | nexus4>"
-    echo "               --name Room Name"
-    echo "               --description Room Description"
-    echo "               --agent Agent ID"
+    echo "               --podAddr <pod address>"
+    echo "               --sessionAuthFQDN <session auth address>"
+    echo "               --sessionAuthPort <session auth port>"
+    echo "               --configName <configName>"
+    echo "               --name <Room Name>"
+    echo "               --description <Room Description>"
+    echo "               --agent <Agent ID>"
+    echo "Options:"
+    echo "--podAddr            Pod address (without protocol)"
+    echo "--sessionAuthFQDN    Session auth server fully qualified domain name (without protocol)"
+    echo "--sessionAuthPort    Session auth port"
+    echo "--configName         Folder where the certificates will be generated: <scriptfolder>/certs/<configName>"
+    echo "--name               Name of the room"
+    echo "--description        Short text describing the room"
+    echo "--agent              Pass the user id to be added as an agent in the room"
     echo
 }
 
@@ -129,9 +147,10 @@ function help {
 # Authenticate admin user
 #
 function authenticate {
+    AUTH_ENDPOINT="https://$SESSION_AUTH_ADDRESS:${SESSION_AUTH_PORT}/sessionauth/v1/authenticate"
     CERTS_DIR=${SCRIPT_DIRECTORY}/certs
-    CERTS_FILE=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.pem
-    CERTS_PKCS12=${SCRIPT_DIRECTORY}/certs/${ENV}/helpdesk.p12
+    CERTS_FILE=${SCRIPT_DIRECTORY}/certs/${CONFIG_NAME}/helpdesk.pem
+    CERTS_PKCS12=${SCRIPT_DIRECTORY}/certs/${CONFIG_NAME}/helpdesk.p12
 
     if [ ! -e ${CERTS_FILE} ]
     then
@@ -173,26 +192,40 @@ function authenticate {
 function create_room {
     echo "Creating room $ROOM_NAME"
 
-    STREAM_ID=$(curl -s -H "sessionToken: $SESSION_TOKEN" -H "Content-Type: application/json" -d "{\"name\":\"$ROOM_NAME\", \"description\": \"$DESCRIPTION\", \"membersCanInvite\": true, \"discoverable\": true, \"public\": true, \"readOnly\": false, \"copyProtected\": false, \"crossPod\": false, \"viewHistory\": true }" $CREATE_ENDPOINT | jq -r '.roomSystemInfo.id')
+    CREATE_ENDPOINT="https://$POD_ADDRESS/pod/v3/room/create"
+
+    C_RESULT=$(curl -s -H "sessionToken: $SESSION_TOKEN" -H "Content-Type: application/json" -d "{\"name\":\"$ROOM_NAME\", \"description\": \"$DESCRIPTION\", \"membersCanInvite\": true, \"discoverable\": true, \"public\": true, \"readOnly\": false, \"copyProtected\": false, \"crossPod\": false, \"viewHistory\": true }" $CREATE_ENDPOINT)
+
+    STREAM_ID=$(echo $C_RESULT | jq -r '.roomSystemInfo.id')
 
     if [ $STREAM_ID == null ]
     then
-        echo "[ERROR] Fail to create stream."
+        echo "[ERROR] Fail to create stream. Response: $C_RESULT"
         exit 1
     fi
+    echo "Room created successfully: $STREAM_ID"
 }
 
 function add_membership {
     echo "Adding membership to the queue room"
     MEMBERSHIP_ENDPOINT="https://$POD_ADDRESS/pod/v1/room/$STREAM_ID/membership/add"
-    RESULT=$(curl -s -H "sessionToken: $SESSION_TOKEN" -H "Content-Type: application/json" -d "{ \"id\": $AGENT }" $MEMBERSHIP_ENDPOINT | jq -r '.message')
+#    RESULT=$(curl -s -H "sessionToken: $SESSION_TOKEN" -H "Content-Type: application/json" -d "{ \"id\": $AGENT_ID }" $MEMBERSHIP_ENDPOINT)
+    RESULT=$(curl -s -H "sessionToken: $SESSION_TOKEN" -H "Content-Type: application/json" -d "{ \"id\": $AGENT_ID }" $MEMBERSHIP_ENDPOINT)
 
-    echo $RESULT
+#    MESSAGE=$(jq -r '.message')
+    MESSAGE=$(echo $RESULT | jq -e '.message' 2> /dev/null)
+
+    if [ ! -z "$MESSAGE" ]; then
+      echo "Membership status $MESSAGE"
+    else
+      echo "Error($?) while adding membership: $RESULT"
+    fi
 }
 
 function generate_custom_file {
     echo "Generating custom file"
-    echo "agentStreamId: $STREAM_ID" > ${SCRIPT_DIRECTORY}/configs/${ENV}/application-custom.yaml
+    mkdir -p ${SCRIPT_DIRECTORY}/configs/${CONFIG_NAME}
+    echo "agentStreamId: $STREAM_ID" > ${SCRIPT_DIRECTORY}/configs/${CONFIG_NAME}/application-custom.yaml
 }
 
 SCRIPT_DIRECTORY=$(cd `dirname $0` && pwd)
