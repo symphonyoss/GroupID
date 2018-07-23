@@ -28,6 +28,7 @@ You’ll build the three java applications described above.
 * HelpDesk App installed on pod ([Bundle File](/helpdesk-dynamic-rendering/src/main/webapp/bundle.json))
 * OpenSSL
 * jq (https://stedolan.github.io/jq/)
+* Java Cryptography Extension Unlimited Strength Jurisdiction Policy ([JCE](http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html))
 
 ### Build with maven
 These applications are compatible with Apache Maven 3.0.5 or above. If you don’t already have Maven installed you can follow the instructions at maven.apache.org.
